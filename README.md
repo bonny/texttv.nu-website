@@ -13,3 +13,8 @@ Or using `$ php artisan serve` then access at http://127.0.0.1:8000.
     -   [ ] Färgad rad överst
     -   [ ] Färgad rad längst ner
     -   [ ] Specifika ändringar per sida
+## Hur
+
+Köra tester och kör igen när en fil ändras:
+
+    $ vendor/bin/phpunit-watcher watch

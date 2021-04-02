@@ -5,40 +5,89 @@ namespace App\Classes;
 use Rct567\DomQuery\DomQuery;
 use Illuminate\Support\Facades\Http;
 
-class Importer {
-    public function __construct() {
+/**
+ * 
+ * $finder = Finder::create()->files()->name('*.php')->in(__DIR__);
+ * $texttvpage = new Importer('100')->fromRemote()->decorateCommon()->decorateSpecific();
+ * then $texttvpage->pageAsText();
+ * then $texttvpage->updated();
+ */
+class Importer
+{
+    protected $pageNum;
+    protected $pageObject;
+    protected $remoteResponse;
+
+    public function __construct($pageNum)
+    {
+        $this->pageNum = $pageNum;
     }
 
     /**
+     * Get page from remote server.
      * Return page object.
      * 
      * @param int $pageNum 
-     * @return object
+     * @return $this
      */
-    public function getPage($pageNum) {
-        $url = sprintf('https://www.svt.se/text-tv/%d', $pageNum);
+    public function fromRemote()
+    {
+        $url = sprintf('https://www.svt.se/text-tv/%d', $this->pageNum);
         $response = Http::get($url);
-        // dump($response->successful());
-        // dd($response->body());
-        $pageObject = $this->parseHTMLToObject($response->body());
-        dd($this->get_page_plain_text($pageObject));
+
+        if ($response->successful()) {
+            $this->remoteResponse = $response;
+            $this->parseHTMLToObject();
+        }
+
+        return $this;
     }
 
     /**
      * Find element
      * <script id="__NEXT_DATA__" type="application/json">
-     * and return that as JSON object.
+     * and set internal $jsonObject to that object.
      * 
-     * @return object
+     * @return $this
      */
-    public function parseHTMLToObject($html) {
-        $dom = new DomQuery($html);
+    public function parseHTMLToObject()
+    {
+        $dom = new DomQuery($this->remoteResponse->body());
         $selector = '#__NEXT_DATA__';
         $element_content = $dom->find($selector)->text();
-        return json_decode($element_content);
+
+        $this->pageObject = json_decode($element_content);
+
+        return $this;
     }
 
-    public function get_page_plain_text($pageObject) {
-        return $pageObject->props->pageProps->subPages[0]->altText;
+    public function decorateCommon()
+    {
+        return $this;
+    }
+
+    public function decorateSpecific()
+    {
+        return $this;
+    }
+
+    public function pageObject()
+    {
+        return $this->pageObject;
+    }
+
+    public function pageAsText()
+    {
+        return $this->pageObject()->props->pageProps->subPages[0]->altText;
+    }
+
+    public function updated()
+    {
+        return $this->pageObject()->props->pageProps->meta->updated;
+    }
+
+    public function pageNum()
+    {
+        return $this->pageObject()->props->pageProps->pageNumber;
     }
 }

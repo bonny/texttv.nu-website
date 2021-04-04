@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Classes\Importer;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,3 +17,18 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+// @todo
+// Lägg till route för att live-visa sidor från SVT.
+// /live/{pageNum}
+Route::get('/{pageNum}', function ($pageNum) {
+    $importer = new Importer($pageNum);
+    $importer->fromRemote()->cleanup()->decorateCommon()->decorateSpecific();
+
+    return view(
+        'live',
+        [
+            'importer' => $importer
+        ]
+    );
+})->where('pageNum', '[0-9]+');

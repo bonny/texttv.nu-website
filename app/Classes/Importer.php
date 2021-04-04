@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Http;
 /**
  * 
  * $finder = Finder::create()->files()->name('*.php')->in(__DIR__);
- * $texttvpage = new Importer('100')->fromRemote()->cleanup()->decorateCommon()->decorateSpecific();
+ * $texttvpage = (new Importer('100'))->fromRemote()->cleanup()->decorateCommon()->decorateSpecific();
  * then $texttvpage->pageAsText();
  * then $texttvpage->updated();
  */
@@ -73,6 +73,7 @@ class Importer
     public function decorateCommon()
     {
         $subPages = $this->subPages();
+
         $subPages->transform(function ($subPage) {
             $subPageLines = explode("\n", $subPage['text']);
             $pageNum = $this->pageNum();
@@ -82,6 +83,11 @@ class Importer
 
             // Lägg till <span class="toprow"> på första raden.
             $subPageLines[0] = sprintf('<span class="toprow">%s</span>', $subPageLines[0]);
+
+            // Ofast är rad 24 den sista men ibland inte, t.ex. på sidan 100.
+            // Beror ev. på om stora tecken/stort typsnitt har använts?
+            $lastLine = $subPageLines[sizeof($subPageLines) - 1];
+            $lastLineIsEmpty = trim($lastLine) ? false : true;
 
             // Lägg till blå bakgrund på nedersta raden på många sidor.
             if (
@@ -101,7 +107,8 @@ class Importer
                 || ($pageNum == 700)
                 || ($pageNum >= 704 && $pageNum <= 708)
             ) {
-                $subPageLines[23] = sprintf('<span class="bgB">%s</span>', $subPageLines[23]);
+                $indexToAddBgTo = $lastLineIsEmpty ? 22 : 23;
+                $subPageLines[$indexToAddBgTo] = sprintf('<span class="bgB">%s</span>', $subPageLines[$indexToAddBgTo]);
             }
 
             // Lägg till gul rad längst ner.
@@ -115,12 +122,107 @@ class Importer
                 $subPageLines[23] = sprintf('<span class="bgY">%s</span>', $subPageLines[23]);
             }
 
+            // Blåa rader på sidan 100.
+            if ($pageNum == 100) {
+                $subPageLines[1] = sprintf('<span class="bgB">%s</span>', $subPageLines[1]);
+                $subPageLines[2] = sprintf('<span class="bgB">%s</span>', $subPageLines[2]);
+                $subPageLines[3] = sprintf('<span class="bgB">%s</span>', $subPageLines[3]);
+                $subPageLines[4] = sprintf('<span class="bgB">%s</span>', $subPageLines[4]);
+            }
+
+            // Blåa rader på nyheterna 101.
+            if (in_array($pageNum, [101, 102, 103, 104, 105])) {
+                $subPageLines[1] = sprintf('<span class="bgB">%s</span>', $subPageLines[1]);
+                $subPageLines[2] = sprintf('<span class="bgB">%s</span>', $subPageLines[2]);
+                $subPageLines[3] = sprintf('<span class="bgB">%s</span>', $subPageLines[3]);
+                $subPageLines[5] = sprintf('<span class="bgB">%s</span>', $subPageLines[5]);
+            }
+
+            // Blå rad överst på nyheter.
+            if ($pageNum >= 106 && $pageNum <= 199) {
+                $subPageLines[1] = sprintf('<span class="bgB">%s</span>', $subPageLines[1]);
+            }
+
+            // Blå rad överst på sport.
+            if ($pageNum >= 303 && $pageNum < 399) {
+                $subPageLines[1] = sprintf('<span class="bgB">%s</span>', $subPageLines[1]);
+            }
+
+            // Blåa rader överst på sport + gul rad längst ner.
+            if (in_array($pageNum, [300, 301])) {
+                $subPageLines[1] = sprintf('<span class="bgB">%s</span>', $subPageLines[1]);
+                $subPageLines[2] = sprintf('<span class="bgB">%s</span>', $subPageLines[2]);
+                $subPageLines[3] = sprintf('<span class="bgB">%s</span>', $subPageLines[3]);
+                $subPageLines[5] = sprintf('<span class="bgB">%s</span>', $subPageLines[5]);
+
+                $subPageLines[22] = sprintf('<span class="bgY">%s</span>', $subPageLines[22]);
+            }
+
+            // Gul stor text om första raden i texten har text = rubrik.
+            if ($pageNum >= 106 && $pageNum <= 199) {
+                $subPageLines[3] = sprintf('<span class="Y DH">%s</span>', $subPageLines[3]);
+            }
+
+            // Gul bakgrund på "Fler rubriker" och "Övriga rubriker" på nyhetsstartsidorna.
+            if (in_array($pageNum, [101, 102, 103, 104, 105])) {
+                $subPageLines[22] = preg_replace('/  (Fler rubriker|Övriga rubriker) \d{3}  /', '<span class="bgY">$0</span>', $subPageLines[22]);
+            }
+
+            // Skapa ren sträng av allt.
+            $subPageText = implode("\n", $subPageLines);
+
+            // Skapa länkar av alla nummer.
+            $oldFirstLine = $subPageLines[0];
+            // "203-219" osv.
+            $subPageText = preg_replace('/(\d{3}-\d{3})/', '<a href="/$1">$1</a>', $subPageText);
+            // " 100 " osv.
+            $subPageText = preg_replace('/ (\d{3}) /', ' <a href="/$1">$1</a> ', $subPageText);
+            // " 100" osv.
+            $subPageText = preg_replace('/ (\d{3})\n/', " <a href='/\\1'>\\1</a>\n", $subPageText);
+            // "100-" osv.
+            $subPageText = preg_replace('/ (\d{3})-/', ' <a href="/$1">$1-</a>', $subPageText);
+            // "...100 " osv.
+            $subPageText = preg_replace('/\.(\d{3})/', '.<a href="/$1">$1</a>', $subPageText);
+            // "417f" osv.
+            $subPageText = preg_replace('/(\d{3})f/', '<a href="/$1">$1f</a>', $subPageText);
+            // "530/" osv.
+            $subPageText = preg_replace('/(\d{3})\//', '<a href="/$1">$1</a>/', $subPageText);
+
+            // @todo
+            // Ersätt "nästa sida" med länk till nästa sida.
+            $subPageText = preg_replace('/ ((N|n)ästa sida) /', ' <a href="/' . ($pageNum + 1) . '">$1</a> /', $subPageText);
+
+            // Ta bort länken från översta raden för den länkar till sig själv.
+            $subPageLines = explode("\n", $subPageText);
+            $subPageLines[0] = $oldFirstLine;
+
+            // Skapa ren sträng av allt igen.
+            $subPageText = implode("\n", $subPageLines);
+
+            // Alt-texten vi får från SVT verkar ha problem med svenska tecken i översta raden.
+            $subPageText = str_replace(
+                [
+                    ' m ndag ',
+                    ' l rdag ',
+                    ' s ndag ',
+                ],
+                [
+                    ' måndag ',
+                    ' lördag ',
+                    ' söndag ',
+                ],
+                $subPageText
+            );
+
             // Lägg till <div class="root"> runt allt.
-            $subPage = implode("\n", $subPageLines);
-            $subPage = sprintf('<div class="root">%s</div>', $subPage);
-            dd($subPage);
+            $subPageText = sprintf('<div class="root">%s</div>', $subPageText);
+
+            $subPage['text'] = $subPageText;
+
+            return $subPage;
         });
 
+        $this->subPages = $subPages;
 
         return $this;
     }
@@ -166,10 +268,16 @@ class Importer
             // före och efter omvartannat.
             $pageLines->transform(function ($line, $key) {
                 while (mb_strlen($line) < 40) {
-                    if (mb_strlen($line) % 2) {
-                        $line = $line . ' ';
+                    if ($this->pageNum() == 100) {
+                        // På båda sidorna på startsidan för att centrera.
+                        if (mb_strlen($line) % 2) {
+                            $line = $line . ' ';
+                        } else {
+                            $line = ' ' . $line;
+                        }
                     } else {
-                        $line = ' ' . $line;
+                        // Bara i slutet på andra sidorna.
+                        $line = $line . ' ';
                     }
                 }
 

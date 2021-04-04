@@ -43,7 +43,7 @@ class ImportTest extends TestCase
     public function test_html_to_object_parser()
     {
         $pageNumsToTest = [
-            #100,
+            100,
             #188,
             202,
             300,
@@ -83,14 +83,13 @@ class ImportTest extends TestCase
         }
     }
 
-
-    public function test_page_plain_text()
-    {
-        $importer = (new Importer(100))->fromRemote();
-        $page100object = $importer->pageObject();
-        $this->assertEquals('100', $page100object->props->pageProps->pageNumber);
-        $this->assertEquals('100-01', $page100object->props->pageProps->subPages[0]->subPageNumber);
-        $page100expected = file_get_contents(__DIR__ . '/../TestPages/100_expected.txt');
-        $this->assertEquals($page100expected, $importer->pageAsText());
-    }
+    // public function test_page_plain_text()
+    // {
+    //     $importer = (new Importer(100))->fromRemote();
+    //     $page100object = $importer->pageObject();
+    //     $this->assertEquals('100', $page100object->props->pageProps->pageNumber);
+    //     $this->assertEquals('100-01', $page100object->props->pageProps->subPages[0]->subPageNumber);
+    //     $page100expected = file_get_contents(__DIR__ . '/../TestPages/100_expected.txt');
+    //     $this->assertEquals($page100expected, $importer->pageAsText());
+    // }
 }

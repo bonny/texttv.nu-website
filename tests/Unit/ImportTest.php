@@ -20,18 +20,18 @@ class ImportTest extends TestCase
 
         // Return files from local so we won't hammer the live
         // server when testing.
-        Http::fake(function (\Illuminate\Http\Client\Request $request) {
-            $answers = [
-                'https://www.svt.se/text-tv/100' => '100.html',
-                'https://www.svt.se/text-tv/188' => '188.html',
-                'https://www.svt.se/text-tv/300' => '300.html',
-                'https://www.svt.se/text-tv/377' => '377.html',
-            ];
+        // Http::fake(function (\Illuminate\Http\Client\Request $request) {
+        //     $answers = [
+        //         'https://www.svt.se/text-tv/100' => '100.html',
+        //         'https://www.svt.se/text-tv/188' => '188.html',
+        //         'https://www.svt.se/text-tv/300' => '300.html',
+        //         'https://www.svt.se/text-tv/377' => '377.html',
+        //     ];
 
-            $contents = file_get_contents(__DIR__ . '/../TestPages/' . $answers[$request->url()]);
+        //     $contents = file_get_contents(__DIR__ . '/../TestPages/' . $answers[$request->url()]);
 
-            return Http::response($contents, 200);
-        });
+        //     return Http::response($contents, 200);
+        // });
     }
 
     /** @test */
@@ -43,8 +43,9 @@ class ImportTest extends TestCase
     public function test_html_to_object_parser()
     {
         $pageNumsToTest = [
-            100,
-            188,
+            #100,
+            #188,
+            202,
             300,
             377,
         ];

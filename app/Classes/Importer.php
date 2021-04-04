@@ -72,7 +72,6 @@ class Importer
      */
     public function decorateCommon()
     {
-
         $subPages = $this->subPages();
         $subPages->transform(function ($subPage) {
             $subPageLines = explode("\n", $subPage['text']);
@@ -102,14 +101,26 @@ class Importer
                 || ($pageNum == 700)
                 || ($pageNum >= 704 && $pageNum <= 708)
             ) {
-                $subPageLines[22] = sprintf('<span class="bgB">%s</span>', $subPageLines[22]);
+                $subPageLines[23] = sprintf('<span class="bgB">%s</span>', $subPageLines[23]);
             }
 
-            dd($subPageLines);
+            // Lägg till gul rad längst ner.
+            if (
+                // Ekonomi
+                ($pageNum == 202)
+                // Boräntor
+                || ($pageNum == 231)
+                || ($pageNum == 233)
+            ) {
+                $subPageLines[23] = sprintf('<span class="bgY">%s</span>', $subPageLines[23]);
+            }
+
+            // Lägg till <div class="root"> runt allt.
+            $subPage = implode("\n", $subPageLines);
+            $subPage = sprintf('<div class="root">%s</div>', $subPage);
+            dd($subPage);
         });
-        foreach ($subPages as $subpage) {
-        }
-        // Lägg till <div class="root"> runt allt.
+
 
         return $this;
     }

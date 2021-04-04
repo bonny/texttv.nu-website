@@ -49,10 +49,9 @@ class ImportTest extends TestCase
             377,
         ];
 
-
         foreach ($pageNumsToTest as $pageNum) {
             $importer = new Importer($pageNum);
-            $importer->fromRemote();
+            $importer->fromRemote()->cleanup()->decorateCommon()->decorateSpecific();
 
             $parsedHtmlObject = $importer->pageObject();
 
@@ -74,42 +73,12 @@ class ImportTest extends TestCase
             $this->assertObjectHasAttribute('imageMap', $firstPage);
             $this->assertObjectHasAttribute('altText', $firstPage);
 
+            $this->assertInstanceOf('Illuminate\Support\Collection', $importer->subpages());
 
             // Antal rader och bredd osv.
             // Det ska vara 40 tecken bred ↔ och 24 rader hög ↕
             // Todo: om en rad än < 40 tecken så öka bredd med 1
             // på varje sida om vartannat tills den är 40
-            echo "\n-----------\npage: {$importer->pageNum()}";
-            $pageAsText = $importer->pageAsText();
-            
-            // Ta bort "\n\n\t\t" som verkar vara överst på varje sida.
-            $pageAsText = str_replace("\n\n\t\t", '', $pageAsText);
-
-            // Ta bort "\n\n\n\t" som verkar vara sist på varje sida.
-            $pageAsText = str_replace("\n\n\n\t", '', $pageAsText);
-
-            // Skapa collection med alla rader.
-            $pageLines = collect(explode("\n", $pageAsText));
-            echo "\nNum lines: {$pageLines->count()}";
-
-            // Se till att för korta rader blir 40 rader
-            // genom att lägga till mellanslag
-            // före och efter omvartannat.
-            $pageLines->transform(function ($line, $key) {
-                while (mb_strlen($line) < 40) {
-                    if (mb_strlen($line) % 2) {
-                        $line = $line . ' ';
-                    } else {
-                        $line = ' ' . $line;
-                    }
-                }
-
-                return $line;
-            });
-
-            echo "\npageAsText:\n";
-            echo $pageLines->join("\n");
-            echo "\n";
         }
     }
 

@@ -149,7 +149,7 @@ class Importer
             }
 
             // Blåa rader överst på sport + gul rad längst ner.
-            if (in_array($pageNum, [300, 301])) {
+            if (in_array($pageNum, [300, 301, 302])) {
                 $subPageLines[1] = sprintf('<span class="bgB">%s</span>', $subPageLines[1]);
                 $subPageLines[2] = sprintf('<span class="bgB">%s</span>', $subPageLines[2]);
                 $subPageLines[3] = sprintf('<span class="bgB">%s</span>', $subPageLines[3]);

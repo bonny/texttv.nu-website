@@ -21,9 +21,10 @@ Route::get('/', function () {
 // @todo
 // Lägg till route för att live-visa sidor från SVT.
 // /live/{pageNum}
-Route::get('/{pageNum}', function ($pageNum) {
+Route::redirect('/live/', '/live/100');
+Route::get('/live/{pageNum}', function ($pageNum) {
     $importer = new Importer($pageNum);
-    $importer->fromRemote()->cleanup()->decorateCommon()->decorateSpecific();
+    $importer->fromRemote()->cleanup()->linkprefix('/live/')->decorate();
 
     return view(
         'live',

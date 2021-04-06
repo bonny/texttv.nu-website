@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Http;
 /**
  * 
  * $finder = Finder::create()->files()->name('*.php')->in(__DIR__);
- * $texttvpage = (new Importer('100'))->fromRemote()->cleanup()->decorateCommon()->decorateSpecific();
+ * $texttvpage = (new Importer('100'))->fromRemote()->cleanup()->decorate();
  * then $texttvpage->pageAsText();
  * then $texttvpage->updated();
  */
@@ -17,6 +17,7 @@ class Importer
     protected $pageNum;
     protected $pageObject;
     protected $remoteResponse;
+    protected $linkprefix = '/';
 
     // Illuminate\Support\Collection
     protected $subPages;
@@ -70,11 +71,11 @@ class Importer
      *
      * @return $this 
      */
-    public function decorateCommon()
+    public function decorate()
     {
         $subPages = $this->subPages();
 
-        $subPages->transform(function ($subPage) {
+        $subPages->transform(function ($subPage, $subPageIndex) {
             $subPageLines = explode("\n", $subPage['text']);
             $pageNum = $this->pageNum();
 
@@ -143,8 +144,28 @@ class Importer
                 $subPageLines[1] = sprintf('<span class="bgB">%s</span>', $subPageLines[1]);
             }
 
+            // Blåa rader på ekonomi.
+            if (in_array($pageNum, [200, 201])) {
+                $subPageLines[1] = sprintf('<span class="bgB">%s</span>', $subPageLines[1]);
+                $subPageLines[2] = sprintf('<span class="bgB">%s</span>', $subPageLines[2]);
+                $subPageLines[3] = sprintf('<span class="bgB">%s</span>', $subPageLines[3]);
+            }
+
+            // Gul bakgrund på rubrik på ekonomi.
+            if ($pageNum >= 203 && $pageNum <= 244) {
+                $subPageLines[2] = sprintf('<span class="bgY DH">%s</span>', $subPageLines[2]);
+            }
+
+            // Gul bakgrund på rubrik på ekonomi allt-på-ett-sidan.
+            if ($pageNum == 245 && $subPageIndex >= 1) {
+                $subPageLines[2] = sprintf('<span class="bgY DH">%s</span>', $subPageLines[2]);
+            }
+
             // Blå rad överst på sport.
             if ($pageNum >= 303 && $pageNum < 399) {
+                $subPageLines[1] = sprintf('<span class="bgB">%s</span>', $subPageLines[1]);
+            }
+            if ($pageNum >= 530 && $pageNum < 549) {
                 $subPageLines[1] = sprintf('<span class="bgB">%s</span>', $subPageLines[1]);
             }
 
@@ -158,6 +179,22 @@ class Importer
                 $subPageLines[22] = sprintf('<span class="bgY">%s</span>', $subPageLines[22]);
             }
 
+            // Blåa rader överst på väder.
+            if ($pageNum == 400) {
+                $subPageLines[1] = sprintf('<span class="bgB">%s</span>', $subPageLines[1]);
+                $subPageLines[2] = sprintf('<span class="bgB">%s</span>', $subPageLines[2]);
+                $subPageLines[3] = sprintf('<span class="bgB">%s</span>', $subPageLines[3]);
+                $subPageLines[4] = sprintf('<span class="bgB">%s</span>', $subPageLines[4]);
+            }
+
+            // Blåa rader överst på blandat.
+            if ($pageNum == 500) {
+                $subPageLines[1] = sprintf('<span class="bgB">%s</span>', $subPageLines[1]);
+                $subPageLines[2] = sprintf('<span class="bgB">%s</span>', $subPageLines[2]);
+                $subPageLines[3] = sprintf('<span class="bgB">%s</span>', $subPageLines[3]);
+                $subPageLines[4] = sprintf('<span class="bgB">%s</span>', $subPageLines[4]);
+            }
+
             // Gul stor text om första raden i texten har text = rubrik.
             if ($pageNum >= 106 && $pageNum <= 199) {
                 $subPageLines[3] = sprintf('<span class="Y DH">%s</span>', $subPageLines[3]);
@@ -166,6 +203,40 @@ class Importer
             // Gul bakgrund på "Fler rubriker" och "Övriga rubriker" på nyhetsstartsidorna.
             if (in_array($pageNum, [101, 102, 103, 104, 105])) {
                 $subPageLines[22] = preg_replace('/  (Fler rubriker|Övriga rubriker) \d{3}  /', '<span class="bgY">$0</span>', $subPageLines[22]);
+            }
+
+            // Blåa rader på TV.
+            if ($pageNum == 600) {
+                $subPageLines[1] = sprintf('<span class="bgB DH">%s</span>', $subPageLines[1]);
+                $subPageLines[2] = sprintf('<span class="bgB">%s</span>', $subPageLines[2]);
+                $subPageLines[3] = sprintf('<span class="bgB">%s</span>', $subPageLines[3]);
+                $subPageLines[4] = sprintf('<span class="bgB">%s</span>', $subPageLines[4]);
+                $subPageLines[21] = sprintf('<span class="bgB">%s</span>', $subPageLines[21]);
+            }
+
+            if ($pageNum >= 601 && $pageNum <= 619) {
+                $subPageLines[1] = sprintf('<span class="bgB DH">%s</span>', $subPageLines[1]);
+            }
+
+            if ($pageNum >= 520 && $pageNum <= 622) {
+                $subPageLines[1] = sprintf('<span class="bgR DH">%s</span>', $subPageLines[1]);
+                $subPageLines[23] = sprintf('<span class="bgR">%s</span>', $subPageLines[23]);
+            }
+
+            // Innehåll
+            if ($pageNum == 700 || $pageNum == 701) {
+                $subPageLines[1] = sprintf('<span class="bgB">%s</span>', $subPageLines[1]);
+                $subPageLines[2] = sprintf('<span class="bgB">%s</span>', $subPageLines[2]);
+                $subPageLines[3] = sprintf('<span class="bgB">%s</span>', $subPageLines[3]);
+                $subPageLines[4] = sprintf('<span class="bgB">%s</span>', $subPageLines[5]);
+
+                $subPageLines[6] = sprintf('<span class="bgB">%s</span>', $subPageLines[6]);
+                $subPageLines[7] = sprintf('<span class="bgB">%s</span>', $subPageLines[7]);
+            }
+            if ($pageNum >= 704 && $pageNum <= 706) {
+                $subPageLines[1] = sprintf('<span class="bgB">%s</span>', $subPageLines[1]);
+                $subPageLines[2] = sprintf('<span class="bgB">%s</span>', $subPageLines[2]);
+                $subPageLines[3] = sprintf('<span class="bgB">%s</span>', $subPageLines[3]);
             }
 
             // Skapa ren sträng av allt.
@@ -182,15 +253,19 @@ class Importer
             // "100-" osv.
             $subPageText = preg_replace('/ (\d{3})-/', ' <a href="/$1">$1-</a>', $subPageText);
             // "...100 " osv.
-            $subPageText = preg_replace('/\.(\d{3})/', '.<a href="/$1">$1</a>', $subPageText);
+            $subPageText = preg_replace('/\.\.(\d{3})/', '..<a href="/$1">$1</a>', $subPageText);
             // "417f" osv.
             $subPageText = preg_replace('/(\d{3})f/', '<a href="/$1">$1f</a>', $subPageText);
             // "530/" osv.
             $subPageText = preg_replace('/(\d{3})\//', '<a href="/$1">$1</a>/', $subPageText);
+            // "Innehåll 700</span>" osv
+            $subPageText = preg_replace('/ (\d{3})</', ' <a href="/$1">$1</a><', $subPageText);
 
-            // @todo
             // Ersätt "nästa sida" med länk till nästa sida.
-            $subPageText = preg_replace('/ ((N|n)ästa sida) /', ' <a href="/' . ($pageNum + 1) . '">$1</a> /', $subPageText);
+            $subPageText = preg_replace('/ ((N|n)ästa sida) /', ' <a href="/' . ($pageNum + 1) . '">$1</a> ', $subPageText);
+
+            // Länkprefix
+            $subPageText = str_replace(' href="/', " href=\"{$this->linkprefix}", $subPageText);
 
             // Ta bort länken från översta raden för den länkar till sig själv.
             $subPageLines = explode("\n", $subPageText);
@@ -224,11 +299,6 @@ class Importer
 
         $this->subPages = $subPages;
 
-        return $this;
-    }
-
-    public function decorateSpecific()
-    {
         return $this;
     }
 
@@ -324,5 +394,12 @@ class Importer
     public function pageNum()
     {
         return $this->pageObject()->props->pageProps->pageNumber;
+    }
+
+    public function linkprefix($prefix)
+    {
+        $this->linkprefix = $prefix;
+
+        return $this;
     }
 }

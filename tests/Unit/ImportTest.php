@@ -52,7 +52,7 @@ class ImportTest extends TestCase
 
         foreach ($pageNumsToTest as $pageNum) {
             $importer = new Importer($pageNum);
-            $importer->fromRemote()->cleanup()->decorateCommon()->decorateSpecific();
+            $importer->fromRemote()->cleanup()->decorate();
 
             $parsedHtmlObject = $importer->pageObject();
 

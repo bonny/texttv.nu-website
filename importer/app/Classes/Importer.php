@@ -249,7 +249,7 @@ class Importer
             // " 100 " osv.
             $subPageText = preg_replace('/ (\d{3}) /', ' <a href="/$1">$1</a> ', $subPageText);
             // " 100" osv.
-            $subPageText = preg_replace('/ (\d{3})\n/', " <a href='/\\1'>\\1</a>\n", $subPageText);
+            $subPageText = preg_replace('/ (\d{3})\n/', " <a href=\"/\\1\">\\1</a>\n", $subPageText);
             // "100-" osv.
             $subPageText = preg_replace('/ (\d{3})-/', ' <a href="/$1">$1-</a>', $subPageText);
             // "...100 " osv.

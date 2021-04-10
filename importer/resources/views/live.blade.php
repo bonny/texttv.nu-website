@@ -7,6 +7,10 @@
     <link rel="stylesheet" href="https://texttv.nu/min/?f=css/fonts.css,css/styles.css,css/texttvpage.css&amp;v=10">
     <title>SVT Text Live Laravel</title>
     <style>
+        body {
+            margin: 2rem;
+        }
+
         .live-wrap {
             display: flex;
         }
@@ -24,10 +28,12 @@
     </style>
 </head>
 
-<body class="antialiased">
+<body>
     <h1>SVT Text live-vy</h1>
 
     <p>Sidorna hämtas direkt från <a href="https://www.svt.se/text-tv/100">svt.se/text-tv</a>.</p>
+
+    <p>Gissad titel: {{$title}}</p>
 
     <div class="live-wrap">
         <nav class="live-nav">

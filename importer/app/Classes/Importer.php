@@ -239,33 +239,16 @@ class Importer
                 $subPageLines[3] = sprintf('<span class="bgB">%s</span>', $subPageLines[3]);
             }
 
+            if ($pageNum == 100) {
+                $subPageLines = $this->findHeadlines($subPageLines);
+            }
+
+            $oldFirstLine = $subPageLines[0];
+
             // Skapa ren sträng av allt.
             $subPageText = implode("\n", $subPageLines);
 
-            // Skapa länkar av alla nummer.
-            $oldFirstLine = $subPageLines[0];
-            // "203-219" osv.
-            $subPageText = preg_replace('/(\d{3}-\d{3})/', '<a href="/$1">$1</a>', $subPageText);
-            // " 100 " osv.
-            $subPageText = preg_replace('/ (\d{3}) /', ' <a href="/$1">$1</a> ', $subPageText);
-            // " 100" osv.
-            $subPageText = preg_replace('/ (\d{3})\n/', " <a href=\"/\\1\">\\1</a>\n", $subPageText);
-            // "100-" osv.
-            $subPageText = preg_replace('/ (\d{3})-/', ' <a href="/$1">$1-</a>', $subPageText);
-            // "...100 " osv.
-            $subPageText = preg_replace('/\.\.(\d{3})/', '..<a href="/$1">$1</a>', $subPageText);
-            // "417f" osv.
-            $subPageText = preg_replace('/(\d{3})f/', '<a href="/$1">$1f</a>', $subPageText);
-            // "530/" osv.
-            $subPageText = preg_replace('/(\d{3})\//', '<a href="/$1">$1</a>/', $subPageText);
-            // "Innehåll 700</span>" osv
-            $subPageText = preg_replace('/ (\d{3})</', ' <a href="/$1">$1</a><', $subPageText);
-
-            // Ersätt "nästa sida" med länk till nästa sida.
-            $subPageText = preg_replace('/ ((N|n)ästa sida) /', ' <a href="/' . ($pageNum + 1) . '">$1</a> ', $subPageText);
-
-            // Länkprefix
-            $subPageText = str_replace(' href="/', " href=\"{$this->linkprefix}", $subPageText);
+            $subPageText = $this->addLinks($subPageText);
 
             // Ta bort länken från översta raden för den länkar till sig själv.
             $subPageLines = explode("\n", $subPageText);
@@ -300,6 +283,203 @@ class Importer
         $this->subPages = $subPages;
 
         return $this;
+    }
+
+    /**
+     * Skapa länkar av alla nummer.
+     */
+    public function addLinks(string $subPageText): string
+    {
+
+        // "203-219" osv.
+        $subPageText = preg_replace('/(\d{3}-\d{3})/', '<a href="/$1">$1</a>', $subPageText);
+        // " 100 " osv.
+        $subPageText = preg_replace('/ (\d{3}) /', ' <a href="/$1">$1</a> ', $subPageText);
+        // " 100" osv.
+        $subPageText = preg_replace('/ (\d{3})\n/', " <a href=\"/\\1\">\\1</a>\n", $subPageText);
+        // "100-" osv.
+        $subPageText = preg_replace('/ (\d{3})-/', ' <a href="/$1">$1-</a>', $subPageText);
+        // "...100 " osv.
+        $subPageText = preg_replace('/\.\.(\d{3})/', '..<a href="/$1">$1</a>', $subPageText);
+        // "417f" osv.
+        $subPageText = preg_replace('/(\d{3})f/', '<a href="/$1">$1f</a>', $subPageText);
+        // "530/" osv.
+        $subPageText = preg_replace('/(\d{3})\//', '<a href="/$1">$1</a>/', $subPageText);
+        // "Innehåll 700</span>" osv
+        $subPageText = preg_replace('/ (\d{3})</', ' <a href="/$1">$1</a><', $subPageText);
+
+        // Ersätt "nästa sida" med länk till nästa sida.
+        $subPageText = preg_replace('/ ((N|n)ästa sida) /', ' <a href="/' . ($this->pageNum() + 1) . '">$1</a> ', $subPageText);
+
+        // Länkprefix
+        $subPageText = str_replace(' href="/', " href=\"{$this->linkprefix}", $subPageText);
+
+        return $subPageText;
+    }
+
+    /**
+     * På sidan 100 fixar vi olika färger på rubrikerna
+     
+     * @param array $subPageLines 
+     * @return array
+     */
+    public function findHeadlines(array $subPageLines) : array
+    {
+        // På sidan 100 fixar vi olika färger på rubrikerna
+        // Strunta i rad 1-3 och sista raderna som är meta
+
+        // Nyhet 1: Y DH på första raden
+        //        : Y på övriga rader
+        // Nyhet 2: C på alla rader (kanske borde vara DH också?)
+
+        /*
+            Metod:
+            Rad där text finns men inget sidnummer = troligtvis rubrik
+            Om rad efter är tom
+            Och raden därefter har text men inget sidnummer
+            Och raden därefter har sidnummer
+            Gruppera ihop dom, dvs. ta bort tomma raden
+
+            Exempel på utseende:
+            
+            ----------
+
+            Nu börjar 70-åringar att vaccineras  
+
+            Gick snabbare än planerat i Stockholm 
+            106 
+                                                    
+                    Biden vidtar åtgärder         
+                    mot vapenvåldet i USA         
+                            135                  
+                                                    
+            Novus: Ingen ljusning för Liberalerna 
+
+            Små förändringar i ny opinionsmätning 
+            112/160 
+                                                    
+            Idrottsarenor i fransk covidkamp 130             
+
+            ----------
+		
+            100 SVT Text fredag 09 apr 2021      
+            
+                                                    
+                                                    
+            SMHI-varning för snö och hård vind   
+
+            117 
+                                                    
+                Produktionsfel hos Janssen -       
+                85 proc färre doser till USA       
+                            131                  
+                                                    
+            Böter för Solberg som bröt mot regler 
+
+            Statsministern deltog i större sällskap
+            130 
+                                                    
+            USA: Ökad rysk närvaro vid Ukraina 136 
+            
+                Inrikes 101 Utrikes 104 Innehåll 700
+
+
+            ----------
+
+            100 SVT Text fredag 09 apr 2021      
+            
+                                                    
+            Brittiske prinsen Philip har avlidit 
+
+            Drottning Elizabeths make blev 99 år 
+            135-136 
+                                                    
+                    Hiphoplegendaren DMX          
+                    är död - blev 50 år          
+                            150                   
+                                                    
+            Flest rapporter om Astra-biverkningar 
+
+            Tros bero på medvetenhet hos gruppen  
+            107 
+                                                    
+                Uefa: Blir publik under EM - 300   
+            
+                Inrikes 101 Utrikes 104 Innehåll 700
+
+               ----------                         
+
+
+	
+
+            */
+        $startLine = 6;
+        $linesCount = 15;
+        $linesToLookForHeadlinesIn = array_slice($subPageLines, $startLine, $linesCount);
+
+        // Ta bort tomma rader.
+        $linesToLookForHeadlinesIn = array_filter($linesToLookForHeadlinesIn, function ($line) {
+            return !empty(trim($line));
+        });
+
+        // Indexera om.
+        $linesToLookForHeadlinesIn = array_values($linesToLookForHeadlinesIn);
+
+        // Hitta rubrik från första raden och framåt, stoppa när nästa rubrik börjar.
+        $foundHeadlines = [];
+        $currentFoundHeadline = [];
+        for ($i = 0; $i < count($linesToLookForHeadlinesIn); $i++) {
+            $lineNum = $i;
+            $line = $linesToLookForHeadlinesIn[$lineNum];
+            $trimmedLine = trim($linesToLookForHeadlinesIn[$lineNum]);
+
+            // Rubriken slutar när:
+            // - en rad består av siffror, t.ex. "131" eller "112/160 ", "135-136 "
+            // - en rad har 
+            // - en rad har siffror sist, t.ex. "Uefa: Blir publik under EM - 300   ", "Idrottsarenor i fransk covidkamp 130             "
+            // - se upp för rader med siffror som inte är nummer, t.ex. "Drottning Elizabeths make blev 99 år "
+
+            $lineIsSingleNumber = is_numeric($trimmedLine);
+            $lineIsNumberRange = (bool) preg_match('/^\d{3}[\/\-]\d{3}$/', $trimmedLine);
+            $lineEndsWithNumber = (bool) preg_match('/\d{3}$/', $trimmedLine);
+            $isEndOfHeadline = $lineIsSingleNumber || $lineIsNumberRange || $lineEndsWithNumber;
+
+            $currentFoundHeadline[] = $line;
+
+            if ($isEndOfHeadline) {
+                $foundHeadlines[] = $currentFoundHeadline;
+                $currentFoundHeadline = [];
+            }
+        }
+
+        // Lägg till Y eller C.
+        $foundHeadlines = array_map(function ($oneFoundHeadline, $index) {
+            $color = $index % 2 ? 'C' : 'Y';
+            $oneFoundHeadline = array_map(function ($oneFoundHeadlineLine) use ($color) {
+                return "<span class='{$color}'>{$oneFoundHeadlineLine}</span>";
+            }, $oneFoundHeadline);
+
+            return $oneFoundHeadline;
+        }, $foundHeadlines, array_keys($foundHeadlines));
+
+        // Skapa ny lines-array med alla hittade rubriker.
+        $emptyLine = str_pad('', 40, ' ');
+        $linesWithHeadlines = [];
+        foreach ($foundHeadlines as $oneFoundHeadline) {
+            array_push($linesWithHeadlines, $emptyLine, ...$oneFoundHeadline);
+        }
+
+        // Ta bort första raden pga tom.
+        $linesWithHeadlines = array_slice($linesWithHeadlines, 1);
+
+        // Se till att nya arrayen har lika många element som den ursprungliga.
+        if (count($linesWithHeadlines) !== $linesCount) {
+            $linesWithHeadlines = array_pad($linesWithHeadlines, $linesCount, $emptyLine);
+        }
+
+        array_splice($subPageLines, $startLine, $linesCount, $linesWithHeadlines);
+
+        return $subPageLines;
     }
 
     public function pageObject()
@@ -375,6 +555,11 @@ class Importer
         return $this->subPages;
     }
 
+    public function subpage($index = 0)
+    {
+        return $this->subPages->get(0);
+    }
+
     public function pageAsText()
     {
         return $this->pageObject()->props->pageProps->subPages[0]->altText;
@@ -401,5 +586,32 @@ class Importer
         $this->linkprefix = $prefix;
 
         return $this;
+    }
+
+    /**
+     * Gissa fram en titel på sidan.
+     * Används för title och meta och grejs.
+     
+     * @return string
+     */
+    public function title()
+    {
+        $title = '';
+        $firstSubPage = $this->subpage(0);
+        $pageLines = explode("\n", $firstSubPage['text']);
+
+        // Ta bort rad 0,1 för det är sidnummer och kategori.
+        $pageLines = array_slice($pageLines, 2);
+
+        // Hitta första raden som inte är tom.
+        foreach ($pageLines as $oneLine) {
+            $oneLine = trim(strip_tags($oneLine));
+            if ($oneLine) {
+                $title = $oneLine;
+                break;
+            }
+        }
+
+        return $title;
     }
 }

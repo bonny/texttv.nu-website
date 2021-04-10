@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Classes\Importer;
+use App\Models\TextTV;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,9 +19,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// @todo
-// Lägg till route för att live-visa sidor från SVT.
-// /live/{pageNum}
+// Route för att live-visa sidor från SVT.
 Route::redirect('/live/', '/live/100');
 Route::get('/live/{pageNum}', function ($pageNum) {
     $importer = new Importer($pageNum);
@@ -29,7 +28,32 @@ Route::get('/live/{pageNum}', function ($pageNum) {
     return view(
         'live',
         [
-            'importer' => $importer
+            'importer' => $importer,
+            'title' => $importer->title(),
+        ]
+    );
+})->where('pageNum', '[0-9]+');
+
+// Route för att live-visa sidor från SVT.
+Route::redirect('/db/', '/db/100');
+Route::get('/db/{pageNum}', function ($pageNum) {
+    $page = TextTV::
+        where('page_num', $pageNum)
+        ->orderByDesc('date_updated')
+        ->limit(1)
+        ->firstOrFail();
+
+    $uncompressedPageContent = unserialize(gzuncompress(substr($page->page_content, 4)));
+
+    return view(
+        'db',
+        [
+            'pageNum' => $page->page_num,
+            'pageContent' => $uncompressedPageContent,
+            'date_added' => $page->date_added,
+            'next_page' => $page->next_page,
+            'prev_page' => $page->prev_page,
+            'title' => $page->title,
         ]
     );
 })->where('pageNum', '[0-9]+');

@@ -239,11 +239,7 @@ class Importer
                 $subPageLines[3] = sprintf('<span class="bgB">%s</span>', $subPageLines[3]);
             }
 
-            if ($pageNum == 100) {
-                $subPageLines = $this->findHeadlines($subPageLines);
-            }
-
-            $oldFirstLine = $subPageLines[0];
+            $subPageLines = $this->findHeadlines($subPageLines);
 
             // Skapa ren sträng av allt.
             $subPageText = implode("\n", $subPageLines);
@@ -251,6 +247,7 @@ class Importer
             $subPageText = $this->addLinks($subPageText);
 
             // Ta bort länken från översta raden för den länkar till sig själv.
+            $oldFirstLine = $subPageLines[0];
             $subPageLines = explode("\n", $subPageText);
             $subPageLines[0] = $oldFirstLine;
 
@@ -323,8 +320,13 @@ class Importer
      * @param array $subPageLines 
      * @return array
      */
-    public function findHeadlines(array $subPageLines) : array
+    public function findHeadlines(array $subPageLines): array
     {
+        // Baila om vi inte är på sidan 100.
+        if ($this->pageNum() != 100) {
+            return $subPageLines;
+        }
+
         // På sidan 100 fixar vi olika färger på rubrikerna
         // Strunta i rad 1-3 och sista raderna som är meta
 

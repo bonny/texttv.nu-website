@@ -1,0 +1,455 @@
+
+/*
+background: url('data:image/svg+xml; ... ');
+encode svg icons using
+http://b64.io/
+*/
+
+*, *:before, *:after {
+		-moz-box-sizing: border-box;
+		-webkit-box-sizing: border-box;
+		box-sizing: border-box;
+}
+
+html {
+	font-size: 14px;
+}
+
+body {
+	font-family: menlo, "droid sans mono", monospace;
+	font-size: 1rem;
+	-webkit-font-smoothing: antialiased;
+	background: #607D8B;
+	background: #303F9F;
+	background: rgb(25, 40, 140);
+	background: rgb(34, 38, 66);
+	background: rgb(34, 36, 52);
+	opacity: 0; /* fade in with js */
+}
+
+html, body {
+	height: 100%;
+	margin: 0;
+}
+
+input, button {
+	font-size: 1rem;
+}
+
+.siteheader {
+	text-align: center
+}
+
+.container {
+	position: relative;
+	min-height: 100%;
+}
+
+.navbg {
+	/* 	background: linear-gradient( 0deg, rgba(0,0,0,1), rgba(0,0,0,0) 100% ); */
+	position: fixed;
+	left: 10px;
+	bottom: 10px;
+	right: 10px;
+	height: 70px;
+	pointer-events: none;
+	background: #fff;
+	box-shadow: 0px 0px 7px 0px black;
+	border-radius: 2px;
+}
+
+/* disable text select on some elements */
+.mainnav,
+.pagenav {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* no tap/touch effect on some elements */
+.mainnav_button,
+.pagenav {
+	-webkit-tap-highlight-color: rgba(0,0,0,0);
+}
+
+.mainnav {
+	position: relative;
+	position: fixed;
+/* 	bottom: -0.75rem; */
+	bottom: 16px;
+/* 	right: 2rem; */
+ 	left: calc(50% - 2rem);
+}
+
+.mainnav_button {
+	display: block;
+	margin: 0 auto; 
+	width: 4rem;
+	height: 4rem;
+	line-height: 1;
+	border-radius: 50%;
+	border: 0;
+/* 	box-shadow: 2px 2px 19px 0px rgba(0, 0, 0, 1); */
+/* 	box-shadow: 0 3px 10px rgba(0, 0, 0, 0.23),0 3px 10px rgba(0, 0, 0, 0.16); */
+	background: #303F9F;
+	background: #FF5722;
+	background: rgba(68, 138, 255, .8);
+	background: rgba(68, 138, 255, 1);
+	color: #fff;
+	opacity: 0; /* will be faded in with js/animated.css */
+	outline: none;
+}
+
+.mainnav--active .mainnav_button {
+	background: rgba(68, 138, 255, .9);
+}
+
+.mainnav_button_inner {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	line-height: 4rem;
+}
+
+.mainnav_button_inner--second {
+	display: none;
+}
+
+.mainnav_items {
+	position: absolute;
+/* 	width: 15rem; */
+	width: 300px;
+	bottom: 6rem;
+	left: 50%;
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+	text-align: center;
+	transform: scale(1) translateY(10px) translateX(-50%);
+	-webkit-transform: scale(1) translateY(10px) translateX(-50%);
+	visibility: hidden;
+	opacity: 0;
+	transition: all .125s ease-out;
+	font-family: 'Roboto', sans-serif;
+}
+
+.mainnav--active .mainnav_items {
+	transition: all .25s ease-out;
+	visibility: visible;
+	opacity: .9;
+	/*transform: scale(1) translateY(0);
+	-webkit-transform: scale(1) translateY(0);*/
+}
+
+.mainnav_button_inner svg {
+	fill: #fff;
+	width: 2rem;
+	height: 2rem;
+	position: absolute;
+	top: calc(50% - 1rem);
+	left: calc(50% - 1rem);
+	pointer-events: none;
+}
+
+.mainnav--active .mainnav_button_inner--first {
+	display: none;
+}
+
+.mainnav--active .mainnav_button_inner--second {
+	display: block;
+}
+
+.mainnav_items li {
+	display: inline-block;
+	width: 100px;
+	height: 50px;
+	margin: .5em;
+	vertical-align: top;
+	box-shadow: 0px 0px 20px 1px rgba(0, 0, 0, 0.15);
+}
+
+.mainnav_items input,
+.mainnav_items button {
+	width: 100%;
+	height: 100%;
+	border: 0;
+	background: #fff;
+	padding: .5rem 1.5rem;
+	box-shadow: 0px 1px 2px 0px rgb(0, 0, 0);
+	border-radius: 5px;
+	font-size: 1rem;
+}
+
+input.mainnav_gotonumber {
+	max-width: 10rem;
+	text-align: center;
+	padding: .5rem 1rem;
+}
+
+.mainnav_items button {
+	cursor: pointer;
+}
+
+.pageNumNav {
+	background: white;
+	position: fixed;
+	top: 10px;
+	left: 10px;
+	right: 10px;
+	/* height: 40px; */
+	border-radius: 2px;
+	box-shadow: 0px 0px 7px 0px black;
+}
+
+.pageNumNav__number {
+	display: block;
+	width: 100%;
+	height: 100%;
+	text-align: center;
+	padding: .75rem;
+	border: 0;
+	margin: 0 auto;
+}
+
+.pageNumNav__icon {
+	position: absolute;
+	top: 5px;
+	left: 6px;
+	fill: #888;
+	width: 26px;
+	height: 26px;
+}
+
+/* page nav arrow */
+.pagenav {
+	position: fixed;
+	bottom: 15px;
+	height: 4rem;
+	width: 4rem;
+	opacity: 0;
+	background: none;
+	border: 0;
+	outline: none;
+}
+
+.pagenav:active {
+	background: #eee;
+}
+
+.pagenav svg {
+	width: 100%;
+	height: 100%;
+/* 	fill: rgba(255,255,255,.75); */
+ 	fill: rgba(0,0,0,.75);
+}
+.pagenav:focus svg,
+.pagenav:hover svg
+ {
+/* 	fill: rgba(255,255,255,1); */
+}
+
+.pagenav--prev {
+	left: calc(25% - 2rem);
+}
+.pagenav--next {
+	right: calc(25% -  2rem);
+}
+
+/* 
+can't go to left/prev if on page 100
+can't go to right if on page 999 
+*/
+.pagenav svg {
+	transition: opacity .25s ease-out;
+	opacity: 1;
+}
+
+.page--num100 .pagenav--prev,
+.page--num999 .pagenav--next {
+	pointer-events: none;
+}
+
+.page--num100 .pagenav--prev svg,
+.page--num999 .pagenav--next svg {
+	opacity: 0;
+}
+
+/*
+body {
+	transition: all .25s ease-in-out;
+	-webkit-transition: all .25s ease-in-out;
+}
+*/
+
+.page--beforeAjax .content {
+	opacity: 0 !important;
+/*
+	transform: scale(1) translateY(10px);
+	-webkit-transform: scale(1) translateY(10px);
+*/
+}
+
+.page--afterAjax .content {
+	opacity: 1 !important;
+	transition: all .25s 0.1s ease-in-out;
+	-webkit-transition: all .25s 0.1s ease-in-out;	
+	/*
+		transform: scale(1) translateY(0px);
+		-webkit-transform: scale(1) translateY(0px);
+	*/
+}
+
+/*
+texttv-styles
+*/
+p, h1, h2, h3, h4 {
+	font-size: 1rem;
+}
+
+.content {
+	padding-bottom: 6rem; /* make is possible to scroll content above nav button */
+	padding-top: 3.5rem;
+	opacity: 1;
+	transition: all .1s ease-out;
+	transform-origin: top;
+}
+
+.mainnav--active .content {
+	opacity: .5 !important;
+	/*transform: scale(0.95);
+	-webkit-transform: scale(0.95);*/
+}
+
+
+/* begin texttv pre styles */
+
+.toprow {
+	color: rgb(221, 221, 221);
+}
+
+.root {
+	text-align: center;
+	white-space: pre;
+	color: rgb(221, 221, 221);
+	margin-left: -.7rem;
+	padding-top: 20px;
+	padding-bottom: 20px;
+}
+
+
+.content h1,
+.content h2,
+.content h3 {
+	display: inline;
+}
+
+.content a {
+	color: rgb(221, 221, 221);
+}
+.B {
+	color: #333366;
+}
+.C {
+	color: #006666;
+}
+.W {
+	color: #333;
+}
+.Y {
+	color: #666600;
+}
+.DH {
+	font-weight: normal;
+/* 	font-family: 'Ubuntu Mono', Courier; */
+	font-weight: 700;
+}
+.bgB, .bgB a span {
+	/* background-color: #ccc; */
+}
+.bgW, .bgW a span {
+	background-color: orange;
+}
+
+.bgG, .bgG a span {
+	background-color: rgba(0,255,0,.25);
+}
+
+.bgR, .bgR a span {
+	background-color: rgba(255,0,0,.25);
+}
+
+.R, .R a, .R a:visited, .R a:visited:hover {
+	color: #F00;
+}
+
+.B, .B a {
+	color: #1122CC;
+}
+.W, .W a {
+	color: #ddd;
+}
+.Y, .Y a {
+	color: #e2e200;
+}
+.C, .C a {
+	color: #00c8ee;
+}
+.bgB, .bgB a {
+	background-color: #0000ff;
+	color: #ddd;
+}
+.DH {
+	/* font-size: 1.2em; */
+	/* letter-spacing: -0.175ex; */
+}
+
+/* green */
+.G, .G a {
+	color: #0F0;
+}
+
+.bgY {
+	background-color: #e2e200;
+}
+
+/* end text tv pre styles */
+
+
+/*
+ * Styles for different screens
+ */
+
+.content, p, h1, h2, h3, h4 {
+	/* ok on iphone 4 */
+	font-size: 1.05rem;
+	letter-spacing: -0.08rem;
+	/* background: red; */
+}
+
+@media only screen and (min-width: 360px) { 
+	.content, p, h1, h2, h3, h4 {
+		font-size: 1.15rem;
+/* 		background: blue; */
+	}
+}
+@media only screen and (min-width: 375px) { 
+	.content, p, h1, h2, h3, h4 {
+		font-size: 1.2rem;
+/* 		background: red; */
+	}
+}
+@media only screen and (min-width: 450px) { 
+	.content, p, h1, h2, h3, h4 {
+		font-size: 1.4rem;
+	}
+}
+/*@media only screen and (min-width: 500px) { 
+	.content, p, h1, h2, h3, h4 {
+		font-size: 1.4rem;
+	}
+}*/

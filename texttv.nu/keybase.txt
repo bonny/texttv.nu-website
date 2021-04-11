@@ -1,0 +1,55 @@
+
+://keybase.io/eskapism
+--------------------------------------------------------------------
+
+I hereby claim:
+
+  * I am an admin of https://texttv.nu
+  * I am eskapism (https://keybase.io/eskapism) on keybase.
+  * I have a public key ASAcBveAKwwwqxEhr3J7LhlB6sp2CiOVxdG6to9eWVgCWQo
+
+To do so, I am signing this object:
+
+{
+    "body": {
+        "key": {
+            "eldest_kid": "01201c06f7802b0c30ab1121af727b2e1941eaca760a2395c5d1bab68f5e595802590a",
+            "host": "keybase.io",
+            "kid": "01201c06f7802b0c30ab1121af727b2e1941eaca760a2395c5d1bab68f5e595802590a",
+            "uid": "44eb72c3bedcd5abb604b7a6fae46719",
+            "username": "eskapism"
+        },
+        "service": {
+            "hostname": "texttv.nu",
+            "protocol": "https:"
+        },
+        "type": "web_service_binding",
+        "version": 1
+    },
+    "client": {
+        "name": "keybase.io go client",
+        "version": "1.0.20"
+    },
+    "ctime": 1490947776,
+    "expire_in": 504576000,
+    "merkle_root": {
+        "ctime": 1490947762,
+        "hash": "02e43dd985abd9beb48dc21312a3f331b4e0531a61d4adaa1c1674acee9e0d73e1e566f2e3cf74cf58949a186e96d04392aea5f5bdb087518033f0afeb400afa",
+        "seqno": 990692
+    },
+    "prev": "d7724be4d3b4eb7000c84afdcedf79a621f25d2442b8f3d9008db42555155141",
+    "seqno": 14,
+    "tag": "signature"
+}
+
+which yields the signature:
+
+hKRib2R5hqhkZXRhY2hlZMOpaGFzaF90eXBlCqNrZXnEIwEgHAb3gCsMMKsRIa9yey4ZQerKdgojlcXRuraPXllYAlkKp3BheWxvYWTFAvJ7ImJvZHkiOnsia2V5Ijp7ImVsZGVzdF9raWQiOiIwMTIwMWMwNmY3ODAyYjBjMzBhYjExMjFhZjcyN2IyZTE5NDFlYWNhNzYwYTIzOTVjNWQxYmFiNjhmNWU1OTU4MDI1OTBhIiwiaG9zdCI6ImtleWJhc2UuaW8iLCJraWQiOiIwMTIwMWMwNmY3ODAyYjBjMzBhYjExMjFhZjcyN2IyZTE5NDFlYWNhNzYwYTIzOTVjNWQxYmFiNjhmNWU1OTU4MDI1OTBhIiwidWlkIjoiNDRlYjcyYzNiZWRjZDVhYmI2MDRiN2E2ZmFlNDY3MTkiLCJ1c2VybmFtZSI6ImVza2FwaXNtIn0sInNlcnZpY2UiOnsiaG9zdG5hbWUiOiJ0ZXh0dHYubnUiLCJwcm90b2NvbCI6Imh0dHBzOiJ9LCJ0eXBlIjoid2ViX3NlcnZpY2VfYmluZGluZyIsInZlcnNpb24iOjF9LCJjbGllbnQiOnsibmFtZSI6ImtleWJhc2UuaW8gZ28gY2xpZW50IiwidmVyc2lvbiI6IjEuMC4yMCJ9LCJjdGltZSI6MTQ5MDk0Nzc3NiwiZXhwaXJlX2luIjo1MDQ1NzYwMDAsIm1lcmtsZV9yb290Ijp7ImN0aW1lIjoxNDkwOTQ3NzYyLCJoYXNoIjoiMDJlNDNkZDk4NWFiZDliZWI0OGRjMjEzMTJhM2YzMzFiNGUwNTMxYTYxZDRhZGFhMWMxNjc0YWNlZTllMGQ3M2UxZTU2NmYyZTNjZjc0Y2Y1ODk0OWExODZlOTZkMDQzOTJhZWE1ZjViZGIwODc1MTgwMzNmMGFmZWI0MDBhZmEiLCJzZXFubyI6OTkwNjkyfSwicHJldiI6ImQ3NzI0YmU0ZDNiNGViNzAwMGM4NGFmZGNlZGY3OWE2MjFmMjVkMjQ0MmI4ZjNkOTAwOGRiNDI1NTUxNTUxNDEiLCJzZXFubyI6MTQsInRhZyI6InNpZ25hdHVyZSJ9o3NpZ8RARZLFMOSTRnUe0t1V+DCo/+g88Q6QefNLT1+iLo3xlsO9VtumTf7TV6c7tzj9wJzEFle/JFIkMLeYvPUwr99jCahzaWdfdHlwZSCkaGFzaIKkdHlwZQildmFsdWXEIJm58smBVkZ9cfkHUy0ZLivAok4FEfxYsHfgQkXXf9K8o3RhZ80CAqd2ZXJzaW9uAQ==
+
+And finally, I am proving ownership of this host by posting or
+appending to this document.
+
+View my publicly-auditable identity here: https://keybase.io/eskapism
+
+==================================================================
+

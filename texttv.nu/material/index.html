@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-title" content="TextTV">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<meta charset="utf-8">
+	<title>SVT Text TV - Android Material Design Edition</title>
+
+	<link rel="stylesheet" href="css/styles.css">
+	<link rel="stylesheet" href="css/animate.css">
+
+	<!-- <link type="text/css" rel="stylesheet" href="/min/?b=material/css&amp;f=animate.css,styles.css" /> -->
+</head>
+<body>
+	
+	<div class="container">
+
+		<!--<header class=siteheader>TextTV.nu</header>-->
+		
+		<div class="content"></div>
+		
+		<div class="navbg"></div>
+		
+		<nav class="mainnav">
+
+			<button class="mainnav_button">
+				<span class="mainnav_button_inner mainnav_button_inner--first">
+					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+					    <path d="M4 8h4v-4h-4v4zm6 12h4v-4h-4v4zm-6 0h4v-4h-4v4zm0-6h4v-4h-4v4zm6 0h4v-4h-4v4zm6-10v4h4v-4h-4zm-6 4h4v-4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z"/>
+					    <path d="M0 0h24v24h-24z" fill="none"/>
+					</svg>
+				</span>
+				<span class="mainnav_button_inner mainnav_button_inner--second">
+					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+					    <path d="M10 20v-6h4v6h5v-8h3l-10-9-10 9h3v8z"/>
+					    <path d="M0 0h24v24h-24z" fill="none"/>
+					</svg>
+				</span>
+			</button>
+
+			<ul class="mainnav_items">
+
+				<li data-page="800"><button>UR 800</button></li>
+				<li data-page="700"><button>Innehåll 700</button></li>
+				<li data-page="600"><button>På TV 600</button></li>
+				<li data-page="500"><button>Blandat 500</button></li>
+				<li data-page="400"><button>Väder 400</button></li>
+				<li data-page="300"><button>Sport 300</button></li>
+				<li data-page="200"><button>Ekonomi 200 </button></li>
+				<li data-page="100"><button>Nyheter 100</button></li>
+				
+				<li data-page="377"><button>Sport 377</button></li>
+				<li data-page="100"><button>Nyheter 100</button></li>
+
+				<!-- <li data-page="manual"><form class="mainnav_gotoform"><input class="mainnav_gotonumber" type="number" placeholder="Ange sida"></form></li> -->
+
+			</ul>
+			
+		</nav>
+		
+		<button class="pagenav pagenav--next">
+			<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+			    <path d="M10 6l-1.41 1.41 4.58 4.59-4.58 4.59 1.41 1.41 6-6z"/>
+			    <path d="M0 0h24v24h-24z" fill="none"/>
+			</svg>
+		</button>
+		
+		<button class="pagenav pagenav--prev">
+			<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+			    <path d="M15.41 7.41l-1.41-1.41-6 6 6 6 1.41-1.41-4.58-4.59z"/>
+			    <path d="M0 0h24v24h-24z" fill="none"/>
+			</svg>			
+		</button>
+		
+		<div class="pageNumNav">
+			<input type="number" inputmode="numeric" min="0" max="999" pattern="[0-9]*" xpattern="[0-9]{3}" placeholder="" class="pageNumNav__number pageNumNav__numberTheNumber"
+				   id="pageNumNav__numberTheNumber">
+			<!-- <input type="text" value="" placeholder="Ange sidnummer" class="pageNumNav__number pageNumNav__numberPlaceholder"> -->
+
+			<label for="pageNumNav__numberTheNumber">
+				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" class="pageNumNav__icon">
+				    <path d="M0 0h24v24h-24z" fill="none"/>
+				    <path d="M20 19.59v-11.59l-6-6h-8c-1.1 0-1.99.9-1.99 2l-.01 16c0 1.1.89 2 1.99 2h12.01c.45 0 .85-.15 1.19-.4l-4.43-4.43c-.8.52-1.74.83-2.76.83-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5c0 1.02-.31 1.96-.83 2.75l3.83 3.84zm-11-6.59c0 1.66 1.34 3 3 3s3-1.34 3-3-1.34-3-3-3-3 1.34-3 3z"/>
+				</svg>
+			</label>
+
+		</div>
+				
+	</div>
+	
+	<script src="js/zepto.min.js"></script>
+	<script src="js/touch.js"></script>
+	<script src="js/fx.js"></script>
+	<script src="js/scripts.js"></script>
+
+	<!-- 	<script type="text/javascript" src="/min/?b=material/js&amp;f=zepto.min.js,touch.js,fx.js,scripts.js"></script> -->
+</body>
+</html>

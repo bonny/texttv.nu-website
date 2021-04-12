@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Classes\Importer;
 use App\Models\TextTV;
+use Illuminate\Support\Facades\Log;
 
 class texttvimport extends Command
 {
@@ -54,9 +55,13 @@ class texttvimport extends Command
         $dbPage = TextTV::where('page_num', $pageNumber)
             ->orderByDesc('date_updated')
             ->limit(1)
-            ->firstOrFail();
-
-        $uncompressedDbPageContent = $dbPage->pageContentUncompressed();
+            ->first();
+        
+        if ($dbPage) {
+            $uncompressedDbPageContent = $dbPage->pageContentUncompressed();
+        } else {
+            $uncompressedDbPageContent = [];
+        }
 
         // Jämför befintlig sida med hämtat sida.
         // $this->line("Hämtad sida från SVT:");

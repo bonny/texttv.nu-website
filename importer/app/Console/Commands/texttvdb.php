@@ -45,13 +45,11 @@ class texttvdb extends Command
         ->limit(1)
         ->firstOrFail();
         
-        $uncompressedPageContent = unserialize(gzuncompress(substr($page->page_content, 4)));
+        $uncompressedPageContent = $page->pageContentUncompressed();
         
         $this->info('Visar sida ' . $pageNumber);
         $this->newLine();
         $this->line(print_r($uncompressedPageContent, true));
-
-        #dump($uncompressedPageContent);
 
         return 0;
     }

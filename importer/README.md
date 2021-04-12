@@ -4,16 +4,16 @@ Starta med `$ php artisan serve`.
 
 ## Att göra
 
--   [ ] Sätt varannan färg på 100
+-   [x] Sätt varannan färg på 100
 -   [x] Hitta titel för sida
 -   [ ] Köra command för artisan
     -   [x] Skriva ut sida live från SVT - `php artisan texttv:db 100`
     -   [x] Skriva ut sida från DB - `php artisan texttv:livepage 100`
     -   [ ] Importera sida eller sidintervall
+        -   [x] Avgöra om en uppdatering av sidan skett (diff)
         -   [ ] Spara till DB
             -   [ ] med compress
             -   [ ] som serialiserad
-        -   [ ] Avgöra om en uppdatering av sidan skett (diff)
 -   [ ] Kör som cron
 -   [x] Model för texttv-sida
 -   [ ] Skriv tester

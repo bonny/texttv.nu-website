@@ -14,6 +14,8 @@ class TextTV extends Model
     const CREATED_AT = 'date_added';
     const UPDATED_AT = 'date_updated';
     protected $fillable = [
+        'date_added',
+        'date_updated',
         'page_num',
         'title',
         'page_content',
@@ -21,4 +23,10 @@ class TextTV extends Model
         'prev_page',
         'is_shared'
     ];
+
+    public function pageContentUncompressed()
+    {
+        $uncompressedPageContent = unserialize(gzuncompress(substr($this->page_content, 4)));
+        return $uncompressedPageContent;
+    }
 }

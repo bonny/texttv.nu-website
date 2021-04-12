@@ -583,6 +583,28 @@ class Importer
         return $this->pageObject()->props->pageProps->pageNumber;
     }
 
+    public function nextPageNum()
+    {
+        $nextPage = $this->pageObject()->props->pageProps->nextPage;
+
+        if (!is_numeric($nextPage)) {
+            return $this->pageNum();
+        }
+
+        return $nextPage;
+    }
+
+    public function prevPageNum()
+    {
+        $prevPageNum = $this->pageObject()->props->pageProps->prevPage;
+
+        if (!is_numeric($prevPageNum)) {
+            return  $this->pageNum();
+        }
+
+        return $prevPageNum;
+    }
+
     public function linkprefix($prefix)
     {
         $this->linkprefix = $prefix;

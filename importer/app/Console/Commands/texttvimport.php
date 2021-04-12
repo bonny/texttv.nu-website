@@ -67,14 +67,18 @@ class texttvimport extends Command
 
         $fetchedPageAndDbPageIsEqual = $arrSubpagesTexts === $uncompressedDbPageContent;
         if ($fetchedPageAndDbPageIsEqual) {
-            $this->info('Ingen import görs: befintlig och hämtad sida är lika.');
+            $msg = "{$pageNumber}: Ingen import görs: befintlig och hämtad sida är lika.";
+            $this->info($msg);
+            echo $msg;
+            Log::info($msg);
             return;
         } else {
-            $this->info('Befintlig och hämtad sida är inte lika, så sparar sidan till databasen.');
+            $msg = "{$pageNumber}: Befintlig och hämtad sida är inte lika, så sparar sidan till databasen.";
+            $this->info($msg);
+            echo $msg;
+            Log::info($msg);
             $serializedArrSubpagesTexts = serialize($arrSubpagesTexts);
             $compressedSerializedArrSubpagesTexts = "\x1f\x8b\x08\x00" . gzcompress($serializedArrSubpagesTexts);
-
-            // @HERE: spara till db osv.
 
             $newPage = new TextTV;
             $newPage->fill([

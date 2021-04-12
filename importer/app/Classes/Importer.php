@@ -59,7 +59,6 @@ class Importer
         $dom = new DomQuery($this->remoteResponse->body());
         $selector = '#__NEXT_DATA__';
         $element_content = $dom->find($selector)->text();
-
         $this->pageObject = json_decode($element_content);
 
         return $this;
@@ -500,6 +499,16 @@ class Importer
         $subPagesCleaned = collect();
         $subPages = collect($this->pageObject()->props->pageProps->subPages);
 
+        // Om vi inte har undersidor är sidan tom, troligtvis "Sidan ej i sändning."
+        if ($subPages->isEmpty()) {
+            // Lägg till en sida som endast innehåller "Sidan ej i sändning."
+            $subPages->push((object) [
+                'subPageNumber' => $this->pageNum(),
+                'altText' => "{$this->pageNum()} SVT Text   Sidan ej i sändning" . str_repeat("\n", 23)
+            ]);
+        }
+
+        // Rensa upp varje undersida.
         foreach ($subPages as $subpage) {
             $pageAsText = $subpage->altText;
 

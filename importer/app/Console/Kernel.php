@@ -4,6 +4,7 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Illuminate\Support\Facades\Artisan;
 
 class Kernel extends ConsoleKernel
 {
@@ -15,6 +16,20 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         //
     ];
+
+    /**
+     * Importerar alla sidor inom ett intervall.
+     * 
+     * @param int $fromPageNumber 
+     * @param int $toPageNumber 
+     * @return void 
+     */
+    protected function importRange(int $fromPageNumber, int $toPageNumber)
+    {
+        for ($pageNumber = $fromPageNumber; $pageNumber <= $toPageNumber; $pageNumber++) {
+            Artisan::call('texttv:import', ['pageNumber' => $pageNumber]);
+        }
+    }
 
     /**
      * Define the application's command schedule.
@@ -114,7 +129,7 @@ class Kernel extends ConsoleKernel
      */
     protected function commands()
     {
-        $this->load(__DIR__.'/Commands');
+        $this->load(__DIR__ . '/Commands');
 
         require base_path('routes/console.php');
     }

@@ -11,9 +11,9 @@ Starta med `$ php artisan serve`.
     -   [x] Skriva ut sida från DB - `php artisan texttv:livepage 100`
     -   [ ] Importera sida eller sidintervall
         -   [x] Avgöra om en uppdatering av sidan skett (diff)
-        -   [ ] Spara till DB
-            -   [ ] med compress
-            -   [ ] som serialiserad
+        -   [x] Spara till DB
+            -   [x] med compress
+            -   [x] som serialiserad
 -   [ ] Kör som cron
 -   [x] Model för texttv-sida
 -   [ ] Skriv tester

@@ -2,6 +2,7 @@
 
 namespace App\Classes;
 
+use Exception;
 use Rct567\DomQuery\DomQuery;
 use Illuminate\Support\Facades\Http;
 
@@ -31,7 +32,6 @@ class Importer
      * Get page from remote server.
      * Return page object.
      * 
-     * @param int $pageNum 
      * @return $this
      */
     public function fromRemote()
@@ -41,8 +41,26 @@ class Importer
 
         if ($response->successful()) {
             $this->remoteResponse = $response;
-            $this->parseHTMLToObject();
+            $this->parseHTMLToObject($this->remoteResponse->body());
         }
+
+        return $this;
+    }
+
+    /**
+     * Get page from local file
+     * Return page object.
+     * 
+     * @param string $file Path and name of file
+     * @return $this
+     */
+    public function fromFile($file)
+    {
+        if (!file_exists($file)) {
+            throw new Exception('File not found');
+        }
+
+        $this->parseHTMLToObject(file_get_contents($file));
 
         return $this;
     }
@@ -54,9 +72,9 @@ class Importer
      * 
      * @return $this
      */
-    public function parseHTMLToObject()
+    public function parseHTMLToObject($html)
     {
-        $dom = new DomQuery($this->remoteResponse->body());
+        $dom = new DomQuery($html);
         $selector = '#__NEXT_DATA__';
         $element_content = $dom->find($selector)->text();
         $this->pageObject = json_decode($element_content);
@@ -316,8 +334,8 @@ class Importer
     /**
      * På sidan 100 fixar vi olika färger på rubrikerna
      
-     * @param array $subPageLines 
-     * @return array
+     * @param array $subPageLines Alla rader på sidan som en array.
+     * @return array Alla rader med <span> tillagd på varje rad med rubrik + efterföljande rubriker.
      */
     public function findHeadlines(array $subPageLines): array
     {
@@ -414,44 +432,19 @@ class Importer
 	
 
             */
+        // Rad att börja leta på. Först på rad 6 pga överst är text tv-loggan.
         $startLine = 6;
+
+        // Antal rader att leta efter rubrik på. Raden längst ner på startsidan är nav så den ska skippas.
         $linesCount = 15;
+
+        // start
+
+        // Array som med rader att slutligen leta efter rubriker i.
         $linesToLookForHeadlinesIn = array_slice($subPageLines, $startLine, $linesCount);
 
-        // Ta bort tomma rader.
-        $linesToLookForHeadlinesIn = array_filter($linesToLookForHeadlinesIn, function ($line) {
-            return !empty(trim($line));
-        });
-
-        // Indexera om.
-        $linesToLookForHeadlinesIn = array_values($linesToLookForHeadlinesIn);
-
-        // Hitta rubrik från första raden och framåt, stoppa när nästa rubrik börjar.
-        $foundHeadlines = [];
-        $currentFoundHeadline = [];
-        for ($i = 0; $i < count($linesToLookForHeadlinesIn); $i++) {
-            $lineNum = $i;
-            $line = $linesToLookForHeadlinesIn[$lineNum];
-            $trimmedLine = trim($linesToLookForHeadlinesIn[$lineNum]);
-
-            // Rubriken slutar när:
-            // - en rad består av siffror, t.ex. "131" eller "112/160 ", "135-136 "
-            // - en rad har 
-            // - en rad har siffror sist, t.ex. "Uefa: Blir publik under EM - 300   ", "Idrottsarenor i fransk covidkamp 130             "
-            // - se upp för rader med siffror som inte är nummer, t.ex. "Drottning Elizabeths make blev 99 år "
-
-            $lineIsSingleNumber = is_numeric($trimmedLine);
-            $lineIsNumberRange = (bool) preg_match('/^\d{3}[\/\-]\d{3}$/', $trimmedLine);
-            $lineEndsWithNumber = (bool) preg_match('/\d{3}$/', $trimmedLine);
-            $isEndOfHeadline = $lineIsSingleNumber || $lineIsNumberRange || $lineEndsWithNumber;
-
-            $currentFoundHeadline[] = $line;
-
-            if ($isEndOfHeadline) {
-                $foundHeadlines[] = $currentFoundHeadline;
-                $currentFoundHeadline = [];
-            }
-        }
+        // Multi dimensionell array med alla hittade rubriker, med stöd för flera rader per rubrik.
+        $foundHeadlines = $this->createHeadlinesMultiArray($linesToLookForHeadlinesIn);
 
         // Lägg till Y eller C.
         $foundHeadlines = array_map(function ($oneFoundHeadline, $index) {
@@ -481,6 +474,51 @@ class Importer
         array_splice($subPageLines, $startLine, $linesCount, $linesWithHeadlines);
 
         return $subPageLines;
+    }
+
+    /**
+     * Skapa multidimensional array med hittade rubriker från raderna som skickats in.
+     * 
+     * @param mixed $linesToLookForHeadlinesIn Array med rader
+     * @return array Multidimensional array med rubriker
+     */
+    public function createHeadlinesMultiArray($linesToLookForHeadlinesIn): array
+    {
+        // Ta bort tomma rader.
+        $linesToLookForHeadlinesIn = array_filter($linesToLookForHeadlinesIn, function ($line) {
+            return !empty(trim($line));
+        });
+
+        // Indexera om.
+        $linesToLookForHeadlinesIn = array_values($linesToLookForHeadlinesIn);
+
+        // Hitta rubrik från första raden och framåt, stoppa när nästa rubrik börjar.
+        $currentFoundHeadline = [];
+        for ($i = 0; $i < count($linesToLookForHeadlinesIn); $i++) {
+            $lineNum = $i;
+            $line = $linesToLookForHeadlinesIn[$lineNum];
+            $trimmedLine = trim($linesToLookForHeadlinesIn[$lineNum]);
+
+            // Rubriken slutar när:
+            // - en rad består av siffror, t.ex. "131" eller "112/160 ", "135-136 "
+            // - en rad har 
+            // - en rad har siffror sist, t.ex. "Uefa: Blir publik under EM - 300   ", "Idrottsarenor i fransk covidkamp 130             "
+            // - en rad har siffror sist men har ett minusstreck också, t.ex. 'Ryssland - Kreml varnar 135-',
+            // - se upp för rader med siffror som inte är nummer, t.ex. "Drottning Elizabeths make blev 99 år "
+            $lineIsSingleNumber = is_numeric($trimmedLine);
+            $lineIsNumberRange = (bool) preg_match('/^\d{3}[\/\-]\d{3}$/', $trimmedLine);
+            $lineEndsWithNumber = (bool) preg_match('/\d{3}-?$/', $trimmedLine);
+            $isEndOfHeadline = $lineIsSingleNumber || $lineIsNumberRange || $lineEndsWithNumber;
+
+            $currentFoundHeadline[] = $line;
+
+            if ($isEndOfHeadline) {
+                $foundHeadlines[] = $currentFoundHeadline;
+                $currentFoundHeadline = [];
+            }
+        }
+
+        return $foundHeadlines;
     }
 
     public function pageObject()

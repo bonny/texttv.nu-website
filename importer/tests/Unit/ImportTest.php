@@ -20,18 +20,19 @@ class ImportTest extends TestCase
 
         // Return files from local so we won't hammer the live
         // server when testing.
-        // Http::fake(function (\Illuminate\Http\Client\Request $request) {
-        //     $answers = [
-        //         'https://www.svt.se/text-tv/100' => '100.html',
-        //         'https://www.svt.se/text-tv/188' => '188.html',
-        //         'https://www.svt.se/text-tv/300' => '300.html',
-        //         'https://www.svt.se/text-tv/377' => '377.html',
-        //     ];
+        Http::fake(function (\Illuminate\Http\Client\Request $request) {
+            $answers = [
+                'https://www.svt.se/text-tv/100' => '100.html',
+                #'https://www.svt.se/text-tv/188' => '188.html',
+                'https://www.svt.se/text-tv/202' => '202.html',
+                'https://www.svt.se/text-tv/300' => '300.html',
+                'https://www.svt.se/text-tv/377' => '377.html',
+            ];
 
-        //     $contents = file_get_contents(__DIR__ . '/../TestPages/' . $answers[$request->url()]);
+            $contents = file_get_contents(__DIR__ . '/../TestPages/' . $answers[$request->url()]);
 
-        //     return Http::response($contents, 200);
-        // });
+            return Http::response($contents, 200);
+        });
     }
 
     /** @test */
@@ -92,4 +93,94 @@ class ImportTest extends TestCase
     //     $page100expected = file_get_contents(__DIR__ . '/../TestPages/100_expected.txt');
     //     $this->assertEquals($page100expected, $importer->pageAsText());
     // }
+
+    public function test_page_100_headlines_finder()
+    {
+        // Importera en fil eftersom vi behöver metadata för sidnummer.
+        // Själva raderna matar vi in manuellt i funktionen sen hur som helst.
+        $importer = new Importer(100);
+        $importer->fromFile(__DIR__ . '/../TestPages/100.html');
+
+        // Test 1
+        $lines = explode("\n", '
+           Norge förlänger paus med Astras vaccin
+         
+           Inväntar utredning som kommer den 10/5
+          131 
+                                                 
+                USA inför nya sanktioner mot     
+                Ryssland - Kreml varnar 135-     
+                                                 
+                                                 
+           FHM om covidläget: Otroligt allvarligt
+         
+           Alla ska ha fått en dos den 15 augusti
+          108 
+                                                 
+           Tre avlidna i salmonella i Danmark 134
+        ');
+        $lines = array_map('trim', $lines);
+
+        $expected = [
+            [
+                'Norge förlänger paus med Astras vaccin',
+                'Inväntar utredning som kommer den 10/5',
+                '131',
+            ],
+            [
+                'USA inför nya sanktioner mot',
+                'Ryssland - Kreml varnar 135-',
+            ],
+            [
+                'FHM om covidläget: Otroligt allvarligt',
+                'Alla ska ha fått en dos den 15 augusti',
+                '108',
+            ],
+            [
+                'Tre avlidna i salmonella i Danmark 134'
+            ]
+        ];
+
+        $this->assertEquals($expected, $importer->createHeadlinesMultiArray($lines));
+
+        // Test 2
+        $lines = array_map('trim', explode("\n", '
+        Tegnell skeptisk till vaccinmål     
+
+        Tvivlar på samordnarens uppgifter    
+      107 
+                                             
+             Floyd-rättegången i USA -       
+             "Jag bevittnade ett mord"       
+                       137                   
+                                             
+       Pollenhalt 100 gånger högre än i fjol 
+     
+      115 
+                                             
+      Villa Lidköping klart för SM-final 300
+      '));
+
+        $expected = [
+            [
+                'Tegnell skeptisk till vaccinmål',
+                'Tvivlar på samordnarens uppgifter',
+                '107'
+            ],
+            [
+                'Floyd-rättegången i USA -',
+                '"Jag bevittnade ett mord"',
+                '137'
+            ],
+            [
+                'Pollenhalt 100 gånger högre än i fjol',
+                '115'
+            ],
+            [
+                'Villa Lidköping klart för SM-final 300'
+            ]
+        ];
+
+        $this->assertEquals($expected, $importer->createHeadlinesMultiArray($lines));
+    }
 }

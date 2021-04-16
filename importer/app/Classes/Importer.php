@@ -501,14 +501,16 @@ class Importer
 
             // Rubriken slutar när:
             // - en rad består av siffror, t.ex. "131" eller "112/160 ", "135-136 "
-            // - en rad har 
-            // - en rad har siffror sist, t.ex. "Uefa: Blir publik under EM - 300   ", "Idrottsarenor i fransk covidkamp 130             "
+            // - en rad har siffror sist, t.ex. "Uefa: Blir publik under EM - 300   ", "Idrottsarenor i fransk covidkamp 130"
             // - en rad har siffror sist men har ett minusstreck också, t.ex. 'Ryssland - Kreml varnar 135-',
             // - se upp för rader med siffror som inte är nummer, t.ex. "Drottning Elizabeths make blev 99 år "
+            // - se upp för rader som slutar med tre siffror men som är del av nummer, t.ex. '27 nya corona-dödsfall - totalt 13 788'.
             $lineIsSingleNumber = is_numeric($trimmedLine);
             $lineIsNumberRange = (bool) preg_match('/^\d{3}[\/\-]\d{3}$/', $trimmedLine);
             $lineEndsWithNumber = (bool) preg_match('/\d{3}-?$/', $trimmedLine);
-            $isEndOfHeadline = $lineIsSingleNumber || $lineIsNumberRange || $lineEndsWithNumber;
+            $lineEndsWithNumberThatProbablyNotIsPageNumber = (bool) preg_match('/ \d+ \d{3}/', $trimmedLine);
+
+            $isEndOfHeadline = ($lineIsSingleNumber || $lineIsNumberRange || $lineEndsWithNumber) && !$lineEndsWithNumberThatProbablyNotIsPageNumber;
 
             $currentFoundHeadline[] = $line;
 

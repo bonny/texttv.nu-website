@@ -102,7 +102,7 @@ class ImportTest extends TestCase
         $importer->fromFile(__DIR__ . '/../TestPages/100.html');
 
         // Test 1
-        $lines = explode("\n", '
+        $lines = $lines = array_map('trim', explode("\n", '
            Norge förlänger paus med Astras vaccin
          
            Inväntar utredning som kommer den 10/5
@@ -118,8 +118,7 @@ class ImportTest extends TestCase
           108 
                                                  
            Tre avlidna i salmonella i Danmark 134
-        ');
-        $lines = array_map('trim', $lines);
+        '));
 
         $expected = [
             [
@@ -178,6 +177,49 @@ class ImportTest extends TestCase
             ],
             [
                 'Villa Lidköping klart för SM-final 300'
+            ]
+        ];
+
+        $this->assertEquals($expected, $importer->createHeadlinesMultiArray($lines));
+
+        // Test 3 med lurigt nummer.
+        $lines = $lines = array_map('trim', explode("\n", '
+            27 nya corona-dödsfall - totalt 13 788
+
+            Totalt över 900 000 bekräftat smittade
+            106 
+                                                
+            Krogar i Finland     Kina vill stärka 
+            öppnar på måndag     klimatsamarbetet 
+                133                 136        
+                                                
+            Storsatsning på Sveriges infrastruktur
+        
+            Regeringen vill lägga 799 miljarder kr
+            114 
+                                                
+            Internationell polisinsats i Skåne 117
+        '));
+
+        $expected = [
+            [
+                '27 nya corona-dödsfall - totalt 13 788',
+                'Totalt över 900 000 bekräftat smittade',
+                '106'
+            ],
+            [
+                'Krogar i Finland     Kina vill stärka',
+                'öppnar på måndag     klimatsamarbetet',
+                '133                 136'
+            ],
+            [
+                'Storsatsning på Sveriges infrastruktur',
+                'Regeringen vill lägga 799 miljarder kr',
+                '114'
+
+            ],
+            [
+                'Internationell polisinsats i Skåne 117'
             ]
         ];
 

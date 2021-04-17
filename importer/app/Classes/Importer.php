@@ -102,7 +102,7 @@ class Importer
             // Lägg till <span class="toprow"> på första raden.
             $subPageLines[0] = sprintf('<span class="toprow">%s</span>', $subPageLines[0]);
 
-            // Ofast är rad 24 den sista men ibland inte, t.ex. på sidan 100.
+            // Ofast är rad 24 den sista med innehåll men ibland inte, t.ex. på sidan 100.
             // Beror ev. på om stora tecken/stort typsnitt har använts?
             $lastLine = $subPageLines[sizeof($subPageLines) - 1];
             $lastLineIsEmpty = trim($lastLine) ? false : true;
@@ -142,7 +142,19 @@ class Importer
 
             // Blåa rader på sidan 100.
             if ($pageNum == 100) {
-                $subPageLines[1] = sprintf('<span class="bgB">%s</span>', $subPageLines[1]);
+                // Text TV-logo på sidan 100.
+                $style = "
+                    position: absolute;
+                    background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAATIAAAA2AQMAAAB+7ockAAAABlBMVEVHcEz///+flKJDAAAAAXRSTlMAQObYZgAAAItJREFUeF7d1LENwyAUBuFDLlwygkfxZiHZjFEYgZLCykWkSBSJAQJPuup99U9QH1awHaqZTbXxvc3CMs5VXIPg2/UAOOzZOJ9E7zO7XbVyIxbUvI7reLOki1+X2StJS//y9y6o95FTK8HKHA7i2GVgVUdURi5pmcOpA9fTSrriPC4zcJyfnWQ3r+JeX1OjS/+l1dsAAAAASUVORK5CYII=');
+                    top: 1ex;
+                    left: 3.5ex;
+                    width: 26ex;
+                    height: 6.8ex;
+                    background-repeat: no-repeat;
+                    background-size: 100% 100%;
+                ";
+
+                $subPageLines[1] = sprintf('<span class="bgB" style="position:relative;"><em style="%2$s"></em>%1$s</span>', $subPageLines[1], $style);
                 $subPageLines[2] = sprintf('<span class="bgB">%s</span>', $subPageLines[2]);
                 $subPageLines[3] = sprintf('<span class="bgB">%s</span>', $subPageLines[3]);
                 $subPageLines[4] = sprintf('<span class="bgB">%s</span>', $subPageLines[4]);
@@ -186,8 +198,29 @@ class Importer
                 $subPageLines[1] = sprintf('<span class="bgB">%s</span>', $subPageLines[1]);
             }
 
+            // Blåa rader med logo på sport 300.
+            if ($pageNum == 300) {
+                $style = "
+                    position: absolute;
+                    background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAATIAAABAAgMAAADkNRMoAAAACVBMVEVHcEz//wD///84dUPBAAAAAXRSTlMAQObYZgAAALtJREFUeAHt1wEGwzAUxvG3USgAvUROkSMUeffpUQaonHJ73WdPu0HyIOb7I6SN3xCJVSItqmsIoNZX2qn9lzbX6tqkpzK1gHavRxvWJkxE6tHjveI1bP7E+jAFOrV+zSEbTpMdr02zCd74oVrgZWoDauJrf2siV83Gm6KYRg3nFECj5lfmGtCooblN83xjM7VRtMttiVo0wa1Z+jRqDf9DULIn32FP+zRqHrSm/Hcm1TKERi0YtOCnL7UnmklonAf5lEYAAAAASUVORK5CYII=');
+                    top: 0ex;
+                    left: 3.5ex;
+                    width: 26ex;
+                    height: 8.6ex;
+                    background-repeat: no-repeat;
+                    background-size: 100% 100%;
+                ";
+
+                $subPageLines[1] = sprintf('<span class="bgB" style="position:relative;"><em style="%2$s"></em>%s</span>', $subPageLines[1], $style);
+                $subPageLines[2] = sprintf('<span class="bgB">%s</span>', $subPageLines[2]);
+                $subPageLines[3] = sprintf('<span class="bgB">%s</span>', $subPageLines[3]);
+                $subPageLines[5] = sprintf('<span class="bgB">%s</span>', $subPageLines[5]);
+
+                $subPageLines[22] = sprintf('<span class="bgY">%s</span>', $subPageLines[22]);
+            }
+
             // Blåa rader överst på sport + gul rad längst ner.
-            if (in_array($pageNum, [300, 301, 302])) {
+            if (in_array($pageNum, [301, 302])) {
                 $subPageLines[1] = sprintf('<span class="bgB">%s</span>', $subPageLines[1]);
                 $subPageLines[2] = sprintf('<span class="bgB">%s</span>', $subPageLines[2]);
                 $subPageLines[3] = sprintf('<span class="bgB">%s</span>', $subPageLines[3]);

@@ -420,24 +420,28 @@ class Importer
     public function addLinks(string $subPageText): string
     {
 
+        // Regexp som matchar 1-9 och sedan två valfria siffror, 
+        // så den tar inte med 000 till och med 099 men 100 och framåt.
+        $regexpNumerLargerThan99 = '[1-9]\d{2}';
+
         // "203-219" osv.
         $subPageText = preg_replace('/(\d{3}-\d{3})/', '<a href="/$1">$1</a>', $subPageText);
         // " 100 " osv.
-        $subPageText = preg_replace('/ (\d{3}) /', ' <a href="/$1">$1</a> ', $subPageText);
+        $subPageText = preg_replace('/ (' . $regexpNumerLargerThan99 . ') /', ' <a href="/$1">$1</a> ', $subPageText);
         // " 100" osv.
-        $subPageText = preg_replace('/ (\d{3})\n/', " <a href=\"/\\1\">\\1</a>\n", $subPageText);
+        $subPageText = preg_replace('/ (' . $regexpNumerLargerThan99 . ')\n/', " <a href=\"/\\1\">\\1</a>\n", $subPageText);
         // "100-" osv.
-        $subPageText = preg_replace('/ (\d{3})-/', ' <a href="/$1">$1-</a>', $subPageText);
+        $subPageText = preg_replace('/ (' . $regexpNumerLargerThan99 . ')-/', ' <a href="/$1">$1-</a>', $subPageText);
         // "...100 " osv.
-        $subPageText = preg_replace('/\.\.(\d{3})/', '..<a href="/$1">$1</a>', $subPageText);
+        $subPageText = preg_replace('/\.\.(' . $regexpNumerLargerThan99 . ')/', '..<a href="/$1">$1</a>', $subPageText);
         // "417f" osv.
-        $subPageText = preg_replace('/(\d{3})f/', '<a href="/$1">$1f</a>', $subPageText);
+        $subPageText = preg_replace('/(' . $regexpNumerLargerThan99 . ')f/', '<a href="/$1">$1f</a>', $subPageText);
         // "530/" osv.
-        $subPageText = preg_replace('/(\d{3})\//', '<a href="/$1">$1</a>/', $subPageText);
+        $subPageText = preg_replace('/(' . $regexpNumerLargerThan99 . ')\//', '<a href="/$1">$1</a>/', $subPageText);
         // "Innehåll 700</span>" osv
-        $subPageText = preg_replace('/ (\d{3})</', ' <a href="/$1">$1</a><', $subPageText);
+        $subPageText = preg_replace('/ (' . $regexpNumerLargerThan99 . ')</', ' <a href="/$1">$1</a><', $subPageText);
         // "143,150" osv.
-        $subPageText = preg_replace('/ (\d{3},\d{3}) /', ' <a href="/$1">$1</a> ', $subPageText);
+        $subPageText = preg_replace('/ (' . $regexpNumerLargerThan99 . ',' . $regexpNumerLargerThan99 . ') /', ' <a href="/$1">$1</a> ', $subPageText);
 
         // Ersätt "nästa sida" med länk till nästa sida.
         $subPageText = preg_replace('/ ((N|n)ästa sida) /', ' <a href="/' . ($this->pageNum() + 1) . '">$1</a> ', $subPageText);

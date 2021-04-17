@@ -146,12 +146,11 @@ class Importer
                 $style = "
                     position: absolute;
                     background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAATIAAAA2AQMAAAB+7ockAAAABlBMVEVHcEz///+flKJDAAAAAXRSTlMAQObYZgAAAItJREFUeF7d1LENwyAUBuFDLlwygkfxZiHZjFEYgZLCykWkSBSJAQJPuup99U9QH1awHaqZTbXxvc3CMs5VXIPg2/UAOOzZOJ9E7zO7XbVyIxbUvI7reLOki1+X2StJS//y9y6o95FTK8HKHA7i2GVgVUdURi5pmcOpA9fTSrriPC4zcJyfnWQ3r+JeX1OjS/+l1dsAAAAASUVORK5CYII=');
+                    background-size: 100% 100%;
                     top: 1ex;
                     left: 3.5ex;
                     width: 26ex;
-                    height: 6.8ex;
-                    background-repeat: no-repeat;
-                    background-size: 100% 100%;
+                    height: 6ex;
                 ";
 
                 $subPageLines[1] = sprintf('<span class="bgB" style="position:relative;"><em style="%2$s"></em>%1$s</span>', $subPageLines[1], $style);
@@ -160,7 +159,50 @@ class Importer
                 $subPageLines[4] = sprintf('<span class="bgB">%s</span>', $subPageLines[4]);
             }
 
-            // Blåa rader på nyheterna 101.
+            // Blåa rader + logo på nyheter inrikes.
+            if (in_array($pageNum, [101, 102, 103])) {
+                $style = "
+                    position: absolute;
+                    background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPEAAAAwAQMAAAD6sQ5bAAAABlBMVEVHcEz///+flKJDAAAAAXRSTlMAQObYZgAAAHdJREFUeF7V07ENAyEQRNE5XUBICS7FpbHu7Eq5EhwSIMa7EyDZDXj5EeIRILSAHavnLLzwVXL/LZ+zV774Rhvl1v2PgQfZXcgrh8+Td2OHvI1KQxyGL7ZwCx+QM7a9cC+nm8SzZL7eV9UdXfOt90/r0DDr//3bPwO6ouMqKIOfAAAAAElFTkSuQmCC');
+                    background-size: 100% 100%;
+                    top: .75ex;
+                    left: 3.5ex;
+                    width: 22ex;
+                    height: 6ex;
+                ";
+
+                $subPageLines[1] = sprintf('<span class="bgB" style="position:relative;"><em style="%2$s"></em>%1$s</span>', $subPageLines[1], $style);
+                $subPageLines[2] = sprintf('<span class="bgB">%s</span>', $subPageLines[2]);
+                $subPageLines[3] = sprintf('<span class="bgB">%s</span>', $subPageLines[3]);
+                $subPageLines[5] = sprintf('<span class="bgB">%s</span>', $subPageLines[5]);
+            }
+
+            // Blåa rader + logo på nyheter inrikes.
+            if (in_array($pageNum, [104, 105])) {
+                $style = "
+                    position: absolute;
+                    background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQQAAAAwAQMAAADNWpZGAAAABlBMVEVHcEz///+flKJDAAAAAXRSTlMAQObYZgAAAHZJREFUeF7V07ENhTAMhOFDFJQZgVGyWtjsjeQyBeJHtiyht4Fz7X2NZVuZPuQ5+DH1l+VEYyhTVjDVnwMeV3fMoj52QDph1hLRqoFCNC5Mcr5hi4oRAi8AF5KqC/PuBKywyL1EtqVFfkPupZJwneoTefjRVBEvatjIQnk/vLAAAAAASUVORK5CYII=');
+                    background-size: 100% 100%;
+                    top: .75ex;
+                    left: 3.5ex;
+                    width: 24ex;
+                    height: 6ex;
+                ";
+
+                $subPageLines[1] = sprintf('<span class="bgB" style="position:relative;"><em style="%2$s"></em>%1$s</span>', $subPageLines[1], $style);
+                $subPageLines[2] = sprintf('<span class="bgB">%s</span>', $subPageLines[2]);
+                $subPageLines[3] = sprintf('<span class="bgB">%s</span>', $subPageLines[3]);
+                $subPageLines[5] = sprintf('<span class="bgB">%s</span>', $subPageLines[5]);
+            }
+
+            // Flytta "SVT Text" till höger på nyheter och sport
+            if (in_array($pageNum, [101, 102, 103])) {
+                $subPageLines[3] = str_replace('SVT Text                              ', '                           SVT Text   ', $subPageLines[3]);
+            } else if (in_array($pageNum, [104, 105])) {
+                $subPageLines[3] = str_replace('SVT Text                               ', '                            SVT Text   ', $subPageLines[3]);
+            }
+            
+            // Blåa rader på nyheterna.
             if (in_array($pageNum, [101, 102, 103, 104, 105])) {
                 $subPageLines[1] = sprintf('<span class="bgB">%s</span>', $subPageLines[1]);
                 $subPageLines[2] = sprintf('<span class="bgB">%s</span>', $subPageLines[2]);
@@ -206,8 +248,7 @@ class Importer
                     top: 0ex;
                     left: 3.5ex;
                     width: 26ex;
-                    height: 8.6ex;
-                    background-repeat: no-repeat;
+                    height: 7.5ex;
                     background-size: 100% 100%;
                 ";
 

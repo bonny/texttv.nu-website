@@ -309,7 +309,18 @@ class Importer
 
             // Innehåll
             if ($pageNum == 700 || $pageNum == 701) {
-                $subPageLines[1] = sprintf('<span class="bgB">%s</span>', $subPageLines[1]);
+                $style = "
+                    position: absolute;
+                    background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAfsAAABAAgMAAABgnzZDAAAADFBMVEUAAP//////AAD//wDg5MJMAAABD0lEQVR4Xu3YMQ7CMAwFUHvIEXKfHCFD/v2YOR03AMmKYitRqiJ1KOj/DWr8FrttkLflJZcnQxKKIqRJgihKAE759OknoH15GVVydzMsqGJlP+PTp4/2re/7h8nH4f7Rp59jUW7WA0VgqSIKSxkkgOJfxgwyftjPP336Cea6P88/EK9Y6jr/oVuMWu29ffr0/fggqx/XSPt2rb7GstFyWlP69J+WRyyqx77/fO/HI0eH4svIxqdP36hT/v7+myAKuK8ow7cGqLf26dOXUeT+fGPvvbb752WwkTreP/r00xho902JT4b1/OdlPv9FTBtzX/1oOc8/ffqXxed/jc//H/v06YuG/+yMlbT8/0uf/gfo1G4Lq/59IgAAAABJRU5ErkJggg==');
+                    top: 0ex;
+                    left: 0;
+                    width: 100%;
+                    height: 8.6ex;
+                    background-size: 100% 100%;
+                ";
+
+                $subPageLines[1] = sprintf('<span class="bgB" style="position:relative;"><em style="%2$s"></em>%s</span>', $subPageLines[1], $style);
+
                 $subPageLines[2] = sprintf('<span class="bgB">%s</span>', $subPageLines[2]);
                 $subPageLines[3] = sprintf('<span class="bgB">%s</span>', $subPageLines[3]);
                 $subPageLines[4] = sprintf('<span class="bgB">%s</span>', $subPageLines[5]);

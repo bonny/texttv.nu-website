@@ -140,6 +140,14 @@ class Importer
                 $subPageLines[23] = sprintf('<span class="bgY">%s</span>', $subPageLines[23]);
             }
 
+            // Lägg till gul rad högst upp på börsen
+            if (
+                // Ekonomi
+                ($pageNum == 202)
+            ) {
+                $subPageLines[2] = sprintf('<span class="bgY">%s</span>', $subPageLines[2]);
+            }
+
             // Blåa rader på sidan 100.
             if ($pageNum == 100) {
                 // Text TV-logo på sidan 100.
@@ -419,6 +427,16 @@ class Importer
      */
     public function addLinks(string $subPageText): string
     {
+        $addLinks = true;
+
+        // Lägg inte till länkar på börskurserna, 203-246.
+        if ($this->pageNum() >= 203 && $this->pageNum() <= 246) {
+            $addLinks = false;
+        }
+
+        if (!$addLinks) {
+            return $subPageText;
+        }
 
         // Regexp som matchar 1-9 och sedan två valfria siffror, 
         // så den tar inte med 000 till och med 099 men 100 och framåt.

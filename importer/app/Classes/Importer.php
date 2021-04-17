@@ -296,6 +296,30 @@ class Importer
                 $subPageLines[1] = str_replace(' 1,2 milj/dag                           ', '                           1,2 milj/dag ', $subPageLines[1]);
             }
 
+            // Gul stor text på rubrik på sportnyheter.
+            if ($pageNum >= 303 && $pageNum <= 314) {
+                $subPageLines[3] = sprintf('<span class="Y DH">%s</span>', $subPageLines[3]);
+            }
+
+            // Inledande gul versal text på sportnotiser.
+            if ($pageNum == 328) {
+                $subPageLines = array_map(function ($line, $lineIndex) {
+                    // Agera endast på rad 3 till 22.
+                    if ($lineIndex < 3 || $lineIndex > 22) {
+                        return $line;
+                    }
+
+                    // Om första ordet på raden är enbart versaler.
+                    if (preg_match('/^ ?([A-ZÅÄÄÖ]+) /', $line, $matches)) {
+                        if (isset($matches[1])) {
+                            $line = str_replace($matches[1], "<span class='Y'>{$matches[1]}</span>", $line);
+                        }
+                    }
+
+                    return $line;
+                }, $subPageLines, array_keys($subPageLines));
+            }
+
             // Blåa rader överst på väder.
             if ($pageNum == 400) {
                 $style = "

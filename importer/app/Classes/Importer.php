@@ -436,6 +436,8 @@ class Importer
         $subPageText = preg_replace('/(\d{3})\//', '<a href="/$1">$1</a>/', $subPageText);
         // "Innehåll 700</span>" osv
         $subPageText = preg_replace('/ (\d{3})</', ' <a href="/$1">$1</a><', $subPageText);
+        // "143,150" osv.
+        $subPageText = preg_replace('/ (\d{3},\d{3}) /', ' <a href="/$1">$1</a> ', $subPageText);
 
         // Ersätt "nästa sida" med länk till nästa sida.
         $subPageText = preg_replace('/ ((N|n)ästa sida) /', ' <a href="/' . ($this->pageNum() + 1) . '">$1</a> ', $subPageText);

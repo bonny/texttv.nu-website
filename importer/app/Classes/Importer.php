@@ -201,7 +201,7 @@ class Importer
             } else if (in_array($pageNum, [104, 105])) {
                 $subPageLines[3] = str_replace('SVT Text                               ', '                            SVT Text   ', $subPageLines[3]);
             }
-            
+
             // Blåa rader på nyheterna.
             if (in_array($pageNum, [101, 102, 103, 104, 105])) {
                 $subPageLines[1] = sprintf('<span class="bgB">%s</span>', $subPageLines[1]);
@@ -217,9 +217,34 @@ class Importer
 
             // Blåa rader på ekonomi.
             if (in_array($pageNum, [200, 201])) {
-                $subPageLines[1] = sprintf('<span class="bgB">%s</span>', $subPageLines[1]);
+                if ($pageNum == 200) {
+                    $style = "
+                        position: absolute;
+                        background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAATgAAAAwAQMAAAC/lfTwAAAABlBMVEVHcEz///+flKJDAAAAAXRSTlMAQObYZgAAAHtJREFUeAFiAAPm/w8Y8AH5/6PqAN3UwQ2EERiE4XFyVMKWsp0tpW1Jjg7iXV+QTf4KcMM8JBNiM+eAZI6iN2RFW5CHpgDkcdb2rsf6dBertfJ8o0VjY6CNwYt7HNgMtFzV36VzXJF0j5v3dr9zsF7j0U7++b/M4jQd5H6aIF4c4zrc/AAAAABJRU5ErkJggg==');
+                        top: .75ex;
+                        left: 3.5ex;
+                        width: 26ex;
+                        height: 5ex;
+                        background-size: 100% 100%;
+                    ";
+                    $subPageLines[1] = sprintf('<span class="bgB" style="position:relative;"><em style="%2$s"></em>%s</span>', $subPageLines[1], $style);
+                } else if ($pageNum == 201) {
+                    $style = "
+                        position: absolute;
+                        background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQsAAAAwAQMAAAA8Uc3LAAAABlBMVEVHcEz///+flKJDAAAAAXRSTlMAQObYZgAAAIBJREFUeF7V07ENxCAMheEXUVAyAqNktHi0G+VGuDJF5Be/IIXiFsB/ZdBHZQGeUN3KGP5LSlQO0uhAZ9jdKz8bSUMlHY3kby0id1yNVvh9yHGFj8N4rCEbOTHJOAAoJEVsaeIANkbhASQgqucmahL5IKja0Ypk/mm8OzJdONYjN2SG0UJc2iYtAAAAAElFTkSuQmCC');
+                        top: .75ex;
+                        left: 3.5ex;
+                        width: 24ex;
+                        height: 5ex;
+                        background-size: 100% 100%;
+                    ";
+                    $subPageLines[1] = sprintf('<span class="bgB" style="position:relative;"><em style="%2$s"></em>%s</span>', $subPageLines[1], $style);
+                }
+
                 $subPageLines[2] = sprintf('<span class="bgB">%s</span>', $subPageLines[2]);
                 $subPageLines[3] = sprintf('<span class="bgB">%s</span>', $subPageLines[3]);
+
+                $subPageLines[3] = str_replace('SVT Text                               ', '                            SVT Text   ', $subPageLines[3]);
             }
 
             // Gul bakgrund på rubrik på ekonomi.

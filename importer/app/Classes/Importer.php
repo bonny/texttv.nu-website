@@ -265,10 +265,22 @@ class Importer
 
             // Blåa rader överst på väder.
             if ($pageNum == 400) {
-                $subPageLines[1] = sprintf('<span class="bgB">%s</span>', $subPageLines[1]);
+                $style = "
+                    position: absolute;
+                    background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPcAAAA1AQMAAACnYu+vAAAABlBMVEVHcEz///+flKJDAAAAAXRSTlMAQObYZgAAAIVJREFUeF7V0rENwkAMQNEfpbiSERjlRruMxig3QsorkD9EESgCiTbGhZtXfct8Tg2Ok8YbpX95XbL7z76L57sDJleadiY1ZnubVYpGFr8uFG8O6tNdHBBbX3bf2+7AwTuqubzp0QeQwilrDbhK+VPXt7/+m1mNHL7v/f5bzOZQFKhxtj8AkVx9pb3mikQAAAAASUVORK5CYII=');
+                    top: 0ex;
+                    left: 3.5ex;
+                    width: 26ex;
+                    height: 7.5ex;
+                    background-size: 100% 100%;
+                ";
+
+                $subPageLines[1] = sprintf('<span class="bgB" style="position:relative;"><em style="%2$s"></em>%s</span>', $subPageLines[1], $style);
                 $subPageLines[2] = sprintf('<span class="bgB">%s</span>', $subPageLines[2]);
                 $subPageLines[3] = sprintf('<span class="bgB">%s</span>', $subPageLines[3]);
                 $subPageLines[4] = sprintf('<span class="bgB">%s</span>', $subPageLines[4]);
+
+                $subPageLines[3] = str_replace('SVT Text                               ', '                            SVT Text   ', $subPageLines[3]);
             }
 
             // Blåa rader överst på blandat.

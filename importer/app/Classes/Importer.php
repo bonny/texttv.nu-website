@@ -302,7 +302,7 @@ class Importer
             }
 
             // Inledande gul versal text på sportnotiser.
-            if ($pageNum == 328) {
+            if ($pageNum == 328 || $pageNum == 329) {
                 $subPageLines = array_map(function ($line, $lineIndex) {
                     // Agera endast på rad 3 till 22.
                     if ($lineIndex < 3 || $lineIndex > 22) {
@@ -319,6 +319,8 @@ class Importer
                     return $line;
                 }, $subPageLines, array_keys($subPageLines));
             }
+
+            // Inledande gul text på inrikes i korthet.
 
             // Blåa rader överst på väder.
             if ($pageNum == 400) {

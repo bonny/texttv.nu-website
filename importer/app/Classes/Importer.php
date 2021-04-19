@@ -321,6 +321,28 @@ class Importer
             }
 
             // Inledande gul text på inrikes i korthet.
+            if ($pageNum == 128) {
+                $subPageLines = array_map(function ($line, $lineIndex) use ($subPageLines) {
+                    // Agera endast på rad 3 till 22.
+                    if ($lineIndex < 3 || $lineIndex > 22) {
+                        return $line;
+                    }
+
+                    // Om rad med tom rad ovan
+                    $lineBeforeCurrentIsEmpty = empty(trim($subPageLines[$lineIndex - 1]));
+                    $currentLineIsEmpty = empty(trim($subPageLines[$lineIndex]));
+                    if ($lineBeforeCurrentIsEmpty && !$currentLineIsEmpty) {
+                        // dump($lineBeforeCurrentIsEmpty, $currentLineIsEmpty, $subPageLines[$lineIndex]);                       
+                        if (preg_match('/^ +?([\wåäöÅÄÖ]+)/', $line, $matches)) {
+                            if (isset($matches[1])) {
+                                $line = str_replace($matches[1], "<span class='Y'>{$matches[1]}</span>", $line);
+                            }
+                        }
+                    }
+
+                    return $line;
+                }, $subPageLines, array_keys($subPageLines));
+            }
 
             // Blåa rader överst på väder.
             if ($pageNum == 400) {

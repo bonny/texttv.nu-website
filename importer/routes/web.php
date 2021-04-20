@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Classes\Importer;
 use App\Models\TextTV;
+use App\Http\Controllers\PageColors;
 
 /*
 |--------------------------------------------------------------------------
@@ -37,8 +38,7 @@ Route::get('/live/{pageNum}', function ($pageNum) {
 // Route för att live-visa sidor från SVT.
 Route::redirect('/db/', '/db/100');
 Route::get('/db/{pageNum}', function ($pageNum) {
-    $page = TextTV::
-        where('page_num', $pageNum)
+    $page = TextTV::where('page_num', $pageNum)
         ->orderByDesc('date_updated')
         ->limit(1)
         ->firstOrFail();
@@ -57,3 +57,5 @@ Route::get('/db/{pageNum}', function ($pageNum) {
         ]
     );
 })->where('pageNum', '[0-9]+');
+
+Route::get('/pagecolors', [PageColors::class, 'index']);

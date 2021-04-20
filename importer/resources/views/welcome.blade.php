@@ -14,6 +14,7 @@
         <ul>
             <li><a href="/live/100">/live/100</a></li>
             <li><a href="/db/100">/db/100</a></li>
+            <li><a href="/pagecolors">/pagecolors</a></li>
         </ul>
     </body>
 </html>

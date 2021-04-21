@@ -60,4 +60,4 @@ Route::get('/db/{pageNum}', function ($pageNum) {
     );
 })->where('pageNum', '[0-9]+');
 
-Route::get('/pagecolors/{pageNum}', [PageColors::class, 'index'])->where('pageNum', '[0-9]+');
+Route::get('/pagecolors/{pageNum}', [PageColors::class, 'index'])->where('pageNum', '[0-9\-]+');

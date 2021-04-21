@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 class PageColors extends Controller
 {
 
-    public function index(int $pageNum)
+    public function index($pageNum)
     {
         $testPagesDir = base_path('tests/TestPages');
         $imagePathAndName = "{$testPagesDir}/{$pageNum}.gif";
@@ -20,7 +20,7 @@ class PageColors extends Controller
         echo "<br><code>getChar(0, 7)</code>: " . $charsExtractor->getChar(0, 7)['charAsImgTag'];
         echo "<hr>";
         echo $charsExtractor->getImageDebugHtml();
-        // echo "<pre>" . print_r($charsExtractor->getChars(), 1) . "</pre>";
+        echo "<pre>" . print_r($charsExtractor->getChars(), 1) . "</pre>";
 
 ?>
         <script>

@@ -112,12 +112,54 @@ class Importer
                         }
 
                         #dd($charInfo['charColors']);
-                        $char = sprintf(
-                            '<span class="%2$s %3$s">%1$s</span>',
-                            $char,
-                            $charInfo['charColors']['backgroundClass'],
-                            $charInfo['charColors']['textClass']
-                        );
+                        #dd($charInfo['charType']);
+                        if ($charInfo['charType']['type'] === 'image') {
+                            $charInfoHash = $charInfo['charImageHash'];
+                            $charFilename = "storage/chars/{$charInfoHash}.gif";
+                            $charUrl = asset($charFilename);
+
+                            // Bild
+                            $style = sprintf(
+                                '
+                                    background-image: url(%1$s);
+                                    background-size: cover;
+                                ',
+                                $charUrl
+                            );
+                            $char = sprintf(
+                                '<span class="%2$s %3$s" data-image-hash="%4$s" style="%5$s">%1$s</span>',
+                                $char,
+                                $charInfo['charColors']['backgroundClass'],
+                                $charInfo['charColors']['textClass'],
+                                $charInfo['charImageHash'], // 4
+                                $style // 5
+                            );
+                        } elseif ($charInfo['charType']['type'] === 'text' && $charInfo['charType']['scale'] === 2) {
+                            // Rubrik
+                            $style = '
+                                display: inline-block;
+                                transform: scaleY(2);
+                                transform-origin: top;
+                            ';
+                            $char = sprintf(
+                                '<span class="%2$s %3$s" style="%4$s" data-image-hash="%5$s">%1$s</span>',
+                                $char,
+                                $charInfo['charColors']['backgroundClass'],
+                                $charInfo['charColors']['textClass'],
+                                $style, // 4
+                                $charInfo['charImageHash'] // 5
+                            );
+                        } else {
+                            // Vanlig text
+                            $char = sprintf(
+                                '<span class="%2$s %3$s" data-image-hash="%4$s">%1$s</span>',
+                                $char,
+                                $charInfo['charColors']['backgroundClass'],
+                                $charInfo['charColors']['textClass'],
+                                $charInfo['charImageHash'] // 4
+                            );
+                        }
+
                         return $char;
                     },
                     $lineChars,

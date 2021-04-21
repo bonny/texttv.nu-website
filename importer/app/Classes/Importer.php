@@ -82,6 +82,70 @@ class Importer
         return $this;
     }
 
+    public function colorize()
+    {
+        $subPages = $this->subPages();
+
+        $subPages->transform(function ($subPage, $subPageIndex) {
+            $charsExtractor = new TeletextCharsExtractor;
+            $charsExtractor->imageFromString(base64_decode($subPage['gifAsBase64']))->parseImage();
+            #echo $charsExtractor->getImageDebugHtml();
+            #echo "<pre>" . print_r($charsExtractor->getChars(), 1) . "</pre>";
+
+            $subPageLines = explode("\n", $subPage['text']);
+            $pageNum = $this->pageNum();
+
+            // Gör "SVT Text" gul på första raden.
+            #$subPageLines[0] = str_replace('SVT Text', '<span class="Y">SVT Text</span>', $subPageLines[0]);
+
+            // Hämta färg för varje rad, för varje kolumn.
+            $subPageLines = array_map(function ($line, $lineIndex) use ($charsExtractor) {
+                // Hämta färg för varje tecken på denna rad.
+                #echo "<br>lineIndex: $lineIndex";
+                $lineChars = mb_str_split($line);
+                #dump($lineChars);
+                $lineChars = array_map(
+                    function ($char, $charIndex) use ($line, $lineIndex, $charsExtractor) {
+                        $charInfo = $charsExtractor->getChar($lineIndex, $charIndex);
+                        if (!$charInfo) {
+                            return $char;
+                        }
+
+                        #dd($charInfo['charColors']);
+                        $char = sprintf(
+                            '<span class="%2$s %3$s">%1$s</span>',
+                            $char,
+                            $charInfo['charColors']['backgroundClass'],
+                            $charInfo['charColors']['textClass']
+                        );
+                        return $char;
+                    },
+                    $lineChars,
+                    array_keys($lineChars)
+                );
+                $line = implode("", $lineChars);
+                return $line;
+            }, $subPageLines, array_keys($subPageLines));
+
+            // Lägg till <span class="toprow"> på första raden.
+            $subPageLines[0] = sprintf('<span class="toprow">%s</span>', $subPageLines[0]);
+
+            // Skapa ren sträng av allt igen.
+            $subPageText = implode("\n", $subPageLines);
+
+            // Lägg till <div class="root"> runt allt.
+            $subPageText = sprintf('<div class="root">%s</div>', $subPageText);
+
+            $subPage['text'] = $subPageText;
+
+            return $subPage;
+        });
+
+        $this->subPages = $subPages;
+
+        return $this;
+    }
+
     /**
      * Applicera HTML som är gemensam för alla sidor,
      * t.ex. sidhuvud och sidfot osv.
@@ -774,7 +838,8 @@ class Importer
 
             $subPagesCleaned->push([
                 'subPageNumber' => $subpage->subPageNumber,
-                'text' => $pageLines->join("\n")
+                'text' => $pageLines->join("\n"),
+                'gifAsBase64' => $subpage->gifAsBase64
             ]);
         }
 

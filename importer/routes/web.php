@@ -24,7 +24,9 @@ Route::get('/', function () {
 Route::redirect('/live/', '/live/100');
 Route::get('/live/{pageNum}', function ($pageNum) {
     $importer = new Importer($pageNum);
-    $importer->fromRemote()->cleanup()->linkprefix('/live/')->decorate();
+
+    #$importer->fromRemote()->cleanup()->linkprefix('/live/')->decorate();
+    $importer->fromRemote()->cleanup()->linkprefix('/live/')->colorize();
 
     return view(
         'live',
@@ -58,4 +60,4 @@ Route::get('/db/{pageNum}', function ($pageNum) {
     );
 })->where('pageNum', '[0-9]+');
 
-Route::get('/pagecolors', [PageColors::class, 'index']);
+Route::get('/pagecolors/{pageNum}', [PageColors::class, 'index'])->where('pageNum', '[0-9]+');

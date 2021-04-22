@@ -102,17 +102,19 @@ class Importer
             $subPageLines = array_map(function ($line, $lineIndex) use ($charsExtractor) {
                 // Hämta färg för varje tecken på denna rad.
                 #echo "<br>lineIndex: $lineIndex";
+                $currentLineHasHeadlineChars = $this->lineHasHeadlineChars($charsExtractor, $line, $lineIndex);
+                $nextLineHasHeadlineChars = $this->lineHasHeadlineChars($charsExtractor, $line, $lineIndex + 1);
+
                 $lineChars = mb_str_split($line);
-                #dump($lineChars);
+
                 $lineChars = array_map(
                     function ($char, $charIndex) use ($line, $lineIndex, $charsExtractor) {
                         $charInfo = $charsExtractor->getChar($lineIndex, $charIndex);
+
                         if (!$charInfo) {
                             return $char;
                         }
 
-                        #dd($charInfo['charColors']);
-                        #dd($charInfo['charType']);
                         if ($charInfo['charType']['type'] === 'image') {
                             $charInfoHash = $charInfo['charImageHash'];
                             $charFilename = "storage/chars/{$charInfoHash}.gif";
@@ -120,10 +122,7 @@ class Importer
 
                             // Bild
                             $style = sprintf(
-                                '
-                                    background-image: url(%1$s);
-                                    background-size: cover;
-                                ',
+                                'background: url(%1$s) center/cover',
                                 $charUrl
                             );
                             $char = sprintf(
@@ -136,18 +135,12 @@ class Importer
                             );
                         } elseif ($charInfo['charType']['type'] === 'text' && $charInfo['charType']['scale'] === 2) {
                             // Rubrik
-                            $style = '
-                                display: inline-block;
-                                transform: scaleY(2);
-                                transform-origin: top;
-                            ';
                             $char = sprintf(
-                                '<span class="%2$s %3$s" style="%4$s" data-image-hash="%5$s">%1$s</span>',
+                                '<span class="%2$s %3$s" data-image-hash="%4$s">%1$s</span>',
                                 $char,
                                 $charInfo['charColors']['backgroundClass'],
                                 $charInfo['charColors']['textClass'],
-                                $style, // 4
-                                $charInfo['charImageHash'] // 5
+                                $charInfo['charImageHash'] // 4
                             );
                         } else {
                             // Vanlig text
@@ -165,7 +158,24 @@ class Importer
                     $lineChars,
                     array_keys($lineChars)
                 );
+
                 $line = implode("", $lineChars);
+
+                // Lägg till div runt varje rad.
+                // Om en line innehåller någon rubrik/char med scale: 2 så
+                // ska hela raden tolkas som rubrik pga det verkar som det
+                // alltid är så.
+                $rowStyle = '';
+                if ($currentLineHasHeadlineChars && $nextLineHasHeadlineChars) {
+                    $rowStyle = 'display:inline-block;transform:scaleY(2);transform-origin:top;';
+                }
+
+                $line = sprintf(
+                    '<span class="row" style="%2$s">%1$s</span>', 
+                    $line,
+                    $rowStyle
+                );
+
                 return $line;
             }, $subPageLines, array_keys($subPageLines));
 
@@ -186,6 +196,24 @@ class Importer
         $this->subPages = $subPages;
 
         return $this;
+    }
+
+    protected function lineHasHeadlineChars($charsExtractor, $line, $lineIndex): bool
+    {
+        $currentLineHasHeadlineChars = false;
+
+        $lineChars = mb_str_split($line);
+
+        foreach ($lineChars as $charIndex => $char) {
+            $charInfo = $charsExtractor->getChar($lineIndex, $charIndex);
+            $isHeadlineChar = $charInfo['charType']['type'] === 'text' && $charInfo['charType']['scale'] === 2;
+            if ($isHeadlineChar) {
+                $currentLineHasHeadlineChars = true;
+                break;
+            }
+        }
+
+        return $currentLineHasHeadlineChars;
     }
 
     /**

@@ -4,6 +4,8 @@ Starta med `$ php artisan serve`.
 
 ## Att göra
 
+-   [ ] Egen domän för import/laravel l.texttv.nu
+-   [ ] Uppdatera logik för gissad titel
 -   [x] Sätt varannan färg på 100
 -   [x] Hitta titel för sida
 -   [ ] Köra command för artisan
@@ -14,7 +16,7 @@ Starta med `$ php artisan serve`.
         -   [x] Spara till DB
             -   [x] med compress
             -   [x] som serialiserad
--   [ ] Kör som cron
+-   [x] Kör som cron
 -   [x] Model för texttv-sida
 -   [ ] Skriv tester
     -   [x] Hämta ut JSON från en HTML

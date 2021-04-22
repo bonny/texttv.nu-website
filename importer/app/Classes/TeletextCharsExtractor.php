@@ -101,7 +101,27 @@ class TeletextCharsExtractor
         ];
 
         // Array med alla hash på alla tecken som är bilder/grafik.
-        $arrCharImagesHashes = [
+        $arrCharImagesHashes = $this->getCharImagesHashes();
+        $imageHash = $this->getCharImageHash($charImage);
+
+        if (in_array($imageHash, $arrCharImagesHashes)) {
+            $charType['type'] = 'image';
+        }
+
+        // Array med alla hash för tecken som är rubriker, dvs. på två rader.
+        $arrCharHeadlineHashes = $this->getCharHeadlineHashes();
+
+        if (in_array($imageHash, $arrCharHeadlineHashes)) {
+            $charType['scale'] = 2;
+        }
+
+        return $charType;
+    }
+
+
+    protected function getCharImagesHashes(): array
+    {
+        return [
             880409429,
             3547727352,
             1559180511,
@@ -145,7 +165,6 @@ class TeletextCharsExtractor
             4166044020,
             2881270998,
             1739010369,
-            3221500607,
             2790421332,
             925899746,
             3771534768,
@@ -250,18 +269,46 @@ class TeletextCharsExtractor
             2464970422,
             1429748213,
             600227064,
-            644889415
+            644889415,
+            1056054768,
+            2643387802,
+            945926046,
+            945926046,
+            3270854724,
+            3625981591,
+            2144172243,
+            2964044975,
+            1460303617,
+            2594562150,
+            2762748738,
+            2267014944,
+            2201328430,
+            1227236920,
+            3713433556,
+            723504262,
+            294742777,
         ];
+    }
 
-        $imageHash = $this->getCharImageHash($charImage);
-
-        if (in_array($imageHash, $arrCharImagesHashes)) {
-            $charType['type'] = 'image';
-        }
-
-        // Array med alla hash för tecken som är rubriker, dvs. på två rader.
-        $arrCharHeadlineHashes = [
+    protected function getCharHeadlineHashes(): array
+    {
+        return [
+            1053170101,
+            4015340740,
+            2731520461,
+            3112015649,
+            3809356127,
+            3051525322,
+            2782071755,
+            3888479418,
+            392443663,
             2238730591,
+            407997093,
+            2141324460,
+            2186440670,
+            2446539012,
+            780983942,
+            324321704,
             1806620080,
             1805582585,
             3971441540,
@@ -884,15 +931,8 @@ class TeletextCharsExtractor
             1073508324,
             3195074528,
             2796899421,
-
-
+            979359785,
         ];
-
-        if (in_array($imageHash, $arrCharHeadlineHashes)) {
-            $charType['scale'] = 2;
-        }
-
-        return $charType;
     }
 
     protected function getCharImageHash($charImage)

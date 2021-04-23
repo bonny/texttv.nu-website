@@ -122,6 +122,7 @@ class TeletextCharsExtractor
     protected function getCharImagesHashes(): array
     {
         return [
+            2796428508,
             880409429,
             3547727352,
             1559180511,

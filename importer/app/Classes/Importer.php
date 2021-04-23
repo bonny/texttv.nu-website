@@ -86,14 +86,14 @@ class Importer
     {
         $subPages = $this->subPages();
 
-        $subPages->transform(function ($subPage, $subPageIndex) {
+        $subPages->transform(function ($subPage) {
             $charsExtractor = new TeletextCharsExtractor;
             $charsExtractor->imageFromString(base64_decode($subPage['gifAsBase64']))->parseImage();
             #echo $charsExtractor->getImageDebugHtml();
             #echo "<pre>" . print_r($charsExtractor->getChars(), 1) . "</pre>";
 
             $subPageLines = explode("\n", $subPage['text']);
-            $pageNum = $this->pageNum();
+            #$pageNum = $this->pageNum();
 
             // Gör "SVT Text" gul på första raden.
             #$subPageLines[0] = str_replace('SVT Text', '<span class="Y">SVT Text</span>', $subPageLines[0]);
@@ -171,7 +171,7 @@ class Importer
                 }
 
                 $line = sprintf(
-                    '<span class="row" style="%2$s">%1$s</span>', 
+                    '<span class="row" style="%2$s">%1$s</span>',
                     $line,
                     $rowStyle
                 );
@@ -196,6 +196,102 @@ class Importer
         $this->subPages = $subPages;
 
         return $this;
+    }
+
+    /**
+     * Skapa länkar av siffrorna som ligger mellan spans'en.
+     */
+    public function linkify()
+    {
+        $subPages = $this->subPages();
+        $subPages->transform(function ($subPage) {
+            $subPageLines = explode("\n", $subPage['text']);
+            $pageNum = $this->pageNum();
+
+            // Gör "SVT Text" gul på första raden.
+            #$subPageLines[0] = str_replace('SVT Text', '<span class="Y">SVT Text</span>', $subPageLines[0]);
+
+            // Agera på varje rad.
+            $subPageLines = array_map(function ($line, $lineIndex) {
+                // Hoppa över rad 0 = första raden med aktuell sida + tidpunkt.
+                if ($lineIndex == 0) {
+                    return $line;
+                }
+
+                $line = $this->linkifySingleLine($line, $numberReplacements);
+                return $line;
+            }, $subPageLines, array_keys($subPageLines));
+
+            $subPageText = implode("\n", $subPageLines);
+
+            $subPage['text'] = $subPageText;
+
+            return $subPage;
+        });
+
+        $this->subPages = $subPages;
+
+        return $this;
+    }
+
+    public function linkifySingleLine($line, &$numberReplacements = null)
+    {
+        $regexSpanStart = '<span\b[^>]*>';
+        $regexSpanEnd = '</span>';
+        $regexSingleNumber1to9 = '([1-9])';
+        $regexSingleNumber0to9 = '([0-9])';
+
+        // Matchar
+        $regexSpanAndThreeNumberLargerThan100 =
+            $regexSpanStart . $regexSingleNumber1to9 . $regexSpanEnd .
+            $regexSpanStart . $regexSingleNumber0to9 . $regexSpanEnd .
+            $regexSpanStart . $regexSingleNumber0to9 . $regexSpanEnd;
+
+        // Matchar tre nummer och en punkt, så t.ex. "908." borde fastna, som t.ex.
+        // ekonomisidor har för kurser osv. "OMX STOCKHOLM (SLUT )   908.88  +0.25"
+        $regexSpanAndThreeNumberLargerThan100AndADot =
+            $regexSpanAndThreeNumberLargerThan100 .
+            $regexSpanStart . '\.' . $regexSpanEnd;
+
+        // Baila om vi matchar "908." osv.
+        $numMatches = preg_match_all('|' . $regexSpanAndThreeNumberLargerThan100AndADot . '|', $line);
+        if ($numMatches) {
+            return $line;
+        }
+
+        // Matchar börskurser som t.ex. "83.4  83.6 CINT   83.6      180911"
+        // där "180911" är två nummer på varandra.
+        $regexSpanAndThreeNumberLargerThan100AndOneMoreNumber =
+            $regexSpanAndThreeNumberLargerThan100 .
+            $regexSpanStart . $regexSingleNumber0to9 . $regexSpanEnd;
+
+        $numMatches = preg_match_all('|' . $regexSpanAndThreeNumberLargerThan100AndOneMoreNumber . '|', $line);
+        if ($numMatches) {
+            return $line;
+        }
+
+        #dump('$regexSpanAndThreeNumberLargerThan100AndADot', $numMatches, strip_tags($line));
+
+
+        $line = preg_replace_callback('|' . $regexSpanAndThreeNumberLargerThan100 . '|', function ($matches) {
+            // $matches[0] = complete match, dvs. <span>1</span><span>0</span><span>0</span>
+            // $matches[1] = first subpattern, dvs. siffra ett
+            // $matches[2] = second subpattern, dvs. siffra två
+            // $matches[3] = third subpattern, dvs. siffra tre
+            $pageNum = $matches[1] . $matches[2] . $matches[3];
+            $completeMatch = $matches[0];
+
+            // Länk runt allt.
+            $replacementString = sprintf(
+                '<a href="%2$s">%1$s</a>',
+                $completeMatch,
+                $pageNum
+            );
+
+            return $replacementString;
+        }, $line, -1, $numberReplacements);
+
+        return $line;
     }
 
     protected function lineHasHeadlineChars($charsExtractor, $line, $lineIndex): bool
@@ -852,6 +948,7 @@ class Importer
     /**
      * Formattera alla undersidor så de är
      * 40 tecken breda ↔ och 24 rader höga ↕
+     * och ta bort lite skräp, typ random tabs som är i början.
      * 
      * @return $this 
      */

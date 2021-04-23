@@ -46,7 +46,7 @@ class texttvimport extends Command
 
         // Hämta sidan från SVT.
         $page = new Importer($pageNumber);
-        $page->fromRemote()->cleanup()->decorate();
+        $page->fromRemote()->cleanup()->colorize()->linkify();
 
         // Skapa array med enbart sidornas text; formatet vi lagrar i db.
         $arrSubpagesTexts = $page->subpages()->pluck('text')->toArray();

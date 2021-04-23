@@ -27,6 +27,7 @@ Route::get('/live/{pageNum}', function ($pageNum) {
 
     #$importer->fromRemote()->cleanup()->linkprefix('/live/')->decorate();
     $importer->fromRemote()->cleanup()->linkprefix('/live/')->colorize();
+    $importer->linkify();
 
     return view(
         'live',

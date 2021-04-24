@@ -253,6 +253,7 @@ class ImportTest extends TestCase
         $importer->colorize();
 
         $expectedColorize = file_get_contents(__DIR__ . '/../TestPages/100_colorize_expected.txt');
+        #echo $importer->subpage(0)['text'];exit;
         $this->assertEquals($expectedColorize, $importer->subpage(0)['text']);
     }
 

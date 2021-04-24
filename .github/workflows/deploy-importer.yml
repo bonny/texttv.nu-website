@@ -43,5 +43,5 @@ jobs:
         username: ${{ secrets.USERNAME }}
         key: ${{ secrets.KEY }}
         source: "importer"
-        target: "/usr/share/nginx/l.texttv.nu/importer"
+        target: "/usr/share/nginx/l.texttv.nu/"
         

@@ -171,7 +171,7 @@ class Importer
                 }
 
                 $line = sprintf(
-                    '<span class="row" style="%2$s">%1$s</span>',
+                    '<span style="%2$s">%1$s</span>',
                     $line,
                     $rowStyle
                 );
@@ -281,11 +281,32 @@ class Importer
             $pageNum = $matches[1] . $matches[2] . $matches[3];
             $completeMatch = $matches[0];
 
+            // Gamla Android-appen som är flera år gammal
+            // använder FastClick som inger fungerar om markup är
+            // <a href="/123"><span>1</span><span>2</span><span>3</span></a>
+            // så ta ersatt allt med en enda länk dock måste vi överföra 
+            // alla attribut (class, data-*) till länken.
+            $dom = new \DOMDocument();
+            $dom->loadHTML($completeMatch);
+            $spans = $dom->getElementsByTagName('span');
+            $classes = [];
+            $dataImageHashes = [];
+            foreach ($spans as $oneSpan) {
+                // class, data-image-hash
+                $classes[] = $oneSpan->getAttribute('class');
+                $dataImageHashes[] = $oneSpan->getAttribute('data-image-hash');
+            }
+
+            $classes = array_unique($classes);
+            $dataImageHashes = array_unique($dataImageHashes);
+
             // Länk runt allt.
             $replacementString = sprintf(
-                '<a href="%2$s">%1$s</a>',
+                '<a href="%2$s" class="%3$s" data-image-hashes="%4$s">%2$s</a>',
                 $completeMatch,
-                $pageNum
+                $pageNum,
+                implode(' ', $classes),
+                implode(' ', $dataImageHashes),
             );
 
             return $replacementString;

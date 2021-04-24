@@ -337,7 +337,8 @@ class ImportTest extends TestCase
         ];
 
         foreach ($arrLines as $oneLine) {
-            echo "\nText: {$oneLine['text']}, expected: {$oneLine['expected']}";
+            // Aktivera nedan echo för att se vilken rad som inte passerade testerna.
+            // echo "\nText: {$oneLine['text']}, expected: {$oneLine['expected']}";
             $importer->linkifySingleLine($oneLine['line'], $numberReplacementsDone);
             $this->assertEquals($oneLine['expected'], $numberReplacementsDone);
         }

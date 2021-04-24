@@ -36,4 +36,12 @@ jobs:
           pwd
           ls -hal
 
+    - name: Copy files to server
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.KEY }}
+        source: "importer"
+        target: "/usr/share/nginx/l.texttv.nu/importer-from-action"
         

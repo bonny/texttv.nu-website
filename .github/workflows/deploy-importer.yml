@@ -54,6 +54,7 @@ jobs:
         script: |
           cd /usr/share/nginx/l.texttv.nu/importer
           sudo chown -R root:root .
+          chmod 777 -R /usr/share/nginx/l.texttv.nu/importer/storage/
           ls -hal
           composer install --no-interaction --prefer-dist --optimize-autoloader
           php artisan optimize

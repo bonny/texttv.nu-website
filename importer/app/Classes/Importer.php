@@ -259,13 +259,24 @@ class Importer
             return $line;
         }
 
-        // Matchar börskurser som t.ex. "83.4  83.6 CINT   83.6      180911"
+        // Baila om vi matchar börskurser som t.ex. "83.4  83.6 CINT   83.6      180911"
         // där "180911" är två nummer på varandra.
         $regexSpanAndThreeNumberLargerThan100AndOneMoreNumber =
             $regexSpanAndThreeNumberLargerThan100 .
             $regexSpanStart . $regexSingleNumber0to9 . $regexSpanEnd;
 
         $numMatches = preg_match_all('|' . $regexSpanAndThreeNumberLargerThan100AndOneMoreNumber . '|', $line);
+        if ($numMatches) {
+            return $line;
+        }
+
+        // Baila om sidnummer har en siffra innan, t.ex. "Minst 2 300 strokefall kan förhindras"
+        $regexSpanAndThreeNumberLargerThan100AndASpaceAndNumberBefore =
+            $regexSpanStart . $regexSingleNumber0to9 . $regexSpanEnd .
+            $regexSpanStart . '\ ' . $regexSpanEnd .
+            $regexSpanAndThreeNumberLargerThan100;
+
+        $numMatches = preg_match_all('|' . $regexSpanAndThreeNumberLargerThan100AndASpaceAndNumberBefore . '|', $line);
         if ($numMatches) {
             return $line;
         }

@@ -30,4 +30,10 @@ jobs:
         extensions: mbstring, intl
         ini-values: post_max_size=256M, max_execution_time=180
         tools: php-cs-fixer, phpunit
+    - name: Test commands
+      run: |
+          echo 123
+          pwd
+          ls -hal
+
         

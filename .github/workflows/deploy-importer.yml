@@ -45,3 +45,14 @@ jobs:
         source: "importer/"
         target: "/usr/share/nginx/l.texttv.nu/"
         
+    - name: executing remote ssh commands using password
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.KEY }}
+        script: |
+          whoami
+          pwd
+          ls -hal
+        

@@ -54,6 +54,9 @@ jobs:
         script: |
           cd /usr/share/nginx/l.texttv.nu/importer
           ls -hal
+          composer install --no-interaction --prefer-dist --optimize-autoloader
           php artisan
+          php artisan optimize
+          
           
         

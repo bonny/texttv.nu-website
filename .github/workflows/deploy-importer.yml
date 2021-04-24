@@ -52,7 +52,8 @@ jobs:
         username: ${{ secrets.USERNAME }}
         key: ${{ secrets.KEY }}
         script: |
-          ls -hal /usr/share/nginx/l.texttv.nu/importer
+          cd /usr/share/nginx/l.texttv.nu/importer
+          ls -hal
           php artisan
           
         

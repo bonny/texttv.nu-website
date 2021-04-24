@@ -1022,9 +1022,9 @@ class Importer
                     if ($this->pageNum() == 100) {
                         // På båda sidorna på startsidan för att centrera.
                         if (mb_strlen($line) % 2) {
-                            $line = $line . ' ';
-                        } else {
                             $line = ' ' . $line;
+                        } else {
+                            $line = $line . ' ';
                         }
                     } else {
                         // Bara i slutet på andra sidorna.

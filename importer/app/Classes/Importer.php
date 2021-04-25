@@ -95,10 +95,22 @@ class Importer
             $subPageLines = explode("\n", $subPage['text']);
             #$pageNum = $this->pageNum();
 
-            // Gör "SVT Text" gul på första raden.
-            #$subPageLines[0] = str_replace('SVT Text', '<span class="Y">SVT Text</span>', $subPageLines[0]);
+            // Alt-texten vi får från SVT verkar ha problem med svenska tecken i översta raden.
+            $subPageLines[0] = str_replace(
+                [
+                    ' m ndag ',
+                    ' l rdag ',
+                    ' s ndag ',
+                ],
+                [
+                    ' måndag ',
+                    ' lördag ',
+                    ' söndag ',
+                ],
+                $subPageLines[0]
+            );
 
-            // Hämta färg för varje rad, för varje kolumn.
+            // Hämta och skapa spans med färg för varje rad, för varje kolumn.
             $subPageLines = array_map(function ($line, $lineIndex) use ($charsExtractor) {
                 // Hämta färg för varje tecken på denna rad.
                 #echo "<br>lineIndex: $lineIndex";

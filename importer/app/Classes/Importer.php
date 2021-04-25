@@ -330,7 +330,7 @@ class Importer
 
             // Länk runt allt.
             $replacementString = sprintf(
-                '<a href="%2$s" class="%3$s" data-image-hashes="%4$s">%2$s</a>',
+                '<a href="/%2$s" class="%3$s" data-image-hashes="%4$s">%2$s</a>',
                 $completeMatch,
                 $pageNum,
                 implode(' ', $classes),

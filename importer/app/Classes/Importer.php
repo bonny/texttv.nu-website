@@ -141,6 +141,13 @@ class Importer
                             );
                         }
 
+                        $class = sprintf(
+                            '%1$s %2$s',
+                            $charInfo['charColors']['backgroundClass'],
+                            $charInfo['charColors']['textClass'],
+                        );
+                        $class = trim($class);
+                        $class = $class ? sprintf(' class="%s" ', $class) : '';
 
                         if ($charInfo['charType']['type'] === 'image') {
                             $charInfoHash = $charInfo['charImageHash'];
@@ -153,29 +160,29 @@ class Importer
                                 $charUrl
                             );
                             $char = sprintf(
-                                '<span class="%2$s %3$s" style="%5$s"%4$s>%1$s</span>',
+                                '<span style="%5$s"%4$s%2$s>%1$s</span>',
                                 $char,
-                                $charInfo['charColors']['backgroundClass'],
-                                $charInfo['charColors']['textClass'],
+                                $class,
+                                "", // removed
                                 $strDataImageHash, // 4
                                 $style // 5
                             );
                         } elseif ($charInfo['charType']['type'] === 'text' && $charInfo['charType']['scale'] === 2) {
                             // Rubrik
                             $char = sprintf(
-                                '<span class="%2$s %3$s"%4$s>%1$s</span>',
+                                '<span %4$s%2$s>%1$s</span>',
                                 $char,
-                                $charInfo['charColors']['backgroundClass'],
-                                $charInfo['charColors']['textClass'],
+                                $class,
+                                '', // removed
                                 $strDataImageHash // 4
                             );
                         } else {
                             // Vanlig text
                             $char = sprintf(
-                                '<span class="%2$s %3$s"%4$s>%1$s</span>',
+                                '<span %4$s%2$s>%1$s</span>',
                                 $char,
-                                $charInfo['charColors']['backgroundClass'],
-                                $charInfo['charColors']['textClass'],
+                                $class,
+                                '' ,// removed
                                 $strDataImageHash // 4
                             );
                         }

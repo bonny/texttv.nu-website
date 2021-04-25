@@ -1062,7 +1062,7 @@ class TeletextCharsExtractor
         // Översätt färger till classnamn för frontend/html.
         // SVT Text har 8 färger.
         $backgrounds = [
-            'black' => ['r' => 0, 'g' => 0, 'b' => 0], // Svart
+            'bgBl' => ['r' => 0, 'g' => 0, 'b' => 0], // Svart
             'bgR' => ['r' => 255, 'g' => 0, 'b' => 0], // Röd
             'bgM' => ['r' => 255, 'g' => 0, 'b' => 255], // Magenta (lila)
             'bgB' => ['r' => 0, 'g' => 0, 'b' => 255], // Blå (mörkblå)
@@ -1073,7 +1073,7 @@ class TeletextCharsExtractor
         ];
 
         $texts = [
-            'black' => ['r' => 0, 'g' => 0, 'b' => 0], // Svart
+            'bl' => ['r' => 0, 'g' => 0, 'b' => 0], // Svart
             'R' => ['r' => 255, 'g' => 0, 'b' => 0], // Röd
             'M' => ['r' => 255, 'g' => 0, 'b' => 255], // Magenta (lila)
             'B' => ['r' => 0, 'g' => 0, 'b' => 255], // Blå (mörkblå)

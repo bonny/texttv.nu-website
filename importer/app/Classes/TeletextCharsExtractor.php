@@ -20,7 +20,11 @@ class TeletextCharsExtractor
     protected $image;
 
     // Array med alla tecken och dess färger.
-    protected $arrChars = [];
+    protected array $arrChars = [];
+
+    // Array som fungerar som cache för alla charImageStrings
+    protected array $charImageStrings = [];
+    protected array $charImageHashes = [];
 
     public function imageFromString(string $imageString): object
     {
@@ -82,7 +86,7 @@ class TeletextCharsExtractor
                 );
                 $arrChars['rows'][$rownum]['cols'][$colnum]['charColors'] = $charColors;
                 $arrChars['rows'][$rownum]['cols'][$colnum]['charAsImageResource'] = $charImage;
-                $arrChars['rows'][$rownum]['cols'][$colnum]['charAsImgTag'] = $this->gdImgToHTML($charImage, print_r($inlineImageTitle, true));
+                // $arrChars['rows'][$rownum]['cols'][$colnum]['charAsImgTag'] = $this->gdImgToHTML($charImage, print_r($inlineImageTitle, true));
                 $arrChars['rows'][$rownum]['cols'][$colnum]['charType'] = $charType;
                 $arrChars['rows'][$rownum]['cols'][$colnum]['charImageHash'] = $charImageHash;
             }
@@ -938,16 +942,30 @@ class TeletextCharsExtractor
 
     protected function getCharImageHash($charImage)
     {
-        $charString = $this->getCharImageString($charImage);
-        $charHash = crc32($charString);
+        $charImageId = get_resource_id($charImage);
+        if (isset($this->charImageHashes[$charImageId])) {
+            $charHash = $this->charImageHashes[$charImageId];
+        } else {
+            $charString = $this->getCharImageString($charImage);
+            $charHash = crc32($charString);
+            $this->charImageHashes[$charImageId] = $charHash;
+        }
+
         return $charHash;
     }
 
     protected function getCharImageString($charImage)
     {
-        ob_start();
-        imagegif($charImage);
-        $charString = ob_get_clean();
+        $charImageId = get_resource_id($charImage);
+        if (isset($this->charImageStrings[$charImageId])) {
+            $charString = $this->charImageStrings[$charImageId];
+        } else {
+            ob_start();
+            imagegif($charImage);
+            $charString = ob_get_clean();
+            $this->charImageStrings[$charImageId] = $charString;
+        }
+
         return $charString;
     }
 

@@ -5,6 +5,7 @@ namespace App\Classes;
 use Exception;
 use Rct567\DomQuery\DomQuery;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\App;
 
 /**
  * 
@@ -132,6 +133,15 @@ class Importer
                             return $char;
                         }
 
+                        $strDataImageHash = '';
+                        if (App::environment('local')) {
+                            $strDataImageHash = sprintf(
+                                ' data-image-hash="%1$s"',
+                                $charInfo['charImageHash']
+                            );
+                        }
+
+
                         if ($charInfo['charType']['type'] === 'image') {
                             $charInfoHash = $charInfo['charImageHash'];
                             $charFilename = "storage/chars/{$charInfoHash}.gif";
@@ -143,30 +153,30 @@ class Importer
                                 $charUrl
                             );
                             $char = sprintf(
-                                '<span class="%2$s %3$s" data-image-hash="%4$s" style="%5$s">%1$s</span>',
+                                '<span class="%2$s %3$s" style="%5$s"%4$s>%1$s</span>',
                                 $char,
                                 $charInfo['charColors']['backgroundClass'],
                                 $charInfo['charColors']['textClass'],
-                                $charInfo['charImageHash'], // 4
+                                $strDataImageHash, // 4
                                 $style // 5
                             );
                         } elseif ($charInfo['charType']['type'] === 'text' && $charInfo['charType']['scale'] === 2) {
                             // Rubrik
                             $char = sprintf(
-                                '<span class="%2$s %3$s" data-image-hash="%4$s">%1$s</span>',
+                                '<span class="%2$s %3$s"%4$s>%1$s</span>',
                                 $char,
                                 $charInfo['charColors']['backgroundClass'],
                                 $charInfo['charColors']['textClass'],
-                                $charInfo['charImageHash'] // 4
+                                $strDataImageHash // 4
                             );
                         } else {
                             // Vanlig text
                             $char = sprintf(
-                                '<span class="%2$s %3$s" data-image-hash="%4$s">%1$s</span>',
+                                '<span class="%2$s %3$s"%4$s>%1$s</span>',
                                 $char,
                                 $charInfo['charColors']['backgroundClass'],
                                 $charInfo['charColors']['textClass'],
-                                $charInfo['charImageHash'] // 4
+                                $strDataImageHash // 4
                             );
                         }
 
@@ -184,11 +194,11 @@ class Importer
                 // alltid är så.
                 $rowStyle = '';
                 if ($currentLineHasHeadlineChars && $nextLineHasHeadlineChars) {
-                    $rowStyle = 'display:inline-block;transform:scaleY(2);transform-origin:top;';
+                    $rowStyle = ' style="display:inline-block;transform:scaleY(2);transform-origin:top;"';
                 }
 
                 $line = sprintf(
-                    '<span style="%2$s">%1$s</span>',
+                    '<span%2$s>%1$s</span>',
                     $line,
                     $rowStyle
                 );
@@ -330,11 +340,11 @@ class Importer
 
             // Länk runt allt.
             $replacementString = sprintf(
-                '<a href="/%2$s" class="%3$s" data-image-hashes="%4$s">%2$s</a>',
+                '<a href="/%2$s" class="%3$s"%4$s>%2$s</a>',
                 $completeMatch,
                 $pageNum,
                 implode(' ', $classes),
-                implode(' ', $dataImageHashes),
+                App::environment('local') ? sprintf(' data-image-hashes="%1$s"', implode(' ', $dataImageHashes)) : '', // 4
             );
 
             return $replacementString;

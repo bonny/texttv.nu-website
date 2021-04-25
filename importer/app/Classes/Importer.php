@@ -87,6 +87,11 @@ class Importer
         $subPages = $this->subPages();
 
         $subPages->transform(function ($subPage) {
+            // Hoppa över sidor som inte har bilddata.
+            if (empty($subPage['gifAsBase64'])) {
+                return $subPage;
+            }
+
             $charsExtractor = new TeletextCharsExtractor;
             $charsExtractor->imageFromString(base64_decode($subPage['gifAsBase64']))->parseImage();
             #echo $charsExtractor->getImageDebugHtml();
@@ -1050,7 +1055,7 @@ class Importer
             $subPagesCleaned->push([
                 'subPageNumber' => $subpage->subPageNumber,
                 'text' => $pageLines->join("\n"),
-                'gifAsBase64' => $subpage->gifAsBase64
+                'gifAsBase64' => $subpage->gifAsBase64 ?? null
             ]);
         }
 

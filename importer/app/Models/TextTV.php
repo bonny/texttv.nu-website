@@ -26,7 +26,13 @@ class TextTV extends Model
 
     public function pageContentUncompressed()
     {
-        $uncompressedPageContent = unserialize(gzuncompress(substr($this->page_content, 4)));
-        return $uncompressedPageContent;
+        try {
+            $uncompressedPageContent = gzuncompress(substr($this->page_content, 4));
+            $unserializedPageContent = unserialize($uncompressedPageContent);
+        } catch (\Exception $e) {
+            $unserializedPageContent = [];
+        }
+
+        return $unserializedPageContent;
     }
 }

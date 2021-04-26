@@ -2,9 +2,10 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Classes\Importer;
 use App\Models\TextTV;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class texttvimport extends Command
@@ -56,7 +57,7 @@ class texttvimport extends Command
             ->orderByDesc('date_updated')
             ->limit(1)
             ->first();
-        
+
         if ($dbPage) {
             $uncompressedDbPageContent = $dbPage->pageContentUncompressed();
         } else {
@@ -74,28 +75,48 @@ class texttvimport extends Command
         if ($fetchedPageAndDbPageIsEqual) {
             $msg = "{$pageNumber}: Ingen import görs: befintlig och hämtad sida är lika.";
             $this->info($msg);
-            #echo $msg;
             Log::info($msg);
             return;
         } else {
             $msg = "{$pageNumber}: Befintlig och hämtad sida är inte lika, så sparar sidan till databasen.";
             $this->info($msg);
-            #echo $msg;
             Log::info($msg);
+
             $serializedArrSubpagesTexts = serialize($arrSubpagesTexts);
-            $compressedSerializedArrSubpagesTexts = "\x1f\x8b\x08\x00" . gzcompress($serializedArrSubpagesTexts);
 
             $newPage = new TextTV;
             $newPage->fill([
                 'page_num' => $page->pageNum(),
                 'title' => $page->title(),
-                'page_content' => $compressedSerializedArrSubpagesTexts,
+                'page_content' => '',
                 'next_page' => $page->nextPageNum(),
                 'prev_page' => $page->prevPageNum(),
             ]);
 
             if (!$newPage->save()) {
                 $this->error("Fel: ett fel uppstod när sidan skulle sparas.");
+                return;
+            }
+
+            // Kör rå update för att fixa compress av data.
+            try {
+                $affected = DB::update(
+                    'update texttv set page_content = COMPRESS(?) where id = ?',
+                    [
+                        $serializedArrSubpagesTexts,
+                        $newPage->id
+                    ]
+                );
+            } catch(\Illuminate\Database\QueryException $ex){ 
+                echo "Fel när page_content ska läggas in komprimerat. (QueryException)";
+                exit;                
+            } catch (\Exception $e) {
+                echo "Fel när page_content ska läggas in komprimerat. (Exception)";
+                exit;
+            }
+
+            if ($affected !== 1) {
+                $this->error("Fel: ett fel uppstod när sidans innehåll skulle sparas komprimerat.");
                 return;
             }
 

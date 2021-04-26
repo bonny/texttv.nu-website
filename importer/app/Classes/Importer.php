@@ -20,6 +20,9 @@ class Importer
     protected $pageObject;
     protected $remoteResponse;
     protected $linkprefix = '/';
+    
+    // Om debug är på så skrivs image-idn ut i htmlkoden.
+    protected $withdebug = false;
 
     // Illuminate\Support\Collection
     protected $subPages;
@@ -134,7 +137,7 @@ class Importer
                         }
 
                         $strDataImageHash = '';
-                        if (App::environment('local')) {
+                        if ($this->withdebug) {
                             $strDataImageHash = sprintf(
                                 ' data-image-hash="%1$s"',
                                 $charInfo['charImageHash']
@@ -147,7 +150,7 @@ class Importer
                             $charInfo['charColors']['textClass'],
                         );
                         $class = trim($class);
-                        $class = $class ? sprintf(' class="%s" ', $class) : '';
+                        $class = $class ? sprintf(' class="%s"', $class) : '';
 
                         if ($charInfo['charType']['type'] === 'image') {
                             $charInfoHash = $charInfo['charImageHash'];
@@ -170,7 +173,7 @@ class Importer
                         } elseif ($charInfo['charType']['type'] === 'text' && $charInfo['charType']['scale'] === 2) {
                             // Rubrik
                             $char = sprintf(
-                                '<span %4$s%2$s>%1$s</span>',
+                                '<span%4$s%2$s>%1$s</span>',
                                 $char,
                                 $class,
                                 '', // removed
@@ -179,7 +182,7 @@ class Importer
                         } else {
                             // Vanlig text
                             $char = sprintf(
-                                '<span %4$s%2$s>%1$s</span>',
+                                '<span%4$s%2$s>%1$s</span>',
                                 $char,
                                 $class,
                                 '' ,// removed
@@ -351,7 +354,7 @@ class Importer
                 $completeMatch,
                 $pageNum,
                 implode(' ', $classes),
-                App::environment('local') ? sprintf(' data-image-hashes="%1$s"', implode(' ', $dataImageHashes)) : '', // 4
+                $this->withdebug ? sprintf(' data-image-hashes="%1$s"', implode(' ', $dataImageHashes)) : '', // 4
             );
 
             return $replacementString;
@@ -1142,6 +1145,13 @@ class Importer
     public function linkprefix($prefix)
     {
         $this->linkprefix = $prefix;
+
+        return $this;
+    }
+
+    public function withdebug(bool $bool = true)
+    {
+        $this->withdebug = $bool;
 
         return $this;
     }

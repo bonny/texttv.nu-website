@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Classes\Importer;
 use App\Models\TextTV;
 use App\Http\Controllers\PageColors;
+use Illuminate\Http\Request;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -22,11 +24,13 @@ Route::get('/', function () {
 
 // Route för att live-visa sidor från SVT.
 Route::redirect('/live/', '/live/100');
-Route::get('/live/{pageNum}', function ($pageNum) {
+Route::get('/live/{pageNum}', function (int $pageNum, Request $request) {
     $importer = new Importer($pageNum);
 
     #$importer->fromRemote()->cleanup()->linkprefix('/live/')->decorate();
-    $importer->fromRemote()->cleanup()->linkprefix('/live/')->colorize();
+    $importer->fromRemote()->cleanup()->linkprefix('/live/');
+    $importer->withdebug($request->boolean('withdebug'));
+    $importer->colorize();
     $importer->linkify();
 
     return view(

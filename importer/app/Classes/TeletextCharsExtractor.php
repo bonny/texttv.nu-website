@@ -77,16 +77,18 @@ class TeletextCharsExtractor
 
                 $charType = $this->getCharType($charImage);
 
-                $inlineImageTitle = array_merge(
-                    [
-                        'hash' => $charImageHash,
-                        'charType' => $charType
-                    ],
-                    $charColors,
-                );
                 $arrChars['rows'][$rownum]['cols'][$colnum]['charColors'] = $charColors;
                 $arrChars['rows'][$rownum]['cols'][$colnum]['charAsImageResource'] = $charImage;
+
+                // $inlineImageTitle = array_merge(
+                //     [
+                //         'hash' => $charImageHash,
+                //         'charType' => $charType
+                //     ],
+                //     $charColors,
+                // );
                 // $arrChars['rows'][$rownum]['cols'][$colnum]['charAsImgTag'] = $this->gdImgToHTML($charImage, print_r($inlineImageTitle, true));
+
                 $arrChars['rows'][$rownum]['cols'][$colnum]['charType'] = $charType;
                 $arrChars['rows'][$rownum]['cols'][$colnum]['charImageHash'] = $charImageHash;
             }
@@ -1012,7 +1014,7 @@ class TeletextCharsExtractor
     /**
      * Hämta bakgrundsfärg och textfärg för ett tecken.
      * 
-     * @param mixed $imageSingleChar Image resource som innehåller ett tecken.
+     * @param mixed $imageSingleChar Image resource som innehåller ett tecken, 13x16px.
      * @return array
      */
     protected function getCharColors($imageSingleChar): array

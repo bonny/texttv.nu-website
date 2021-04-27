@@ -439,7 +439,7 @@ class Importer
      *
      * @return $this 
      */
-    public function decorate()
+/*     public function decorate()
     {
         $subPages = $this->subPages();
 
@@ -819,55 +819,55 @@ class Importer
         $this->subPages = $subPages;
 
         return $this;
-    }
+    } */
 
     /**
      * Skapa länkar av alla nummer.
      */
-    public function addLinks(string $subPageText): string
-    {
-        $addLinks = true;
+    // public function addLinks(string $subPageText): string
+    // {
+    //     $addLinks = true;
 
-        // Lägg inte till länkar på börskurserna, 203-246.
-        if ($this->pageNum() >= 203 && $this->pageNum() <= 246) {
-            $addLinks = false;
-        }
+    //     // Lägg inte till länkar på börskurserna, 203-246.
+    //     if ($this->pageNum() >= 203 && $this->pageNum() <= 246) {
+    //         $addLinks = false;
+    //     }
 
-        if (!$addLinks) {
-            return $subPageText;
-        }
+    //     if (!$addLinks) {
+    //         return $subPageText;
+    //     }
 
-        // Regexp som matchar 1-9 och sedan två valfria siffror, 
-        // så den tar inte med 000 till och med 099 men 100 och framåt.
-        $regexpNumerLargerThan99 = '[1-9]\d{2}';
+    //     // Regexp som matchar 1-9 och sedan två valfria siffror, 
+    //     // så den tar inte med 000 till och med 099 men 100 och framåt.
+    //     $regexpNumerLargerThan99 = '[1-9]\d{2}';
 
-        // "203-219" osv.
-        $subPageText = preg_replace('/(\d{3}-\d{3})/', '<a href="/$1">$1</a>', $subPageText);
-        // " 100 " osv.
-        $subPageText = preg_replace('/ (' . $regexpNumerLargerThan99 . ') /', ' <a href="/$1">$1</a> ', $subPageText);
-        // " 100" osv.
-        $subPageText = preg_replace('/ (' . $regexpNumerLargerThan99 . ')\n/', " <a href=\"/\\1\">\\1</a>\n", $subPageText);
-        // "100-" osv.
-        $subPageText = preg_replace('/ (' . $regexpNumerLargerThan99 . ')-/', ' <a href="/$1">$1-</a>', $subPageText);
-        // "...100 " osv.
-        $subPageText = preg_replace('/\.\.(' . $regexpNumerLargerThan99 . ')/', '..<a href="/$1">$1</a>', $subPageText);
-        // "417f" osv.
-        $subPageText = preg_replace('/(' . $regexpNumerLargerThan99 . ')f/', '<a href="/$1">$1f</a>', $subPageText);
-        // "530/" osv.
-        $subPageText = preg_replace('/(' . $regexpNumerLargerThan99 . ')\//', '<a href="/$1">$1</a>/', $subPageText);
-        // "Innehåll 700</span>" osv
-        $subPageText = preg_replace('/ (' . $regexpNumerLargerThan99 . ')</', ' <a href="/$1">$1</a><', $subPageText);
-        // "143,150" osv.
-        $subPageText = preg_replace('/ (' . $regexpNumerLargerThan99 . ',' . $regexpNumerLargerThan99 . ') /', ' <a href="/$1">$1</a> ', $subPageText);
+    //     // "203-219" osv.
+    //     $subPageText = preg_replace('/(\d{3}-\d{3})/', '<a href="/$1">$1</a>', $subPageText);
+    //     // " 100 " osv.
+    //     $subPageText = preg_replace('/ (' . $regexpNumerLargerThan99 . ') /', ' <a href="/$1">$1</a> ', $subPageText);
+    //     // " 100" osv.
+    //     $subPageText = preg_replace('/ (' . $regexpNumerLargerThan99 . ')\n/', " <a href=\"/\\1\">\\1</a>\n", $subPageText);
+    //     // "100-" osv.
+    //     $subPageText = preg_replace('/ (' . $regexpNumerLargerThan99 . ')-/', ' <a href="/$1">$1-</a>', $subPageText);
+    //     // "...100 " osv.
+    //     $subPageText = preg_replace('/\.\.(' . $regexpNumerLargerThan99 . ')/', '..<a href="/$1">$1</a>', $subPageText);
+    //     // "417f" osv.
+    //     $subPageText = preg_replace('/(' . $regexpNumerLargerThan99 . ')f/', '<a href="/$1">$1f</a>', $subPageText);
+    //     // "530/" osv.
+    //     $subPageText = preg_replace('/(' . $regexpNumerLargerThan99 . ')\//', '<a href="/$1">$1</a>/', $subPageText);
+    //     // "Innehåll 700</span>" osv
+    //     $subPageText = preg_replace('/ (' . $regexpNumerLargerThan99 . ')</', ' <a href="/$1">$1</a><', $subPageText);
+    //     // "143,150" osv.
+    //     $subPageText = preg_replace('/ (' . $regexpNumerLargerThan99 . ',' . $regexpNumerLargerThan99 . ') /', ' <a href="/$1">$1</a> ', $subPageText);
 
-        // Ersätt "nästa sida" med länk till nästa sida.
-        $subPageText = preg_replace('/ ((N|n)ästa sida) /', ' <a href="/' . ($this->pageNum() + 1) . '">$1</a> ', $subPageText);
+    //     // Ersätt "nästa sida" med länk till nästa sida.
+    //     $subPageText = preg_replace('/ ((N|n)ästa sida) /', ' <a href="/' . ($this->pageNum() + 1) . '">$1</a> ', $subPageText);
 
-        // Länkprefix
-        $subPageText = str_replace(' href="/', " href=\"{$this->linkprefix}", $subPageText);
+    //     // Länkprefix
+    //     $subPageText = str_replace(' href="/', " href=\"{$this->linkprefix}", $subPageText);
 
-        return $subPageText;
-    }
+    //     return $subPageText;
+    // }
 
     /**
      * På sidan 100 fixar vi olika färger på rubrikerna
@@ -875,144 +875,144 @@ class Importer
      * @param array $subPageLines Alla rader på sidan som en array.
      * @return array Alla rader med <span> tillagd på varje rad med rubrik + efterföljande rubriker.
      */
-    public function findHeadlines(array $subPageLines): array
-    {
-        // Baila om vi inte är på sidan 100.
-        if ($this->pageNum() != 100) {
-            return $subPageLines;
-        }
+    // public function findHeadlines(array $subPageLines): array
+    // {
+    //     // Baila om vi inte är på sidan 100.
+    //     if ($this->pageNum() != 100) {
+    //         return $subPageLines;
+    //     }
 
-        // På sidan 100 fixar vi olika färger på rubrikerna
-        // Strunta i rad 1-3 och sista raderna som är meta
+    //     // På sidan 100 fixar vi olika färger på rubrikerna
+    //     // Strunta i rad 1-3 och sista raderna som är meta
 
-        // Nyhet 1: Y DH på första raden
-        //        : Y på övriga rader
-        // Nyhet 2: C på alla rader (kanske borde vara DH också?)
+    //     // Nyhet 1: Y DH på första raden
+    //     //        : Y på övriga rader
+    //     // Nyhet 2: C på alla rader (kanske borde vara DH också?)
 
-        /*
-            Metod:
-            Rad där text finns men inget sidnummer = troligtvis rubrik
-            Om rad efter är tom
-            Och raden därefter har text men inget sidnummer
-            Och raden därefter har sidnummer
-            Gruppera ihop dom, dvs. ta bort tomma raden
+    //     /*
+    //         Metod:
+    //         Rad där text finns men inget sidnummer = troligtvis rubrik
+    //         Om rad efter är tom
+    //         Och raden därefter har text men inget sidnummer
+    //         Och raden därefter har sidnummer
+    //         Gruppera ihop dom, dvs. ta bort tomma raden
 
-            Exempel på utseende:
+    //         Exempel på utseende:
             
-            ----------
+    //         ----------
 
-            Nu börjar 70-åringar att vaccineras  
+    //         Nu börjar 70-åringar att vaccineras  
 
-            Gick snabbare än planerat i Stockholm 
-            106 
+    //         Gick snabbare än planerat i Stockholm 
+    //         106 
                                                     
-                    Biden vidtar åtgärder         
-                    mot vapenvåldet i USA         
-                            135                  
+    //                 Biden vidtar åtgärder         
+    //                 mot vapenvåldet i USA         
+    //                         135                  
                                                     
-            Novus: Ingen ljusning för Liberalerna 
+    //         Novus: Ingen ljusning för Liberalerna 
 
-            Små förändringar i ny opinionsmätning 
-            112/160 
+    //         Små förändringar i ny opinionsmätning 
+    //         112/160 
                                                     
-            Idrottsarenor i fransk covidkamp 130             
+    //         Idrottsarenor i fransk covidkamp 130             
 
-            ----------
+    //         ----------
 		
-            100 SVT Text fredag 09 apr 2021      
+    //         100 SVT Text fredag 09 apr 2021      
             
                                                     
                                                     
-            SMHI-varning för snö och hård vind   
+    //         SMHI-varning för snö och hård vind   
 
-            117 
+    //         117 
                                                     
-                Produktionsfel hos Janssen -       
-                85 proc färre doser till USA       
-                            131                  
+    //             Produktionsfel hos Janssen -       
+    //             85 proc färre doser till USA       
+    //                         131                  
                                                     
-            Böter för Solberg som bröt mot regler 
+    //         Böter för Solberg som bröt mot regler 
 
-            Statsministern deltog i större sällskap
-            130 
+    //         Statsministern deltog i större sällskap
+    //         130 
                                                     
-            USA: Ökad rysk närvaro vid Ukraina 136 
+    //         USA: Ökad rysk närvaro vid Ukraina 136 
             
-                Inrikes 101 Utrikes 104 Innehåll 700
+    //             Inrikes 101 Utrikes 104 Innehåll 700
 
 
-            ----------
+    //         ----------
 
-            100 SVT Text fredag 09 apr 2021      
+    //         100 SVT Text fredag 09 apr 2021      
             
                                                     
-            Brittiske prinsen Philip har avlidit 
+    //         Brittiske prinsen Philip har avlidit 
 
-            Drottning Elizabeths make blev 99 år 
-            135-136 
+    //         Drottning Elizabeths make blev 99 år 
+    //         135-136 
                                                     
-                    Hiphoplegendaren DMX          
-                    är död - blev 50 år          
-                            150                   
+    //                 Hiphoplegendaren DMX          
+    //                 är död - blev 50 år          
+    //                         150                   
                                                     
-            Flest rapporter om Astra-biverkningar 
+    //         Flest rapporter om Astra-biverkningar 
 
-            Tros bero på medvetenhet hos gruppen  
-            107 
+    //         Tros bero på medvetenhet hos gruppen  
+    //         107 
                                                     
-                Uefa: Blir publik under EM - 300   
+    //             Uefa: Blir publik under EM - 300   
             
-                Inrikes 101 Utrikes 104 Innehåll 700
+    //             Inrikes 101 Utrikes 104 Innehåll 700
 
-               ----------                         
+    //            ----------                         
 
 
 	
 
-            */
-        // Rad att börja leta på. Först på rad 6 pga överst är text tv-loggan.
-        $startLine = 6;
+    //         */
+    //     // Rad att börja leta på. Först på rad 6 pga överst är text tv-loggan.
+    //     $startLine = 6;
 
-        // Antal rader att leta efter rubrik på. Raden längst ner på startsidan är nav så den ska skippas.
-        $linesCount = 15;
+    //     // Antal rader att leta efter rubrik på. Raden längst ner på startsidan är nav så den ska skippas.
+    //     $linesCount = 15;
 
-        // start
+    //     // start
 
-        // Array som med rader att slutligen leta efter rubriker i.
-        $linesToLookForHeadlinesIn = array_slice($subPageLines, $startLine, $linesCount);
+    //     // Array som med rader att slutligen leta efter rubriker i.
+    //     $linesToLookForHeadlinesIn = array_slice($subPageLines, $startLine, $linesCount);
 
-        // Multi dimensionell array med alla hittade rubriker, med stöd för flera rader per rubrik.
-        $foundHeadlines = $this->createHeadlinesMultiArray($linesToLookForHeadlinesIn);
+    //     // Multi dimensionell array med alla hittade rubriker, med stöd för flera rader per rubrik.
+    //     $foundHeadlines = $this->createHeadlinesMultiArray($linesToLookForHeadlinesIn);
 
-        // Lägg till Y eller C.
-        $foundHeadlines = array_map(function ($oneFoundHeadline, $index) {
-            $color = $index % 2 ? 'C' : 'Y';
-            $oneFoundHeadline = array_map(function ($oneFoundHeadlineLine) use ($color) {
-                return "<span class='{$color}'>{$oneFoundHeadlineLine}</span>";
-            }, $oneFoundHeadline);
+    //     // Lägg till Y eller C.
+    //     $foundHeadlines = array_map(function ($oneFoundHeadline, $index) {
+    //         $color = $index % 2 ? 'C' : 'Y';
+    //         $oneFoundHeadline = array_map(function ($oneFoundHeadlineLine) use ($color) {
+    //             return "<span class='{$color}'>{$oneFoundHeadlineLine}</span>";
+    //         }, $oneFoundHeadline);
 
-            return $oneFoundHeadline;
-        }, $foundHeadlines, array_keys($foundHeadlines));
+    //         return $oneFoundHeadline;
+    //     }, $foundHeadlines, array_keys($foundHeadlines));
 
-        // Skapa ny lines-array med alla hittade rubriker.
-        $emptyLine = str_pad('', 40, ' ');
-        $linesWithHeadlines = [];
-        foreach ($foundHeadlines as $oneFoundHeadline) {
-            array_push($linesWithHeadlines, $emptyLine, ...$oneFoundHeadline);
-        }
+    //     // Skapa ny lines-array med alla hittade rubriker.
+    //     $emptyLine = str_pad('', 40, ' ');
+    //     $linesWithHeadlines = [];
+    //     foreach ($foundHeadlines as $oneFoundHeadline) {
+    //         array_push($linesWithHeadlines, $emptyLine, ...$oneFoundHeadline);
+    //     }
 
-        // Ta bort första raden pga tom.
-        $linesWithHeadlines = array_slice($linesWithHeadlines, 1);
+    //     // Ta bort första raden pga tom.
+    //     $linesWithHeadlines = array_slice($linesWithHeadlines, 1);
 
-        // Se till att nya arrayen har lika många element som den ursprungliga.
-        if (count($linesWithHeadlines) !== $linesCount) {
-            $linesWithHeadlines = array_pad($linesWithHeadlines, $linesCount, $emptyLine);
-        }
+    //     // Se till att nya arrayen har lika många element som den ursprungliga.
+    //     if (count($linesWithHeadlines) !== $linesCount) {
+    //         $linesWithHeadlines = array_pad($linesWithHeadlines, $linesCount, $emptyLine);
+    //     }
 
-        array_splice($subPageLines, $startLine, $linesCount, $linesWithHeadlines);
+    //     array_splice($subPageLines, $startLine, $linesCount, $linesWithHeadlines);
 
-        return $subPageLines;
-    }
+    //     return $subPageLines;
+    // }
 
     /**
      * Skapa multidimensional array med hittade rubriker från raderna som skickats in.
@@ -1020,46 +1020,46 @@ class Importer
      * @param mixed $linesToLookForHeadlinesIn Array med rader
      * @return array Multidimensional array med rubriker
      */
-    public function createHeadlinesMultiArray($linesToLookForHeadlinesIn): array
-    {
-        // Ta bort tomma rader.
-        $linesToLookForHeadlinesIn = array_filter($linesToLookForHeadlinesIn, function ($line) {
-            return !empty(trim($line));
-        });
+    // public function createHeadlinesMultiArray($linesToLookForHeadlinesIn): array
+    // {
+    //     // Ta bort tomma rader.
+    //     $linesToLookForHeadlinesIn = array_filter($linesToLookForHeadlinesIn, function ($line) {
+    //         return !empty(trim($line));
+    //     });
 
-        // Indexera om.
-        $linesToLookForHeadlinesIn = array_values($linesToLookForHeadlinesIn);
+    //     // Indexera om.
+    //     $linesToLookForHeadlinesIn = array_values($linesToLookForHeadlinesIn);
 
-        // Hitta rubrik från första raden och framåt, stoppa när nästa rubrik börjar.
-        $currentFoundHeadline = [];
-        for ($i = 0; $i < count($linesToLookForHeadlinesIn); $i++) {
-            $lineNum = $i;
-            $line = $linesToLookForHeadlinesIn[$lineNum];
-            $trimmedLine = trim($linesToLookForHeadlinesIn[$lineNum]);
+    //     // Hitta rubrik från första raden och framåt, stoppa när nästa rubrik börjar.
+    //     $currentFoundHeadline = [];
+    //     for ($i = 0; $i < count($linesToLookForHeadlinesIn); $i++) {
+    //         $lineNum = $i;
+    //         $line = $linesToLookForHeadlinesIn[$lineNum];
+    //         $trimmedLine = trim($linesToLookForHeadlinesIn[$lineNum]);
 
-            // Rubriken slutar när:
-            // - en rad består av siffror, t.ex. "131" eller "112/160 ", "135-136 "
-            // - en rad har siffror sist, t.ex. "Uefa: Blir publik under EM - 300   ", "Idrottsarenor i fransk covidkamp 130"
-            // - en rad har siffror sist men har ett minusstreck också, t.ex. 'Ryssland - Kreml varnar 135-',
-            // - se upp för rader med siffror som inte är nummer, t.ex. "Drottning Elizabeths make blev 99 år "
-            // - se upp för rader som slutar med tre siffror men som är del av nummer, t.ex. '27 nya corona-dödsfall - totalt 13 788'.
-            $lineIsSingleNumber = is_numeric($trimmedLine);
-            $lineIsNumberRange = (bool) preg_match('/^\d{3}[\/\-]\d{3}$/', $trimmedLine);
-            $lineEndsWithNumber = (bool) preg_match('/\d{3}-?$/', $trimmedLine);
-            $lineEndsWithNumberThatProbablyNotIsPageNumber = (bool) preg_match('/ \d+ \d{3}/', $trimmedLine);
+    //         // Rubriken slutar när:
+    //         // - en rad består av siffror, t.ex. "131" eller "112/160 ", "135-136 "
+    //         // - en rad har siffror sist, t.ex. "Uefa: Blir publik under EM - 300   ", "Idrottsarenor i fransk covidkamp 130"
+    //         // - en rad har siffror sist men har ett minusstreck också, t.ex. 'Ryssland - Kreml varnar 135-',
+    //         // - se upp för rader med siffror som inte är nummer, t.ex. "Drottning Elizabeths make blev 99 år "
+    //         // - se upp för rader som slutar med tre siffror men som är del av nummer, t.ex. '27 nya corona-dödsfall - totalt 13 788'.
+    //         $lineIsSingleNumber = is_numeric($trimmedLine);
+    //         $lineIsNumberRange = (bool) preg_match('/^\d{3}[\/\-]\d{3}$/', $trimmedLine);
+    //         $lineEndsWithNumber = (bool) preg_match('/\d{3}-?$/', $trimmedLine);
+    //         $lineEndsWithNumberThatProbablyNotIsPageNumber = (bool) preg_match('/ \d+ \d{3}/', $trimmedLine);
 
-            $isEndOfHeadline = ($lineIsSingleNumber || $lineIsNumberRange || $lineEndsWithNumber) && !$lineEndsWithNumberThatProbablyNotIsPageNumber;
+    //         $isEndOfHeadline = ($lineIsSingleNumber || $lineIsNumberRange || $lineEndsWithNumber) && !$lineEndsWithNumberThatProbablyNotIsPageNumber;
 
-            $currentFoundHeadline[] = $line;
+    //         $currentFoundHeadline[] = $line;
 
-            if ($isEndOfHeadline) {
-                $foundHeadlines[] = $currentFoundHeadline;
-                $currentFoundHeadline = [];
-            }
-        }
+    //         if ($isEndOfHeadline) {
+    //             $foundHeadlines[] = $currentFoundHeadline;
+    //             $currentFoundHeadline = [];
+    //         }
+    //     }
 
-        return $foundHeadlines;
-    }
+    //     return $foundHeadlines;
+    // }
 
     public function pageObject()
     {

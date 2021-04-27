@@ -179,6 +179,23 @@ class Importer
         return $lineChars;
     }
 
+    protected function alignLineTexts($subPageLines)
+    {
+        // Flytta "SVT Text" till höger på nyheter och sport
+        if (in_array($this->pageNum(), [101, 102, 103])) {
+            $subPageLines[3] = str_replace('SVT Text                              ', '                           SVT Text   ', $subPageLines[3]);
+        } else if (in_array($this->pageNum(), [104, 105])) {
+            $subPageLines[3] = str_replace('SVT Text                               ', '                            SVT Text   ', $subPageLines[3]);
+        }
+
+        // Flytta 1,2 milj/dag till höger
+        if (in_array($this->pageNum(), [300, 301, 302])) {
+            $subPageLines[1] = str_replace(' 1,2 milj/dag                           ', '                           1,2 milj/dag ', $subPageLines[1]);
+        }
+
+        return $subPageLines;
+    }
+
     public function colorize()
     {
         $subPages = $this->subPages();
@@ -197,6 +214,7 @@ class Importer
             $subPageLines = explode("\n", $subPage['text']);
 
             $subPageLines = $this->fixDayNamesInHead($subPageLines);
+            $subPageLines = $this->alignLineTexts($subPageLines);
 
             // Hämta och skapa spans med färg för varje rad, för varje kolumn.
             $subPageLines = array_map(function ($line, $lineIndex) use ($charsExtractor) {
@@ -336,7 +354,6 @@ class Importer
 
         #dump('$regexSpanAndThreeNumberLargerThan100AndADot', $numMatches, strip_tags($line));
 
-
         $line = preg_replace_callback('|' . $regexSpanAndThreeNumberLargerThan100 . '|', function ($matches) {
             // $matches[0] = complete match, dvs. <span>1</span><span>0</span><span>0</span>
             // $matches[1] = first subpattern, dvs. siffra ett
@@ -346,7 +363,7 @@ class Importer
             $completeMatch = $matches[0];
 
             // Gamla Android-appen som är flera år gammal
-            // använder FastClick som inger fungerar om markup är
+            // använder FastClick som inte fungerar om markup är
             // <a href="/123"><span>1</span><span>2</span><span>3</span></a>
             // så ta ersatt allt med en enda länk dock måste vi överföra 
             // alla attribut (class, data-*) till länken.
@@ -366,11 +383,12 @@ class Importer
 
             // Länk runt allt.
             $replacementString = sprintf(
-                '<a href="/%2$s" class="%3$s"%4$s>%2$s</a>',
+                '<a href="%5$s%2$s" class="%3$s"%4$s>%2$s</a>',
                 $completeMatch,
                 $pageNum,
                 implode(' ', $classes),
                 $this->withdebug ? sprintf(' data-image-hashes="%1$s"', implode(' ', $dataImageHashes)) : '', // 4
+                $this->linkprefix // 5
             );
 
             return $replacementString;

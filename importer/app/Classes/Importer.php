@@ -20,7 +20,7 @@ class Importer
     protected $pageObject;
     protected $remoteResponse;
     protected $linkprefix = '/';
-    
+
     // Om debug är på så skrivs image-idn ut i htmlkoden.
     protected $withdebug = false;
 
@@ -86,10 +86,104 @@ class Importer
         return $this;
     }
 
+    // Ersätt text överst pga alt-texten vi får från SVT verkar ha problem med svenska tecken i översta raden.
+    protected function fixDayNamesInHead(array $subPageLines): array
+    {
+        $subPageLines[0] = str_replace(
+            [
+                ' m ndag ',
+                ' l rdag ',
+                ' s ndag ',
+            ],
+            [
+                ' måndag ',
+                ' lördag ',
+                ' söndag ',
+            ],
+            $subPageLines[0]
+        );
+
+        return $subPageLines;
+    }
+
+    protected function colorizeLine($lineChars, $line, $lineIndex, $charsExtractor)
+    {
+        $lineChars = array_map(
+            function ($char, $charIndex) use ($line, $lineIndex, $charsExtractor) {
+                $charInfo = $charsExtractor->getChar($lineIndex, $charIndex);
+
+                if (!$charInfo) {
+                    return $char;
+                }
+
+                $strDataImageHash = '';
+                if ($this->withdebug) {
+                    $strDataImageHash = sprintf(
+                        ' data-image-hash="%1$s"',
+                        $charInfo['charImageHash']
+                    );
+                }
+
+                $class = sprintf(
+                    '%1$s %2$s',
+                    $charInfo['charColors']['backgroundClass'],
+                    $charInfo['charColors']['textClass'],
+                );
+                $class = trim($class);
+                $class = $class ? sprintf(' class="%s"', $class) : '';
+
+                if ($charInfo['charType']['type'] === 'image') {
+                    $charInfoHash = $charInfo['charImageHash'];
+                    $charFilename = "storage/chars/{$charInfoHash}.gif";
+                    $charUrl = asset($charFilename);
+
+                    // Bild
+                    $style = sprintf(
+                        'background: url(%1$s) center/cover',
+                        $charUrl
+                    );
+                    $char = sprintf(
+                        '<span style="%5$s"%4$s%2$s>%1$s</span>',
+                        $char,
+                        $class,
+                        "", // removed
+                        $strDataImageHash, // 4
+                        $style // 5
+                    );
+                } elseif ($charInfo['charType']['type'] === 'text' && $charInfo['charType']['scale'] === 2) {
+                    // Rubrik
+                    $char = sprintf(
+                        '<span%4$s%2$s>%1$s</span>',
+                        $char,
+                        $class,
+                        '', // removed
+                        $strDataImageHash // 4
+                    );
+                } else {
+                    // Vanlig text
+                    $char = sprintf(
+                        '<span%4$s%2$s>%1$s</span>',
+                        $char,
+                        $class,
+                        '', // removed
+                        $strDataImageHash // 4
+                    );
+                }
+
+                return $char;
+            },
+            $lineChars,
+            array_keys($lineChars)
+        );
+
+        return $lineChars;
+    }
+
     public function colorize()
     {
         $subPages = $this->subPages();
 
+        // För varje sida...
         $subPages->transform(function ($subPage) {
             // Hoppa över sidor som inte har bilddata.
             if (empty($subPage['gifAsBase64'])) {
@@ -98,104 +192,26 @@ class Importer
 
             $charsExtractor = new TeletextCharsExtractor;
             $charsExtractor->imageFromString(base64_decode($subPage['gifAsBase64']))->parseImage();
-            #echo $charsExtractor->getImageDebugHtml();
-            #echo "<pre>" . print_r($charsExtractor->getChars(), 1) . "</pre>";
 
+            // Skapa array med alla rader en undersida.
             $subPageLines = explode("\n", $subPage['text']);
-            #$pageNum = $this->pageNum();
 
-            // Alt-texten vi får från SVT verkar ha problem med svenska tecken i översta raden.
-            $subPageLines[0] = str_replace(
-                [
-                    ' m ndag ',
-                    ' l rdag ',
-                    ' s ndag ',
-                ],
-                [
-                    ' måndag ',
-                    ' lördag ',
-                    ' söndag ',
-                ],
-                $subPageLines[0]
-            );
+            $subPageLines = $this->fixDayNamesInHead($subPageLines);
 
             // Hämta och skapa spans med färg för varje rad, för varje kolumn.
             $subPageLines = array_map(function ($line, $lineIndex) use ($charsExtractor) {
                 // Hämta färg för varje tecken på denna rad.
-                #echo "<br>lineIndex: $lineIndex";
                 $currentLineHasHeadlineChars = $this->lineHasHeadlineChars($charsExtractor, $line, $lineIndex);
                 $nextLineHasHeadlineChars = $this->lineHasHeadlineChars($charsExtractor, $line, $lineIndex + 1);
 
+                // Skapa array med alla tecken i raden.
                 $lineChars = mb_str_split($line);
 
-                $lineChars = array_map(
-                    function ($char, $charIndex) use ($line, $lineIndex, $charsExtractor) {
-                        $charInfo = $charsExtractor->getChar($lineIndex, $charIndex);
+                // Gå igenom alla tecken på en rad och lägg till <span> med klasses för färger 
+                // och inline styles för rubriker osv.
+                $lineChars = $this->colorizeLine($lineChars, $line, $lineIndex, $charsExtractor);
 
-                        if (!$charInfo) {
-                            return $char;
-                        }
-
-                        $strDataImageHash = '';
-                        if ($this->withdebug) {
-                            $strDataImageHash = sprintf(
-                                ' data-image-hash="%1$s"',
-                                $charInfo['charImageHash']
-                            );
-                        }
-
-                        $class = sprintf(
-                            '%1$s %2$s',
-                            $charInfo['charColors']['backgroundClass'],
-                            $charInfo['charColors']['textClass'],
-                        );
-                        $class = trim($class);
-                        $class = $class ? sprintf(' class="%s"', $class) : '';
-
-                        if ($charInfo['charType']['type'] === 'image') {
-                            $charInfoHash = $charInfo['charImageHash'];
-                            $charFilename = "storage/chars/{$charInfoHash}.gif";
-                            $charUrl = asset($charFilename);
-
-                            // Bild
-                            $style = sprintf(
-                                'background: url(%1$s) center/cover',
-                                $charUrl
-                            );
-                            $char = sprintf(
-                                '<span style="%5$s"%4$s%2$s>%1$s</span>',
-                                $char,
-                                $class,
-                                "", // removed
-                                $strDataImageHash, // 4
-                                $style // 5
-                            );
-                        } elseif ($charInfo['charType']['type'] === 'text' && $charInfo['charType']['scale'] === 2) {
-                            // Rubrik
-                            $char = sprintf(
-                                '<span%4$s%2$s>%1$s</span>',
-                                $char,
-                                $class,
-                                '', // removed
-                                $strDataImageHash // 4
-                            );
-                        } else {
-                            // Vanlig text
-                            $char = sprintf(
-                                '<span%4$s%2$s>%1$s</span>',
-                                $char,
-                                $class,
-                                '' ,// removed
-                                $strDataImageHash // 4
-                            );
-                        }
-
-                        return $char;
-                    },
-                    $lineChars,
-                    array_keys($lineChars)
-                );
-
+                // Gör en rad till sträng igen från alla tecken i raden.
                 $line = implode("", $lineChars);
 
                 // Lägg till div runt varje rad.
@@ -219,7 +235,7 @@ class Importer
             // Lägg till <span class="toprow"> på första raden.
             $subPageLines[0] = sprintf('<span class="toprow">%s</span>', $subPageLines[0]);
 
-            // Skapa ren sträng av allt igen.
+            // Skapa ren sträng av hela undersidan igen.
             $subPageText = implode("\n", $subPageLines);
 
             // Lägg till <div class="root"> runt allt.

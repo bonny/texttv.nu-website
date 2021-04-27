@@ -309,6 +309,7 @@ class Importer
     {
         $regexSpanStart = '<span\b[^>]*>';
         $regexSpanEnd = '</span>';
+        $regexSingleNumber0 = '(0)';
         $regexSingleNumber1to9 = '([1-9])';
         $regexSingleNumber0to9 = '([0-9])';
 
@@ -318,8 +319,13 @@ class Importer
             $regexSpanStart . $regexSingleNumber0to9 . $regexSpanEnd .
             $regexSpanStart . $regexSingleNumber0to9 . $regexSpanEnd;
 
+        $regexSpanAndThreeNumberLessThan100 =
+            $regexSpanStart . $regexSingleNumber0 . $regexSpanEnd .
+            $regexSpanStart . $regexSingleNumber0to9 . $regexSpanEnd .
+            $regexSpanStart . $regexSingleNumber0to9 . $regexSpanEnd;
+
         // Matchar tre nummer och en punkt, så t.ex. "908." borde fastna, som t.ex.
-        // ekonomisidor har för kurser osv. "OMX STOCKHOLM (SLUT )   908.88  +0.25"
+        // ekonomisidor har för kurser osv. "OMX STOCKHOLM (SLUT )   908.88  +0.25".
         $regexSpanAndThreeNumberLargerThan100AndADot =
             $regexSpanAndThreeNumberLargerThan100 .
             $regexSpanStart . '\.' . $regexSpanEnd;
@@ -341,13 +347,25 @@ class Importer
             return $line;
         }
 
-        // Baila om sidnummer har en siffra innan, t.ex. "Minst 2 300 strokefall kan förhindras"
+        // Baila om sidnummer har en siffra innan, t.ex. "Minst 2 300 strokefall kan förhindras".
         $regexSpanAndThreeNumberLargerThan100AndASpaceAndNumberBefore =
             $regexSpanStart . $regexSingleNumber0to9 . $regexSpanEnd .
-            $regexSpanStart . '\ ' . $regexSpanEnd .
+            $regexSpanStart . '\ ' . $regexSpanEnd . // spar char
             $regexSpanAndThreeNumberLargerThan100;
 
         $numMatches = preg_match_all('|' . $regexSpanAndThreeNumberLargerThan100AndASpaceAndNumberBefore . '|', $line);
+        if ($numMatches) {
+            return $line;
+        }
+
+        // Baila om sidnummer har siffror efter som inte är giltigt nummer,
+        // t.ex. "Arbetslöshet I mars var 549 000".
+        $regexSpanAndThreeNumberLargerThan100AndNotValidPageRangeAfter =
+            $regexSpanAndThreeNumberLargerThan100 . 
+            $regexSpanStart . '\ ' . $regexSpanEnd . // spar char
+            $regexSpanAndThreeNumberLessThan100;
+
+        $numMatches = preg_match_all('|' . $regexSpanAndThreeNumberLargerThan100AndNotValidPageRangeAfter . '|', $line);
         if ($numMatches) {
             return $line;
         }

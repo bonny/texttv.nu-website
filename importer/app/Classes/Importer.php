@@ -188,7 +188,7 @@ class Importer
     protected function alignLineTexts($subPageLines)
     {
         // Flytta "SVT Text" till höger på nyheter och sport
-        if (in_array($this->pageNum(), [101, 102, 103])) {
+        if (in_array($this->pageNum(), [101, 102, 103, 500])) {
             $subPageLines[3] = str_replace('SVT Text                              ', '                           SVT Text   ', $subPageLines[3]);
         } else if (in_array($this->pageNum(), [104, 105, 200, 201, 400])) {
             $subPageLines[3] = str_replace('SVT Text                               ', '                            SVT Text   ', $subPageLines[3]);
@@ -249,9 +249,9 @@ class Importer
                 $line = $this->colorizeLine($line, $lineIndex, $charsExtractor);
 
                 // Kombinera flera element till ett.
-                #$line = $this->combineElementsOnLine($line);
+                $line = $this->combineElementsOnLine($line);
                 // Ja, kör verkligen funktionen två gånger för att kombinera ihop ännu fler ¯\_(ツ)_/¯
-                #$line = $this->combineElementsOnLine($line);
+                $line = $this->combineElementsOnLine($line);
 
                 // Om en line innehåller någon rubrik/char med scale: 2 så
                 // ska hela raden tolkas som rubrik pga det verkar som det
@@ -484,7 +484,7 @@ class Importer
         return $newLine;
     }
 
-    public function linkifySingleLine($line, &$numberReplacements = null)
+    public function linkifySingleLineWithSpanSupport($line, &$numberReplacements = null)
     {
         $regexSpanStart = '<span\b[^>]*>';
         $regexSpanEnd = '</span>';
@@ -591,6 +591,50 @@ class Importer
             return $replacementString;
         }, $line, -1, $numberReplacements);
 
+        return $line;
+    }
+
+    public function linkifySingleLine($line, &$numberReplacements = null)
+    {  
+        $regexSingleNumber0 = '(0)';
+        $regexSingleNumber1to9 = '([1-9])';
+        $regexSingleNumber0to9 = '([0-9])';
+        $regexPageNumber = $regexSingleNumber1to9 . $regexSingleNumber0to9 . $regexSingleNumber0to9;
+        $linkprefix = $this->linkprefix;
+        $replacement = '<a href="' . $linkprefix . '\1">\1</a>';
+
+        // Lägg inte till länkar på börskurserna, 203-246.
+        if ($this->pageNum() >= 203 && $this->pageNum() <= 246) {
+            return $line;
+        }
+
+        // Länka inte text som t.ex. börskurs   TELEKOMMUNIKATION       988.51  -0.10
+        // Dvs tre siffror och sen en punkt och siffror igen.
+        $regexNumberRange = '\b([1-9][0-9]{2}\.[0-9]{2})\b';
+        if (preg_match('|' . $regexNumberRange . '|', $line, $matches)) {
+            return $line;
+        }
+
+        // Intervall 110-114
+        $regexNumberRange = '\b([1-9][0-9]{2}-[1-9][0-9]{2})\b';
+        $line = preg_replace('|' . $regexNumberRange . '|', $replacement, $line, -1, $count);
+        if ($count) return $line;
+
+        // Enkelt nummer 123
+        $regexPageNumber = '\b([1-9][0-9]{2})\b';
+        $line = preg_replace('|' . $regexPageNumber . '|', $replacement, $line, -1, $count);
+        if ($count) return $line;
+
+        // Flersida 123f-234f
+        $regexNumberRange = '\b([1-9][0-9]{2})f-([1-9][0-9]{2})f\b';
+        $line = preg_replace('|' . $regexNumberRange . '|', '<a href="' . $linkprefix . '\1-\2">\1f-\2f</a>', $line, -1, $count);
+        if ($count) return $line;
+        
+        // Flersida 123f
+        $regexPageNumber = '\b([1-9][0-9]{2})f\b';
+        $line = preg_replace('|' . $regexPageNumber . '|', '<a href="' . $linkprefix . '\1">\1f</a>', $line, -1, $count);
+        if ($count) return $line;
+        
         return $line;
     }
 

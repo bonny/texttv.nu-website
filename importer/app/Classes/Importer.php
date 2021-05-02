@@ -111,7 +111,6 @@ class Importer
         // Skapa array med alla tecken i raden.
         $lineChars = mb_str_split($line);
 
-
         $lineChars = array_map(
             function ($char, $charIndex) use ($line, $lineIndex, $charsExtractor) {
                 $charInfo = $charsExtractor->getChar($lineIndex, $charIndex);
@@ -191,7 +190,7 @@ class Importer
         // Flytta "SVT Text" till höger på nyheter och sport
         if (in_array($this->pageNum(), [101, 102, 103])) {
             $subPageLines[3] = str_replace('SVT Text                              ', '                           SVT Text   ', $subPageLines[3]);
-        } else if (in_array($this->pageNum(), [104, 105, 200, 201])) {
+        } else if (in_array($this->pageNum(), [104, 105, 200, 201, 400])) {
             $subPageLines[3] = str_replace('SVT Text                               ', '                            SVT Text   ', $subPageLines[3]);
         }
 
@@ -204,6 +203,18 @@ class Importer
         $subPageLines[23] = str_replace(' Utrikes 104  Sport 300  Innehåll 700   ', '   Utrikes 104  Sport 300  Innehåll 700 ', $subPageLines[23]);
         #dd('$subPageLines[23]', $subPageLines[23]);
 
+        // På vädret 401 måste många rader skjutas till höger.
+        if (in_array($this->pageNum(), [401])) {
+            // Rad 1 - 23
+            for ($i = 1; $i < 23; $i++) {
+                $subPageLines[$i] = trim($subPageLines[$i]);
+                // Putta in alla rader n tecken.
+                $subPageLines[$i] = str_pad('', 20, ' ') . $subPageLines[$i];
+                // Se till att varje rad är 40 tecken.
+                $subPageLines[$i] = $this->mb_str_pad($subPageLines[$i], 40);
+            }
+            #dd($subPageLines);
+        }
         return $subPageLines;
     }
 
@@ -238,9 +249,9 @@ class Importer
                 $line = $this->colorizeLine($line, $lineIndex, $charsExtractor);
 
                 // Kombinera flera element till ett.
-                $line = $this->combineElementsOnLine($line);
+                #$line = $this->combineElementsOnLine($line);
                 // Ja, kör verkligen funktionen två gånger för att kombinera ihop ännu fler ¯\_(ツ)_/¯
-                $line = $this->combineElementsOnLine($line);
+                #$line = $this->combineElementsOnLine($line);
 
                 // Om en line innehåller någon rubrik/char med scale: 2 så
                 // ska hela raden tolkas som rubrik pga det verkar som det
@@ -1013,5 +1024,20 @@ class Importer
         }
 
         return $title;
+    }
+
+    protected function mb_str_pad($str, $pad_len, $pad_str = ' ', $dir = STR_PAD_RIGHT, $encoding = NULL)
+    {
+        $encoding = $encoding === NULL ? mb_internal_encoding() : $encoding;
+        $padBefore = $dir === STR_PAD_BOTH || $dir === STR_PAD_LEFT;
+        $padAfter = $dir === STR_PAD_BOTH || $dir === STR_PAD_RIGHT;
+        $pad_len -= mb_strlen($str, $encoding);
+        $targetLen = $padBefore && $padAfter ? $pad_len / 2 : $pad_len;
+        $strToRepeatLen = mb_strlen($pad_str, $encoding);
+        $repeatTimes = ceil($targetLen / $strToRepeatLen);
+        $repeatedString = str_repeat($pad_str, max(0, $repeatTimes)); // safe if used with valid unicode sequences (any charset)
+        $before = $padBefore ? mb_substr($repeatedString, 0, floor($targetLen), $encoding) : '';
+        $after = $padAfter ? mb_substr($repeatedString, 0, ceil($targetLen), $encoding) : '';
+        return $before . $str . $after;
     }
 }

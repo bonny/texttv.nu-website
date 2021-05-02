@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\App;
 /**
  * 
  * $finder = Finder::create()->files()->name('*.php')->in(__DIR__);
- * $texttvpage = (new Importer('100'))->fromRemote()->cleanup()->decorate();
+ * $texttvpage = (new Importer('100'))->fromRemote()->cleanup()->colorize()->linkify();
  * then $texttvpage->pageAsText();
  * then $texttvpage->updated();
  */
@@ -106,8 +106,12 @@ class Importer
         return $subPageLines;
     }
 
-    protected function colorizeLine($lineChars, $line, $lineIndex, $charsExtractor)
+    protected function colorizeLine($line, $lineIndex, $charsExtractor)
     {
+        // Skapa array med alla tecken i raden.
+        $lineChars = mb_str_split($line);
+
+
         $lineChars = array_map(
             function ($char, $charIndex) use ($line, $lineIndex, $charsExtractor) {
                 $charInfo = $charsExtractor->getChar($lineIndex, $charIndex);
@@ -176,7 +180,10 @@ class Importer
             array_keys($lineChars)
         );
 
-        return $lineChars;
+        // Gör en rad till sträng igen från alla tecken i raden.
+        $line = implode("", $lineChars);
+
+        return $line;
     }
 
     protected function alignLineTexts($subPageLines)
@@ -184,7 +191,7 @@ class Importer
         // Flytta "SVT Text" till höger på nyheter och sport
         if (in_array($this->pageNum(), [101, 102, 103])) {
             $subPageLines[3] = str_replace('SVT Text                              ', '                           SVT Text   ', $subPageLines[3]);
-        } else if (in_array($this->pageNum(), [104, 105])) {
+        } else if (in_array($this->pageNum(), [104, 105, 200, 201])) {
             $subPageLines[3] = str_replace('SVT Text                               ', '                            SVT Text   ', $subPageLines[3]);
         }
 
@@ -192,6 +199,10 @@ class Importer
         if (in_array($this->pageNum(), [300, 301, 302])) {
             $subPageLines[1] = str_replace(' 1,2 milj/dag                           ', '                           1,2 milj/dag ', $subPageLines[1]);
         }
+
+        // Lägg på mellanslag först på raden längst ner pga det saknas.
+        $subPageLines[23] = str_replace(' Utrikes 104  Sport 300  Innehåll 700   ', '   Utrikes 104  Sport 300  Innehåll 700 ', $subPageLines[23]);
+        #dd('$subPageLines[23]', $subPageLines[23]);
 
         return $subPageLines;
     }
@@ -222,17 +233,15 @@ class Importer
                 $currentLineHasHeadlineChars = $this->lineHasHeadlineChars($charsExtractor, $line, $lineIndex);
                 $nextLineHasHeadlineChars = $this->lineHasHeadlineChars($charsExtractor, $line, $lineIndex + 1);
 
-                // Skapa array med alla tecken i raden.
-                $lineChars = mb_str_split($line);
-
                 // Gå igenom alla tecken på en rad och lägg till <span> med klasses för färger 
                 // och inline styles för rubriker osv.
-                $lineChars = $this->colorizeLine($lineChars, $line, $lineIndex, $charsExtractor);
+                $line = $this->colorizeLine($line, $lineIndex, $charsExtractor);
 
-                // Gör en rad till sträng igen från alla tecken i raden.
-                $line = implode("", $lineChars);
+                // Kombinera flera element till ett.
+                $line = $this->combineElementsOnLine($line);
+                // Ja, kör verkligen funktionen två gånger för att kombinera ihop ännu fler ¯\_(ツ)_/¯
+                $line = $this->combineElementsOnLine($line);
 
-                // Lägg till div runt varje rad.
                 // Om en line innehåller någon rubrik/char med scale: 2 så
                 // ska hela raden tolkas som rubrik pga det verkar som det
                 // alltid är så.
@@ -241,17 +250,23 @@ class Importer
                     $rowStyle = ' style="display:inline-block;transform:scaleY(2);transform-origin:top;"';
                 }
 
+                // Läg en span runt varje rad.
+                $lineClasses = 'line';
+                if ($lineIndex == 0) {
+                    $lineClasses .= ' toprow';
+                }
                 $line = sprintf(
-                    '<span%2$s>%1$s</span>',
+                    '<span%2$s class="%3$s">%1$s</span>',
                     $line,
-                    $rowStyle
+                    $rowStyle,
+                    $lineClasses,
                 );
 
                 return $line;
             }, $subPageLines, array_keys($subPageLines));
 
             // Lägg till <span class="toprow"> på första raden.
-            $subPageLines[0] = sprintf('<span class="toprow">%s</span>', $subPageLines[0]);
+            #$subPageLines[0] = sprintf('<span class="toprow">%s</span>', $subPageLines[0]);
 
             // Skapa ren sträng av hela undersidan igen.
             $subPageText = implode("\n", $subPageLines);
@@ -277,10 +292,6 @@ class Importer
         $subPages = $this->subPages();
         $subPages->transform(function ($subPage) {
             $subPageLines = explode("\n", $subPage['text']);
-            $pageNum = $this->pageNum();
-
-            // Gör "SVT Text" gul på första raden.
-            #$subPageLines[0] = str_replace('SVT Text', '<span class="Y">SVT Text</span>', $subPageLines[0]);
 
             // Agera på varje rad.
             $subPageLines = array_map(function ($line, $lineIndex) {
@@ -294,7 +305,6 @@ class Importer
             }, $subPageLines, array_keys($subPageLines));
 
             $subPageText = implode("\n", $subPageLines);
-
             $subPage['text'] = $subPageText;
 
             return $subPage;
@@ -302,7 +312,165 @@ class Importer
 
         $this->subPages = $subPages;
 
+        // Ersätt flera <span ...> som följer varande och har samma attribut med endast en span.
+        // $subPages = $this->subPages();
+        // $subPages->transform(function ($subPage) {
+        //     $subPageLines = explode("\n", $subPage['text']);
+
+        //     // Agera på varje rad.
+        //     // En rad ser ca ut såhär:
+        //     // <span><span class="bgBl"> </span><span class="bgBl"> </span><span class="bgBl"> </span><span class="bgBl Y"> </span><span class="bgBl Y"> </span>...
+
+        //     $subPageLines = array_map(function ($line, $lineIndex) {
+        //         return $this->combineElementsOnLine($line);
+        //     }, $subPageLines, array_keys($subPageLines));
+
+        //     $subPageText = implode("\n", $subPageLines);
+        //     $subPageText = sprintf('<div class="root">%s</div>', $subPageText);
+        //     $subPage['text'] = $subPageText;
+
+        //     return $subPage;
+        // });
+
+        $this->subPages = $subPages;
+
         return $this;
+    }
+
+    public function combineElementsOnLine($line)
+    {
+        // Hämta alla element på raden.
+        $domLine = new DomQuery($line);
+
+        // Hämta alla element på raden. Är 40 element
+        // om inte något blivit länkat, då är det färre pga en a ersätter
+        // flera span.
+        $lineElements = $domLine->find('*');
+
+        $newLine = '';
+        /** @var DOMElement $prevElm */
+        $prevElm = null;
+        $isElementOpened = false;
+
+        for ($i = 0; $i < count($lineElements); $i++) {
+            /** @var DOMElement $currentElm */
+            $currentElm = $lineElements[$i]->get(0);
+
+            // Påbörja nytt element om currentElm har class som skiljer sig från föregående element.
+            $currentElmClass = $currentElm->getAttribute('class');
+            $currentElmStyle = $currentElm->getAttribute('style');
+            $currentElmHref = $currentElm->getAttribute('href');
+            $currentElmHref = $currentElmHref ? " href={$currentElmHref}" : '';
+            $currentElmText = $currentElm->textContent;
+            $currentElmNodeName = $currentElm->nodeName;
+            $prevElmClass = $prevElm ? $prevElm->getAttribute('class') : null;
+            $prevElmStyle = $prevElm ? $prevElm->getAttribute('style') : null;
+            $startNewElm = false;
+
+            // Avgör om ett nytt element ska öppnas
+            // eller om tidigare öppnat ska fortsätta vara öppen.
+            if (!$prevElm) {
+                // Öppna nytt element om inget redan är öppet.
+                $startNewElm = true;
+            } else if (
+                // Öppna nytt element om classerna på aktuellt element skiljer sig från föregående element.
+                $prevElm && $prevElm->getAttribute('class') !== $currentElmClass
+            ) {
+                $startNewElm = true;
+            } else if ($currentElmStyle) {
+                // Öppna nytt elm om elm har style pga bg-bild får inte vara över flera tecken
+                // då det blir grafikfel.
+                $startNewElm = true;
+            }
+
+            // Om aktuellt element inte har någon text (dvs. är ett mellanslag)
+            // och dess bgX-färg är samma som föregående element så ska vi fortsätta på föregående.
+            $backgroundRegExp = '|bg(\w+)|';
+            if (
+                preg_match($backgroundRegExp, $currentElmClass, $currentElmBackgroundClassMatches)
+                && preg_match($backgroundRegExp, $prevElmClass, $prevElmBackgroundClassMatches)
+            ) {
+                // Både aktuellt elm och föregående elm har bg-klasser.
+                // Fortsätt bara om curentElm inte har fler klasser pga vi får inte skriva över förgrunden.
+                if (strpos($currentElmClass, ' ') === false) {
+                    if (!$currentElmStyle && !$prevElmStyle) {
+                        #dump($currentElmStyle);
+                        #dump('currentElmClass', $currentElmClass);
+                        // Kolla om de är samma.
+                        if ($currentElmBackgroundClassMatches[1] === $prevElmBackgroundClassMatches[1]) {
+                            #dump($currentElmBackgroundClassMatches[1], $prevElmBackgroundClassMatches[1]);
+                            if ($startNewElm) {
+                                #echo "no start";
+                                $startNewElm = false;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Stäng element om vi ska starta ny elm men elm redan är öppen.
+            if ($startNewElm && $isElementOpened) {
+                $newLine = sprintf(
+                    '%1$s</%2$s>',
+                    $newLine, // 1
+                    $prevElm->nodeName, //
+                );
+                $isElementOpened = false;
+            }
+
+            if ($startNewElm) {
+                // Starta ett nytt element.
+                if ($currentElmStyle) {
+                    $currentElmStyle = sprintf(' style="%s"', $currentElmStyle);
+                }
+
+                $newLine = sprintf(
+                    '%1$s<%5$s class="%2$s"%4$s%6$s>%3$s',
+                    $newLine, // 1
+                    $currentElmClass, // 2
+                    $currentElmText, // 3
+                    $currentElmStyle, // 4
+                    $currentElmNodeName, // 5
+                    $currentElmHref, // 6
+                );
+                $isElementOpened = true;
+            } else {
+                // Fortsätt med redan öppnat element.
+                $newLine = sprintf(
+                    '%1$s%2$s',
+                    $newLine, // 1
+                    $currentElmText, // 2
+                );
+            }
+
+            $prevElm = $currentElm;
+        }
+
+        // Stäng element som eventuellt fortfarande är öppen.
+        if ($isElementOpened) {
+            $newLine = sprintf(
+                '%1$s</%2$s>',
+                $newLine, // 1
+                $currentElmNodeName // 2
+            );
+            $isElementOpened = false;
+        }
+
+        // $lineElements
+        // Lägg på samma klasser
+        #$elmsBeforeAndIncludingLine = $dom->not('.line *');
+        #foreach ($domLine->children() as $oneLineChild) {
+        #echo "<hr>";
+        #dump($oneLineChild->get(0)->nodeName, $oneLineChild->get(0)->getAttribute('class'), $oneLineChild->get(0)->getAttribute('style'));
+        #}
+        #exit;
+        #dd($domLine->children()->not('.line *')->getAttribute(('class')));
+
+        // Lägg på radbryt och span runt hela igen.
+        #$newLine = "<span class='line'>{$newLine}</span>";
+        #dump('längd på rad före och efter', strlen($line), strlen($newLine) );
+        #dd('$newLine', $newLine);
+        return $newLine;
     }
 
     public function linkifySingleLine($line, &$numberReplacements = null)
@@ -361,7 +529,7 @@ class Importer
         // Baila om sidnummer har siffror efter som inte är giltigt nummer,
         // t.ex. "Arbetslöshet I mars var 549 000".
         $regexSpanAndThreeNumberLargerThan100AndNotValidPageRangeAfter =
-            $regexSpanAndThreeNumberLargerThan100 . 
+            $regexSpanAndThreeNumberLargerThan100 .
             $regexSpanStart . '\ ' . $regexSpanEnd . // spar char
             $regexSpanAndThreeNumberLessThan100;
 
@@ -432,394 +600,6 @@ class Importer
 
         return $currentLineHasHeadlineChars;
     }
-
-    /**
-     * Applicera HTML som är gemensam för alla sidor,
-     * t.ex. sidhuvud och sidfot osv.
-     *
-     * @return $this 
-     */
-/*     public function decorate()
-    {
-        $subPages = $this->subPages();
-
-        $subPages->transform(function ($subPage, $subPageIndex) {
-            $subPageLines = explode("\n", $subPage['text']);
-            $pageNum = $this->pageNum();
-
-            // Gör "SVT Text" gul på första raden.
-            $subPageLines[0] = str_replace('SVT Text', '<span class="Y">SVT Text</span>', $subPageLines[0]);
-
-            // Lägg till <span class="toprow"> på första raden.
-            $subPageLines[0] = sprintf('<span class="toprow">%s</span>', $subPageLines[0]);
-
-            // Ofast är rad 24 den sista med innehåll men ibland inte, t.ex. på sidan 100.
-            // Beror ev. på om stora tecken/stort typsnitt har använts?
-            $lastLine = $subPageLines[sizeof($subPageLines) - 1];
-            $lastLineIsEmpty = trim($lastLine) ? false : true;
-
-            // Lägg till blå bakgrund på nedersta raden på många sidor.
-            if (
-                // Nyheter 100 - 198, 
-                ($pageNum >= 100 && $pageNum <= 198)
-                // Sport 300 - 399
-                || ($pageNum >= 300 && $pageNum <= 399)
-                // Vädret 400, 402 - 419
-                || ($pageNum == 400)
-                || ($pageNum >= 402 && $pageNum <= 419)
-                // Snörapport mm 421 - 599
-                || ($pageNum >= 421 && $pageNum <= 599)
-                // TV 600 - 619, 623 - 669
-                || ($pageNum >= 600 && $pageNum <= 619)
-                || ($pageNum >= 623 && $pageNum <= 669)
-                // SVT Text Info 700, 704-708
-                || ($pageNum == 700)
-                || ($pageNum >= 704 && $pageNum <= 708)
-            ) {
-                $indexToAddBgTo = $lastLineIsEmpty ? 22 : 23;
-                $subPageLines[$indexToAddBgTo] = sprintf('<span class="bgB">%s</span>', $subPageLines[$indexToAddBgTo]);
-            }
-
-            // Lägg till gul rad längst ner.
-            if (
-                // Ekonomi
-                ($pageNum == 202)
-                // Boräntor
-                || ($pageNum == 231)
-                || ($pageNum == 233)
-            ) {
-                $subPageLines[23] = sprintf('<span class="bgY">%s</span>', $subPageLines[23]);
-            }
-
-            // Lägg till gul rad högst upp på börsen
-            if (
-                // Ekonomi
-                ($pageNum == 202)
-            ) {
-                $subPageLines[2] = sprintf('<span class="bgY">%s</span>', $subPageLines[2]);
-            }
-
-            // Blåa rader på sidan 100.
-            if ($pageNum == 100) {
-                // Text TV-logo på sidan 100.
-                $style = "
-                    position: absolute;
-                    background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAATIAAAA2AQMAAAB+7ockAAAABlBMVEVHcEz///+flKJDAAAAAXRSTlMAQObYZgAAAItJREFUeF7d1LENwyAUBuFDLlwygkfxZiHZjFEYgZLCykWkSBSJAQJPuup99U9QH1awHaqZTbXxvc3CMs5VXIPg2/UAOOzZOJ9E7zO7XbVyIxbUvI7reLOki1+X2StJS//y9y6o95FTK8HKHA7i2GVgVUdURi5pmcOpA9fTSrriPC4zcJyfnWQ3r+JeX1OjS/+l1dsAAAAASUVORK5CYII=');
-                    background-size: 100% 100%;
-                    top: 1ex;
-                    left: 3.5ex;
-                    width: 26ex;
-                    height: 6ex;
-                ";
-
-                $subPageLines[1] = sprintf('<span class="bgB" style="position:relative;"><em style="%2$s"></em>%1$s</span>', $subPageLines[1], $style);
-                $subPageLines[2] = sprintf('<span class="bgB">%s</span>', $subPageLines[2]);
-                $subPageLines[3] = sprintf('<span class="bgB">%s</span>', $subPageLines[3]);
-                $subPageLines[4] = sprintf('<span class="bgB">%s</span>', $subPageLines[4]);
-            }
-
-            // Blåa rader + logo på nyheter inrikes.
-            if (in_array($pageNum, [101, 102, 103])) {
-                $style = "
-                    position: absolute;
-                    background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPEAAAAwAQMAAAD6sQ5bAAAABlBMVEVHcEz///+flKJDAAAAAXRSTlMAQObYZgAAAHdJREFUeF7V07ENAyEQRNE5XUBICS7FpbHu7Eq5EhwSIMa7EyDZDXj5EeIRILSAHavnLLzwVXL/LZ+zV774Rhvl1v2PgQfZXcgrh8+Td2OHvI1KQxyGL7ZwCx+QM7a9cC+nm8SzZL7eV9UdXfOt90/r0DDr//3bPwO6ouMqKIOfAAAAAElFTkSuQmCC');
-                    background-size: 100% 100%;
-                    top: .75ex;
-                    left: 3.5ex;
-                    width: 22ex;
-                    height: 6ex;
-                ";
-
-                $subPageLines[1] = sprintf('<span class="bgB" style="position:relative;"><em style="%2$s"></em>%1$s</span>', $subPageLines[1], $style);
-                $subPageLines[2] = sprintf('<span class="bgB">%s</span>', $subPageLines[2]);
-                $subPageLines[3] = sprintf('<span class="bgB">%s</span>', $subPageLines[3]);
-                $subPageLines[5] = sprintf('<span class="bgB">%s</span>', $subPageLines[5]);
-            }
-
-            // Blåa rader + logo på nyheter inrikes.
-            if (in_array($pageNum, [104, 105])) {
-                $style = "
-                    position: absolute;
-                    background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQQAAAAwAQMAAADNWpZGAAAABlBMVEVHcEz///+flKJDAAAAAXRSTlMAQObYZgAAAHZJREFUeF7V07ENhTAMhOFDFJQZgVGyWtjsjeQyBeJHtiyht4Fz7X2NZVuZPuQ5+DH1l+VEYyhTVjDVnwMeV3fMoj52QDph1hLRqoFCNC5Mcr5hi4oRAi8AF5KqC/PuBKywyL1EtqVFfkPupZJwneoTefjRVBEvatjIQnk/vLAAAAAASUVORK5CYII=');
-                    background-size: 100% 100%;
-                    top: .75ex;
-                    left: 3.5ex;
-                    width: 24ex;
-                    height: 6ex;
-                ";
-
-                $subPageLines[1] = sprintf('<span class="bgB" style="position:relative;"><em style="%2$s"></em>%1$s</span>', $subPageLines[1], $style);
-                $subPageLines[2] = sprintf('<span class="bgB">%s</span>', $subPageLines[2]);
-                $subPageLines[3] = sprintf('<span class="bgB">%s</span>', $subPageLines[3]);
-                $subPageLines[5] = sprintf('<span class="bgB">%s</span>', $subPageLines[5]);
-            }
-
-            // Flytta "SVT Text" till höger på nyheter och sport
-            if (in_array($pageNum, [101, 102, 103])) {
-                $subPageLines[3] = str_replace('SVT Text                              ', '                           SVT Text   ', $subPageLines[3]);
-            } else if (in_array($pageNum, [104, 105])) {
-                $subPageLines[3] = str_replace('SVT Text                               ', '                            SVT Text   ', $subPageLines[3]);
-            }
-
-            // Blåa rader på nyheterna.
-            if (in_array($pageNum, [101, 102, 103, 104, 105])) {
-                $subPageLines[1] = sprintf('<span class="bgB">%s</span>', $subPageLines[1]);
-                $subPageLines[2] = sprintf('<span class="bgB">%s</span>', $subPageLines[2]);
-                $subPageLines[3] = sprintf('<span class="bgB">%s</span>', $subPageLines[3]);
-                $subPageLines[5] = sprintf('<span class="bgB">%s</span>', $subPageLines[5]);
-            }
-
-            // Blå rad överst på nyheter.
-            if ($pageNum >= 106 && $pageNum <= 199) {
-                $subPageLines[1] = sprintf('<span class="bgB">%s</span>', $subPageLines[1]);
-            }
-
-            // Blåa rader på ekonomi.
-            if (in_array($pageNum, [200, 201])) {
-                if ($pageNum == 200) {
-                    $style = "
-                        position: absolute;
-                        background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAATgAAAAwAQMAAAC/lfTwAAAABlBMVEVHcEz///+flKJDAAAAAXRSTlMAQObYZgAAAHtJREFUeAFiAAPm/w8Y8AH5/6PqAN3UwQ2EERiE4XFyVMKWsp0tpW1Jjg7iXV+QTf4KcMM8JBNiM+eAZI6iN2RFW5CHpgDkcdb2rsf6dBertfJ8o0VjY6CNwYt7HNgMtFzV36VzXJF0j5v3dr9zsF7j0U7++b/M4jQd5H6aIF4c4zrc/AAAAABJRU5ErkJggg==');
-                        top: .75ex;
-                        left: 3.5ex;
-                        width: 26ex;
-                        height: 5ex;
-                        background-size: 100% 100%;
-                    ";
-                    $subPageLines[1] = sprintf('<span class="bgB" style="position:relative;"><em style="%2$s"></em>%s</span>', $subPageLines[1], $style);
-                } else if ($pageNum == 201) {
-                    $style = "
-                        position: absolute;
-                        background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQsAAAAwAQMAAAA8Uc3LAAAABlBMVEVHcEz///+flKJDAAAAAXRSTlMAQObYZgAAAIBJREFUeF7V07ENxCAMheEXUVAyAqNktHi0G+VGuDJF5Be/IIXiFsB/ZdBHZQGeUN3KGP5LSlQO0uhAZ9jdKz8bSUMlHY3kby0id1yNVvh9yHGFj8N4rCEbOTHJOAAoJEVsaeIANkbhASQgqucmahL5IKja0Ypk/mm8OzJdONYjN2SG0UJc2iYtAAAAAElFTkSuQmCC');
-                        top: .75ex;
-                        left: 3.5ex;
-                        width: 24ex;
-                        height: 5ex;
-                        background-size: 100% 100%;
-                    ";
-                    $subPageLines[1] = sprintf('<span class="bgB" style="position:relative;"><em style="%2$s"></em>%s</span>', $subPageLines[1], $style);
-                }
-
-                $subPageLines[2] = sprintf('<span class="bgB">%s</span>', $subPageLines[2]);
-                $subPageLines[3] = sprintf('<span class="bgB">%s</span>', $subPageLines[3]);
-
-                $subPageLines[3] = str_replace('SVT Text                               ', '                            SVT Text   ', $subPageLines[3]);
-            }
-
-            // Gul bakgrund på rubrik på ekonomi.
-            if ($pageNum >= 203 && $pageNum <= 244) {
-                $subPageLines[2] = sprintf('<span class="bgY DH">%s</span>', $subPageLines[2]);
-            }
-
-            // Gul bakgrund på rubrik på ekonomi allt-på-ett-sidan.
-            if ($pageNum == 245 && $subPageIndex >= 1) {
-                $subPageLines[2] = sprintf('<span class="bgY DH">%s</span>', $subPageLines[2]);
-            }
-
-            // Blå rad överst på sport.
-            if ($pageNum >= 303 && $pageNum < 399) {
-                $subPageLines[1] = sprintf('<span class="bgB">%s</span>', $subPageLines[1]);
-            }
-            if ($pageNum >= 530 && $pageNum < 549) {
-                $subPageLines[1] = sprintf('<span class="bgB">%s</span>', $subPageLines[1]);
-            }
-
-            // Blåa rader med logo på sport 300 + gul rad längst ner.
-            if (in_array($pageNum, [300, 301, 302])) {
-                $style = "
-                    position: absolute;
-                    background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAATIAAABAAgMAAADkNRMoAAAACVBMVEVHcEz//wD///84dUPBAAAAAXRSTlMAQObYZgAAALtJREFUeAHt1wEGwzAUxvG3USgAvUROkSMUeffpUQaonHJ73WdPu0HyIOb7I6SN3xCJVSItqmsIoNZX2qn9lzbX6tqkpzK1gHavRxvWJkxE6tHjveI1bP7E+jAFOrV+zSEbTpMdr02zCd74oVrgZWoDauJrf2siV83Gm6KYRg3nFECj5lfmGtCooblN83xjM7VRtMttiVo0wa1Z+jRqDf9DULIn32FP+zRqHrSm/Hcm1TKERi0YtOCnL7UnmklonAf5lEYAAAAASUVORK5CYII=');
-                    top: 0ex;
-                    left: 3.5ex;
-                    width: 26ex;
-                    height: 7.5ex;
-                    background-size: 100% 100%;
-                ";
-
-                $subPageLines[1] = sprintf('<span class="bgB" style="position:relative;"><em style="%2$s"></em>%s</span>', $subPageLines[1], $style);
-                $subPageLines[2] = sprintf('<span class="bgB">%s</span>', $subPageLines[2]);
-                $subPageLines[3] = sprintf('<span class="bgB">%s</span>', $subPageLines[3]);
-                $subPageLines[5] = sprintf('<span class="bgB">%s</span>', $subPageLines[5]);
-
-                $subPageLines[22] = sprintf('<span class="bgY">%s</span>', $subPageLines[22]);
-
-                // Flytta 1,2 milj/dag till höger
-                $subPageLines[1] = str_replace(' 1,2 milj/dag                           ', '                           1,2 milj/dag ', $subPageLines[1]);
-            }
-
-            // Gul stor text på rubrik på sportnyheter.
-            if ($pageNum >= 303 && $pageNum <= 314) {
-                $subPageLines[3] = sprintf('<span class="Y DH">%s</span>', $subPageLines[3]);
-            }
-
-            // Inledande gul versal text på sportnotiser.
-            if ($pageNum == 328 || $pageNum == 329) {
-                $subPageLines = array_map(function ($line, $lineIndex) {
-                    // Agera endast på rad 3 till 22.
-                    if ($lineIndex < 3 || $lineIndex > 22) {
-                        return $line;
-                    }
-
-                    // Om första ordet på raden är enbart versaler.
-                    if (preg_match('/^ ?([A-ZÅÄÄÖ]+) /', $line, $matches)) {
-                        if (isset($matches[1])) {
-                            $line = str_replace($matches[1], "<span class='Y'>{$matches[1]}</span>", $line);
-                        }
-                    }
-
-                    return $line;
-                }, $subPageLines, array_keys($subPageLines));
-            }
-
-            // Inledande gul text på inrikes i korthet.
-            if ($pageNum == 128) {
-                $subPageLines = array_map(function ($line, $lineIndex) use ($subPageLines) {
-                    // Agera endast på rad 3 till 22.
-                    if ($lineIndex < 3 || $lineIndex > 22) {
-                        return $line;
-                    }
-
-                    // Om rad med tom rad ovan
-                    $lineBeforeCurrentIsEmpty = empty(trim($subPageLines[$lineIndex - 1]));
-                    $currentLineIsEmpty = empty(trim($subPageLines[$lineIndex]));
-                    if ($lineBeforeCurrentIsEmpty && !$currentLineIsEmpty) {
-                        // dump($lineBeforeCurrentIsEmpty, $currentLineIsEmpty, $subPageLines[$lineIndex]);                       
-                        if (preg_match('/^ +?([\wåäöÅÄÖ]+)/', $line, $matches)) {
-                            if (isset($matches[1])) {
-                                $line = str_replace($matches[1], "<span class='Y'>{$matches[1]}</span>", $line);
-                            }
-                        }
-                    }
-
-                    return $line;
-                }, $subPageLines, array_keys($subPageLines));
-            }
-
-            // Blåa rader överst på väder.
-            if ($pageNum == 400) {
-                $style = "
-                    position: absolute;
-                    background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPcAAAA1AQMAAACnYu+vAAAABlBMVEVHcEz///+flKJDAAAAAXRSTlMAQObYZgAAAIVJREFUeF7V0rENwkAMQNEfpbiSERjlRruMxig3QsorkD9EESgCiTbGhZtXfct8Tg2Ok8YbpX95XbL7z76L57sDJleadiY1ZnubVYpGFr8uFG8O6tNdHBBbX3bf2+7AwTuqubzp0QeQwilrDbhK+VPXt7/+m1mNHL7v/f5bzOZQFKhxtj8AkVx9pb3mikQAAAAASUVORK5CYII=');
-                    top: 0ex;
-                    left: 3.5ex;
-                    width: 26ex;
-                    height: 7.5ex;
-                    background-size: 100% 100%;
-                ";
-
-                $subPageLines[1] = sprintf('<span class="bgB" style="position:relative;"><em style="%2$s"></em>%s</span>', $subPageLines[1], $style);
-                $subPageLines[2] = sprintf('<span class="bgB">%s</span>', $subPageLines[2]);
-                $subPageLines[3] = sprintf('<span class="bgB">%s</span>', $subPageLines[3]);
-                $subPageLines[4] = sprintf('<span class="bgB">%s</span>', $subPageLines[4]);
-
-                $subPageLines[3] = str_replace('SVT Text                               ', '                            SVT Text   ', $subPageLines[3]);
-            }
-
-            // Blåa rader överst på blandat.
-            if ($pageNum == 500) {
-                $subPageLines[1] = sprintf('<span class="bgB">%s</span>', $subPageLines[1]);
-                $subPageLines[2] = sprintf('<span class="bgB">%s</span>', $subPageLines[2]);
-                $subPageLines[3] = sprintf('<span class="bgB">%s</span>', $subPageLines[3]);
-                $subPageLines[4] = sprintf('<span class="bgB">%s</span>', $subPageLines[4]);
-            }
-
-            // Gul stor text om första raden i texten har text = rubrik.
-            if ($pageNum >= 106 && $pageNum <= 199) {
-                $subPageLines[3] = sprintf('<span class="Y DH">%s</span>', $subPageLines[3]);
-            }
-
-            // Gul bakgrund på "Fler rubriker" och "Övriga rubriker" på nyhetsstartsidorna.
-            if (in_array($pageNum, [101, 102, 103, 104, 105])) {
-                $subPageLines[22] = preg_replace('/  (Fler rubriker|Övriga rubriker) \d{3}  /', '<span class="bgY">$0</span>', $subPageLines[22]);
-            }
-
-            // Blåa rader på TV.
-            if ($pageNum == 600) {
-                $subPageLines[1] = sprintf('<span class="bgB DH">%s</span>', $subPageLines[1]);
-                $subPageLines[2] = sprintf('<span class="bgB">%s</span>', $subPageLines[2]);
-                $subPageLines[3] = sprintf('<span class="bgB">%s</span>', $subPageLines[3]);
-                $subPageLines[4] = sprintf('<span class="bgB">%s</span>', $subPageLines[4]);
-                $subPageLines[21] = sprintf('<span class="bgB">%s</span>', $subPageLines[21]);
-            }
-
-            if ($pageNum >= 601 && $pageNum <= 619) {
-                $subPageLines[1] = sprintf('<span class="bgB DH">%s</span>', $subPageLines[1]);
-            }
-
-            if ($pageNum >= 520 && $pageNum <= 622) {
-                $subPageLines[1] = sprintf('<span class="bgR DH">%s</span>', $subPageLines[1]);
-                $subPageLines[23] = sprintf('<span class="bgR">%s</span>', $subPageLines[23]);
-            }
-
-            // Innehåll
-            if ($pageNum == 700 || $pageNum == 701) {
-                $style = "
-                    position: absolute;
-                    background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAfsAAABAAgMAAABgnzZDAAAADFBMVEUAAP//////AAD//wDg5MJMAAABD0lEQVR4Xu3YMQ7CMAwFUHvIEXKfHCFD/v2YOR03AMmKYitRqiJ1KOj/DWr8FrttkLflJZcnQxKKIqRJgihKAE759OknoH15GVVydzMsqGJlP+PTp4/2re/7h8nH4f7Rp59jUW7WA0VgqSIKSxkkgOJfxgwyftjPP336Cea6P88/EK9Y6jr/oVuMWu29ffr0/fggqx/XSPt2rb7GstFyWlP69J+WRyyqx77/fO/HI0eH4svIxqdP36hT/v7+myAKuK8ow7cGqLf26dOXUeT+fGPvvbb752WwkTreP/r00xho902JT4b1/OdlPv9FTBtzX/1oOc8/ffqXxed/jc//H/v06YuG/+yMlbT8/0uf/gfo1G4Lq/59IgAAAABJRU5ErkJggg==');
-                    top: 0ex;
-                    left: 0;
-                    width: 100%;
-                    height: 8.6ex;
-                    background-size: 100% 100%;
-                ";
-
-                $subPageLines[1] = sprintf('<span class="bgB" style="position:relative;"><em style="%2$s"></em>%s</span>', $subPageLines[1], $style);
-
-                $subPageLines[2] = sprintf('<span class="bgB">%s</span>', $subPageLines[2]);
-                $subPageLines[3] = sprintf('<span class="bgB">%s</span>', $subPageLines[3]);
-                $subPageLines[4] = sprintf('<span class="bgB">%s</span>', $subPageLines[5]);
-
-                $subPageLines[6] = sprintf('<span class="bgB">%s</span>', $subPageLines[6]);
-                $subPageLines[7] = sprintf('<span class="bgB">%s</span>', $subPageLines[7]);
-            }
-            if ($pageNum >= 704 && $pageNum <= 706) {
-                $subPageLines[1] = sprintf('<span class="bgB">%s</span>', $subPageLines[1]);
-                $subPageLines[2] = sprintf('<span class="bgB">%s</span>', $subPageLines[2]);
-                $subPageLines[3] = sprintf('<span class="bgB">%s</span>', $subPageLines[3]);
-            }
-
-            $subPageLines = $this->findHeadlines($subPageLines);
-
-            // Skapa ren sträng av allt.
-            $subPageText = implode("\n", $subPageLines);
-
-            $subPageText = $this->addLinks($subPageText);
-
-            // Ta bort länken från översta raden för den länkar till sig själv.
-            $oldFirstLine = $subPageLines[0];
-            $subPageLines = explode("\n", $subPageText);
-            $subPageLines[0] = $oldFirstLine;
-
-            // Skapa ren sträng av allt igen.
-            $subPageText = implode("\n", $subPageLines);
-
-            // Alt-texten vi får från SVT verkar ha problem med svenska tecken i översta raden.
-            $subPageText = str_replace(
-                [
-                    ' m ndag ',
-                    ' l rdag ',
-                    ' s ndag ',
-                ],
-                [
-                    ' måndag ',
-                    ' lördag ',
-                    ' söndag ',
-                ],
-                $subPageText
-            );
-
-            // Lägg till <div class="root"> runt allt.
-            $subPageText = sprintf('<div class="root">%s</div>', $subPageText);
-
-            $subPage['text'] = $subPageText;
-
-            return $subPage;
-        });
-
-        $this->subPages = $subPages;
-
-        return $this;
-    } */
 
     /**
      * Skapa länkar av alla nummer.
@@ -898,76 +678,76 @@ class Importer
     //         Gruppera ihop dom, dvs. ta bort tomma raden
 
     //         Exempel på utseende:
-            
+
     //         ----------
 
     //         Nu börjar 70-åringar att vaccineras  
 
     //         Gick snabbare än planerat i Stockholm 
     //         106 
-                                                    
+
     //                 Biden vidtar åtgärder         
     //                 mot vapenvåldet i USA         
     //                         135                  
-                                                    
+
     //         Novus: Ingen ljusning för Liberalerna 
 
     //         Små förändringar i ny opinionsmätning 
     //         112/160 
-                                                    
+
     //         Idrottsarenor i fransk covidkamp 130             
 
     //         ----------
-		
+
     //         100 SVT Text fredag 09 apr 2021      
-            
-                                                    
-                                                    
+
+
+
     //         SMHI-varning för snö och hård vind   
 
     //         117 
-                                                    
+
     //             Produktionsfel hos Janssen -       
     //             85 proc färre doser till USA       
     //                         131                  
-                                                    
+
     //         Böter för Solberg som bröt mot regler 
 
     //         Statsministern deltog i större sällskap
     //         130 
-                                                    
+
     //         USA: Ökad rysk närvaro vid Ukraina 136 
-            
+
     //             Inrikes 101 Utrikes 104 Innehåll 700
 
 
     //         ----------
 
     //         100 SVT Text fredag 09 apr 2021      
-            
-                                                    
+
+
     //         Brittiske prinsen Philip har avlidit 
 
     //         Drottning Elizabeths make blev 99 år 
     //         135-136 
-                                                    
+
     //                 Hiphoplegendaren DMX          
     //                 är död - blev 50 år          
     //                         150                   
-                                                    
+
     //         Flest rapporter om Astra-biverkningar 
 
     //         Tros bero på medvetenhet hos gruppen  
     //         107 
-                                                    
+
     //             Uefa: Blir publik under EM - 300   
-            
+
     //             Inrikes 101 Utrikes 104 Innehåll 700
 
     //            ----------                         
 
 
-	
+
 
     //         */
     //     // Rad att börja leta på. Först på rad 6 pga överst är text tv-loggan.
@@ -1061,7 +841,7 @@ class Importer
     //     return $foundHeadlines;
     // }
 
-    public function pageObject()
+    public function pageObject(): object
     {
         return $this->pageObject;
     }

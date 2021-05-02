@@ -53,7 +53,7 @@ class ImportTest extends TestCase
 
         foreach ($pageNumsToTest as $pageNum) {
             $importer = new Importer($pageNum);
-            $importer->fromRemote()->cleanup()->decorate();
+            $importer->fromRemote()->cleanup()->colorize();
 
             $parsedHtmlObject = $importer->pageObject();
 
@@ -95,138 +95,6 @@ class ImportTest extends TestCase
         $this->assertEquals('100-01', $page100object->props->pageProps->subPages[0]->subPageNumber);
         $page100expected = file_get_contents(__DIR__ . '/../TestPages/100_expected.txt');
         $this->assertEquals($page100expected, $importer->pageAsText());
-    }
-
-    public function test_page_100_headlines_finder()
-    {
-        // Importera en fil eftersom vi behöver metadata för sidnummer.
-        // Själva raderna matar vi in manuellt i funktionen sen hur som helst.
-        $importer = new Importer(100);
-        $importer->fromFile(__DIR__ . '/../TestPages/100.html');
-
-        // Test 1
-        $lines = $lines = array_map('trim', explode("\n", '
-           Norge förlänger paus med Astras vaccin
-         
-           Inväntar utredning som kommer den 10/5
-          131 
-                                                 
-                USA inför nya sanktioner mot     
-                Ryssland - Kreml varnar 135-     
-                                                 
-                                                 
-           FHM om covidläget: Otroligt allvarligt
-         
-           Alla ska ha fått en dos den 15 augusti
-          108 
-                                                 
-           Tre avlidna i salmonella i Danmark 134
-        '));
-
-        $expected = [
-            [
-                'Norge förlänger paus med Astras vaccin',
-                'Inväntar utredning som kommer den 10/5',
-                '131',
-            ],
-            [
-                'USA inför nya sanktioner mot',
-                'Ryssland - Kreml varnar 135-',
-            ],
-            [
-                'FHM om covidläget: Otroligt allvarligt',
-                'Alla ska ha fått en dos den 15 augusti',
-                '108',
-            ],
-            [
-                'Tre avlidna i salmonella i Danmark 134'
-            ]
-        ];
-
-        $this->assertEquals($expected, $importer->createHeadlinesMultiArray($lines));
-
-        // Test 2
-        $lines = array_map('trim', explode("\n", '
-        Tegnell skeptisk till vaccinmål     
-
-        Tvivlar på samordnarens uppgifter    
-      107 
-                                             
-             Floyd-rättegången i USA -       
-             "Jag bevittnade ett mord"       
-                       137                   
-                                             
-       Pollenhalt 100 gånger högre än i fjol 
-     
-      115 
-                                             
-      Villa Lidköping klart för SM-final 300
-      '));
-
-        $expected = [
-            [
-                'Tegnell skeptisk till vaccinmål',
-                'Tvivlar på samordnarens uppgifter',
-                '107'
-            ],
-            [
-                'Floyd-rättegången i USA -',
-                '"Jag bevittnade ett mord"',
-                '137'
-            ],
-            [
-                'Pollenhalt 100 gånger högre än i fjol',
-                '115'
-            ],
-            [
-                'Villa Lidköping klart för SM-final 300'
-            ]
-        ];
-
-        $this->assertEquals($expected, $importer->createHeadlinesMultiArray($lines));
-
-        // Test 3 med lurigt nummer.
-        $lines = $lines = array_map('trim', explode("\n", '
-            27 nya corona-dödsfall - totalt 13 788
-
-            Totalt över 900 000 bekräftat smittade
-            106 
-                                                
-            Krogar i Finland     Kina vill stärka 
-            öppnar på måndag     klimatsamarbetet 
-                133                 136        
-                                                
-            Storsatsning på Sveriges infrastruktur
-        
-            Regeringen vill lägga 799 miljarder kr
-            114 
-                                                
-            Internationell polisinsats i Skåne 117
-        '));
-
-        $expected = [
-            [
-                '27 nya corona-dödsfall - totalt 13 788',
-                'Totalt över 900 000 bekräftat smittade',
-                '106'
-            ],
-            [
-                'Krogar i Finland     Kina vill stärka',
-                'öppnar på måndag     klimatsamarbetet',
-                '133                 136'
-            ],
-            [
-                'Storsatsning på Sveriges infrastruktur',
-                'Regeringen vill lägga 799 miljarder kr',
-                '114'
-
-            ],
-            [
-                'Internationell polisinsats i Skåne 117'
-            ]
-        ];
-
-        $this->assertEquals($expected, $importer->createHeadlinesMultiArray($lines));
     }
 
     /**

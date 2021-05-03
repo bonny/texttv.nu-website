@@ -206,7 +206,7 @@ class Importer
         // På vädret 401 måste många rader skjutas till höger.
         if (in_array($this->pageNum(), [401])) {
             // Rad 1 - 23
-            for ($i = 1; $i < 23; $i++) {
+            for ($i = 1; $i < 24; $i++) {
                 $subPageLines[$i] = trim($subPageLines[$i]);
                 // Putta in alla rader n tecken.
                 $subPageLines[$i] = str_pad('', 20, ' ') . $subPageLines[$i];

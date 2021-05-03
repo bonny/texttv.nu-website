@@ -249,6 +249,8 @@ class Importer
                 $line = $this->colorizeLine($line, $lineIndex, $charsExtractor);
 
                 // Kombinera flera element till ett.
+                // @TODO: lägg in bättre logik/funktion så att funktionen körs 
+                // flera gånger tills inga fler ersättningar görs, dvs. typ två gånger antagligen.
                 $line = $this->combineElementsOnLine($line);
                 // Ja, kör verkligen funktionen två gånger för att kombinera ihop ännu fler ¯\_(ツ)_/¯
                 $line = $this->combineElementsOnLine($line);

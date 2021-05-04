@@ -617,6 +617,13 @@ class Importer
             return $line;
         }
 
+        // Länka inte ekonomi i korthet-börsresultat
+        // t.ex. "28.812,6 (-0,8 procent)"
+        $regexNumberRange = '\b([1-9][0-9]{2},\d)\b';
+        if (preg_match('|' . $regexNumberRange . '|', $line, $matches)) {
+            return $line;
+        }
+
         // Intervall 110-114
         $regexNumberRange = '\b([1-9][0-9]{2}-[1-9][0-9]{2})\b';
         $line = preg_replace('|' . $regexNumberRange . '|', $replacement, $line, -1, $count);

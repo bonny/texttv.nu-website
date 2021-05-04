@@ -4,14 +4,22 @@ Starta med `$ php artisan serve`.
 
 ## Att göra
 
--   [ ] Egen domän för import/laravel l.texttv.nu
+-   [x] Lägg in cache på bilderna på l.texttv.nu
+-   [ ] Uppdatera CSS så att alla färger stöds korrekt
+-   [ ] "28.812,6 (-0,8 procent)" ska inte bli länk
+-   [ ] Fixa bättre logik för rubrik på notiser-sidor som får 1/2 som titel
+-   [ ] Mest lästa ska få ny logik som använder nån ny tabell jag fixade nångång...
+-   [ ] Senast uppdaterade ska inte visa alla sidor, visar nästan tomma sidor ibland nu
+-   [ ] Twittra inte ut nästan tomma sidor + tramsiga sidor typ "om text tv"
+-   [ ] Nu när väder fungerar kan vi pusha upp den lite, fixa bättre titel osv. twittra ut?
+-   [x] Egen domän för import/laravel l.texttv.nu
 -   [ ] Uppdatera logik för gissad titel
 -   [x] Sätt varannan färg på 100
 -   [x] Hitta titel för sida
--   [ ] Köra command för artisan
+-   [x] Köra command för artisan
     -   [x] Skriva ut sida live från SVT - `php artisan texttv:db 100`
     -   [x] Skriva ut sida från DB - `php artisan texttv:livepage 100`
-    -   [ ] Importera sida eller sidintervall
+    -   [x] Importera sida eller sidintervall
         -   [x] Avgöra om en uppdatering av sidan skett (diff)
         -   [x] Spara till DB
             -   [x] med compress

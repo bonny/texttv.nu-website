@@ -645,6 +645,18 @@ class Importer
         if ($this->pageNum() >= 203 && $this->pageNum() <= 246) {
             return $line;
         }
+        
+        // Länka inte "3 485 725 vaccindoser har getts i"
+        $regex = '\b\d \d{3} \d{3} \b';
+        if (preg_match('|' . $regex . '|', $line, $matches)) {
+            return $line;
+        }
+
+        // Länka inte "Totalt har 14 151 personer som varit"
+        $regex = '\b\d{2} [1-9][0-9]{2}\b';
+        if (preg_match('|' . $regex . '|', $line, $matches)) {
+            return $line;
+        }
 
         // Länka inte sidnummer följt av siffror som inte är sidnummer,
         // t.ex. "dödsfall. Minst 226 000 människor i"

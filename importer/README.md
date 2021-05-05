@@ -6,14 +6,18 @@ Starta med `$ php artisan serve`.
 
 -   [x] Lägg in cache på bilderna på l.texttv.nu
 -   [ ] Uppdatera CSS så att alla färger stöds korrekt
--   [ ] "28.812,6 (-0,8 procent)" ska inte bli länk
--   [ ] Fixa bättre logik för rubrik på notiser-sidor som får 1/2 som titel
+-   [x] "28.812,6 (-0,8 procent)" ska inte bli länk
+-   [x] Fixa bättre logik för rubrik på notiser-sidor som får 1/2 som titel
 -   [ ] Mest lästa ska få ny logik som använder nån ny tabell jag fixade nångång...
+    -   [ ] Lägg på index
+    -   [ ] Använd egna databasen `texttv_stats`
+    -   [ ] För mest visade
+    -   [ ] För mest delade
 -   [ ] Senast uppdaterade ska inte visa alla sidor, visar nästan tomma sidor ibland nu
 -   [ ] Twittra inte ut nästan tomma sidor + tramsiga sidor typ "om text tv"
 -   [ ] Nu när väder fungerar kan vi pusha upp den lite, fixa bättre titel osv. twittra ut?
 -   [x] Egen domän för import/laravel l.texttv.nu
--   [ ] Uppdatera logik för gissad titel
+-   [x] Uppdatera logik för gissad titel
 -   [x] Sätt varannan färg på 100
 -   [x] Hitta titel för sida
 -   [x] Köra command för artisan
@@ -27,6 +31,7 @@ Starta med `$ php artisan serve`.
 -   [x] Kör som cron
 -   [x] Model för texttv-sida
 -   [ ] Skriv tester
+    -   [ ] Nya tester för länkning av sidnummer
     -   [x] Hämta ut JSON från en HTML
     -   [x] Dekorera
 -   [x] Hämta en sida

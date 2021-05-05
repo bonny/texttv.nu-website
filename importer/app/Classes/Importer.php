@@ -319,6 +319,7 @@ class Importer
                 // "Läs mer på svtsport.se"
                 // Nästa sida
                 // @TODO: fixelifix
+                $line = $this->linkifyURLsSingleLine($line, $numberReplacements);
 
                 return $line;
             }, $subPageLines, array_keys($subPageLines));
@@ -599,6 +600,12 @@ class Importer
             return $replacementString;
         }, $line, -1, $numberReplacements);
 
+        return $line;
+    }
+
+    public function linkifyURLsSingleLine($line, &$numberReplacements = null) {
+        // Länka "Läs mer på svtsport.se"
+        $line = preg_replace('|(Läs mer på svtsport\.se)|', '<a href="https://svtsport.se/" rel="noopener">\1</a>', $line);
         return $line;
     }
 

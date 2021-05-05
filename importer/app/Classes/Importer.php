@@ -319,7 +319,7 @@ class Importer
                 // "Läs mer på svtsport.se"
                 // Nästa sida
                 // @TODO: fixelifix
-                $line = $this->linkifyURLsSingleLine($line, $numberReplacements);
+                $line = $this->linkifyURLsSingleLine($line, $lineIndex, $numberReplacements);
 
                 return $line;
             }, $subPageLines, array_keys($subPageLines));
@@ -603,14 +603,27 @@ class Importer
         return $line;
     }
 
-    public function linkifyURLsSingleLine($line, &$numberReplacements = null) {
+    public function linkifyURLsSingleLine($line, $lineIndex, &$numberReplacements = null)
+    {
+        // Länkar är oftast på sista raden, den med blå bakgrund,
+        // så ta det säkra före det osäkra och länka endast saker på den raden.
+        if ($lineIndex !== 23) {
+            return $line;
+        }
+
         // Länka "Läs mer på svtsport.se"
         $line = preg_replace('|(Läs mer på svtsport\.se)|', '<a href="https://svtsport.se/" rel="noopener">\1</a>', $line);
+
+        // Länka "nästa sida", t.ex. "Mer om pandemin på nästa sida".
+        $linkprefix = $this->linkprefix;
+        $nextPagePageNum = $this->pageNum() + 1;
+        $line = preg_replace('| (nästa sida) |', ' <a href="' . $linkprefix . $nextPagePageNum . '" rel="noopener">\1</a> ', $line);
+
         return $line;
     }
 
     public function linkifySingleLine($line, &$numberReplacements = null)
-    {  
+    {
         $regexSingleNumber0 = '(0)';
         $regexSingleNumber1to9 = '([1-9])';
         $regexSingleNumber0to9 = '([0-9])';
@@ -657,12 +670,12 @@ class Importer
         $regexNumberRange = '\b([1-9][0-9]{2})f-([1-9][0-9]{2})f\b';
         $line = preg_replace('|' . $regexNumberRange . '|', '<a href="' . $linkprefix . '\1-\2">\1f-\2f</a>', $line, -1, $count);
         if ($count) return $line;
-        
+
         // Flersida 123f
         $regexPageNumber = '\b([1-9][0-9]{2})f\b';
         $line = preg_replace('|' . $regexPageNumber . '|', '<a href="' . $linkprefix . '\1">\1f</a>', $line, -1, $count);
         if ($count) return $line;
-        
+
         return $line;
     }
 
@@ -1090,7 +1103,7 @@ class Importer
         // så skippa den raden.
         if (in_array($this->pageNum(), [127, 128])) {
             $pageLines = array_slice($pageLines, 1);
-        }        
+        }
 
         // Hitta första raden som inte är tom.
         foreach ($pageLines as $oneLine) {

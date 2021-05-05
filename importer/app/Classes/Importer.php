@@ -646,6 +646,12 @@ class Importer
             return $line;
         }
 
+        // Länka inte telefonnummer t.ex. på sid 800 UR "08-784 42 40"
+        $regexNumberRange = '\b\d{2}-[1-9][0-9]{2}\b';
+        if (preg_match('|' . $regexNumberRange . '|', $line, $matches)) {
+            return $line;
+        }
+
         // Länka inte "833 miljoner kronor samma period"
         $regexNumberRange = '\b[1-9][0-9]{2} miljoner\b';
         if (preg_match('|' . $regexNumberRange . '|', $line, $matches)) {

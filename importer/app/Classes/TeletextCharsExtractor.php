@@ -20,11 +20,11 @@ class TeletextCharsExtractor
     protected $image;
 
     // Array med alla tecken och dess färger.
-    protected array $arrChars = [];
+    protected $arrChars = [];
 
     // Array som fungerar som cache för alla charImageStrings
-    protected array $charImageStrings = [];
-    protected array $charImageHashes = [];
+    protected $charImageStrings = [];
+    protected $charImageHashes = [];
 
     public function imageFromString(string $imageString): object
     {

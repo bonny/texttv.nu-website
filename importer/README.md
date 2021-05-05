@@ -4,42 +4,7 @@ Starta med `$ php artisan serve`.
 
 ## Att göra
 
--   [x] Lägg in cache på bilderna på l.texttv.nu
--   [ ] Uppdatera CSS så att alla färger stöds korrekt
--   [x] "28.812,6 (-0,8 procent)" ska inte bli länk
--   [x] Fixa bättre logik för rubrik på notiser-sidor som får 1/2 som titel
--   [ ] Mest lästa ska få ny logik som använder nån ny tabell jag fixade nångång...
-    -   [ ] Lägg på index
-    -   [ ] Använd egna databasen `texttv_stats`
-    -   [ ] För mest visade
-    -   [ ] För mest delade
--   [ ] Senast uppdaterade ska inte visa alla sidor, visar nästan tomma sidor ibland nu
--   [ ] Twittra inte ut nästan tomma sidor + tramsiga sidor typ "om text tv"
--   [ ] Nu när väder fungerar kan vi pusha upp den lite, fixa bättre titel osv. twittra ut?
--   [x] Egen domän för import/laravel l.texttv.nu
--   [x] Uppdatera logik för gissad titel
--   [x] Sätt varannan färg på 100
--   [x] Hitta titel för sida
--   [x] Köra command för artisan
-    -   [x] Skriva ut sida live från SVT - `php artisan texttv:db 100`
-    -   [x] Skriva ut sida från DB - `php artisan texttv:livepage 100`
-    -   [x] Importera sida eller sidintervall
-        -   [x] Avgöra om en uppdatering av sidan skett (diff)
-        -   [x] Spara till DB
-            -   [x] med compress
-            -   [x] som serialiserad
--   [x] Kör som cron
--   [x] Model för texttv-sida
--   [ ] Skriv tester
-    -   [ ] Nya tester för länkning av sidnummer
-    -   [x] Hämta ut JSON från en HTML
-    -   [x] Dekorera
--   [x] Hämta en sida
--   [x] Använda https://github.com/Rct567/DomQuery för att från en sida hämta `<script id="__NEXT_DATA__" type="application/json">...` som innehåller texter som `.altText`
--   [x] Föräldra den rena texten till det nuvarande format som texttv.nu använder
-    -   [x] Färgad rad överst
-    -   [x] Färgad rad längst ner
-    -   [x] Specifika ändringar per sida
+https://github.com/bonny/texttv.nu-website/issues
 
 ## Hur
 

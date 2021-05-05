@@ -314,6 +314,12 @@ class Importer
                 }
 
                 $line = $this->linkifySingleLine($line, $numberReplacements);
+
+                // Gör länkar av saker som inte är sidnummer, t.ex. webbplatser.
+                // "Läs mer på svtsport.se"
+                // Nästa sida
+                // @TODO: fixelifix
+
                 return $line;
             }, $subPageLines, array_keys($subPageLines));
 
@@ -607,6 +613,12 @@ class Importer
 
         // Lägg inte till länkar på börskurserna, 203-246.
         if ($this->pageNum() >= 203 && $this->pageNum() <= 246) {
+            return $line;
+        }
+
+        // Länka inte "833 miljoner kronor samma period"
+        $regexNumberRange = '\b[1-9][0-9]{2} miljoner\b';
+        if (preg_match('|' . $regexNumberRange . '|', $line, $matches)) {
             return $line;
         }
 
@@ -1066,6 +1078,12 @@ class Importer
 
         // Ta bort rad 0,1 för det är sidnummer och kategori.
         $pageLines = array_slice($pageLines, 2);
+
+        // "I korthet"-sidorna har under-sidnummer "1/3" osv uppe i högra hörnet
+        // så skippa den raden.
+        if (in_array($this->pageNum(), [127, 128])) {
+            $pageLines = array_slice($pageLines, 1);
+        }        
 
         // Hitta första raden som inte är tom.
         foreach ($pageLines as $oneLine) {

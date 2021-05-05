@@ -201,7 +201,6 @@ class Importer
 
         // Lägg på mellanslag först på raden längst ner pga det saknas.
         $subPageLines[23] = str_replace(' Utrikes 104  Sport 300  Innehåll 700   ', '   Utrikes 104  Sport 300  Innehåll 700 ', $subPageLines[23]);
-        #dd('$subPageLines[23]', $subPageLines[23]);
 
         // På vädret 401 måste många rader skjutas till höger.
         if (in_array($this->pageNum(), [401])) {
@@ -213,8 +212,19 @@ class Importer
                 // Se till att varje rad är 40 tecken.
                 $subPageLines[$i] = $this->mb_str_pad($subPageLines[$i], 40);
             }
-            #dd($subPageLines);
         }
+
+        // Putta text på UR sid 800 till höger.
+        if (in_array($this->pageNum(), [800])) {
+            // "KUNDTJÄNST  020-58 58 00"
+            // "08-784 42 40"
+            $subPageLines[2] = '        ' . $subPageLines[2];
+            $subPageLines[2] = mb_substr($subPageLines[2], 0, 40);
+            $subPageLines[3] = '        ' . $subPageLines[3];
+            $subPageLines[3] = mb_substr($subPageLines[3], 0, 40);
+
+        }
+
         return $subPageLines;
     }
 

@@ -4,6 +4,8 @@ Koden för webbplatsen för SVT Text TV-sajten https://texttv.nu finns här.
 
 Vi har även appar för [Iphone](https://apps.apple.com/se/app/texttv-nu-svt-text-tv/id607998045) och [Android](https://play.google.com/store/apps/details?id=com.mufflify.TextTVnu&hl=sv).
 
+![texttv-nu-skärmdump](https://user-images.githubusercontent.com/221570/117265957-0e483b00-ae55-11eb-9ad6-92c21b15732b.png)
+
 ## Text-tv – för att 2 miljoner svenskar kan inte ha fel
 
 Trots att text-tv har många år på nacken så används den fortfarande flitigt. Enligt SVT så använder fler än 2 miljoner personer SVT Text varje dag.

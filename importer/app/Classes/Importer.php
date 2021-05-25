@@ -132,6 +132,12 @@ class Importer
                     $charInfo['charColors']['backgroundClass'],
                     $charInfo['charColors']['textClass'],
                 );
+
+                // Om grafik lägg på klass som säger det så vi kan style'a senare via CSS.
+                if ($charInfo['charType']['type'] === 'image') {
+                    $class = "$class bgImg";
+                }
+
                 $class = trim($class);
                 $class = $class ? sprintf(' class="%s"', $class) : '';
 

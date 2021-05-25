@@ -222,7 +222,13 @@ class Importer
             $subPageLines[2] = mb_substr($subPageLines[2], 0, 40);
             $subPageLines[3] = '        ' . $subPageLines[3];
             $subPageLines[3] = mb_substr($subPageLines[3], 0, 40);
+        }
 
+        // Putta text på teknisk provsida 777.
+        // Korrigera även text som är fel i deras alt-text.
+        if (in_array($this->pageNum(), [777])) {
+            // "   SVT  TEKNISKPROVSIDA                 "
+            $subPageLines[4] = str_replace("   SVT  TEKNISKPROVSIDA                 ", "        SVT  TEKNISK  PROVSIDA          ", $subPageLines[4]);
         }
 
         return $subPageLines;
@@ -632,6 +638,11 @@ class Importer
         return $line;
     }
 
+    /**
+     * @param mixed $line 
+     * @param mixed|null $numberReplacements 
+     * @return mixed 
+     */
     public function linkifySingleLine($line, &$numberReplacements = null)
     {
         $regexSingleNumber0 = '(0)';

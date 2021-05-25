@@ -229,6 +229,9 @@ class Importer
         if (in_array($this->pageNum(), [777])) {
             // "   SVT  TEKNISKPROVSIDA                 "
             $subPageLines[4] = str_replace("   SVT  TEKNISKPROVSIDA                 ", "        SVT  TEKNISK  PROVSIDA          ", $subPageLines[4]);
+
+            // " Detta är röd text på blå bakgrund      "
+            $subPageLines[16] = str_replace(" Detta är röd text på blå bakgrund      ", "    Detta är röd text på blå bakgrund   ", $subPageLines[16]);
         }
 
         return $subPageLines;

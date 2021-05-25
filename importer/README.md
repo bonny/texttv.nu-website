@@ -15,6 +15,7 @@ Köra tester och kör igen när en fil ändras:
 ## Att göra
 
 -   [ ] Fixa länkar med callback pga då borde vi lättare kunna både ignorera + godkänna nummer på en rad.
+-   [ ] Bättre titel på 401, typ "Väder i dag/i morgon"
 -   https://github.com/bonny/texttv.nu-website/issues
 
 ## Diverse

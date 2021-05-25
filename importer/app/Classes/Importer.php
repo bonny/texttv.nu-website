@@ -138,11 +138,6 @@ class Importer
                     $class = "$class bgImg";
                 }
 
-                // Om rubrik lägg på klass .DH ("double height", pga det hette det på tidigare SVT Text-sajt).
-                if ($charInfo['charType']['type'] === 'text' && $charInfo['charType']['scale'] === 2) {
-                    $class = "$class DH";
-                }
-
                 $class = trim($class);
                 $class = $class ? sprintf(' class="%s"', $class) : '';
 
@@ -285,19 +280,23 @@ class Importer
                 // Ja, kör verkligen funktionen två gånger för att kombinera ihop ännu fler ¯\_(ツ)_/¯
                 $line = $this->combineElementsOnLine($line);
 
+                // Läg en span runt varje rad.
+                $lineClasses = 'line';
+
+                if ($lineIndex == 0) {
+                    $lineClasses .= ' toprow';
+                }
+
                 // Om en line innehåller någon rubrik/char med scale: 2 så
                 // ska hela raden tolkas som rubrik pga det verkar som det
                 // alltid är så.
                 $rowStyle = '';
                 if ($currentLineHasHeadlineChars && $nextLineHasHeadlineChars) {
                     $rowStyle = ' style="display:inline-block;transform:scaleY(2);transform-origin:top;"';
+                    // Om rubrik lägg på klass .DH ("double height", pga det hette det på tidigare SVT Text-sajt).
+                    $lineClasses .= ' DH';
                 }
 
-                // Läg en span runt varje rad.
-                $lineClasses = 'line';
-                if ($lineIndex == 0) {
-                    $lineClasses .= ' toprow';
-                }
                 $line = sprintf(
                     '<span%2$s class="%3$s">%1$s</span>',
                     $line,

@@ -138,6 +138,11 @@ class Importer
                     $class = "$class bgImg";
                 }
 
+                // Om rubrik lägg på klass .DH ("double height", pga det hette det på tidigare SVT Text-sajt).
+                if ($charInfo['charType']['type'] === 'text' && $charInfo['charType']['scale'] === 2) {
+                    $class = "$class DH";
+                }
+
                 $class = trim($class);
                 $class = $class ? sprintf(' class="%s"', $class) : '';
 

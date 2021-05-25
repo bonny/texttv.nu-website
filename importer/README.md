@@ -14,8 +14,10 @@ Köra tester och kör igen när en fil ändras:
 
 ## Att göra
 
+-   [ ] Lägg på klass om tecken har bakgrund
 -   [ ] Fixa länkar med callback pga då borde vi lättare kunna både ignorera + godkänna nummer på en rad.
 -   [ ] Bättre titel på 401, typ "Väder i dag/i morgon"
+-   [ ] Då många små fyrkantiga rutorna på testsida 777 blir inte bra, nåt med background/cover/contain
 -   https://github.com/bonny/texttv.nu-website/issues
 
 ## Diverse

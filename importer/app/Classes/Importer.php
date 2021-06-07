@@ -1026,49 +1026,14 @@ class Importer
         foreach ($subPages as $subpage) {
             $pageAsText = $subpage->altText;
 
+            // var_dump($pageAsText);
+            // 7 juni 2021 är denna
             // string(655)
-            //var_dump($pageAsText);
-/*
-string(655) "
-
-   100 SVT Text m ndag 07 jun 2021      
- 
- 
- 
- 
-                                        
-  Miljonregn till 50 HVB-hem med problem
-
-  Fortsatt anlitade trots upprepade larm
- 112 
-                                        
-          Höjt tak för privata          
-         sammankomster föreslås         
-                   106                  
-                                        
-  Svenskt proffs frias från matchfixning
-
-   Tingsrätten går på försvarets linje  
- 300 
-                                        
-  Ryssland lämnar flygspaningsavtal 133 
- 
-    Inrikes 101 Utrikes 104 Innehåll 700
-
-                                        
-
-
-"
-*/
 
             // Ta bort "\n\n\t\t" som verkar vara överst på varje sida.
             // $pageAsText = str_replace("\n\n\t\t", '', $pageAsText);
             // Sedan 7 juni 2021 verkar det som att tabbarna inte är kvar
             $pageAsText = preg_replace('|^\n\n|', "", $pageAsText);
-            #var_dump($pageAsText);
-
-            // Ta bort "\n\n\n\t" som verkar vara sist på varje sida.
-            // $pageAsText = str_replace("\n\n\n\t", '', $pageAsText);
 
             // Skapa collection med alla rader.
             $pageLines = collect(explode("\n", $pageAsText));

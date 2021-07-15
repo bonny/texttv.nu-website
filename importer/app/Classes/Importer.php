@@ -5,7 +5,6 @@ namespace App\Classes;
 use Exception;
 use Rct567\DomQuery\DomQuery;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\App;
 
 /**
  * 
@@ -191,6 +190,13 @@ class Importer
         return $line;
     }
 
+    /**
+     * Flytta in text på rader, pga texten vi får från SVT
+     * verkar inte alltid ha korrekt antal mellanslag osv. 
+     *
+     * @param mixed $subPageLines 
+     * @return mixed 
+     */
     protected function alignLineTexts($subPageLines)
     {
         // Flytta "SVT Text" till höger på nyheter och sport
@@ -238,6 +244,26 @@ class Importer
 
             // " Detta är röd text på blå bakgrund      "
             $subPageLines[16] = str_replace(" Detta är röd text på blå bakgrund      ", "    Detta är röd text på blå bakgrund   ", $subPageLines[16]);
+        }
+
+        // OS-sida, 444 har används både för OS i Rio och för OS i Tokyo.
+        // @todo: ändra breadcrumb "OS I Rio" till bara "OS"
+        if (in_array($this->pageNum(), [440])) {
+            // Fortsätt endast om rad 3 innehåller "23 juli - 9 augusti" pga 
+            // antar att sidan kommer sluta vara Tokyo nångång
+            if (strpos($subPageLines[2], '23 juli - 9 augusti') !== false) {
+                $subPageLines[1] = str_replace(
+                    "      2020 > 2021                       ",
+                    "                      2020 > 2021       ",
+                    $subPageLines[1]
+                );
+
+                $subPageLines[2] = str_replace(
+                    "   23 juli - 9 augusti                  ",
+                    "                   23 juli - 9 augusti  ",
+                    $subPageLines[2]
+                );
+            }
         }
 
         return $subPageLines;

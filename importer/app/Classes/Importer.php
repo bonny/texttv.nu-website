@@ -247,7 +247,6 @@ class Importer
         }
 
         // OS-sida, 444 har används både för OS i Rio och för OS i Tokyo.
-        // @todo: ändra breadcrumb "OS I Rio" till bara "OS"
         if (in_array($this->pageNum(), [440])) {
             // Fortsätt endast om rad 3 innehåller "23 juli - 9 augusti" pga 
             // antar att sidan kommer sluta vara Tokyo nångång

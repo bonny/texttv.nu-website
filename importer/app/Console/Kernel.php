@@ -52,6 +52,11 @@ class Kernel extends ConsoleKernel
             $this->importRange(300, 399);
         })->everyMinute();
 
+        // OS-sidorna
+        $schedule->call(function () {
+            $this->importRange(440, 499);
+        })->everyThreeMinutes();
+        
         # ofta pga vad som är på tv just nu, typ varannan minut
         #*/2 * * * * root cd /root/texttv-page-updater/ && php updater.php --pageRange 650-655 > 
         $schedule->call(function () {
@@ -107,7 +112,6 @@ class Kernel extends ConsoleKernel
 
         $schedule->call(function () {
             $this->importRange(245, 299);
-            $this->importRange(440, 499);
             $this->importRange(700, 799);
         })->daily();
 

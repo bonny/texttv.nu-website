@@ -169,6 +169,7 @@ class Importer
                     );
                 } else {
                     // Vanlig text
+                    #echo $strDataImageHash;
                     $char = sprintf(
                         '<span%4$s%2$s>%1$s</span>',
                         $char,
@@ -298,12 +299,22 @@ class Importer
                 // och inline styles för rubriker osv.
                 $line = $this->colorizeLine($line, $lineIndex, $charsExtractor);
 
-                // Kombinera flera element till ett.
-                // @TODO: lägg in bättre logik/funktion så att funktionen körs 
-                // flera gånger tills inga fler ersättningar görs, dvs. typ två gånger antagligen.
-                $line = $this->combineElementsOnLine($line);
-                // Ja, kör verkligen funktionen två gånger för att kombinera ihop ännu fler ¯\_(ツ)_/¯
-                $line = $this->combineElementsOnLine($line);
+                // @HERE: visa imageid i output så kan skapa bilder
+                // av OS-grafiken på 440.
+                // if ($this->withdebug) {
+                //     dump($line);
+                // }
+
+                if ($this->withdebug) {
+                    // Kombinera inte element så image-idn blir synliga för varje tecken.
+                } else {
+                    // Kombinera flera element till ett.
+                    // @TODO: lägg in bättre logik/funktion så att funktionen körs 
+                    // flera gånger tills inga fler ersättningar görs, dvs. typ två gånger antagligen.
+                    $line = $this->combineElementsOnLine($line);
+                    // Ja, kör verkligen funktionen två gånger för att kombinera ihop ännu fler ¯\_(ツ)_/¯
+                    $line = $this->combineElementsOnLine($line);
+                }
 
                 // Läg en span runt varje rad.
                 $lineClasses = 'line';

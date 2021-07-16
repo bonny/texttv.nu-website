@@ -124,10 +124,20 @@ class TeletextCharsExtractor
         return $charType;
     }
 
-
+    /**
+     * Image-idn som är bilder, dvs. tecken som ska renderas med bild istället för text.
+     * 
+     * @return array IDn.
+     */
     protected function getCharImagesHashes(): array
     {
         return [
+            3319954521,
+            738808167,
+            2989908589,
+            2713208341,
+            1836416647,
+            1831812200,
             1460540445,
             251408512,
             2642197907,

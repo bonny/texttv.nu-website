@@ -196,9 +196,10 @@ class Importer
      * verkar inte alltid ha korrekt antal mellanslag osv. 
      *
      * @param mixed $subPageLines 
+     * @param mixed $subPage
      * @return mixed 
      */
-    protected function alignLineTexts($subPageLines)
+    protected function alignLineTexts($subPageLines, $subPage)
     {
         // Flytta "SVT Text" till höger på nyheter och sport
         if (in_array($this->pageNum(), [101, 102, 103, 500])) {
@@ -266,6 +267,30 @@ class Importer
             }
         }
 
+        // Börskuserna 245. Flersida så jobba bara med första.
+        if ($subPage['subPageNumber'] == '245-01') {
+            $subPageLines[15] = str_replace(
+                "    DU FÖLJER JUST NU BÖRSKURSERNA      ",
+                "      DU FÖLJER JUST NU BÖRSKURSERNA    ",
+                $subPageLines[15]
+            );
+            $subPageLines[17] = str_replace(
+                "    I SVERIGES TELEVISIONS TEXT-TV      ",
+                "      I SVERIGES TELEVISIONS TEXT-TV    ",
+                $subPageLines[17]
+            );
+            $subPageLines[19] = str_replace(
+                "    - DÄR DU BLAND ANNAT OCKSÅ FÅR      ",
+                "      - DÄR DU BLAND ANNAT OCKSÅ FÅR    ",
+                $subPageLines[19]
+            );
+            $subPageLines[21] = str_replace(
+                "    NYHETER,SPORT & TV-INFORMATION      ",
+                "      NYHETER,SPORT & TV-INFORMATION    ",
+                $subPageLines[21]
+            );
+        }
+
         return $subPageLines;
     }
 
@@ -287,7 +312,7 @@ class Importer
             $subPageLines = explode("\n", $subPage['text']);
 
             $subPageLines = $this->fixDayNamesInHead($subPageLines);
-            $subPageLines = $this->alignLineTexts($subPageLines);
+            $subPageLines = $this->alignLineTexts($subPageLines, $subPage);
 
             // Hämta och skapa spans med färg för varje rad, för varje kolumn.
             $subPageLines = array_map(function ($line, $lineIndex) use ($charsExtractor) {

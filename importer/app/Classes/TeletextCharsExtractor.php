@@ -375,6 +375,7 @@ class TeletextCharsExtractor
     protected function getCharHeadlineHashes(): array
     {
         return [
+            1992962736,
             1053170101,
             4015340740,
             2731520461,

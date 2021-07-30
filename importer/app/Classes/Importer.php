@@ -252,16 +252,17 @@ class Importer
         if (in_array($this->pageNum(), [440])) {
             // Fortsätt endast om rad 3 innehåller "23 juli - 9 augusti" pga 
             // antar att sidan kommer sluta vara Tokyo nångång
-            if (strpos($subPageLines[2], '23 juli - 9 augusti') !== false) {
+            if (strpos($subPageLines[2], '23 juli - 8 augusti') !== false) {
+                #dd($subPageLines);
                 $subPageLines[1] = str_replace(
-                    "      2020 > 2021                       ",
-                    "                      2020 > 2021       ",
+                    "      2020 / 2021                       ",
+                    "                      2020 / 2021       ",
                     $subPageLines[1]
                 );
 
                 $subPageLines[2] = str_replace(
-                    "   23 juli - 9 augusti                  ",
-                    "                   23 juli - 9 augusti  ",
+                    "   OS  23 juli - 8 augusti              ",
+                    "               OS  23 juli - 8 augusti  ",
                     $subPageLines[2]
                 );
             }
@@ -706,17 +707,20 @@ class Importer
     {
         // Länkar är oftast på sista raden, den med blå bakgrund,
         // så ta det säkra före det osäkra och länka endast saker på den raden.
-        if ($lineIndex !== 23) {
-            return $line;
-        }
+        // if ($lineIndex !== 23) {
+        //     return $line;
+        // }
 
         // Länka "Läs mer på svtsport.se"
-        $line = preg_replace('|(Läs mer på svtsport\.se)|', '<a href="https://svtsport.se/" rel="noopener">\1</a>', $line);
+        // $line = preg_replace('|(Läs mer på svtsport\.se)|', '<a href="https://svtsport.se/" rel="noopener" target="_blank">\1</a>', $line);
 
         // Länka "nästa sida", t.ex. "Mer om pandemin på nästa sida".
         $linkprefix = $this->linkprefix;
         $nextPagePageNum = $this->pageNum() + 1;
         $line = preg_replace('| (nästa sida) |', ' <a href="' . $linkprefix . $nextPagePageNum . '" rel="noopener">\1</a> ', $line);
+
+        // Länka svtsport.se
+        $line = str_replace('svtsport.se', '<a rel="noopener" target="_blank" href="http://svtsport.se/">svtsport.se</a>', $line);
 
         return $line;
     }

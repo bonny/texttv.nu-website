@@ -294,9 +294,9 @@ class Importer
 
         // 202 BÖRSEN      SAMMANFATTNING .
         if (in_array($this->pageNum(), [202])) {
-            $subPageLines[2] = str_replace(
-                "  BÖRSEN      SAMMANFATTNING 16/07      ",
-                "     BÖRSEN      SAMMANFATTNING 16/07   ",
+            $subPageLines[2] = preg_replace(
+                '|  BÖRSEN      SAMMANFATTNING |',
+                '     BÖRSEN      SAMMANFATTNING ',
                 $subPageLines[2]
             );
         }

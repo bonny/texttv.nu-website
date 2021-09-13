@@ -789,15 +789,14 @@ class Importer
             return $line;
         }
 
-        // Intervall 110-114
-        $regexNumberRange = '\b([1-9][0-9]{2}-[1-9][0-9]{2})\b';
+        // Intervall 110-114 _eller_ enkelt nummer 123
+        // Matchar rader som innehåller både enkelt nummer och intervall, 
+        // t.ex på sidan 330.
+        $regexNumberRange = '(\b[1-9][0-9]{2}(?:-[1-9][0-9]{2})?\b)';
         $line = preg_replace('|' . $regexNumberRange . '|', $replacement, $line, -1, $count);
-        if ($count) return $line;
-
-        // Enkelt nummer 123
-        $regexPageNumber = '\b([1-9][0-9]{2})\b';
-        $line = preg_replace('|' . $regexPageNumber . '|', $replacement, $line, -1, $count);
-        if ($count) return $line;
+        if ($count) {
+            return $line;
+        }
 
         // Flersida 123f-234f
         $regexNumberRange = '\b([1-9][0-9]{2})f-([1-9][0-9]{2})f\b';

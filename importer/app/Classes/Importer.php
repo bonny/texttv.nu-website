@@ -715,12 +715,16 @@ class Importer
         // $line = preg_replace('|(Läs mer på svtsport\.se)|', '<a href="https://svtsport.se/" rel="noopener" target="_blank">\1</a>', $line);
 
         // Länka "nästa sida", t.ex. "Mer om pandemin på nästa sida".
+        // "   "Där man hittar fienderna" nästa sida"
         $linkprefix = $this->linkprefix;
         $nextPagePageNum = $this->pageNum() + 1;
-        $line = preg_replace('| (nästa sida) |', ' <a href="' . $linkprefix . $nextPagePageNum . '" rel="noopener">\1</a> ', $line);
+        $nextPageURL = $linkprefix . $nextPagePageNum;
+        
+        $line = str_replace(' nästa sida', ' <a rel="noopener" target="_blank" href="' . $nextPageURL . '">nästa sida</a>', $line);
+        //$line = preg_replace('|nästa sida|', '<a href="' . $linkprefix . $nextPagePageNum . '" rel="noopener">\1</a>', $line);
 
         // Länka svtsport.se
-        $line = str_replace('svtsport.se', '<a rel="noopener" target="_blank" href="http://svtsport.se/">svtsport.se</a>', $line);
+        $line = str_replace('svtsport.se', '<a rel="noopener" target="_blank" href="https://svtsport.se/">svtsport.se</a>', $line);
 
         return $line;
     }

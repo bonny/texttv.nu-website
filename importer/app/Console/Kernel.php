@@ -44,12 +44,15 @@ class Kernel extends ConsoleKernel
          * Ofta, som nyheter + börs, sport.
          */
         $schedule->call(function () {
-            # nyheter, börs
-            #100-245
-            $this->importRange(100, 245);
             # sport
             #300-399
             $this->importRange(300, 399);
+        })->everyMinute();
+
+        $schedule->call(function () {
+            # nyheter, börs
+            #100-245
+            $this->importRange(100, 245);
         })->everyMinute();
 
         // OS-sidorna

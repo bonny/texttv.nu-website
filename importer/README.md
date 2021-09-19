@@ -2,9 +2,9 @@ Nytt importskript skrivet i Laravel för att klara av ändringarna som SVT gjord
 
 ## Kör lokalt
 
-Starta med `$ php artisan serve`.
+Starta med `$ php artisan serve --host=localhost`.
 
-Testa lokalt på http://localhost:8000/ (inte 127.0.0.1 pga. misstolkar som sidnummer)
+Testa lokalt på http://localhost:8000/ (inte 127.0.0.1 pga. misstolkar som sidnummer).
 
 ### Tester
 
@@ -14,7 +14,7 @@ Köra tester och kör igen när en fil ändras:
 
 ## Att göra
 
--   [ ] Fixa länkarna på 330
+-   [x] Fixa länkarna på 330
 -   [ ] Lägg på klass om tecken har bakgrund
 -   [ ] Fixa länkar med callback pga då borde vi lättare kunna både ignorera + godkänna nummer på en rad.
 -   [ ] Då många små fyrkantiga rutorna på testsida 777 blir inte bra, nåt med background/cover/contain

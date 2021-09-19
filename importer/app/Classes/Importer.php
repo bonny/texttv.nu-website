@@ -301,6 +301,24 @@ class Importer
             );
         }
 
+        // 129 landet runt
+        if (in_array($this->pageNum(), [129])) {
+            $subPageLines[1] = str_replace(
+                '    LANDET RUNT',
+                '      LANDET RUNT',
+                $subPageLines[1]
+            );
+
+            // Rad 6-22 får ojämn vänstermarginal som vi fixar till.
+            // 3 tkn ska det vara till vänster före varje rad.
+            $numChars = 3;
+            for ($i = 6; $i <= 22; $i++) {
+                $subPageLines[$i] = ltrim($subPageLines[$i]);
+                $subPageLines[$i] = str_pad('', $numChars, ' ') . $subPageLines[$i];
+                $subPageLines[$i] = $this->mb_str_pad($subPageLines[$i], 40);
+            }
+        }
+
         return $subPageLines;
     }
 

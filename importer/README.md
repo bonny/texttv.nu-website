@@ -14,7 +14,6 @@ Köra tester och kör igen när en fil ändras:
 
 ## Att göra
 
--   [x] Fixa länkarna på 330
 -   [ ] Lägg på klass om tecken har bakgrund
 -   [ ] Fixa länkar med callback pga då borde vi lättare kunna både ignorera + godkänna nummer på en rad.
 -   [ ] Då många små fyrkantiga rutorna på testsida 777 blir inte bra, nåt med background/cover/contain

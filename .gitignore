@@ -1,2 +1,3 @@
 importer/live-db-latest-rows-export.sql
 .DS_Store
+.vscode/settings.json

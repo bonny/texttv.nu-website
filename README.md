@@ -21,9 +21,9 @@ Några av de saker som utmärker texttv.nu är:
 - Bättre anpassad för smartphones som iPhone och diverse Android
 - Stöd för permalänkar, så det går att dela en en nyhet på Twitter och Facebook - utan att nyheten "skrivs över" nästa dag
 - Möjlighet att visa flera sidor samtidigt. T.ex. såhär:
-- Inrikesnyheter, sid 101 till 103
-- Startsida 100 och sportnyheterna på sidan 300
-- På TV Svt 1 & Svt 2, dvs. sidorna 601-604
+  - [Inrikesnyheter, sid 101 till 103](https://texttv.nu/101-103)
+  - [Startsida 100 och sportnyheterna på sidan 300](https://texttv.nu/100,300)
+  - [På TV Svt 1 & Svt 2, dvs. sidorna 601-604](https://texttv.nu/601-604)
 - Hjälp oss göra TextTV.nu ännu bättre!
 - Har du förslag på hur man kan göra texttv.nu ännu bättre?
 

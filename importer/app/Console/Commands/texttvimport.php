@@ -7,6 +7,7 @@ use App\Models\TextTV;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class texttvimport extends Command
 {
@@ -22,7 +23,7 @@ class texttvimport extends Command
      *
      * @var string
      */
-    protected $description = 'Hämta sida från svt.se/text-tv och spara i DB om den har ändrats.';
+    protected $description = 'Hämta sida eller sidor från svt.se/text-tv och spara i DB om den har ändrats.';
 
     /**
      * Create a new command instance.
@@ -41,12 +42,29 @@ class texttvimport extends Command
      */
     public function handle()
     {
+        // Exempel på format:
+        // 100
+        // 100-110
+        // 110,120-130
+        // 110,120-130,101,102-105...
         $pageNumber = $this->argument('pageNumber');
 
+        // Expand ranges in pageNumbers. So 100-102 is expaned to 100,101,102.
+        // Source: https://stackoverflow.com/a/7698869
+        $pageNumbers = preg_replace_callback('/(\d+)-(\d+)/', function($m) {
+            return implode(',', range($m[1], $m[2]));
+        }, $pageNumber);
+
+        foreach (explode(',', $pageNumbers) as $onePageNumber) {
+            $this->importPage($onePageNumber);
+        }
+    }
+    
+    public function importPage($pageNumber) {
         $this->info("Importerar sida {$pageNumber}");
+        $page = new Importer($pageNumber);
 
         // Hämta sidan från SVT.
-        $page = new Importer($pageNumber);
         $page->fromRemote()->cleanup()->colorize()->linkify();
 
         // Skapa array med enbart sidornas text; formatet vi lagrar i db.

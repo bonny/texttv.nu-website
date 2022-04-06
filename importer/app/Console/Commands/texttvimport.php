@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Classes\Importer;
 use App\Models\TextTV;
+use App\Models\PageImportsLog;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -90,12 +91,36 @@ class texttvimport extends Command
         // $this->comment(print_r($uncompressedDbPageContent, 1));
 
         $fetchedPageAndDbPageIsEqual = $arrSubpagesTexts === $uncompressedDbPageContent;
+        
         if ($fetchedPageAndDbPageIsEqual) {
             $msg = "{$pageNumber}: Ingen import görs: befintlig och hämtad sida är lika.";
             $this->info($msg);
             Log::info($msg);
+            
+            PageImportsLog::create([
+                'page_num' => $pageNumber,
+                'import_result' => 'NOT_IMPORTED_PAGE_NOT_CHANGED'
+            ]);
+            
             return;
         } else {
+
+            // Om sidan vi ska importera har status
+            // pageIsNotBroadcasted = true
+            // så ska den bara importeras om det redan gjorts x antal försök redan.
+            if ($page->subpages()->count() === 1 && $page->subpage(0)['pageIsBroadcasted'] === false) {
+                // Sidan är inte i sändning.
+                // Kolla sidans senaste x antal importer och om alla har status NOT_IMPORTED_REMOTE_NOT_BROADCASTED
+                // så uppdaterar vi vår sida, annars låter vi den vara i tidigare skick, som förhoppningsvis har innehåll,
+                // för vi kommer bara hit om sidan har fått nytt innehåll, dvs. går från t.ex. "Innehåll" -> "Inget innehåll".
+                $this->info('Sidans status är "Inte i sändning"');
+                
+                PageImportsLog::create([
+                    'page_num' => $pageNumber,
+                    'import_result' => 'NOT_IMPORTED_REMOTE_NOT_BROADCASTED'
+                ]);
+            }
+
             $msg = "{$pageNumber}: Befintlig och hämtad sida är inte lika, så sparar sidan till databasen.";
             $this->info($msg);
             Log::info($msg);
@@ -139,6 +164,12 @@ class texttvimport extends Command
             }
 
             $this->info("Sida sparades till databas med ID {$newPage->id}");
+
+            PageImportsLog::create([
+                'page_num' => $pageNumber,
+                'import_result' => 'IMPORT_SUCCESS'
+            ]);
+
         }
     }
 }

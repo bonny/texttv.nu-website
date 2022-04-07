@@ -113,13 +113,23 @@ class texttvimport extends Command
                 // Kolla sidans senaste x antal importer och om alla har status NOT_IMPORTED_REMOTE_NOT_BROADCASTED
                 // så uppdaterar vi vår sida, annars låter vi den vara i tidigare skick, som förhoppningsvis har innehåll,
                 // för vi kommer bara hit om sidan har fått nytt innehåll, dvs. går från t.ex. "Innehåll" -> "Inget innehåll".
-                $this->info('Sidans status är "Inte i sändning"');
-                
+                $statusToCheckFor = 'NOT_IMPORTED_REMOTE_NOT_BROADCASTED';
+
+                $statusSubsequentCount = PageImportsLog::countSubsequentStatuses($statusToCheckFor, $pageNumber);
+
+                $msg = 'Sidans status är "Inte i sändning"';
+                $this->info($msg);
+                Log::info($msg);
+
+                $msg = "Status {$statusToCheckFor} was found {$statusSubsequentCount} times subsequently.";
+                $this->info($msg);
+                Log::info($msg);
+                                                                      
                 PageImportsLog::create([
                     'page_num' => $pageNumber,
                     'import_result' => 'NOT_IMPORTED_REMOTE_NOT_BROADCASTED'
                 ]);
-            }
+            }  
 
             $msg = "{$pageNumber}: Befintlig och hämtad sida är inte lika, så sparar sidan till databasen.";
             $this->info($msg);

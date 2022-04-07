@@ -23,4 +23,31 @@ class PageImportsLog extends Model
         'page_num',
         'import_result',
     ];
+
+    /**
+     * Räkna antalet gånger en status förekommer löpande efter varandra, dvs.
+     * utan någon annan status emellan.
+     * 
+     * @param string $statusToCheckFor 
+     * @param mixed $pageNumber 
+     * @return int 
+     */
+    public static function countSubsequentStatuses(string $statusToCheckFor, int $pageNumber): int
+    {
+        $previousPageImports = PageImportsLog::where('page_num', $pageNumber)
+            ->orderByDesc('created_at')
+            ->limit(10)
+            ->get();
+
+        $statusSubsequentCount = 0;
+        $previousPageImports->each(function ($logRow) use (&$statusSubsequentCount, $statusToCheckFor) {
+            if ($logRow->import_result === $statusToCheckFor) {
+                $statusSubsequentCount++;
+            } else {
+                return;
+            }
+        });
+
+        return $statusSubsequentCount;
+    }
 }

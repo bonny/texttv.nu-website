@@ -5,7 +5,7 @@ use App\Classes\Importer;
 use App\Models\TextTV;
 use App\Http\Controllers\PageColors;
 use Illuminate\Http\Request;
-
+use App\Http\Controllers\ImportstatusController;
 
 /*
 |--------------------------------------------------------------------------
@@ -66,3 +66,5 @@ Route::get('/db/{pageNum}', function ($pageNum) {
 })->where('pageNum', '[0-9]+');
 
 Route::get('/pagecolors/{pageNum}', [PageColors::class, 'index'])->where('pageNum', '[0-9\-]+');
+
+Route::get('/importstatus', [ImportstatusController::class, 'index']);

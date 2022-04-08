@@ -32,7 +32,13 @@ class ImportstatusController extends Controller
         );
     }
 
-    protected function getStatusCount(int $minutes)
+    /**
+     * Hämta vilka statusar sidor givit under ett visst antal minuter.
+     * 
+     * @param int $minutes 
+     * @return array 
+     */
+    protected function getStatusCount(int $minutes): array
     {
         $sqlQuery = "
             SELECT

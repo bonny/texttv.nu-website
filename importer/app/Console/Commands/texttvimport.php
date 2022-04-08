@@ -113,22 +113,43 @@ class texttvimport extends Command
                 // Kolla sidans senaste x antal importer och om alla har status NOT_IMPORTED_REMOTE_NOT_BROADCASTED
                 // så uppdaterar vi vår sida, annars låter vi den vara i tidigare skick, som förhoppningsvis har innehåll,
                 // för vi kommer bara hit om sidan har fått nytt innehåll, dvs. går från t.ex. "Innehåll" -> "Inget innehåll".
-                $statusToCheckFor = 'NOT_IMPORTED_REMOTE_NOT_BROADCASTED';
+                $msg = "{$pageNumber}: Sidans status är 'Inte i sändning'";
+                $this->info($msg);
+                Log::info($msg);
 
+                $statusToCheckFor = 'NOT_IMPORTED_REMOTE_NOT_BROADCASTED';
+                $maxNumNotBroadcastedToWaitForBeforeUpdating = 3;
                 $statusSubsequentCount = PageImportsLog::countSubsequentStatuses($statusToCheckFor, $pageNumber);
 
-                $msg = 'Sidans status är "Inte i sändning"';
+                $msg = "{$pageNumber}: Status {$statusToCheckFor} was found {$statusSubsequentCount} times subsequently.";
                 $this->info($msg);
                 Log::info($msg);
 
-                $msg = "Status {$statusToCheckFor} was found {$statusSubsequentCount} times subsequently.";
-                $this->info($msg);
-                Log::info($msg);
-                                                                      
-                PageImportsLog::create([
-                    'page_num' => $pageNumber,
-                    'import_result' => 'NOT_IMPORTED_REMOTE_NOT_BROADCASTED'
-                ]);
+                // om statusSubsequentCount är mer än typ 3 
+                // så fortsätt med import med status IMPORTED_AS_NOT_BROADCASTED
+                if ($statusSubsequentCount < $maxNumNotBroadcastedToWaitForBeforeUpdating) {
+                    // Gör ingen import ännu, vänta och försök igen nästa gång jobbet körs.
+                    PageImportsLog::create([
+                        'page_num' => $pageNumber,
+                        'import_result' => 'NOT_IMPORTED_REMOTE_NOT_BROADCASTED'
+                    ]);
+
+                    $msg = "{$pageNumber}: Inte importerad pga sidan är inte i sändning hos SVT och vi har inte gjort tillräckligt många försök.";
+                    $this->info($msg);
+                    Log::info($msg);    
+
+                    return;
+                } else {
+                    // Tillräckligt många försök gjorde, så importera.
+                    PageImportsLog::create([
+                        'page_num' => $pageNumber,
+                        'import_result' => 'IMPORTED_AS_NOT_BROADCASTED'
+                    ]);
+
+                    $msg = "{$pageNumber}: Importerades trots att sidan inte är i sändning hos SVT pga vi har gjort mer än {$maxNumNotBroadcastedToWaitForBeforeUpdating} försök.";
+                    $this->info($msg);
+                    Log::info($msg);    
+                }                                                            
             }  
 
             $msg = "{$pageNumber}: Befintlig och hämtad sida är inte lika, så sparar sidan till databasen.";

@@ -47,8 +47,6 @@ class ImportstatusController extends Controller
                 page_imports_logs
             WHERE created_at >= DATE_SUB(NOW(), INTERVAL ? MINUTE)
             GROUP BY import_result
-            ORDER BY
-                created_at DESC
         ";
         $statuses = DB::select($sqlQuery, [$minutes]);
         return $statuses;

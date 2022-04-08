@@ -10,7 +10,9 @@ class ImportstatusController extends Controller
 {
     public function index()
     {
-        $latestPageImportsResults = PageImportsLog::orderByDesc('created_at')->limit(100)->get();
+        $latestPageImportsResults = PageImportsLog::orderByDesc('created_at')
+            ->limit(500)
+            ->get();
 
         $statusCountsByMinutes = collect([
             1 => $this->getStatusCount(1),

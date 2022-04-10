@@ -118,7 +118,7 @@ class texttvimport extends Command
                 Log::info($msg);
 
                 $statusToCheckFor = 'NOT_IMPORTED_REMOTE_NOT_BROADCASTED';
-                $maxNumNotBroadcastedToWaitForBeforeUpdating = 3;
+                $maxNumNotBroadcastedToWaitForBeforeUpdating = 5;
                 $statusSubsequentCount = PageImportsLog::countSubsequentStatuses($statusToCheckFor, $pageNumber);
 
                 $msg = "{$pageNumber}: Status {$statusToCheckFor} was found {$statusSubsequentCount} times subsequently.";

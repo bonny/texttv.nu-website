@@ -120,6 +120,8 @@ class Kernel extends ConsoleKernel
             $this->importRange(802, 899);
             $this->importRange(700, 799);
         })->weekly();
+
+        $schedule->command('import-status:remove-old')->daily();;
     }
 
     /**

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\PageImportsLog;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class ImportstatusController extends Controller
 {
@@ -50,5 +51,21 @@ class ImportstatusController extends Controller
         ";
         $statuses = DB::select($sqlQuery, [$minutes]);
         return $statuses;
+    }
+
+    /**
+     * Ta bort importstatusrader som är äldre än 24 timmar.
+     * 
+     * @return int Antal borttagna rader.
+     */
+    public static function removeOldStatuses()
+    {
+        $deleted = PageImportsLog::where(
+            'created_at',
+            '<',
+            now()->startOfDay()
+        )->delete();
+
+        return $deleted;
     }
 }

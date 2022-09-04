@@ -1114,6 +1114,7 @@ class Importer
             // Lägg till en sida som endast innehåller "Sidan ej i sändning."
             $subPages->push((object) [
                 'subPageNumber' => $this->pageNum(),
+                'pageIsBroadcasted' => false,
                 'altText' => "{$this->pageNum()} SVT Text   Sidan ej i sändning" . str_repeat("\n", 23)
             ]);
         }
@@ -1161,7 +1162,8 @@ class Importer
             $subPagesCleaned->push([
                 'subPageNumber' => $subpage->subPageNumber,
                 'text' => $pageLines->join("\n"),
-                'gifAsBase64' => $subpage->gifAsBase64 ?? null
+                'gifAsBase64' => $subpage->gifAsBase64 ?? null,
+                'pageIsBroadcasted' => $subpage->pageIsBroadcasted ?? true
             ]);
         }
 

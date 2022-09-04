@@ -2,21 +2,13 @@
 
 namespace App\Console;
 
+use App\Console\Commands\texttvimport;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Illuminate\Support\Facades\Artisan;
 
 class Kernel extends ConsoleKernel
 {
-    /**
-     * The Artisan commands provided by your application.
-     *
-     * @var array
-     */
-    protected $commands = [
-        //
-    ];
-
     /**
      * Importerar alla sidor inom ett intervall.
      * 
@@ -26,9 +18,7 @@ class Kernel extends ConsoleKernel
      */
     protected function importRange(int $fromPageNumber, int $toPageNumber)
     {
-        for ($pageNumber = $fromPageNumber; $pageNumber <= $toPageNumber; $pageNumber++) {
-            Artisan::call('texttv:import', ['pageNumber' => $pageNumber]);
-        }
+        Artisan::call('texttv:import', ['pageNumber' => "$fromPageNumber-$toPageNumber"]);
     }
 
     /**
@@ -39,18 +29,25 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+        // Startsidan, nyheter inrikes & utrikes.
+        $schedule->command(texttvimport::class, ['100-105'])
+                 ->everyMinute()
+                 ->runInBackground();
 
-        /**
-         * Ofta, som nyheter + börs, sport.
-         */
-        $schedule->call(function () {
-            # nyheter, börs
-            #100-245
-            $this->importRange(100, 245);
-            # sport
-            #300-399
-            $this->importRange(300, 399);
-        })->everyMinute();
+        // Nyhetsartiklarna
+        $schedule->command(texttvimport::class, ['106-199'])
+                 ->everyMinute()
+                 ->runInBackground();
+        
+        // Börs
+        $schedule->command(texttvimport::class, ['200-245'])
+                 ->everyMinute()
+                 ->runInBackground();
+
+        // Sport
+        $schedule->command(texttvimport::class, ['300-399'])
+                 ->everyMinute()
+                 ->runInBackground();
 
         // OS-sidorna
         $schedule->call(function () {
@@ -63,13 +60,6 @@ class Kernel extends ConsoleKernel
             $this->importRange(650, 655);
         })->everyFourMinutes();
 
-        ## nästan fresh, var femte minut eller så
-        # Lotto osv, hästar
-        #*/5 * * * * root cd /root/texttv-page-updater/ && php updater.php --pageRange 500-599 > 
-        $schedule->call(function () {
-            $this->importRange(500, 599);
-        })->everyTenMinutes();
-
         # tv-tablå, Rimligt ofta
         #6,12,19,31,42,49,57 * * * * root cd /root/texttv-page-updater/ && php updater.php --pageRange 600-649 > 
         #*/19 * * * * root cd /root/texttv-page-updater/ && php updater.php --pageRange 656-669 > 
@@ -77,6 +67,13 @@ class Kernel extends ConsoleKernel
             $this->importRange(600, 649);
             $this->importRange(656, 669);
         })->everyFourMinutes();
+
+        ## nästan fresh, var femte minut eller så
+        # Lotto osv, hästar
+        #*/5 * * * * root cd /root/texttv-page-updater/ && php updater.php --pageRange 500-599 > 
+        $schedule->call(function () {
+            $this->importRange(500, 599);
+        })->everyTenMinutes();
 
         # 670 - infosidor för tv
         #3,18,28,39,47,58 * * * * root cd /root/texttv-page-updater/ && php updater.php --pageRange 670-699 > 
@@ -129,6 +126,8 @@ class Kernel extends ConsoleKernel
             $this->importRange(802, 899);
             $this->importRange(700, 799);
         })->weekly();
+
+        $schedule->command('import-status:remove-old')->daily();;
     }
 
     /**

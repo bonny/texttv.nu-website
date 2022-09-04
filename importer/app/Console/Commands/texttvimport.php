@@ -4,9 +4,11 @@ namespace App\Console\Commands;
 
 use App\Classes\Importer;
 use App\Models\TextTV;
+use App\Models\PageImportsLog;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class texttvimport extends Command
 {
@@ -22,7 +24,7 @@ class texttvimport extends Command
      *
      * @var string
      */
-    protected $description = 'Hämta sida från svt.se/text-tv och spara i DB om den har ändrats.';
+    protected $description = 'Hämta sida eller sidor från svt.se/text-tv och spara i DB om den har ändrats.';
 
     /**
      * Create a new command instance.
@@ -41,12 +43,29 @@ class texttvimport extends Command
      */
     public function handle()
     {
+        // Exempel på format:
+        // 100
+        // 100-110
+        // 110,120-130
+        // 110,120-130,101,102-105...
         $pageNumber = $this->argument('pageNumber');
 
+        // Expand ranges in pageNumbers. So 100-102 is expaned to 100,101,102.
+        // Source: https://stackoverflow.com/a/7698869
+        $pageNumbers = preg_replace_callback('/(\d+)-(\d+)/', function($m) {
+            return implode(',', range($m[1], $m[2]));
+        }, $pageNumber);
+
+        foreach (explode(',', $pageNumbers) as $onePageNumber) {
+            $this->importPage($onePageNumber);
+        }
+    }
+    
+    public function importPage($pageNumber) {
         $this->info("Importerar sida {$pageNumber}");
+        $page = new Importer($pageNumber);
 
         // Hämta sidan från SVT.
-        $page = new Importer($pageNumber);
         $page->fromRemote()->cleanup()->colorize()->linkify();
 
         // Skapa array med enbart sidornas text; formatet vi lagrar i db.
@@ -72,12 +91,67 @@ class texttvimport extends Command
         // $this->comment(print_r($uncompressedDbPageContent, 1));
 
         $fetchedPageAndDbPageIsEqual = $arrSubpagesTexts === $uncompressedDbPageContent;
+        
         if ($fetchedPageAndDbPageIsEqual) {
             $msg = "{$pageNumber}: Ingen import görs: befintlig och hämtad sida är lika.";
             $this->info($msg);
             Log::info($msg);
+            
+            PageImportsLog::create([
+                'page_num' => $pageNumber,
+                'import_result' => 'NOT_IMPORTED_PAGE_NOT_CHANGED'
+            ]);
+            
             return;
         } else {
+
+            // Om sidan vi ska importera har status
+            // pageIsNotBroadcasted = true
+            // så ska den bara importeras om det redan gjorts x antal försök redan.
+            if ($page->subpages()->count() === 1 && $page->subpage(0)['pageIsBroadcasted'] === false) {
+                // Sidan är inte i sändning.
+                // Kolla sidans senaste x antal importer och om alla har status NOT_IMPORTED_REMOTE_NOT_BROADCASTED
+                // så uppdaterar vi vår sida, annars låter vi den vara i tidigare skick, som förhoppningsvis har innehåll,
+                // för vi kommer bara hit om sidan har fått nytt innehåll, dvs. går från t.ex. "Innehåll" -> "Inget innehåll".
+                $msg = "{$pageNumber}: Sidans status är 'Inte i sändning'";
+                $this->info($msg);
+                Log::info($msg);
+
+                $statusToCheckFor = 'NOT_IMPORTED_REMOTE_NOT_BROADCASTED';
+                $maxNumNotBroadcastedToWaitForBeforeUpdating = 5;
+                $statusSubsequentCount = PageImportsLog::countSubsequentStatuses($statusToCheckFor, $pageNumber);
+
+                $msg = "{$pageNumber}: Status {$statusToCheckFor} was found {$statusSubsequentCount} times subsequently.";
+                $this->info($msg);
+                Log::info($msg);
+
+                // om statusSubsequentCount är mer än typ 3 
+                // så fortsätt med import med status IMPORTED_AS_NOT_BROADCASTED
+                if ($statusSubsequentCount < $maxNumNotBroadcastedToWaitForBeforeUpdating) {
+                    // Gör ingen import ännu, vänta och försök igen nästa gång jobbet körs.
+                    PageImportsLog::create([
+                        'page_num' => $pageNumber,
+                        'import_result' => 'NOT_IMPORTED_REMOTE_NOT_BROADCASTED'
+                    ]);
+
+                    $msg = "{$pageNumber}: Inte importerad pga sidan är inte i sändning hos SVT och vi har inte gjort tillräckligt många försök.";
+                    $this->info($msg);
+                    Log::info($msg);    
+
+                    return;
+                } else {
+                    // Tillräckligt många försök gjorde, så importera.
+                    PageImportsLog::create([
+                        'page_num' => $pageNumber,
+                        'import_result' => 'IMPORTED_AS_NOT_BROADCASTED'
+                    ]);
+
+                    $msg = "{$pageNumber}: Importerades trots att sidan inte är i sändning hos SVT pga vi har gjort mer än {$maxNumNotBroadcastedToWaitForBeforeUpdating} försök.";
+                    $this->info($msg);
+                    Log::info($msg);    
+                }                                                            
+            }  
+
             $msg = "{$pageNumber}: Befintlig och hämtad sida är inte lika, så sparar sidan till databasen.";
             $this->info($msg);
             Log::info($msg);
@@ -121,6 +195,12 @@ class texttvimport extends Command
             }
 
             $this->info("Sida sparades till databas med ID {$newPage->id}");
+
+            PageImportsLog::create([
+                'page_num' => $pageNumber,
+                'import_result' => 'IMPORT_SUCCESS'
+            ]);
+
         }
     }
 }

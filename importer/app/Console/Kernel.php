@@ -112,8 +112,14 @@ class Kernel extends ConsoleKernel
 
         $schedule->call(function () {
             $this->importRange(245, 299);
-            $this->importRange(700, 799);
+            $this->importRange(700, 729);
+            $this->importRange(751, 799);
         })->daily();
+        
+        // 730-750 verkar ha någon form av sportresultat numera.
+        $schedule->call(function () {
+            $this->importRange(730, 750);
+        })->everyThirtyMinutes();
 
         # uppdateras aldrig?
         #7 4 * * * root cd /root/texttv-page-updater/ && php updater.php --pageRange 900-999 > 

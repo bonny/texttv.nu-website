@@ -19,6 +19,9 @@ Vi är kanske lite galna, men vi tror att det går att göra klassiska text-tv �
 Några av de saker som utmärker texttv.nu är:
 
 - Bättre anpassad för smartphones som iPhone och diverse Android
+- Stöd för färg och grafik på alla sidor
+  - Härligt gröna och gula färger på [sportsidan 377](https://texttv.nu/377)
+  - Fungerande grafik på [väderprognosen på sidan 401](https://texttv.nu/401)
 - Stöd för permalänkar, så det går att dela en en nyhet på Twitter och Facebook - utan att nyheten "skrivs över" nästa dag
 - Möjlighet att visa flera sidor samtidigt. T.ex. såhär:
   - [Inrikesnyheter, sid 101 till 103](https://texttv.nu/101-103)

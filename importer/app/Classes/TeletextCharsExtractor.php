@@ -22,10 +22,6 @@ class TeletextCharsExtractor
     // Array med alla tecken och dess färger.
     protected $arrChars = [];
 
-    // Array som fungerar som cache för alla charImageStrings
-    protected $charImageStrings = [];
-    protected $charImageHashes = [];
-
     public function imageFromString(string $imageString): object
     {
         $this->image = imagecreatefromstring($imageString);
@@ -1044,29 +1040,17 @@ class TeletextCharsExtractor
 
     protected function getCharImageHash($charImage)
     {
-        $charImageId = get_resource_id($charImage);
-        if (isset($this->charImageHashes[$charImageId])) {
-            $charHash = $this->charImageHashes[$charImageId];
-        } else {
-            $charString = $this->getCharImageString($charImage);
-            $charHash = crc32($charString);
-            $this->charImageHashes[$charImageId] = $charHash;
-        }
-
+        $charString = $this->getCharImageString($charImage);
+        $charHash = crc32($charString);
+    
         return $charHash;
     }
 
     protected function getCharImageString($charImage)
     {
-        $charImageId = get_resource_id($charImage);
-        if (isset($this->charImageStrings[$charImageId])) {
-            $charString = $this->charImageStrings[$charImageId];
-        } else {
-            ob_start();
-            imagegif($charImage);
-            $charString = ob_get_clean();
-            $this->charImageStrings[$charImageId] = $charString;
-        }
+        ob_start();
+        imagegif($charImage);
+        $charString = ob_get_clean();
 
         return $charString;
     }

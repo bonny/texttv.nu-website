@@ -14,12 +14,6 @@ Köra tester och kör igen när en fil ändras:
 
 ## Att göra
 
--   [ ] Uppdatering av 100, 377 och andra sidor går för långsamt, sidor står som "Inte i sändning" ofta.
-    -   [ ] Använda https://github.com/spatie/laravel-short-schedule
-    -   [ ] https://freek.dev/1743-how-to-schedule-commands-to-run-every-few-seconds-in-a-laravel-app
--   [ ] Lägg på klass om tecken har bakgrund
--   [ ] Fixa länkar med callback pga då borde vi lättare kunna både ignorera + godkänna nummer på en rad.
--   [ ] Då många små fyrkantiga rutorna på testsida 777 blir inte bra, nåt med background/cover/contain
 -   https://github.com/bonny/texttv.nu-website/issues
 
 ## Deploy

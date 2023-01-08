@@ -3,7 +3,7 @@
 namespace App\Classes;
 
 use Exception;
-use Rct567\DomQuery\DomQuery;
+use Dgoring\DomQuery\DomQuery;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 

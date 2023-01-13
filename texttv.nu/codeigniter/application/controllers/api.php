@@ -287,10 +287,11 @@ class Api extends CI_Controller {
 		}
 
 		$sql = sprintf('
-				SELECT id, page_num, date_updated, title, date_added FROM texttv
+				SELECT 
+					id, page_num, date_updated, title, date_added FROM texttv
 				WHERE
-				page_num IN (%1$s)
-				AND date_added > FROM_UNIXTIME(%2$d)
+					page_num IN (%1$s)
+					AND date_added > FROM_UNIXTIME(%2$d)
 				GROUP BY page_num
 				ORDER BY date_added DESC
 				LIMIT %3$d

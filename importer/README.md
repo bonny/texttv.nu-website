@@ -3,6 +3,7 @@ Nytt importskript skrivet i Laravel för att klara av ändringarna som SVT gjord
 ## Kör med PHP 8
 
 `/opt/homebrew/opt/php@8.1/bin/php artisan serve --host=localhost`
+`/opt/homebrew/opt/php@8.1/bin/php artisan schedule:run`
 
 ## Kör lokalt
 

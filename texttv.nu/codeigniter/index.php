@@ -57,7 +57,9 @@ if (defined('ENVIRONMENT'))
  * as this file.
  *
  */
+if (!isset($system_path)) {
 	$system_path = 'system';
+}
 
 /*
  *---------------------------------------------------------------
@@ -73,8 +75,9 @@ if (defined('ENVIRONMENT'))
  * NO TRAILING SLASH!
  *
  */
+if (!isset($application_folder)) {
 	$application_folder = 'application';
-
+}
 /*
  * --------------------------------------------------------------------
  * DEFAULT CONTROLLER

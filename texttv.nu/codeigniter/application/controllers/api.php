@@ -64,12 +64,6 @@ class Api extends CI_Controller {
 			"pages" => []
 		];
 		
-		// $date_unix = strtotime($date);
-		// printf('<h1>Text TV: mest delat %1$s</h1>', strftime("%A %e %B %G", $date_unix));
-		
-		// output_shared_pages_nav_form();
-		
-		// $result = get_shared_pages_for_period( strtotime("today 00:00", $date_unix), strtotime("today 24:00", $date_unix) );
 		$count = (int) $this->input->get("count");
 		if (!$count) {
 			$count = 50;

@@ -87,9 +87,9 @@ if ($HTTP_HOST === 'texttv.nu.test') {
 } else {
 	// On live.
 	$db['default']['hostname'] = 'localhost';
-	$db['default']['username'] = 'root';
-	$db['default']['password'] = 'root';
-	$db['default']['database'] = 'texttv.nu';
+	$db['default']['username'] = $_SERVER['DB_USERNAME'];
+	$db['default']['password'] = $_SERVER['DB_PASSWORD'];
+	$db['default']['database'] = $_SERVER['DB_DATABASE'];
 	$db['default']['dbdriver'] = 'mysqli';
 	$db['default']['dbprefix'] = '';
 	$db['default']['pconnect'] = TRUE;
@@ -104,9 +104,9 @@ if ($HTTP_HOST === 'texttv.nu.test') {
 
 	// DB för sidvisningar och dela-statistik
 	$db['stats']['hostname'] = 'localhost';
-	$db['stats']['username'] = 'root';
-	$db['stats']['password'] = 'root';
-	$db['stats']['database'] = 'texttv_stats';
+	$db['stats']['username'] = $_SERVER['DB_USERNAME'];
+	$db['stats']['password'] = $_SERVER['DB_PASSWORD'];
+	$db['stats']['database'] = $_SERVER['DB_DATABASE_STATS'];
 	$db['stats']['dbdriver'] = 'mysqli';
 	$db['stats']['dbprefix'] = '';
 	$db['stats']['pconnect'] = TRUE;

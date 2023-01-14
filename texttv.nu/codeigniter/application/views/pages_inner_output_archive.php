@@ -41,7 +41,8 @@ if (sizeof($arr_pages) == 1) {
 			<br><em>Mobilanpassad Text TV med smarta funktioner</em></p>
 		</div>
 		',
-		strftime("%a %e %b %Y, %H:%M", $arr_pages[0]->date_updated_unix),
+		// Fri 13 Jan 2023, 21:35
+		date('D j M Y, H:i', $arr_pages[0]->date_updated_unix),
 		$pagenum
 	);
 

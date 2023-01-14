@@ -539,7 +539,10 @@ class Api extends CI_Controller {
 			$permalink = $arr_pages[0]->get_permalink();
 		} else {
 			$page_title_for_url = "";
-			$page_title_for_url = strftime("%e-%b-%Y", $arr_pages[0]->date_updated_unix);
+			
+			// 14-jan-2023
+			$page_title_for_url = date('j-M-Y', $arr_pages[0]->date_updated_unix);
+
 			$page_title_for_url = trim(strtolower($page_title_for_url));
 			$page_title_for_url = url_title($page_title_for_url);	
 	

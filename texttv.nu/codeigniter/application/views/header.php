@@ -112,13 +112,7 @@ if (isset($is_archive_overview)) {
 
 	}
 
-	// Om permalink
-	if (isset($is_archive)) {
-		// $page_title .= sprintf(' (%1$s)', trim(strftime("%e %b %Y kl %H:%M", $page->date_updated_unix)));
-	}
-
 	// startpage has: 100,300,700
-	//if (isset($pages) && $pages[sizeof($pages)-1]->num == 100) {
 	if (isset($pages) && $pages[0]->num == 100) {
 		$page_title = "SVT Text";
 		$is_start = true;
@@ -555,10 +549,8 @@ valueOf()+(h?'&utmxhash='+escape(h.substr(1)):'')+
 */
 
 if (isset($is_archive) && ! $this->input->get("apiAppShare") ) {
-	
 	$archive_date = date("c", $pages[0]->date_updated_unix);
 	
-	// $page_title .= sprintf(' (%1$s)', trim(strftime("%e %b %Y kl %H:%M", $page->date_updated_unix)));
 	?>
 	<script type="application/ld+json">
 	{

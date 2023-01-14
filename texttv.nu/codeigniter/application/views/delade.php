@@ -7,13 +7,7 @@ function output_shared_pages($result) {
 	
 	echo "<ol>";
 	foreach ( $result->result() as $row ) {
-		
-		// Must have been shared at least two times
-		#if ($row->num_shares < 2) {
-		#	continue;
-		#}
-		
-		if ( $num_outputted > $num_max_to_show ) {
+				if ( $num_outputted > $num_max_to_show ) {
 			break;
 		}
 		
@@ -88,12 +82,11 @@ function output_shared_pages_nav_form() {
 							printf("</optgroup>");
 						}
 						
-						printf('<optgroup label="%1$s">', ucfirst( strftime("%B", strtotime($this_month))));
+						printf('<optgroup label="%1$s">', ucfirst( date("F", strtotime($this_month))));
 						$optgroup_needs_close = true;
 					}
 			
-					//$str_date = date("D j F", strtotime($day));
-					$str_date = ucfirst( strftime("%A %e %b", strtotime($day)) );
+					$str_date = ucfirst( date("D j F", strtotime($day)) );
 					if ( date("Y-m-d") == $day ) {
 						$str_date = $str_date . " (idag)";
 					} else if ( date("Y-m-d", strtotime("-1 day", strtotime(date("Y-m-d")))) == $day ) {
@@ -174,7 +167,7 @@ function output_shared_pages_nav_form() {
 		// Datum satt i följande URL-format:
 		// http://texttv.nu/sida/delat/2015-08-24
 		$date_unix = strtotime($date);
-		printf('<h1>Text TV: mest delat %1$s</h1>', strftime("%A %e %B %G", $date_unix));
+		printf('<h1>Text TV: mest delat %1$s</h1>', date("l j F Y", $date_unix));
 		
 		output_shared_pages_nav_form();
 		

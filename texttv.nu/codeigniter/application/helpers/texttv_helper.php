@@ -425,7 +425,7 @@ function get_permalink_from_pages($arr_pages, $page, $pagenum) {
 			$arr_mutliple_archive_ids[] = $one_page_obj->id;
 		}
 
-		$page_title_for_url = strftime("%e %b %Y", $one_page_obj->date_updated_unix);
+		$page_title_for_url = date("j M Y", $one_page_obj->date_updated_unix);
 
 		$page_title_for_url = trim(strtolower($page_title_for_url));
 		$page_title_for_url = url_title($page_title_for_url);	

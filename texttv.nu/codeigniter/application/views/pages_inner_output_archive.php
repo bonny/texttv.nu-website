@@ -20,7 +20,7 @@ if (sizeof($arr_pages) == 1) {
 
 			</div>
 			',
-			strftime("%a %e %b %Y, %H:%M", $page->date_updated_unix),
+			date('D j M Y, H:i', $page->date_updated_unix),
 			(int) $page->num,
 			site_url( $page->num )
 		);

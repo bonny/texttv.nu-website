@@ -54,7 +54,7 @@ class Textsida extends CI_Controller {
 				$data["custom_page_title"] = "Mest delade text-tv-sidorna";
 				
 				if ( $this->input->get("datum") ) {
-					$data["custom_page_title"] = "Mest delat " . strftime("%A %e %B %G", strtotime($this->input->get("datum")));
+					$data["custom_page_title"] = "Mest delat " . date("l j F Y", strtotime($this->input->get("datum")));
 				}
 				
 				$this->load->view("header", $data);
@@ -64,18 +64,10 @@ class Textsida extends CI_Controller {
 			case "polisen":
 				
 				$data["custom_page_title"] = "Polishändelser som det skrivs om på Text TV";
-				
-				/*
-				if ( $this->input->get("datum") ) {
-					$data["custom_page_title"] = "Mest delat " . strftime("%A %e %B %G", strtotime($this->input->get("datum")));
-				}
-				*/
-				
+								
 				$this->load->view("header", $data);
 				$this->load->view("polisen");
-				break;
-
-			
+				break;			
 		}
 
 		$this->load->view('controls', $data);

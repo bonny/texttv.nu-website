@@ -1,0 +1,1731 @@
+Array
+(
+    [USER] => bonny
+    [HOME] => /Users/bonny
+    [HTTP_COOKIE] => stats={%22100%22:{%22count%22:57}%2C%22101%22:{%22count%22:13}%2C%22102%22:{%22count%22:13}%2C%22103%22:{%22count%22:13}%2C%22104%22:{%22count%22:11}%2C%22105%22:{%22count%22:11}%2C%22106%22:{%22count%22:28}%2C%22107%22:{%22count%22:28}%2C%22110%22:{%22count%22:3}%2C%22136%22:{%22count%22:4}%2C%22137%22:{%22count%22:5}%2C%22141%22:{%22count%22:1}%2C%22300%22:{%22count%22:41}}
+    [HTTP_ACCEPT_LANGUAGE] => sv-SE,sv;q=0.9,en-US;q=0.8,en;q=0.7
+    [HTTP_ACCEPT_ENCODING] => gzip, deflate
+    [HTTP_REFERER] => http://texttv.nu.test/sida/delat?datum=2023-01-14
+    [HTTP_ACCEPT] => text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
+    [HTTP_USER_AGENT] => Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36
+    [HTTP_DNT] => 1
+    [HTTP_UPGRADE_INSECURE_REQUESTS] => 1
+    [HTTP_CONNECTION] => keep-alive
+    [HTTP_HOST] => texttv.nu.test
+    [PATH_INFO] => 
+    [REDIRECT_STATUS] => 200
+    [SERVER_NAME] => texttv.nu.test
+    [SERVER_PORT] => 80
+    [SERVER_ADDR] => 127.0.0.1
+    [REMOTE_PORT] => 58519
+    [REMOTE_ADDR] => 127.0.0.1
+    [SERVER_SOFTWARE] => nginx/1.23.3
+    [GATEWAY_INTERFACE] => CGI/1.1
+    [SERVER_PROTOCOL] => HTTP/1.1
+    [DOCUMENT_ROOT] => /Users/bonny/Projects/texttv.nu/texttv.nu
+    [DOCUMENT_URI] => /Users/bonny/.composer/vendor/laravel/valet/server.php
+    [REQUEST_URI] => /blogg
+    [SCRIPT_NAME] => /index.php
+    [SCRIPT_FILENAME] => /Users/bonny/Projects/texttv.nu/texttv.nu/index.php
+    [CONTENT_LENGTH] => 
+    [CONTENT_TYPE] => 
+    [REQUEST_METHOD] => GET
+    [QUERY_STRING] => 
+    [FCGI_ROLE] => RESPONDER
+    [PHP_SELF] => /blogg
+    [REQUEST_TIME_FLOAT] => 1673697082.7464
+    [REQUEST_TIME] => 1673697082
+)
+Array
+(
+    [_GET] => Array
+        (
+        )
+
+    [_POST] => Array
+        (
+        )
+
+    [_COOKIE] => Array
+        (
+            [stats] => {"100":{"count":57},"101":{"count":13},"102":{"count":13},"103":{"count":13},"104":{"count":11},"105":{"count":11},"106":{"count":28},"107":{"count":28},"110":{"count":3},"136":{"count":4},"137":{"count":5},"141":{"count":1},"300":{"count":41}}
+        )
+
+    [_FILES] => Array
+        (
+        )
+
+    [_SERVER] => Array
+        (
+            [USER] => bonny
+            [HOME] => /Users/bonny
+            [HTTP_COOKIE] => stats={%22100%22:{%22count%22:57}%2C%22101%22:{%22count%22:13}%2C%22102%22:{%22count%22:13}%2C%22103%22:{%22count%22:13}%2C%22104%22:{%22count%22:11}%2C%22105%22:{%22count%22:11}%2C%22106%22:{%22count%22:28}%2C%22107%22:{%22count%22:28}%2C%22110%22:{%22count%22:3}%2C%22136%22:{%22count%22:4}%2C%22137%22:{%22count%22:5}%2C%22141%22:{%22count%22:1}%2C%22300%22:{%22count%22:41}}
+            [HTTP_ACCEPT_LANGUAGE] => sv-SE,sv;q=0.9,en-US;q=0.8,en;q=0.7
+            [HTTP_ACCEPT_ENCODING] => gzip, deflate
+            [HTTP_REFERER] => http://texttv.nu.test/sida/delat?datum=2023-01-14
+            [HTTP_ACCEPT] => text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
+            [HTTP_USER_AGENT] => Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36
+            [HTTP_DNT] => 1
+            [HTTP_UPGRADE_INSECURE_REQUESTS] => 1
+            [HTTP_CONNECTION] => keep-alive
+            [HTTP_HOST] => texttv.nu.test
+            [PATH_INFO] => 
+            [REDIRECT_STATUS] => 200
+            [SERVER_NAME] => texttv.nu.test
+            [SERVER_PORT] => 80
+            [SERVER_ADDR] => 127.0.0.1
+            [REMOTE_PORT] => 58519
+            [REMOTE_ADDR] => 127.0.0.1
+            [SERVER_SOFTWARE] => nginx/1.23.3
+            [GATEWAY_INTERFACE] => CGI/1.1
+            [SERVER_PROTOCOL] => HTTP/1.1
+            [DOCUMENT_ROOT] => /Users/bonny/Projects/texttv.nu/texttv.nu
+            [DOCUMENT_URI] => /Users/bonny/.composer/vendor/laravel/valet/server.php
+            [REQUEST_URI] => /blogg
+            [SCRIPT_NAME] => /index.php
+            [SCRIPT_FILENAME] => /Users/bonny/Projects/texttv.nu/texttv.nu/index.php
+            [CONTENT_LENGTH] => 
+            [CONTENT_TYPE] => 
+            [REQUEST_METHOD] => GET
+            [QUERY_STRING] => 
+            [FCGI_ROLE] => RESPONDER
+            [PHP_SELF] => /blogg
+            [REQUEST_TIME_FLOAT] => 1673697082.7464
+            [REQUEST_TIME] => 1673697082
+        )
+
+    [valetConfig] => Array
+        (
+            [tld] => test
+            [paths] => Array
+                (
+                    [0] => /Users/bonny/.config/valet/Sites
+                    [1] => /Users/bonny/Projects
+                    [2] => /Users/bonny/Projects/wordpress-stable
+                )
+
+            [loopback] => 127.0.0.1
+        )
+
+    [uri] => /blogg
+    [siteName] => texttv.nu
+    [domain] => nu
+    [valetSitePath] => /Users/bonny/Projects/texttv.nu/texttv.nu
+    [valetDriver] => BasicValetDriver Object
+        (
+        )
+
+    [isPhpFile] => 
+    [staticFilePath] => 
+    [frontControllerPath] => /Users/bonny/Projects/texttv.nu/texttv.nu/index.php
+    [file] => WordPressValetDriver.php
+    [_ENV] => Array
+        (
+        )
+
+    [system_path] => /Users/bonny/Projects/texttv.nu/texttv.nu/codeigniter/system/
+    [application_folder] => codeigniter/application
+    [BM] => CI_Benchmark Object
+        (
+            [marker] => Array
+                (
+                    [total_execution_time_start] => 0.74999500 1673697082
+                    [loading_time:_base_classes_start] => 0.75000100 1673697082
+                    [loading_time:_base_classes_end] => 0.75121200 1673697082
+                    [controller_execution_time_( blogg / index )_start] => 0.75122300 1673697082
+                )
+
+        )
+
+    [EXT] => CI_Hooks Object
+        (
+            [enabled] => 
+            [hooks] => Array
+                (
+                )
+
+            [in_progress] => 
+        )
+
+    [CFG] => CI_Config Object
+        (
+            [config] => Array
+                (
+                    [base_url] => /
+                    [index_page] => 
+                    [uri_protocol] => AUTO
+                    [url_suffix] => 
+                    [language] => english
+                    [charset] => UTF-8
+                    [enable_hooks] => 
+                    [subclass_prefix] => MY_
+                    [permitted_uri_chars] => a-z 0-9~%.:_\-,
+                    [allow_get_array] => 1
+                    [enable_query_strings] => 
+                    [controller_trigger] => c
+                    [function_trigger] => m
+                    [directory_trigger] => d
+                    [log_threshold] => 0
+                    [log_path] => 
+                    [log_date_format] => Y-m-d H:i:s
+                    [cache_path] => 
+                    [encryption_key] => 
+                    [sess_cookie_name] => ci_session
+                    [sess_expiration] => 7200
+                    [sess_expire_on_close] => 
+                    [sess_encrypt_cookie] => 
+                    [sess_use_database] => 
+                    [sess_table_name] => ci_sessions
+                    [sess_match_ip] => 
+                    [sess_match_useragent] => 1
+                    [sess_time_to_update] => 300
+                    [cookie_prefix] => 
+                    [cookie_domain] => 
+                    [cookie_path] => /
+                    [cookie_secure] => 
+                    [global_xss_filtering] => 
+                    [csrf_protection] => 
+                    [csrf_token_name] => csrf_test_name
+                    [csrf_cookie_name] => csrf_cookie_name
+                    [csrf_expire] => 7200
+                    [compress_output] => 1
+                    [time_reference] => local
+                    [rewrite_short_tags] => 
+                    [proxy_ips] => 
+                )
+
+            [is_loaded] => Array
+                (
+                )
+
+            [_config_paths] => Array
+                (
+                    [0] => codeigniter/application/
+                )
+
+        )
+
+    [UNI] => CI_Utf8 Object
+        (
+        )
+
+    [URI] => CI_URI Object
+        (
+            [keyval] => Array
+                (
+                )
+
+            [uri_string] => blogg
+            [segments] => Array
+                (
+                    [1] => blogg
+                )
+
+            [rsegments] => Array
+                (
+                    [1] => blogg
+                    [2] => index
+                )
+
+            [config] => CI_Config Object
+                (
+                    [config] => Array
+                        (
+                            [base_url] => /
+                            [index_page] => 
+                            [uri_protocol] => AUTO
+                            [url_suffix] => 
+                            [language] => english
+                            [charset] => UTF-8
+                            [enable_hooks] => 
+                            [subclass_prefix] => MY_
+                            [permitted_uri_chars] => a-z 0-9~%.:_\-,
+                            [allow_get_array] => 1
+                            [enable_query_strings] => 
+                            [controller_trigger] => c
+                            [function_trigger] => m
+                            [directory_trigger] => d
+                            [log_threshold] => 0
+                            [log_path] => 
+                            [log_date_format] => Y-m-d H:i:s
+                            [cache_path] => 
+                            [encryption_key] => 
+                            [sess_cookie_name] => ci_session
+                            [sess_expiration] => 7200
+                            [sess_expire_on_close] => 
+                            [sess_encrypt_cookie] => 
+                            [sess_use_database] => 
+                            [sess_table_name] => ci_sessions
+                            [sess_match_ip] => 
+                            [sess_match_useragent] => 1
+                            [sess_time_to_update] => 300
+                            [cookie_prefix] => 
+                            [cookie_domain] => 
+                            [cookie_path] => /
+                            [cookie_secure] => 
+                            [global_xss_filtering] => 
+                            [csrf_protection] => 
+                            [csrf_token_name] => csrf_test_name
+                            [csrf_cookie_name] => csrf_cookie_name
+                            [csrf_expire] => 7200
+                            [compress_output] => 1
+                            [time_reference] => local
+                            [rewrite_short_tags] => 
+                            [proxy_ips] => 
+                        )
+
+                    [is_loaded] => Array
+                        (
+                        )
+
+                    [_config_paths] => Array
+                        (
+                            [0] => codeigniter/application/
+                        )
+
+                )
+
+        )
+
+    [RTR] => CI_Router Object
+        (
+            [config] => CI_Config Object
+                (
+                    [config] => Array
+                        (
+                            [base_url] => /
+                            [index_page] => 
+                            [uri_protocol] => AUTO
+                            [url_suffix] => 
+                            [language] => english
+                            [charset] => UTF-8
+                            [enable_hooks] => 
+                            [subclass_prefix] => MY_
+                            [permitted_uri_chars] => a-z 0-9~%.:_\-,
+                            [allow_get_array] => 1
+                            [enable_query_strings] => 
+                            [controller_trigger] => c
+                            [function_trigger] => m
+                            [directory_trigger] => d
+                            [log_threshold] => 0
+                            [log_path] => 
+                            [log_date_format] => Y-m-d H:i:s
+                            [cache_path] => 
+                            [encryption_key] => 
+                            [sess_cookie_name] => ci_session
+                            [sess_expiration] => 7200
+                            [sess_expire_on_close] => 
+                            [sess_encrypt_cookie] => 
+                            [sess_use_database] => 
+                            [sess_table_name] => ci_sessions
+                            [sess_match_ip] => 
+                            [sess_match_useragent] => 1
+                            [sess_time_to_update] => 300
+                            [cookie_prefix] => 
+                            [cookie_domain] => 
+                            [cookie_path] => /
+                            [cookie_secure] => 
+                            [global_xss_filtering] => 
+                            [csrf_protection] => 
+                            [csrf_token_name] => csrf_test_name
+                            [csrf_cookie_name] => csrf_cookie_name
+                            [csrf_expire] => 7200
+                            [compress_output] => 1
+                            [time_reference] => local
+                            [rewrite_short_tags] => 
+                            [proxy_ips] => 
+                        )
+
+                    [is_loaded] => Array
+                        (
+                        )
+
+                    [_config_paths] => Array
+                        (
+                            [0] => codeigniter/application/
+                        )
+
+                )
+
+            [routes] => Array
+                (
+                    [default_controller] => sida
+                    [404_override] => 
+                    [sitemap.xml] => sitemap
+                    [(\d{3})] => sida/visa/$1
+                    [([0-9,\-]+)] => sida/visa/$1
+                    [([0-9,\-]+)/amp] => sida/amp/$1
+                    [([0-9,\-]+)/(:any)-(:num)/amp] => sida/amp_arkiv/$1/$2/$3
+                    [([0-9,\-]+)/(:any)-(:num)] => sida/arkiv/$1/$2/$3
+                    [(\d{3})\/arkiv] => sida/arkiv/$1
+                    [(\d{3})\/arkiv\/([a-z0-9\-]+)\/(\d+)] => sida/arkiv/$1/$2/$3
+                    [(:any)\/arkiv\/([a-z0-9\-.]+)\/(:any)] => sida/arkiv/$1/$2/$3
+                    [sida/(:any)] => textsida/visa/$1
+                    [sida] => textsida
+                    [api/] => api/$1
+                    [api/get] => api/share/$1
+                    [api/getid] => api/getid/$1
+                    [api/page/(:any)/(:any)] => api/page/$1/$2
+                    [oembed] => oembed
+                    [oembed/] => oembed
+                    [oembed/(:any)] => oembed
+                    [blogg/(:any)] => blogg/visa/$1
+                    [feed] => rssfeed
+                    [feed/(:any)] => rssfeed/visa/$1
+                    [dev] => dev
+                    [displio] => displio
+                    [svt-text-tv] => svttexttv
+                    [text-tv-fakta] => fakta
+                    [text-tv-fakta/(:any)] => fakta/sida/$1
+                    [fb/webhook] => fb/webhook
+                    [fb/generate_screenshot] => fb/generate_screenshot/$1
+                )
+
+            [error_routes] => Array
+                (
+                )
+
+            [class] => blogg
+            [method] => index
+            [directory] => 
+            [default_controller] => sida
+            [uri] => CI_URI Object
+                (
+                    [keyval] => Array
+                        (
+                        )
+
+                    [uri_string] => blogg
+                    [segments] => Array
+                        (
+                            [1] => blogg
+                        )
+
+                    [rsegments] => Array
+                        (
+                            [1] => blogg
+                            [2] => index
+                        )
+
+                    [config] => CI_Config Object
+                        (
+                            [config] => Array
+                                (
+                                    [base_url] => /
+                                    [index_page] => 
+                                    [uri_protocol] => AUTO
+                                    [url_suffix] => 
+                                    [language] => english
+                                    [charset] => UTF-8
+                                    [enable_hooks] => 
+                                    [subclass_prefix] => MY_
+                                    [permitted_uri_chars] => a-z 0-9~%.:_\-,
+                                    [allow_get_array] => 1
+                                    [enable_query_strings] => 
+                                    [controller_trigger] => c
+                                    [function_trigger] => m
+                                    [directory_trigger] => d
+                                    [log_threshold] => 0
+                                    [log_path] => 
+                                    [log_date_format] => Y-m-d H:i:s
+                                    [cache_path] => 
+                                    [encryption_key] => 
+                                    [sess_cookie_name] => ci_session
+                                    [sess_expiration] => 7200
+                                    [sess_expire_on_close] => 
+                                    [sess_encrypt_cookie] => 
+                                    [sess_use_database] => 
+                                    [sess_table_name] => ci_sessions
+                                    [sess_match_ip] => 
+                                    [sess_match_useragent] => 1
+                                    [sess_time_to_update] => 300
+                                    [cookie_prefix] => 
+                                    [cookie_domain] => 
+                                    [cookie_path] => /
+                                    [cookie_secure] => 
+                                    [global_xss_filtering] => 
+                                    [csrf_protection] => 
+                                    [csrf_token_name] => csrf_test_name
+                                    [csrf_cookie_name] => csrf_cookie_name
+                                    [csrf_expire] => 7200
+                                    [compress_output] => 1
+                                    [time_reference] => local
+                                    [rewrite_short_tags] => 
+                                    [proxy_ips] => 
+                                )
+
+                            [is_loaded] => Array
+                                (
+                                )
+
+                            [_config_paths] => Array
+                                (
+                                    [0] => codeigniter/application/
+                                )
+
+                        )
+
+                )
+
+        )
+
+    [OUT] => CI_Output Object
+        (
+            [final_output:protected] => 
+            [cache_expiration:protected] => 0
+            [headers:protected] => Array
+                (
+                )
+
+            [mime_types:protected] => Array
+                (
+                    [hqx] => application/mac-binhex40
+                    [cpt] => application/mac-compactpro
+                    [csv] => Array
+                        (
+                            [0] => text/x-comma-separated-values
+                            [1] => text/comma-separated-values
+                            [2] => application/octet-stream
+                            [3] => application/vnd.ms-excel
+                            [4] => application/x-csv
+                            [5] => text/x-csv
+                            [6] => text/csv
+                            [7] => application/csv
+                            [8] => application/excel
+                            [9] => application/vnd.msexcel
+                        )
+
+                    [bin] => application/macbinary
+                    [dms] => application/octet-stream
+                    [lha] => application/octet-stream
+                    [lzh] => application/octet-stream
+                    [exe] => Array
+                        (
+                            [0] => application/octet-stream
+                            [1] => application/x-msdownload
+                        )
+
+                    [class] => application/octet-stream
+                    [psd] => application/x-photoshop
+                    [so] => application/octet-stream
+                    [sea] => application/octet-stream
+                    [dll] => application/octet-stream
+                    [oda] => application/oda
+                    [pdf] => Array
+                        (
+                            [0] => application/pdf
+                            [1] => application/x-download
+                        )
+
+                    [ai] => application/postscript
+                    [eps] => application/postscript
+                    [ps] => application/postscript
+                    [smi] => application/smil
+                    [smil] => application/smil
+                    [mif] => application/vnd.mif
+                    [xls] => Array
+                        (
+                            [0] => application/excel
+                            [1] => application/vnd.ms-excel
+                            [2] => application/msexcel
+                        )
+
+                    [ppt] => Array
+                        (
+                            [0] => application/powerpoint
+                            [1] => application/vnd.ms-powerpoint
+                        )
+
+                    [wbxml] => application/wbxml
+                    [wmlc] => application/wmlc
+                    [dcr] => application/x-director
+                    [dir] => application/x-director
+                    [dxr] => application/x-director
+                    [dvi] => application/x-dvi
+                    [gtar] => application/x-gtar
+                    [gz] => application/x-gzip
+                    [php] => application/x-httpd-php
+                    [php4] => application/x-httpd-php
+                    [php3] => application/x-httpd-php
+                    [phtml] => application/x-httpd-php
+                    [phps] => application/x-httpd-php-source
+                    [js] => application/x-javascript
+                    [swf] => application/x-shockwave-flash
+                    [sit] => application/x-stuffit
+                    [tar] => application/x-tar
+                    [tgz] => Array
+                        (
+                            [0] => application/x-tar
+                            [1] => application/x-gzip-compressed
+                        )
+
+                    [xhtml] => application/xhtml+xml
+                    [xht] => application/xhtml+xml
+                    [zip] => Array
+                        (
+                            [0] => application/x-zip
+                            [1] => application/zip
+                            [2] => application/x-zip-compressed
+                        )
+
+                    [mid] => audio/midi
+                    [midi] => audio/midi
+                    [mpga] => audio/mpeg
+                    [mp2] => audio/mpeg
+                    [mp3] => Array
+                        (
+                            [0] => audio/mpeg
+                            [1] => audio/mpg
+                            [2] => audio/mpeg3
+                            [3] => audio/mp3
+                        )
+
+                    [aif] => audio/x-aiff
+                    [aiff] => audio/x-aiff
+                    [aifc] => audio/x-aiff
+                    [ram] => audio/x-pn-realaudio
+                    [rm] => audio/x-pn-realaudio
+                    [rpm] => audio/x-pn-realaudio-plugin
+                    [ra] => audio/x-realaudio
+                    [rv] => video/vnd.rn-realvideo
+                    [wav] => Array
+                        (
+                            [0] => audio/x-wav
+                            [1] => audio/wave
+                            [2] => audio/wav
+                        )
+
+                    [bmp] => Array
+                        (
+                            [0] => image/bmp
+                            [1] => image/x-windows-bmp
+                        )
+
+                    [gif] => image/gif
+                    [jpeg] => Array
+                        (
+                            [0] => image/jpeg
+                            [1] => image/pjpeg
+                        )
+
+                    [jpg] => Array
+                        (
+                            [0] => image/jpeg
+                            [1] => image/pjpeg
+                        )
+
+                    [jpe] => Array
+                        (
+                            [0] => image/jpeg
+                            [1] => image/pjpeg
+                        )
+
+                    [png] => Array
+                        (
+                            [0] => image/png
+                            [1] => image/x-png
+                        )
+
+                    [tiff] => image/tiff
+                    [tif] => image/tiff
+                    [css] => text/css
+                    [html] => text/html
+                    [htm] => text/html
+                    [shtml] => text/html
+                    [txt] => text/plain
+                    [text] => text/plain
+                    [log] => Array
+                        (
+                            [0] => text/plain
+                            [1] => text/x-log
+                        )
+
+                    [rtx] => text/richtext
+                    [rtf] => text/rtf
+                    [xml] => text/xml
+                    [xsl] => text/xml
+                    [mpeg] => video/mpeg
+                    [mpg] => video/mpeg
+                    [mpe] => video/mpeg
+                    [qt] => video/quicktime
+                    [mov] => video/quicktime
+                    [avi] => video/x-msvideo
+                    [movie] => video/x-sgi-movie
+                    [doc] => application/msword
+                    [docx] => application/vnd.openxmlformats-officedocument.wordprocessingml.document
+                    [xlsx] => application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+                    [word] => Array
+                        (
+                            [0] => application/msword
+                            [1] => application/octet-stream
+                        )
+
+                    [xl] => application/excel
+                    [eml] => message/rfc822
+                    [json] => Array
+                        (
+                            [0] => application/json
+                            [1] => text/json
+                        )
+
+                )
+
+            [enable_profiler:protected] => 
+            [_zlib_oc:protected] => 
+            [_profiler_sections:protected] => Array
+                (
+                )
+
+            [parse_exec_vars:protected] => 1
+        )
+
+    [SEC] => CI_Security Object
+        (
+            [_xss_hash:protected] => 
+            [_csrf_hash:protected] => 
+            [_csrf_expire:protected] => 7200
+            [_csrf_token_name:protected] => ci_csrf_token
+            [_csrf_cookie_name:protected] => ci_csrf_token
+            [_never_allowed_str:protected] => Array
+                (
+                    [document.cookie] => [removed]
+                    [document.write] => [removed]
+                    [.parentNode] => [removed]
+                    [.innerHTML] => [removed]
+                    [-moz-binding] => [removed]
+                    [<!--] => &lt;!--
+                    [-->] => --&gt;
+                    [<![CDATA[] => &lt;![CDATA[
+                    [<comment>] => &lt;comment&gt;
+                )
+
+            [_never_allowed_regex:protected] => Array
+                (
+                    [0] => javascript\s*:
+                    [1] => (document|(document\.)?window)\.(location|on\w*)
+                    [2] => expression\s*(\(|&\#40;)
+                    [3] => vbscript\s*:
+                    [4] => wscript\s*:
+                    [5] => jscript\s*:
+                    [6] => vbs\s*:
+                    [7] => Redirect\s+30\d:
+                    [8] => (["'])?data\s*:[^\1]*?base64[^\1]*?,[^\1]*?\1?
+                )
+
+        )
+
+    [IN] => CI_Input Object
+        (
+            [ip_address] => 
+            [user_agent] => 
+            [_allow_get_array] => 1
+            [_standardize_newlines] => 1
+            [_enable_xss] => 
+            [_enable_csrf] => 
+            [headers:protected] => Array
+                (
+                )
+
+            [security] => CI_Security Object
+                (
+                    [_xss_hash:protected] => 
+                    [_csrf_hash:protected] => 
+                    [_csrf_expire:protected] => 7200
+                    [_csrf_token_name:protected] => ci_csrf_token
+                    [_csrf_cookie_name:protected] => ci_csrf_token
+                    [_never_allowed_str:protected] => Array
+                        (
+                            [document.cookie] => [removed]
+                            [document.write] => [removed]
+                            [.parentNode] => [removed]
+                            [.innerHTML] => [removed]
+                            [-moz-binding] => [removed]
+                            [<!--] => &lt;!--
+                            [-->] => --&gt;
+                            [<![CDATA[] => &lt;![CDATA[
+                            [<comment>] => &lt;comment&gt;
+                        )
+
+                    [_never_allowed_regex:protected] => Array
+                        (
+                            [0] => javascript\s*:
+                            [1] => (document|(document\.)?window)\.(location|on\w*)
+                            [2] => expression\s*(\(|&\#40;)
+                            [3] => vbscript\s*:
+                            [4] => wscript\s*:
+                            [5] => jscript\s*:
+                            [6] => vbs\s*:
+                            [7] => Redirect\s+30\d:
+                            [8] => (["'])?data\s*:[^\1]*?base64[^\1]*?,[^\1]*?\1?
+                        )
+
+                )
+
+            [uni] => CI_Utf8 Object
+                (
+                )
+
+        )
+
+    [LANG] => CI_Lang Object
+        (
+            [language] => Array
+                (
+                )
+
+            [is_loaded] => Array
+                (
+                )
+
+        )
+
+    [class] => blogg
+    [method] => index
+    [CI] => Blogg Object
+        (
+            [benchmark] => CI_Benchmark Object
+                (
+                    [marker] => Array
+                        (
+                            [total_execution_time_start] => 0.74999500 1673697082
+                            [loading_time:_base_classes_start] => 0.75000100 1673697082
+                            [loading_time:_base_classes_end] => 0.75121200 1673697082
+                            [controller_execution_time_( blogg / index )_start] => 0.75122300 1673697082
+                        )
+
+                )
+
+            [hooks] => CI_Hooks Object
+                (
+                    [enabled] => 
+                    [hooks] => Array
+                        (
+                        )
+
+                    [in_progress] => 
+                )
+
+            [config] => CI_Config Object
+                (
+                    [config] => Array
+                        (
+                            [base_url] => /
+                            [index_page] => 
+                            [uri_protocol] => AUTO
+                            [url_suffix] => 
+                            [language] => english
+                            [charset] => UTF-8
+                            [enable_hooks] => 
+                            [subclass_prefix] => MY_
+                            [permitted_uri_chars] => a-z 0-9~%.:_\-,
+                            [allow_get_array] => 1
+                            [enable_query_strings] => 
+                            [controller_trigger] => c
+                            [function_trigger] => m
+                            [directory_trigger] => d
+                            [log_threshold] => 0
+                            [log_path] => 
+                            [log_date_format] => Y-m-d H:i:s
+                            [cache_path] => 
+                            [encryption_key] => 
+                            [sess_cookie_name] => ci_session
+                            [sess_expiration] => 7200
+                            [sess_expire_on_close] => 
+                            [sess_encrypt_cookie] => 
+                            [sess_use_database] => 
+                            [sess_table_name] => ci_sessions
+                            [sess_match_ip] => 
+                            [sess_match_useragent] => 1
+                            [sess_time_to_update] => 300
+                            [cookie_prefix] => 
+                            [cookie_domain] => 
+                            [cookie_path] => /
+                            [cookie_secure] => 
+                            [global_xss_filtering] => 
+                            [csrf_protection] => 
+                            [csrf_token_name] => csrf_test_name
+                            [csrf_cookie_name] => csrf_cookie_name
+                            [csrf_expire] => 7200
+                            [compress_output] => 1
+                            [time_reference] => local
+                            [rewrite_short_tags] => 
+                            [proxy_ips] => 
+                        )
+
+                    [is_loaded] => Array
+                        (
+                        )
+
+                    [_config_paths] => Array
+                        (
+                            [0] => codeigniter/application/
+                        )
+
+                )
+
+            [utf8] => CI_Utf8 Object
+                (
+                )
+
+            [uri] => CI_URI Object
+                (
+                    [keyval] => Array
+                        (
+                        )
+
+                    [uri_string] => blogg
+                    [segments] => Array
+                        (
+                            [1] => blogg
+                        )
+
+                    [rsegments] => Array
+                        (
+                            [1] => blogg
+                            [2] => index
+                        )
+
+                    [config] => CI_Config Object
+                        (
+                            [config] => Array
+                                (
+                                    [base_url] => /
+                                    [index_page] => 
+                                    [uri_protocol] => AUTO
+                                    [url_suffix] => 
+                                    [language] => english
+                                    [charset] => UTF-8
+                                    [enable_hooks] => 
+                                    [subclass_prefix] => MY_
+                                    [permitted_uri_chars] => a-z 0-9~%.:_\-,
+                                    [allow_get_array] => 1
+                                    [enable_query_strings] => 
+                                    [controller_trigger] => c
+                                    [function_trigger] => m
+                                    [directory_trigger] => d
+                                    [log_threshold] => 0
+                                    [log_path] => 
+                                    [log_date_format] => Y-m-d H:i:s
+                                    [cache_path] => 
+                                    [encryption_key] => 
+                                    [sess_cookie_name] => ci_session
+                                    [sess_expiration] => 7200
+                                    [sess_expire_on_close] => 
+                                    [sess_encrypt_cookie] => 
+                                    [sess_use_database] => 
+                                    [sess_table_name] => ci_sessions
+                                    [sess_match_ip] => 
+                                    [sess_match_useragent] => 1
+                                    [sess_time_to_update] => 300
+                                    [cookie_prefix] => 
+                                    [cookie_domain] => 
+                                    [cookie_path] => /
+                                    [cookie_secure] => 
+                                    [global_xss_filtering] => 
+                                    [csrf_protection] => 
+                                    [csrf_token_name] => csrf_test_name
+                                    [csrf_cookie_name] => csrf_cookie_name
+                                    [csrf_expire] => 7200
+                                    [compress_output] => 1
+                                    [time_reference] => local
+                                    [rewrite_short_tags] => 
+                                    [proxy_ips] => 
+                                )
+
+                            [is_loaded] => Array
+                                (
+                                )
+
+                            [_config_paths] => Array
+                                (
+                                    [0] => codeigniter/application/
+                                )
+
+                        )
+
+                )
+
+            [router] => CI_Router Object
+                (
+                    [config] => CI_Config Object
+                        (
+                            [config] => Array
+                                (
+                                    [base_url] => /
+                                    [index_page] => 
+                                    [uri_protocol] => AUTO
+                                    [url_suffix] => 
+                                    [language] => english
+                                    [charset] => UTF-8
+                                    [enable_hooks] => 
+                                    [subclass_prefix] => MY_
+                                    [permitted_uri_chars] => a-z 0-9~%.:_\-,
+                                    [allow_get_array] => 1
+                                    [enable_query_strings] => 
+                                    [controller_trigger] => c
+                                    [function_trigger] => m
+                                    [directory_trigger] => d
+                                    [log_threshold] => 0
+                                    [log_path] => 
+                                    [log_date_format] => Y-m-d H:i:s
+                                    [cache_path] => 
+                                    [encryption_key] => 
+                                    [sess_cookie_name] => ci_session
+                                    [sess_expiration] => 7200
+                                    [sess_expire_on_close] => 
+                                    [sess_encrypt_cookie] => 
+                                    [sess_use_database] => 
+                                    [sess_table_name] => ci_sessions
+                                    [sess_match_ip] => 
+                                    [sess_match_useragent] => 1
+                                    [sess_time_to_update] => 300
+                                    [cookie_prefix] => 
+                                    [cookie_domain] => 
+                                    [cookie_path] => /
+                                    [cookie_secure] => 
+                                    [global_xss_filtering] => 
+                                    [csrf_protection] => 
+                                    [csrf_token_name] => csrf_test_name
+                                    [csrf_cookie_name] => csrf_cookie_name
+                                    [csrf_expire] => 7200
+                                    [compress_output] => 1
+                                    [time_reference] => local
+                                    [rewrite_short_tags] => 
+                                    [proxy_ips] => 
+                                )
+
+                            [is_loaded] => Array
+                                (
+                                )
+
+                            [_config_paths] => Array
+                                (
+                                    [0] => codeigniter/application/
+                                )
+
+                        )
+
+                    [routes] => Array
+                        (
+                            [default_controller] => sida
+                            [404_override] => 
+                            [sitemap.xml] => sitemap
+                            [(\d{3})] => sida/visa/$1
+                            [([0-9,\-]+)] => sida/visa/$1
+                            [([0-9,\-]+)/amp] => sida/amp/$1
+                            [([0-9,\-]+)/(:any)-(:num)/amp] => sida/amp_arkiv/$1/$2/$3
+                            [([0-9,\-]+)/(:any)-(:num)] => sida/arkiv/$1/$2/$3
+                            [(\d{3})\/arkiv] => sida/arkiv/$1
+                            [(\d{3})\/arkiv\/([a-z0-9\-]+)\/(\d+)] => sida/arkiv/$1/$2/$3
+                            [(:any)\/arkiv\/([a-z0-9\-.]+)\/(:any)] => sida/arkiv/$1/$2/$3
+                            [sida/(:any)] => textsida/visa/$1
+                            [sida] => textsida
+                            [api/] => api/$1
+                            [api/get] => api/share/$1
+                            [api/getid] => api/getid/$1
+                            [api/page/(:any)/(:any)] => api/page/$1/$2
+                            [oembed] => oembed
+                            [oembed/] => oembed
+                            [oembed/(:any)] => oembed
+                            [blogg/(:any)] => blogg/visa/$1
+                            [feed] => rssfeed
+                            [feed/(:any)] => rssfeed/visa/$1
+                            [dev] => dev
+                            [displio] => displio
+                            [svt-text-tv] => svttexttv
+                            [text-tv-fakta] => fakta
+                            [text-tv-fakta/(:any)] => fakta/sida/$1
+                            [fb/webhook] => fb/webhook
+                            [fb/generate_screenshot] => fb/generate_screenshot/$1
+                        )
+
+                    [error_routes] => Array
+                        (
+                        )
+
+                    [class] => blogg
+                    [method] => index
+                    [directory] => 
+                    [default_controller] => sida
+                    [uri] => CI_URI Object
+                        (
+                            [keyval] => Array
+                                (
+                                )
+
+                            [uri_string] => blogg
+                            [segments] => Array
+                                (
+                                    [1] => blogg
+                                )
+
+                            [rsegments] => Array
+                                (
+                                    [1] => blogg
+                                    [2] => index
+                                )
+
+                            [config] => CI_Config Object
+                                (
+                                    [config] => Array
+                                        (
+                                            [base_url] => /
+                                            [index_page] => 
+                                            [uri_protocol] => AUTO
+                                            [url_suffix] => 
+                                            [language] => english
+                                            [charset] => UTF-8
+                                            [enable_hooks] => 
+                                            [subclass_prefix] => MY_
+                                            [permitted_uri_chars] => a-z 0-9~%.:_\-,
+                                            [allow_get_array] => 1
+                                            [enable_query_strings] => 
+                                            [controller_trigger] => c
+                                            [function_trigger] => m
+                                            [directory_trigger] => d
+                                            [log_threshold] => 0
+                                            [log_path] => 
+                                            [log_date_format] => Y-m-d H:i:s
+                                            [cache_path] => 
+                                            [encryption_key] => 
+                                            [sess_cookie_name] => ci_session
+                                            [sess_expiration] => 7200
+                                            [sess_expire_on_close] => 
+                                            [sess_encrypt_cookie] => 
+                                            [sess_use_database] => 
+                                            [sess_table_name] => ci_sessions
+                                            [sess_match_ip] => 
+                                            [sess_match_useragent] => 1
+                                            [sess_time_to_update] => 300
+                                            [cookie_prefix] => 
+                                            [cookie_domain] => 
+                                            [cookie_path] => /
+                                            [cookie_secure] => 
+                                            [global_xss_filtering] => 
+                                            [csrf_protection] => 
+                                            [csrf_token_name] => csrf_test_name
+                                            [csrf_cookie_name] => csrf_cookie_name
+                                            [csrf_expire] => 7200
+                                            [compress_output] => 1
+                                            [time_reference] => local
+                                            [rewrite_short_tags] => 
+                                            [proxy_ips] => 
+                                        )
+
+                                    [is_loaded] => Array
+                                        (
+                                        )
+
+                                    [_config_paths] => Array
+                                        (
+                                            [0] => codeigniter/application/
+                                        )
+
+                                )
+
+                        )
+
+                )
+
+            [output] => CI_Output Object
+                (
+                    [final_output:protected] => 
+                    [cache_expiration:protected] => 0
+                    [headers:protected] => Array
+                        (
+                        )
+
+                    [mime_types:protected] => Array
+                        (
+                            [hqx] => application/mac-binhex40
+                            [cpt] => application/mac-compactpro
+                            [csv] => Array
+                                (
+                                    [0] => text/x-comma-separated-values
+                                    [1] => text/comma-separated-values
+                                    [2] => application/octet-stream
+                                    [3] => application/vnd.ms-excel
+                                    [4] => application/x-csv
+                                    [5] => text/x-csv
+                                    [6] => text/csv
+                                    [7] => application/csv
+                                    [8] => application/excel
+                                    [9] => application/vnd.msexcel
+                                )
+
+                            [bin] => application/macbinary
+                            [dms] => application/octet-stream
+                            [lha] => application/octet-stream
+                            [lzh] => application/octet-stream
+                            [exe] => Array
+                                (
+                                    [0] => application/octet-stream
+                                    [1] => application/x-msdownload
+                                )
+
+                            [class] => application/octet-stream
+                            [psd] => application/x-photoshop
+                            [so] => application/octet-stream
+                            [sea] => application/octet-stream
+                            [dll] => application/octet-stream
+                            [oda] => application/oda
+                            [pdf] => Array
+                                (
+                                    [0] => application/pdf
+                                    [1] => application/x-download
+                                )
+
+                            [ai] => application/postscript
+                            [eps] => application/postscript
+                            [ps] => application/postscript
+                            [smi] => application/smil
+                            [smil] => application/smil
+                            [mif] => application/vnd.mif
+                            [xls] => Array
+                                (
+                                    [0] => application/excel
+                                    [1] => application/vnd.ms-excel
+                                    [2] => application/msexcel
+                                )
+
+                            [ppt] => Array
+                                (
+                                    [0] => application/powerpoint
+                                    [1] => application/vnd.ms-powerpoint
+                                )
+
+                            [wbxml] => application/wbxml
+                            [wmlc] => application/wmlc
+                            [dcr] => application/x-director
+                            [dir] => application/x-director
+                            [dxr] => application/x-director
+                            [dvi] => application/x-dvi
+                            [gtar] => application/x-gtar
+                            [gz] => application/x-gzip
+                            [php] => application/x-httpd-php
+                            [php4] => application/x-httpd-php
+                            [php3] => application/x-httpd-php
+                            [phtml] => application/x-httpd-php
+                            [phps] => application/x-httpd-php-source
+                            [js] => application/x-javascript
+                            [swf] => application/x-shockwave-flash
+                            [sit] => application/x-stuffit
+                            [tar] => application/x-tar
+                            [tgz] => Array
+                                (
+                                    [0] => application/x-tar
+                                    [1] => application/x-gzip-compressed
+                                )
+
+                            [xhtml] => application/xhtml+xml
+                            [xht] => application/xhtml+xml
+                            [zip] => Array
+                                (
+                                    [0] => application/x-zip
+                                    [1] => application/zip
+                                    [2] => application/x-zip-compressed
+                                )
+
+                            [mid] => audio/midi
+                            [midi] => audio/midi
+                            [mpga] => audio/mpeg
+                            [mp2] => audio/mpeg
+                            [mp3] => Array
+                                (
+                                    [0] => audio/mpeg
+                                    [1] => audio/mpg
+                                    [2] => audio/mpeg3
+                                    [3] => audio/mp3
+                                )
+
+                            [aif] => audio/x-aiff
+                            [aiff] => audio/x-aiff
+                            [aifc] => audio/x-aiff
+                            [ram] => audio/x-pn-realaudio
+                            [rm] => audio/x-pn-realaudio
+                            [rpm] => audio/x-pn-realaudio-plugin
+                            [ra] => audio/x-realaudio
+                            [rv] => video/vnd.rn-realvideo
+                            [wav] => Array
+                                (
+                                    [0] => audio/x-wav
+                                    [1] => audio/wave
+                                    [2] => audio/wav
+                                )
+
+                            [bmp] => Array
+                                (
+                                    [0] => image/bmp
+                                    [1] => image/x-windows-bmp
+                                )
+
+                            [gif] => image/gif
+                            [jpeg] => Array
+                                (
+                                    [0] => image/jpeg
+                                    [1] => image/pjpeg
+                                )
+
+                            [jpg] => Array
+                                (
+                                    [0] => image/jpeg
+                                    [1] => image/pjpeg
+                                )
+
+                            [jpe] => Array
+                                (
+                                    [0] => image/jpeg
+                                    [1] => image/pjpeg
+                                )
+
+                            [png] => Array
+                                (
+                                    [0] => image/png
+                                    [1] => image/x-png
+                                )
+
+                            [tiff] => image/tiff
+                            [tif] => image/tiff
+                            [css] => text/css
+                            [html] => text/html
+                            [htm] => text/html
+                            [shtml] => text/html
+                            [txt] => text/plain
+                            [text] => text/plain
+                            [log] => Array
+                                (
+                                    [0] => text/plain
+                                    [1] => text/x-log
+                                )
+
+                            [rtx] => text/richtext
+                            [rtf] => text/rtf
+                            [xml] => text/xml
+                            [xsl] => text/xml
+                            [mpeg] => video/mpeg
+                            [mpg] => video/mpeg
+                            [mpe] => video/mpeg
+                            [qt] => video/quicktime
+                            [mov] => video/quicktime
+                            [avi] => video/x-msvideo
+                            [movie] => video/x-sgi-movie
+                            [doc] => application/msword
+                            [docx] => application/vnd.openxmlformats-officedocument.wordprocessingml.document
+                            [xlsx] => application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+                            [word] => Array
+                                (
+                                    [0] => application/msword
+                                    [1] => application/octet-stream
+                                )
+
+                            [xl] => application/excel
+                            [eml] => message/rfc822
+                            [json] => Array
+                                (
+                                    [0] => application/json
+                                    [1] => text/json
+                                )
+
+                        )
+
+                    [enable_profiler:protected] => 
+                    [_zlib_oc:protected] => 
+                    [_profiler_sections:protected] => Array
+                        (
+                        )
+
+                    [parse_exec_vars:protected] => 1
+                )
+
+            [security] => CI_Security Object
+                (
+                    [_xss_hash:protected] => 
+                    [_csrf_hash:protected] => 
+                    [_csrf_expire:protected] => 7200
+                    [_csrf_token_name:protected] => ci_csrf_token
+                    [_csrf_cookie_name:protected] => ci_csrf_token
+                    [_never_allowed_str:protected] => Array
+                        (
+                            [document.cookie] => [removed]
+                            [document.write] => [removed]
+                            [.parentNode] => [removed]
+                            [.innerHTML] => [removed]
+                            [-moz-binding] => [removed]
+                            [<!--] => &lt;!--
+                            [-->] => --&gt;
+                            [<![CDATA[] => &lt;![CDATA[
+                            [<comment>] => &lt;comment&gt;
+                        )
+
+                    [_never_allowed_regex:protected] => Array
+                        (
+                            [0] => javascript\s*:
+                            [1] => (document|(document\.)?window)\.(location|on\w*)
+                            [2] => expression\s*(\(|&\#40;)
+                            [3] => vbscript\s*:
+                            [4] => wscript\s*:
+                            [5] => jscript\s*:
+                            [6] => vbs\s*:
+                            [7] => Redirect\s+30\d:
+                            [8] => (["'])?data\s*:[^\1]*?base64[^\1]*?,[^\1]*?\1?
+                        )
+
+                )
+
+            [input] => CI_Input Object
+                (
+                    [ip_address] => 
+                    [user_agent] => 
+                    [_allow_get_array] => 1
+                    [_standardize_newlines] => 1
+                    [_enable_xss] => 
+                    [_enable_csrf] => 
+                    [headers:protected] => Array
+                        (
+                        )
+
+                    [security] => CI_Security Object
+                        (
+                            [_xss_hash:protected] => 
+                            [_csrf_hash:protected] => 
+                            [_csrf_expire:protected] => 7200
+                            [_csrf_token_name:protected] => ci_csrf_token
+                            [_csrf_cookie_name:protected] => ci_csrf_token
+                            [_never_allowed_str:protected] => Array
+                                (
+                                    [document.cookie] => [removed]
+                                    [document.write] => [removed]
+                                    [.parentNode] => [removed]
+                                    [.innerHTML] => [removed]
+                                    [-moz-binding] => [removed]
+                                    [<!--] => &lt;!--
+                                    [-->] => --&gt;
+                                    [<![CDATA[] => &lt;![CDATA[
+                                    [<comment>] => &lt;comment&gt;
+                                )
+
+                            [_never_allowed_regex:protected] => Array
+                                (
+                                    [0] => javascript\s*:
+                                    [1] => (document|(document\.)?window)\.(location|on\w*)
+                                    [2] => expression\s*(\(|&\#40;)
+                                    [3] => vbscript\s*:
+                                    [4] => wscript\s*:
+                                    [5] => jscript\s*:
+                                    [6] => vbs\s*:
+                                    [7] => Redirect\s+30\d:
+                                    [8] => (["'])?data\s*:[^\1]*?base64[^\1]*?,[^\1]*?\1?
+                                )
+
+                        )
+
+                    [uni] => CI_Utf8 Object
+                        (
+                        )
+
+                )
+
+            [lang] => CI_Lang Object
+                (
+                    [language] => Array
+                        (
+                        )
+
+                    [is_loaded] => Array
+                        (
+                        )
+
+                )
+
+            [load] => CI_Loader Object
+                (
+                    [_ci_ob_level:protected] => 1
+                    [_ci_view_paths:protected] => Array
+                        (
+                            [codeigniter/application/views/] => 1
+                        )
+
+                    [_ci_library_paths:protected] => Array
+                        (
+                            [0] => codeigniter/application/
+                            [1] => /Users/bonny/Projects/texttv.nu/texttv.nu/codeigniter/system/
+                        )
+
+                    [_ci_model_paths:protected] => Array
+                        (
+                            [0] => codeigniter/application/
+                        )
+
+                    [_ci_helper_paths:protected] => Array
+                        (
+                            [0] => codeigniter/application/
+                            [1] => /Users/bonny/Projects/texttv.nu/texttv.nu/codeigniter/system/
+                        )
+
+                    [_base_classes:protected] => Array
+                        (
+                            [benchmark] => Benchmark
+                            [hooks] => Hooks
+                            [config] => Config
+                            [utf8] => Utf8
+                            [uri] => URI
+                            [router] => Router
+                            [output] => Output
+                            [security] => Security
+                            [input] => Input
+                            [lang] => Lang
+                            [loader] => Loader
+                            [model] => Model
+                            [exceptions] => Exceptions
+                        )
+
+                    [_ci_cached_vars:protected] => Array
+                        (
+                        )
+
+                    [_ci_classes:protected] => Array
+                        (
+                        )
+
+                    [_ci_loaded_files:protected] => Array
+                        (
+                        )
+
+                    [_ci_models:protected] => Array
+                        (
+                            [0] => texttv_page
+                        )
+
+                    [_ci_helpers:protected] => Array
+                        (
+                            [texttv_helper] => 1
+                            [url_helper] => 1
+                            [cookie_helper] => 1
+                        )
+
+                    [_ci_varmap:protected] => Array
+                        (
+                            [unit_test] => unit
+                            [user_agent] => agent
+                        )
+
+                )
+
+            [db] => CI_DB_mysqli_driver Object
+                (
+                    [username] => root
+                    [password] => 
+                    [hostname] => 127.0.0.1
+                    [database] => texttv_nu
+                    [dbdriver] => mysqli
+                    [dbprefix] => 
+                    [char_set] => utf8
+                    [dbcollat] => utf8_general_ci
+                    [autoinit] => 1
+                    [swap_pre] => 
+                    [port] => 
+                    [pconnect] => 1
+                    [conn_id] => mysqli Object
+                        (
+                            [affected_rows] => -1
+                            [client_info] => mysqlnd 8.1.14
+                            [client_version] => 80114
+                            [connect_errno] => 0
+                            [connect_error] => 
+                            [errno] => 1146
+                            [error] => Table 'texttv_nu.texttv_blogg' doesn't exist
+                            [error_list] => Array
+                                (
+                                    [0] => Array
+                                        (
+                                            [errno] => 1146
+                                            [sqlstate] => 42S02
+                                            [error] => Table 'texttv_nu.texttv_blogg' doesn't exist
+                                        )
+
+                                )
+
+                            [field_count] => 0
+                            [host_info] => 127.0.0.1 via TCP/IP
+                            [info] => 
+                            [insert_id] => 0
+                            [server_info] => 5.7.23
+                            [server_version] => 50723
+                            [sqlstate] => 42S02
+                            [protocol_version] => 10
+                            [thread_id] => 1101
+                            [warning_count] => 0
+                        )
+
+                    [result_id] => 
+                    [db_debug] => 1
+                    [benchmark] => 0
+                    [query_count] => 0
+                    [bind_marker] => ?
+                    [save_queries] => 1
+                    [queries] => Array
+                        (
+                            [0] => SELECT id, date_published, UNIX_TIMESTAMP(date_published) AS date_published_unix, permalink, title, content FROM texttv_blogg ORDER BY date_published DESC
+                        )
+
+                    [query_times] => Array
+                        (
+                        )
+
+                    [data_cache] => Array
+                        (
+                        )
+
+                    [trans_enabled] => 1
+                    [trans_strict] => 1
+                    [_trans_depth] => 0
+                    [_trans_status] => 1
+                    [cache_on] => 
+                    [cachedir] => 
+                    [cache_autodel] => 
+                    [CACHE] => 
+                    [_protect_identifiers] => 1
+                    [_reserved_identifiers] => Array
+                        (
+                            [0] => *
+                        )
+
+                    [stmt_id] => 
+                    [curs_id] => 
+                    [limit_used] => 
+                    [ar_select] => Array
+                        (
+                        )
+
+                    [ar_distinct] => 
+                    [ar_from] => Array
+                        (
+                        )
+
+                    [ar_join] => Array
+                        (
+                        )
+
+                    [ar_where] => Array
+                        (
+                        )
+
+                    [ar_like] => Array
+                        (
+                        )
+
+                    [ar_groupby] => Array
+                        (
+                        )
+
+                    [ar_having] => Array
+                        (
+                        )
+
+                    [ar_keys] => Array
+                        (
+                        )
+
+                    [ar_limit] => 
+                    [ar_offset] => 
+                    [ar_order] => 
+                    [ar_orderby] => Array
+                        (
+                        )
+
+                    [ar_set] => Array
+                        (
+                        )
+
+                    [ar_wherein] => Array
+                        (
+                        )
+
+                    [ar_aliased_tables] => Array
+                        (
+                        )
+
+                    [ar_store_array] => Array
+                        (
+                        )
+
+                    [ar_caching] => 
+                    [ar_cache_exists] => Array
+                        (
+                        )
+
+                    [ar_cache_select] => Array
+                        (
+                        )
+
+                    [ar_cache_from] => Array
+                        (
+                        )
+
+                    [ar_cache_join] => Array
+                        (
+                        )
+
+                    [ar_cache_where] => Array
+                        (
+                        )
+
+                    [ar_cache_like] => Array
+                        (
+                        )
+
+                    [ar_cache_groupby] => Array
+                        (
+                        )
+
+                    [ar_cache_having] => Array
+                        (
+                        )
+
+                    [ar_cache_orderby] => Array
+                        (
+                        )
+
+                    [ar_cache_set] => Array
+                        (
+                        )
+
+                    [ar_no_escape] => Array
+                        (
+                        )
+
+                    [ar_cache_no_escape] => Array
+                        (
+                        )
+
+                    [_escape_char] => `
+                    [_like_escape_str] => 
+                    [_like_escape_chr] => 
+                    [_count_string] => SELECT COUNT(*) AS 
+                    [_random_keyword] =>  RAND()
+                    [delete_hack] => 1
+                    [use_set_names] => 
+                    [stricton] => 
+                )
+
+            [texttv_page] => Texttv_page Object
+                (
+                    [id] => 
+                    [num] => 
+                    [arr_contents] => Array
+                        (
+                        )
+
+                    [title] => 
+                    [links] => 
+                    [next_page] => 
+                    [prev_page] => 
+                    [date_updated_unix] => 
+                    [date_added_unix] => 
+                    [url_base] => http://www.svt.se/svttext/web/pages/
+                )
+
+        )
+
+    [stats] => 
+)

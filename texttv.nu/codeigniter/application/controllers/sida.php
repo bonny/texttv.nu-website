@@ -20,68 +20,11 @@ class Sida extends CI_Controller {
 	 * Visa dock inte alla = får timeout, visa senaste dagarna typ bara
 	 */
 	function arkiv($page_num, $title = NULL, $db_id = NULL) {
-
 		// Om bara page_num = visa översikt över alla arkiv som finns
 		if (empty($db_id) && empty($title)) {
-			
-			// 28 juni: inaktiverar denna, känns inte som bidrar till något
+			// 28 juni (år?): inaktiverar denna, känns inte som bidrar till något
 			show_404();
-			
-			$out = "<div class='archive'>";
-
-			$sql = sprintf('SELECT id FROM texttv WHERE page_num = %1$d ORDER BY date_updated DESC LIMIT 10', $page_num);
-			$res = $this->db->query($sql);
-			if (!$res->num_rows) {
-				
-				$out .= sprintf("<p>Sidan %d har inga arkiverade sidor.", $page_num);
-				
-			} else {
-
-				$out .= sprintf('<p><a href="%3$s">Text-TV %2$d</a> har %1$d arkiverade sidor:', $res->num_rows, $page_num, site_url("" . $page_num));
-				$out .= "<ul>";
-				$firstpage = NULL;
-				$loopNum = 0;
-				foreach ($res->result() as $row) {
-
-					$page = new texttv_page();
-					$page->id = $row->id;
-					$page->load(TRUE);
-					
-					if ($loopNum == 0) {
-						$firstpage = $page;
-					}
-					
-					$page_title = $page->get_page_title();
-					
-					$out .= sprintf('
-						<li>
-							<a href="%3$s">%1$s: %2$s</a></li>
-						',
-						strftime("%H:%M %a %e %b %Y", $page->date_updated_unix), 
-						$page_title,
-						$page->get_permalink()
-					);
-					
-					$loopNum++;
-					
-				}
-				$out .= "</ul>";
-				
-			}
-			
-			$out .= "</div>";
-			
-			$data = array(
-				"page" 					=> $firstpage,
-				"is_archive_overview" 	=> TRUE
-			);
-			$this->load->view('header', $data);
-			$this->output->append_output($out);
-			$this->load->view('controls', $data);
-			$this->load->view('footer', $data);
-
 		} else { //if (is_numeric($db_id) && isset($title)) {
-			
 			// En eller flera sidor från arkivet ska visas
 			$arr_db_ids = explode(",", $db_id);
 			$arr_pages = array();
@@ -116,7 +59,6 @@ class Sida extends CI_Controller {
 			} else {
 				
 				// not load ok
-				
 				$this->output->set_status_header('404');
 				
 				$data = [];

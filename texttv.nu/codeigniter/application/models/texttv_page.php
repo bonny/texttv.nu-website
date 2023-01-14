@@ -809,12 +809,11 @@ class Texttv_page extends CI_Model
 	 */
 	function get_page_title()
 	{
-
 		$page_title = "";
 		if (($page_name = $this->get_page_name())) {
 			// Look for manually entered name
 			$page_title .= "" . trim($page_name);
-		} elseif (trim($this->title)) {
+		} elseif (trim((string) $this->title)) {
 			// Else see if we found a title when loading the page
 			$page_title .= "" . trim($this->title);
 		}

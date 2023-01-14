@@ -415,7 +415,7 @@ function autolink_email($text, $tagfill=''){
 // Skapa permalänk för 1 eller flera sidor
 function get_permalink_from_pages($arr_pages, $page, $pagenum) {
 	
-	$text_archive = "";
+	// $text_archive = "";
 	$permalink = "";
 
 	if ( sizeof( $arr_pages) > 1 ) {
@@ -426,6 +426,7 @@ function get_permalink_from_pages($arr_pages, $page, $pagenum) {
 		}
 
 		$page_title_for_url = strftime("%e %b %Y", $one_page_obj->date_updated_unix);
+
 		$page_title_for_url = trim(strtolower($page_title_for_url));
 		$page_title_for_url = url_title($page_title_for_url);	
 
@@ -437,21 +438,19 @@ function get_permalink_from_pages($arr_pages, $page, $pagenum) {
 			$page_title_for_url // 3 titel
 		);
 	
-		$text_archive .= sprintf('<p><strong>Permanent länk</strong> till dessa sidor:<br><a href="%1$s">%1$s</a></p>', $permalink);
+		// $text_archive .= sprintf('<p><strong>Permanent länk</strong> till dessa sidor:<br><a href="%1$s">%1$s</a></p>', $permalink);
 
 	} else if ( isset( $page ) ) {
 	
 		$permalink = $arr_pages[0]->get_permalink();
-		$text_archive .= sprintf('<p><strong>Permanent länk</strong> till denna sida:<br><a href="%1$s">%1$s</a></p>', $arr_pages[0]->get_permalink());
+		// $text_archive .= sprintf('<p><strong>Permanent länk</strong> till denna sida:<br><a href="%1$s">%1$s</a></p>', $arr_pages[0]->get_permalink());
 		
 	}
 
 	return $permalink;
-
 }
 
 function mark_archive_ids_as_shared($arr_page_ids) {
-	
 	if (empty($arr_page_ids)) {
 		return;
 	}
@@ -460,23 +459,7 @@ function mark_archive_ids_as_shared($arr_page_ids) {
     $ci->load->database();
 
 	$sql_set_shared = sprintf('UPDATE texttv SET is_shared = is_shared + 1 WHERE id IN (%s)', implode(",", $arr_page_ids));
-	$ci->db->query($sql_set_shared);
-
-	/*
-	$date_added = date("Y-m-d H:i:s");
-	$key = "pages_shared";
-	$text = json_encode( [ $_REQUEST, $_SERVER ], JSON_PRETTY_PRINT );
-	
-	$ci->db->query(
-		sprintf(
-			'INSERT INTO texttv_log (date_added, log_key, log_text) VALUES (%1$s, %2$s, %3$s)',
-			$ci->db->escape($date_added),
-			$ci->db->escape($key),
-			$ci->db->escape($text)
-		)
-	);
-	*/
-	
+	$ci->db->query($sql_set_shared);	
 }
 
 function log2db( $key = "", $text = "" ) {

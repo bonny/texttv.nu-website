@@ -1,37 +1,3 @@
-<?php
-//17 mars: tog bort dela bara om permalink. underligt!
-//if (isset($page_permalink)) {
-	//$page_permalink = $page->get_permalink();
-	/*if (isset($page_permalink)) {
-		?>
-		<div class="clearfix"></div>
-		<div class="alert shares">
-		Dela på: 
-			<a href="https://twitter.com/intent/tweet?original_referer=&text=texttv.nu&url=<?php echo rawurlencode("http://texttv.nu".$page_permalink) ?>">Twitter</a>
-			<!-- http://a4.twimg.com/images/favicon.ico -->
-			<a href="https://www.facebook.com/sharer.php?u=<?php echo rawurlencode("http://texttv.nu".$page_permalink) ?>">Facebook</a>
-			<!-- &t=<title of content> -->
-		<?php
-	}*/
-//}
-/*
-printf("<!-- 
-		Elapsed time: %s
-		<br>Memory usage: %s 
-		-->",
-		$this->benchmark->elapsed_time(),
-		$this->benchmark->memory_usage()
-	);
-*/
-
-// Skapa permalänk, 1 eller flera sidor
-$permalink = "";
-if ( isset($pages) && is_array($pages) && function_exists("get_permalink_from_pages") ) {
-	$permalink = get_permalink_from_pages($pages, $page, $pagenum);
-	$permalink_headline = $pages[0]->get_page_title();
-}
-?>
-
 <?php 
 // no footer when generating share screenshot
 if ( ! $this->input->get("apiAppShare") ) { ?>
@@ -168,21 +134,6 @@ if ( ! isset( $disableSidebar ) && ! $this->input->get("apiAppShare") ) {
 				</li>
 			-->
 			*/
-			?>
-
-			<?php
-			
-			// inaktiverad 10 juli pga dela-knapp finns under sidorna numera
-			if (false && isset( $permalink ) && $permalink ) {
-
-				?>
-				<li><a href="https://twitter.com/intent/tweet?original_referer=&amp;text=<?php echo rawurlencode($permalink_headline) ?>&amp;url=<?php echo rawurlencode("http://texttv.nu".$permalink) ?>"><span class="icon icon-twitter"></span>Dela på Twitter</a></li>
-				<li><a href="https://www.facebook.com/sharer.php?u=<?php echo rawurlencode("http://texttv.nu".$permalink) ?>&amp;t=<?php echo rawurlencode($permalink_headline) ?>"><span class="icon icon-facebook"></span>Dela på Facebook</a></li>
-				<li><a href="<?php echo "http://texttv.nu" . $permalink ?>"><span class="icon icon-share"></span>Permalänk</a></li>
-				<?php
-
-			} // if permalink
-
 			?>
 			
 			<li>

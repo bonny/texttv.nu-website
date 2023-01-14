@@ -17,9 +17,7 @@ if (sizeof($arr_pages) == 1) {
 					<a href="%3$s">SVT Text TV %2$d</a>
 					<br>%1$s
 				</p>
-				<!-- <p class="AppShareOnly sharedFrom">
-					Delad från <em>www.TextTV.nu</em>
-				</p> -->
+
 			</div>
 			',
 			strftime("%a %e %b %Y, %H:%M", $page->date_updated_unix),

@@ -1,13 +1,14 @@
 <?php
 
-class Texttv_page extends CI_Model {
+class Texttv_page extends CI_Model
+{
 
 	var
 		// the id of this entry in db
 		$id,
 
 		// the number of the page
-		$num, 
+		$num,
 
 		// the contents of this page, including svt:s html for formatting
 		// array since one page can have multiple pages, you know auto
@@ -25,36 +26,33 @@ class Texttv_page extends CI_Model {
 
 		// when this page was updated from svt
 		$date_updated_unix,
-		
+
 		// when page was added from svt (really!)
 		$date_added_unix,
 
 		// base url, where to look for remote pages
-		$url_base = "http://www.svt.se/svttext/web/pages/"
-
-		;
+		$url_base = "http://www.svt.se/svttext/web/pages/";
 
 	function __construct($page_num = NULL)
 	{
 		// Call the Model constructor
 		parent::__construct();
-		
+
 		if (!is_numeric($page_num) || strlen($page_num) != 3) {
 			//exit("Ogiltigt sidnummer.");
 			return FALSE;
 		} else {
-		
+
 			$this->num = (int) $page_num;
 			return $this->load();
-
 		}
-
 	}
 
 	/**
 	 * Make links local
 	 */
-	function fix_links() {
+	function fix_links()
+	{
 		// echo site_url(); // http://www.texttv.nu/codeigniter/index.php
 		// echo current_url(); // http://www.texttv.nu/codeigniter/index.php/sida/visa/100
 		// echo uri_string(); // sida/visa/100
@@ -62,14 +60,15 @@ class Texttv_page extends CI_Model {
 		if (is_array($this->links) && sizeof($this->links) > 0) {
 			foreach ($this->links as $one_link) {
 				$link_url = site_url("/$one_link");
-				for ($i=0; $i <sizeof($this->arr_contents); $i++) {
+				for ($i = 0; $i < sizeof($this->arr_contents); $i++) {
 					$this->arr_contents[$i] = str_replace("{$one_link}.html", $link_url, $this->arr_contents[$i]);
 				}
 			}
 		}
 	}
 
-	function find_links() {
+	function find_links()
+	{
 		// get all links in this page
 		// <a href="130.html">130</a>
 		$page_inner_contents = implode("\n", $this->arr_contents);
@@ -79,7 +78,8 @@ class Texttv_page extends CI_Model {
 		}
 	}
 
-	function load_links() {
+	function load_links()
+	{
 		if (sizeof($this->links)) {
 			foreach ($this->links as $one_link) {
 				$one_sub_page = new Texttv_page((int)$one_link);
@@ -91,11 +91,12 @@ class Texttv_page extends CI_Model {
 	/**
 	 * Load the page. From db or from web if outdated
 	 * @param $by_id bool if we should load a page by id instead of page number
-     */
-    function load($from_archive = FALSE) {
+	 */
+	function load($from_archive = FALSE)
+	{
 
 		try {
-			
+
 			// first check if page exists in db and what age it has
 			$do_update = FALSE;
 
@@ -107,15 +108,15 @@ class Texttv_page extends CI_Model {
 			} else {
 				$this->db->where("page_num", $this->num);
 			}
-			
+
 			// get the most recent updated OR the one with the most recent id
 			// used date_updated for a while
 			$this->db->order_by("date_updated", "DESC");
 			// changed back to order by id on 11 Apr 2017..and back to date again on 13 Apr 2017
 			#$this->db->order_by("id", "DESC");
-			
+
 			$this->db->limit(1);
-		
+
 			$query = $this->db->get();
 
 			if ($query->num_rows() == 1) {
@@ -137,7 +138,7 @@ class Texttv_page extends CI_Model {
 				$this->date_updated_unix = strtotime($result->date_updated);
 				$this->date_added_unix = strtotime($result->date_added);
 				$this->title = $result->title;
-			
+
 				// check age in minutes
 				/*
 				$max_age_minutes = 1;
@@ -149,28 +150,26 @@ class Texttv_page extends CI_Model {
 				}
 				*/
 				return true;
-				
 			} else {
 				// not in db, update dammit!
 				//$do_update = TRUE;
-				
+
 				// Not in db + archive = page that does not exist
 				// (because never did, or because cleanup)
 				return false;
-				
 			}
 
 			/*if (isset($_GET["forceupdate"]) && $_GET["forceupdate"]) {
 				//$do_update = TRUE; // debug
 			}*/
-						
+
 			// Om arkiv = aldrig uppdatera
 			/*
 			if ($from_archive) {				
 				$do_update = FALSE;
 			}
 			*/
-			
+
 			// Uppdatera
 			// Samt fixa lite länkar och textfixar
 			/*if ($do_update) {
@@ -179,18 +178,16 @@ class Texttv_page extends CI_Model {
 				// $this->update_page_manually();
 			} // if do update
 			*/
-			
 		} catch (Exception $e) {
 			d($e);
 		}
-			
-		
-    } // load
+	} // load
 
-    /**
+	/**
 	 * Get page from remote server, fix some things, then maybe save it to db
-     */
-    function update_page() {
+	 */
+	function update_page()
+	{
 
 		$page_prev_version = clone $this;
 
@@ -205,9 +202,9 @@ class Texttv_page extends CI_Model {
 
 		$page_contents = file_get_contents($page_url);
 		#if ($do_update) {
-			#echo $page_contents;exit;
+		#echo $page_contents;exit;
 		#}
-		
+
 		// Kolla efter nästa och föregående sida
 		// var nextPage = "100.html";var previousPage = "101.html";
 		preg_match('/nextPage = "(\d{3})/', $page_contents, $matches);
@@ -220,7 +217,7 @@ class Texttv_page extends CI_Model {
 		}
 
 		if ($page_contents !== FALSE) {
-			
+
 			// Leta ut innehållet
 			// Tog bort utf-grejjen 7 oktober, efter att vi haft utf-problem ett tag.
 			// Var det svt texttv som bytt encoding tro?
@@ -229,8 +226,8 @@ class Texttv_page extends CI_Model {
 			array_shift($roots);
 			// varje roots[n] är en... sida va?
 			// men inte med olika nummer, utan sub-sidor om det är en ff-sida
-			for ($i=0; $i<sizeof($roots);$i++) {
-				
+			for ($i = 0; $i < sizeof($roots); $i++) {
+
 				// se till att dom börjar med pre
 				$roots[$i] = '<div class="root' . $roots[$i];
 				// ta bort allt från sista </pre> och framåt
@@ -238,36 +235,36 @@ class Texttv_page extends CI_Model {
 
 				// Replace links etc. in this inpage-subpage
 				$roots[$i] = $this->replace_stuff($roots[$i]);
-				
+
 				// Don't let lines be completely empty
 				//$roots[$i] = str_replace(str_repeat(" ", 20), str_repeat("&nbsp;", 20), $roots[$i]); // 40 mellanslag
 
 			}
-			
+
 			$this->arr_contents = $roots;
-			
+
 			$this->title = $this->find_titles();
 			$this->find_links();
 			$this->fix_links();
 
 			$this->date_updated_unix = time();
-			
+
 			// Kolla om den nya sidan vi har hämtat skiljer sig från den föregående tillräckligt mycket för att spara en ny version
 			$prev_version_text = join(" ", $page_prev_version->arr_contents);
 			$prev_version_text = strip_tags($prev_version_text);
 
 			$current_version_text = join(" ", $this->arr_contents);
 			$current_version_text = strip_tags($current_version_text);
-		
+
 			$similarity_in_percent = 0;
 			similar_text($prev_version_text, $current_version_text, $similarity_in_percent);
 			// echo "Percent similarity: $similarity_in_percent";
-			
+
 			// Om den här versionen är mindre än x% lika som föregående version så sparar vi ny
 			// 99.598 % = "* = efter kl 6" blev till "* = efter kl 12"
 			// Så det måste vara lite lägre för att inte bara fånga upp skrivfel och mindre ändringar. Det är större ändringar vi vill ha, right?
 			// 97.8 när den rad ändrades, typ namnet på en nyhet på översiktssidorna
-			
+
 			// Texten måste ha mindre likhet än såhär för att sidan ska sparas som ny version
 			// Om denna har värdet 70 betyder det alltså att det måste vara mer än 30 % skillnad för att sidan ska sparas som ny
 			$percent_threshold = 90;
@@ -284,20 +281,20 @@ class Texttv_page extends CI_Model {
 				// Update existing
 				$this->save();
 			}
-		
 		} // if page contents
 
-	
-    }
 
-    /**
+	}
+
+	/**
 	 * Get page from remote server, fix some things, then maybe save it to db
 	 * This version uses CURL and uses if-modified-since to minimize bandwidth
 	 * also uses last-modified-date of remote page to set new date_updated value in database
-     */
-    function update_page_manually() {
+	 */
+	function update_page_manually()
+	{
 
-    	$apc_key = "texttv_page_{$this->num}";
+		$apc_key = "texttv_page_{$this->num}";
 
 		$page_prev_version = clone $this;
 
@@ -309,12 +306,12 @@ class Texttv_page extends CI_Model {
 		$ch2 = curl_init();
 		curl_setopt($ch2, CURLOPT_URL, $page_url);
 		curl_setopt($ch2, CURLOPT_HEADER, 1);
-        curl_setopt($ch2, CURLOPT_NOBODY, true); // this seems to make remote server return last-modified
-		curl_setopt($ch2, CURLOPT_CONNECTTIMEOUT, 1 );
-		curl_setopt($ch2, CURLOPT_TIMEOUT, 1 );
+		curl_setopt($ch2, CURLOPT_NOBODY, true); // this seems to make remote server return last-modified
+		curl_setopt($ch2, CURLOPT_CONNECTTIMEOUT, 1);
+		curl_setopt($ch2, CURLOPT_TIMEOUT, 1);
 		curl_setopt($ch2, CURLOPT_RETURNTRANSFER, 1);
 		curl_setopt($ch2, CURLOPT_TIMECONDITION, CURL_TIMECOND_IFMODSINCE);
-		curl_setopt($ch2, CURLOPT_TIMEVALUE, $this->date_updated_unix );
+		curl_setopt($ch2, CURLOPT_TIMEVALUE, $this->date_updated_unix);
 
 		$response2 = curl_exec($ch2);
 		list($remote_header2, $page_contents2) = explode("\r\n\r\n", $response2, 2);
@@ -332,7 +329,7 @@ class Texttv_page extends CI_Model {
 		// echo "\nFetch successfull.";
 
 		// Store page info in APC cache
-		if ( in_array( $remote_status_code, array(304, 200) ) ) {
+		if (in_array($remote_status_code, array(304, 200))) {
 			apc_store($apc_key, array(
 				"remote_last_modified" => $remote_last_modified2,
 				"remote_last_modified_unix" => $this->date_updated_unix,
@@ -340,7 +337,7 @@ class Texttv_page extends CI_Model {
 			));
 		}
 
-		
+
 		// Only store page if it's modified
 		// echo "\nremote_status_code: $remote_status_code";
 		if (304 == $remote_status_code) {
@@ -348,9 +345,8 @@ class Texttv_page extends CI_Model {
 			// Not modified. Remote is same as local saved.
 			#error_log("texttv: page $this->num not modified");
 			return "not_modified";
-
 		} elseif (200 == $remote_status_code) {
-			
+
 			#error_log("texttv: page $this->num modified");
 			// return "modified";
 
@@ -365,16 +361,16 @@ class Texttv_page extends CI_Model {
 			//curl_setopt($ch, CURLOPT_HEADER, 1);
 			//curl_setopt($ch, CURLOPT_TIMECONDITION, CURL_TIMECOND_IFMODSINCE);
 			//curl_setopt($ch, CURLOPT_TIMEVALUE, $prev_date_updated_unix );
-			
+
 			// Set low timeout values so we don't hog up php
-			curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1 );
-			curl_setopt($ch, CURLOPT_TIMEOUT, 1 );
+			curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
+			curl_setopt($ch, CURLOPT_TIMEOUT, 1);
 
 			// testar lite mera för att inte få den att dyka upp i slowlog
-			curl_setopt($ch, CURLOPT_FILETIME, 1 );
-			curl_setopt($ch, CURLOPT_NOSIGNAL, true );
-			curl_setopt($ch, CURLOPT_LOW_SPEED_TIME, 2 );
-			
+			curl_setopt($ch, CURLOPT_FILETIME, 1);
+			curl_setopt($ch, CURLOPT_NOSIGNAL, true);
+			curl_setopt($ch, CURLOPT_LOW_SPEED_TIME, 2);
+
 			// error_log("Before curl_exec() for page " . $this->num);
 			$page_contents = curl_exec($ch);
 			// echo "\npage_contents: $page_contents";
@@ -397,12 +393,11 @@ class Texttv_page extends CI_Model {
 			//echo "\nError: Got unknown remote code: '$remote_status_code'";
 			error_log("texttv: error page $this->num got remote status code $remote_status_code");
 			return "error";
-
 		}
 
 		// Check if page contains "SVT Text   Sidan ej i sändning"
 		// if so then page is not broadcasted?
-	
+
 		// Kolla efter nästa och föregående sida
 		// var nextPage = "100.html";var previousPage = "101.html";
 		preg_match('/nextPage = "(\d{3})/', $page_contents, $matches);
@@ -414,10 +409,10 @@ class Texttv_page extends CI_Model {
 			$this->next_page = $matches[1];
 		}
 
-		if ( ! $page_contents ) {
+		if (!$page_contents) {
 			return "no_page_contents";
 		}
-		
+
 		// Leta ut innehållet
 		// Tog bort utf-grejjen 7 oktober, efter att vi haft utf-problem ett tag.
 		// Var det svt texttv som bytt encoding tro?
@@ -426,8 +421,8 @@ class Texttv_page extends CI_Model {
 		array_shift($roots);
 		// varje roots[n] är en... sida va?
 		// men inte med olika nummer, utan sub-sidor om det är en ff-sida
-		for ($i=0; $i<sizeof($roots);$i++) {
-			
+		for ($i = 0; $i < sizeof($roots); $i++) {
+
 			// se till att dom börjar med pre
 			$roots[$i] = '<div class="root' . $roots[$i];
 			// ta bort allt från sista </pre> och framåt
@@ -435,44 +430,42 @@ class Texttv_page extends CI_Model {
 
 			// Replace links etc. in this inpage-subpage
 			$roots[$i] = $this->replace_stuff($roots[$i]);
-			
+
 			// Don't let lines be completely empty
 			//$roots[$i] = str_replace(str_repeat(" ", 20), str_repeat("&nbsp;", 20), $roots[$i]); // 40 mellanslag
 
 		}
-		
+
 		$this->arr_contents = $roots;
-		
+
 		$this->title = $this->find_titles();
 		$this->find_links();
 		$this->fix_links();
 
 		// Before we save check if the contents of this one actually is different from the previous one
 		if ($page_prev_version->arr_contents === $this->arr_contents) {
-			
+
 			// error_log("page contents for {$this->num} are the same, so updating existing");
 			$this->save();
 			return "saved_page_contents_not_changed";
-
 		} else {
 
 			#error_log("page contents for {$this->num} are not the same, so saving new");
 			$this->save(true);
 			return "saved";
-
 		}
-				
-    }
+	}
 
 
-    // function find_and_set_title() {
+	// function find_and_set_title() {
 	// Leta upp alla .dh = rubriker
-    function find_titles() {
-	
+	function find_titles()
+	{
+
 		// Skapa title:s av dessa
 		// numera som h1:or!
 		$title = "";
-		$page_contents =join(" ", $this->arr_contents);
+		$page_contents = join(" ", $this->arr_contents);
 		if (preg_match_all('/<h1 class="[a-z ]*DH">([\w\dåäöÅÄÖ :\-"]+)/i', $page_contents, $matches)) {
 			$arr_titles = array();
 			foreach ($matches[1] as $one_title) {
@@ -481,19 +474,18 @@ class Texttv_page extends CI_Model {
 				}
 			}
 			$title .= join(" | ", $arr_titles);
-
 		}
 		return $title;
-		
 	}
 
-    /**
-     * Make modifications to the page contents
-     * For example fix so ranges of links work
-     * and texts, like "nästa sida" becomes a link
-     */
-    function replace_stuff($page_contents) {
-	    
+	/**
+	 * Make modifications to the page contents
+	 * For example fix so ranges of links work
+	 * and texts, like "nästa sida" becomes a link
+	 */
+	function replace_stuff($page_contents)
+	{
+
 		// Fixa så att text som kan vara en länk... blir en länk
 		// $page_contents = str_replace("www.svt.se", "svt.se", $page_contents);
 		// $page_contents = str_replace("svt.se", "www.svt.se", $page_contents);
@@ -533,7 +525,7 @@ class Texttv_page extends CI_Model {
 		$reg = '/<a href="\d{3}.html">(\d{3})<\/a><\/span><span class="Y">\/<a href="\d{3}.html">(\d{3})<\/a>/';
 		$replace = '<a href="/\\1,\\2">\\1/\\2</a>';
 		$page_contents = preg_replace($reg, $replace, $page_contents);
-		
+
 		// länkar komma/slash
 		// <a href="/121">121</a>/<a href="/165">165</a> 
 		$reg = '/<a href="\d{3}.html">(\d{3})<\/a>\/<a href="\d{3}.html">(\d{3})<\/a>/msi';
@@ -543,47 +535,46 @@ class Texttv_page extends CI_Model {
 		// Fixa så att TEXT......123
 		// Blir länk av hela paketet
 		#if (isset($_GET["test"])) {
-			#$reg = '/>(.*?)([\.+]| )<a href="(\d{3}).html">\d{3}<\/a>/';
-			//$replace = "><a href='\\3'>\\1\\2\\3</a>";
-			#$replace = "><a class='link link-row' href='\\3'>\\1\\2\\3</a>";
-			#$page_contents = preg_replace($reg, $replace, $page_contents);
+		#$reg = '/>(.*?)([\.+]| )<a href="(\d{3}).html">\d{3}<\/a>/';
+		//$replace = "><a href='\\3'>\\1\\2\\3</a>";
+		#$replace = "><a class='link link-row' href='\\3'>\\1\\2\\3</a>";
+		#$page_contents = preg_replace($reg, $replace, $page_contents);
 		#}
 
 		// Fixa så att "sida <nnn>"" blir länk (och inte bara <nnn>)
 		// Fortsättning följer på sida <a href="/109">109</a>
-		$page_contents = preg_replace("/sida <a href=\"([\d]{3}).html\">[\d]{3}<\/a>/", "<a href='/\\1'>sida \\1</a>", $page_contents);						
-		
+		$page_contents = preg_replace("/sida <a href=\"([\d]{3}).html\">[\d]{3}<\/a>/", "<a href='/\\1'>sida \\1</a>", $page_contents);
+
 		// fixa så att vi får h1-rubriker
 		// <span class="Y DH">Kinesiskt bud lagt på Saab            </span>
 		#if ($this->input->get("forceupdate")) {
 		$page_contents = preg_replace('/<span class="Y DH">(.*?)<\/span>/', '<h1 class="Y DH">\\1</h1>', $page_contents);
 		$page_contents = preg_replace('/<span class="Y bgB DH">(.*?)<\/span>/', '<h1 class="Y bgB DH">\\1</h1>', $page_contents);
 		#}
-		
-		return $page_contents;
-	    
-    }
 
-    /**
-     * Save this page to db
-     * @param bool $save om sidan ska sparas som ny, dvs det skapas en arkiverad version av den tidigare
-     */
-     function save($save_as_new = FALSE) {
+		return $page_contents;
+	}
+
+	/**
+	 * Save this page to db
+	 * @param bool $save om sidan ska sparas som ny, dvs det skapas en arkiverad version av den tidigare
+	 */
+	function save($save_as_new = FALSE)
+	{
 
 		try {
 
-	    	// New or existing?
-	    	if (!$save_as_new && isset($this->id) && is_numeric($this->id)) {
-		    	
-		    	// Existerande, uppdatera bara date_updated
+			// New or existing?
+			if (!$save_as_new && isset($this->id) && is_numeric($this->id)) {
+
+				// Existerande, uppdatera bara date_updated
 				$data = array(
 					"date_updated" 	=> date('Y-m-d H:i:s', $this->date_updated_unix),
 				);
-	    		$where = "id = $this->id";
+				$where = "id = $this->id";
 				$str = $this->db->update_string('texttv', $data, $where);
 				$this->db->query($str);
-
-	    	} else {
+			} else {
 
 				// Ny
 				$data = array(
@@ -601,25 +592,22 @@ class Texttv_page extends CI_Model {
 				// stupid way, but update column to be compressed
 				$str = sprintf('UPDATE texttv SET page_content = COMPRESS(page_content) WHERE id = %1$d', $this->id);
 				$this->db->query($str);
+			}
+		} catch (Exception $e) {
+			die(print_r($e, TRUE));
+		}
+	}
 
-	    	}
-
-
-    	} catch (Exception $e)  {
-    		die(print_r($e, TRUE));
-    	}
-
-    }
-	
 	/**
 	 * @Todo: en sida är ju "barn" av en huvudsida, t.ex. 303 är en sportnyhet och barn av 300.
 	 * Används detta faktum för att skapa breadcrumbs
 	 * 
 	 */
-	function get_main_pages() {
+	function get_main_pages()
+	{
 		// 106 -> inrikes
 		// 130 -> utrikes
-		
+
 		$arr_main_pages = array(
 			100 => "Nyheter",
 			200 => "Ekonomi",
@@ -634,82 +622,83 @@ class Texttv_page extends CI_Model {
 			800 => "Utbildningsradion"
 		);
 	}
-	
+
 	/**
 	 * Visa arkiv på vissa sidor
 	 */
-	function show_archive_for_page() {
+	function show_archive_for_page()
+	{
 		// $this->num
-		$arr = array(
-			
-		);
+		$arr = array();
 	}
-	
+
 	/**
 	 * some pages have "names", like 100 = nyheter, 300 = sport
 	 * let's use them for page titles!
 	 */
-	function get_page_name() {
+	function get_page_name()
+	{
 		// http://svt.se/svttext/web/pages/700.html
-    	$arr_names = array(
-    		100 => "Start",
-    		101 => "Inrikes nyheter",
-    		104 => "Utrikes nyheter",
-    		127 => "Ekonominotiser",
-    		128 => "Inrikesnotiser",
-    		148 => "Utrikesnotiser",
-    		149 => "Världen runt",
-    		150 => "Kultur & Nöje",
-    		//160 => "Bakgrunder",
-    		188 => "Nyhetsrullen",
-    		200 => "Ekonomi",
-    		201 => "Börsinnehåll",
-    		201 => "Börssidor",
-    		220 => "Aktier",
-    		223 => "Optioner",
-    		230 => "Valutakurser",
-    		300 => "Resultatbörs & sportnyheter",
-    		330 => "Resultatbörsen",
-    		376 => "Målservice",
-    		377 => "Målservice",
-    		400 => "Väder",
-    		420 => "Snörapporten",
-    		430 => "Väglagsinfo från Trafikverket",
-    		431 => "Tillfälliga trafikstörningar",
-    		440 => "OS i Rio",
-    		500 => "Blandat",
-    		520 => "Sveriges Radio (SR)",
-    		550 => "Tipset i SVT text",
-    		551 => "Stryktipset",
-    		552 => "Stryktipset",
-    		553 => "Europatipset",
-    		570 => "v75/ATG (hästsport)",
-    		571 => "v75 resultat",
-    		580 => "Lotterier m.m.",
-    		590 => "Lotto",
-    		600 => "På TV",
-    		650 => "På TV just nu - SVT Texts programguide",
-    		//670 => "Hästar",
-    		676 => "Radiohjälpen",
-    		700 => "Innehåll",
-    		712 => "Info om SVT Text (Om Text TV)",
-    		800 => "Utbildningsradion (UR)"
-	    );
-	    if (array_key_exists($this->num, $arr_names)) {
-	    	return $arr_names[$this->num];
-	    } else {
-	    	return FALSE;
-	    }
-    }
+		$arr_names = array(
+			100 => "Start",
+			101 => "Inrikes nyheter",
+			104 => "Utrikes nyheter",
+			127 => "Ekonominotiser",
+			128 => "Inrikesnotiser",
+			148 => "Utrikesnotiser",
+			149 => "Världen runt",
+			150 => "Kultur & Nöje",
+			//160 => "Bakgrunder",
+			188 => "Nyhetsrullen",
+			200 => "Ekonomi",
+			201 => "Börsinnehåll",
+			201 => "Börssidor",
+			220 => "Aktier",
+			223 => "Optioner",
+			230 => "Valutakurser",
+			300 => "Resultatbörs & sportnyheter",
+			330 => "Resultatbörsen",
+			376 => "Målservice",
+			377 => "Målservice",
+			400 => "Väder",
+			420 => "Snörapporten",
+			430 => "Väglagsinfo från Trafikverket",
+			431 => "Tillfälliga trafikstörningar",
+			440 => "OS i Rio",
+			500 => "Blandat",
+			520 => "Sveriges Radio (SR)",
+			550 => "Tipset i SVT text",
+			551 => "Stryktipset",
+			552 => "Stryktipset",
+			553 => "Europatipset",
+			570 => "v75/ATG (hästsport)",
+			571 => "v75 resultat",
+			580 => "Lotterier m.m.",
+			590 => "Lotto",
+			600 => "På TV",
+			650 => "På TV just nu - SVT Texts programguide",
+			//670 => "Hästar",
+			676 => "Radiohjälpen",
+			700 => "Innehåll",
+			712 => "Info om SVT Text (Om Text TV)",
+			800 => "Utbildningsradion (UR)"
+		);
+		if (array_key_exists($this->num, $arr_names)) {
+			return $arr_names[$this->num];
+		} else {
+			return FALSE;
+		}
+	}
 
-    function get_content_with_fixes() {
+	function get_content_with_fixes()
+	{
 
-    	$arr_contents = $this->arr_contents;
+		$arr_contents = $this->arr_contents;
 
-    	// each content = one page and sub-page 
-    	foreach ($arr_contents as $key => $one_content) {
-    		
-    		/*
+		// each content = one page and sub-page 
+		foreach ($arr_contents as $key => $one_content) {
+
+			/*
 			Fix 1: hitta nummer i texten som inte är länkar men som borde vara det
 			Exempel på text:
 			 <span class="C">Under tiden 01.00 - 06.00 uppdaterar   </span>
@@ -718,28 +707,27 @@ class Texttv_page extends CI_Model {
 			Hitta nummer nnn som inte har > före sig eller </ efter sig. typ.
 			*/
 
-    		// print_r($one_content);
+			// print_r($one_content);
 
-    		$arr_contents[$key] = $one_content;
+			$arr_contents[$key] = $one_content;
+		}
 
-    	}
+		return $arr_contents;
+	}
 
-    	return $arr_contents;
+	/**
+	 * ger li-output för en sida
+	 */
+	function get_output()
+	{
 
-    }
-
-    /**
-      * ger li-output för en sida
-      */
-    function get_output() {
-
-	    $out = "";
+		$out = "";
 
 		// Output en sida
 		$page_num_data_attr = sprintf("data-sida=%d", $this->num);
-		
+
 		$out .= "<li $page_num_data_attr class='one-page TextTVPage'>";
-		
+
 		//$out .= sprintf('<div style="display:none" class="page-swipe-wrap page-swipe-wrap-prev">Föregående sida: %1$s:</div>', $this->prev_page);
 
 		//$out .= "<div class='page-swipe-wrap'>";
@@ -773,19 +761,17 @@ class Texttv_page extends CI_Model {
 			$out .= $one_page;
 
 			$out .= "</li>";
-			
 		}
 		$out .= "</ul>";
 
 		//$out .= "</div>"; // div för swipe
 
 		//$out .= sprintf('<div style="display:none" class="page-swipe-wrap page-swipe-wrap-next">Nästa sida: %1$s:</div>', $this->next_page);
-		
+
 		$out .= "</li>";
 
-	    return $out;
-
-    }
+		return $out;
+	}
 
 	/*function maybeChangeLineCount( $page_contents ) {
 
@@ -818,10 +804,11 @@ class Texttv_page extends CI_Model {
 	}*/
 
 
-    /**
-     * Typ prefered page title
-     */
-    function get_page_title() {
+	/**
+	 * Typ prefered page title
+	 */
+	function get_page_title()
+	{
 
 		$page_title = "";
 		if (($page_name = $this->get_page_name())) {
@@ -831,15 +818,15 @@ class Texttv_page extends CI_Model {
 			// Else see if we found a title when loading the page
 			$page_title .= "" . trim($this->title);
 		}
-		
+
 		return $page_title;
+	}
 
-    }
-
-    /**
-     * Permalink for archive
-     */
-    function get_permalink($include_domain = FALSE) {
+	/**
+	 * Permalink for archive
+	 */
+	function get_permalink($include_domain = FALSE)
+	{
 
 		$page_title_for_url = $this->get_page_title();
 		# $page_title_for_url = strftime("%e %b %Y", $this->date_updated_unix) . "-$page_title_for_url";
@@ -866,31 +853,32 @@ class Texttv_page extends CI_Model {
 			$this->id, // 2 id
 			$page_title_for_url // 3 titel
 		);
-		
+
 		if ($include_domain) {
 			$permalink = "https://texttv.nu" . $permalink;
 		}
-		
-		return $permalink;
-	    
-    }
 
-    function isOkToArchiveInRange() {
-	    $ok_ids = "100,101,102,103,104,105,300,301,302,700";
-	    $arr_ids = explode(",",$ok_ids);
-	    return in_array($this->num, $arr_ids);
-    }
+		return $permalink;
+	}
+
+	function isOkToArchiveInRange()
+	{
+		$ok_ids = "100,101,102,103,104,105,300,301,302,700";
+		$arr_ids = explode(",", $ok_ids);
+		return in_array($this->num, $arr_ids);
+	}
 
 
 	// Skapar en array med sidnummer utifrån en string i format
 	// T.ex. "100", "100-104" "100,104,300-310"
-	static function extract_pages_from_ranges($pagenum) {
-		
+	static function extract_pages_from_ranges($pagenum)
+	{
+
 		// en sida, typ 100 eller range & flera 100-106,300-301
 		$arr_pages = array();
 		$arr_page_groups = explode(",", $pagenum);
 		foreach ($arr_page_groups as $one_page_group) {
-			$one_page_group = trim($one_page_group);	
+			$one_page_group = trim($one_page_group);
 			if (is_numeric($one_page_group)) {
 				// Just a single page
 				$arr_pages[] = $one_page_group;
@@ -902,14 +890,10 @@ class Texttv_page extends CI_Model {
 					for ($i = $matches[1]; $i <= $matches[2]; $i++) {
 						$arr_pages[] = $i;
 					}
-
 				}
 			}
 		}
-		
+
 		return $arr_pages;
-		
 	}
-
-
 }

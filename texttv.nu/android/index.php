@@ -37,7 +37,7 @@
 
 	<div class="row">
 
-		<div class="column">
+		<div class="column text-center">
 
 			<p class="text-center"><img class="logo" src="/images/text-tv-nu-logotyp.svg"></p>
 
@@ -45,7 +45,7 @@
 
 			<p>
 				Med <a href="https://play.google.com/store/apps/details?id=com.mufflify.TextTVnu&hl=sv">text-tv-appen</a> från <a href="/">texttv.nu</a>
-				så får du nyheter och sportresultat snabb och enkelt rakt in i din android-telefon.
+				så får du nyheter och sportresultat från SVT Text snabb och enkelt rakt in i din android-telefon.
 			</p>
 
 			<p>
@@ -59,8 +59,34 @@
 			</p>
 
 			<div class="row">
+			
+				<div class="column small-12">
+					
+					<a 
+						href="https://play.google.com/store/apps/details?id=com.mufflify.TextTVnu2&hl=sv"
+						class="small-6 column"
+						>
+						<img 
+							src="/android/svt-text-tv-start.png" 
+							alt="Skärmdump som visar hur sidan 100 ser ut i Androidappen för text tv"
+							/>
+					</a>
+					<a 
+						href="https://play.google.com/store/apps/details?id=com.mufflify.TextTVnu2&hl=sv"
+						class="small-6 column"
+						>
+						<img 
+							src="/android/svt-text-tv-sport.png" 
+							alt="Skärmdump som visar hur sidan 300 ser ut i Androidappen för text tv"
+						/>
+					</a>
+				</div>			
 
-				<div class="column small-12 medium-8">
+			</div>
+
+			<div class="row">
+
+				<div class="column small-12">
 
 					<h2 class="text-center">Funktioner i appen</h2>
 
@@ -73,10 +99,12 @@
 						<li>Se sportnyheterna på <a href="/300">text tv 300</a> och resultaten på <a href="/377">text tv 377</a></li>
 					</ul>
 
-					<p class="text-center">
-						<a href="https://play.google.com/store/apps/details?id=com.mufflify.TextTVnu&hl=sv" class="button">Ladda hem appen</a>
+					<p>
+						<a href="https://play.google.com/store/apps/details?id=com.mufflify.TextTVnu2&hl=sv" class="button">Ladda hem appen</a>
+						<br>
+						eller besök <a href="https://TextTV.nu/">TextTV.nu</a> i din webbläsare.
 					</p>
-
+					
 				</div>
 
 				<div class="column small-12 medium-4 text-center">

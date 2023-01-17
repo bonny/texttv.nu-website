@@ -193,8 +193,6 @@ var texttvnu = (function ($) {
 	*/
 
   my.onDomReady = function () {
-    FastClick.attach(document.body);
-
     elms.html = $("html");
     elms.document = $(document);
     elms.win = $(window);
@@ -330,19 +328,19 @@ var texttvnu = (function ($) {
     }
   };
 
-  my.loadGA = function () {
-    (function () {
-      var ga = document.createElement("script");
-      ga.type = "text/javascript";
-      ga.async = true;
-      ga.src =
-        ("https:" == document.location.protocol
-          ? "https://ssl"
-          : "http://www") + ".google-analytics.com/ga.js";
-      var s = document.getElementsByTagName("script")[0];
-      s.parentNode.insertBefore(ga, s);
-    })();
-  };
+  // my.loadGA = function () {
+  //   (function () {
+  //     var ga = document.createElement("script");
+  //     ga.type = "text/javascript";
+  //     ga.async = true;
+  //     ga.src =
+  //       ("https:" == document.location.protocol
+  //         ? "https://ssl"
+  //         : "http://www") + ".google-analytics.com/ga.js";
+  //     var s = document.getElementsByTagName("script")[0];
+  //     s.parentNode.insertBefore(ga, s);
+  //   })();
+  // };
 
   // onload, alltså inte domready
   /*my.onLoad = function() {
@@ -352,7 +350,7 @@ var texttvnu = (function ($) {
   return my;
 })($);
 
-texttvnu.loadGA();
+// texttvnu.loadGA();
 
 // OnDomReady baby
 //$(function() {
@@ -394,10 +392,18 @@ texttvnu.onDomReady();
   $(".pages-updated-reload").on("click", function (e) {
     texttvnu.loading();
 
+    // Update URL to bypass cache.
+    // Should be safe because not all click update at the same time or so often.
+    // 'https://texttv.nu/101'
+    var newUrl = new URL(window.location.href)
+    var unixtime = Math.floor(Date.now() / 1000);
+    newUrl.searchParams.set('uppdaterad', unixtime);
+
     // Track click and then reload
     ga("send", "event", "button", "click", "update_available", {
       hitCallback: function () {
-        document.location.reload();
+        // document.location.reload();
+        window.location.replace(newUrl);
       },
     });
   });
@@ -436,10 +442,6 @@ window.addEventListener("DOMContentLoaded", (event) => {
       $(".controls-topnav-form").submit();
     }
   });
-
-  // Set body class based on os and maybe more.
-  var md = new MobileDetect(window.navigator.userAgent);
-  document.body.classList.add("os--" + md.os());
 });
 
 if ("serviceWorker" in navigator) {

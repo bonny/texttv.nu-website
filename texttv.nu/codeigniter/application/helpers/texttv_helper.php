@@ -7,8 +7,104 @@ function d($str = "") {
 	echo "</pre>";
 }
 
-function get_shared_pages_for_period($time_from, $time_to) {
+/**
+ * @param int $time_from Unixtime
+ * @param int $time_to Unixtime
+ * @param string $type
+ */
+function get_most_read_pages_for_period($time_from, $time_to, $type = 'news') {
+	$time_from_ymd = date("Y-m-d H:i", $time_from);
+	$time_to_ymd = date("Y-m-d H:i", $time_to);
+		
+	if ($type == 'news') {
+		// type=news default, visa endast sidor 106 - 199
+		$type_and = 'AND tt.page_num BETWEEN 106 AND 199';
+	} elseif ($type == 'sport') {
+		// type=news default, visa endast sidor 106 - 199
+		$type_and = 'AND tt.page_num BETWEEN 303 AND 329';
+	} else {
+		// type=, visa allt förutom startsidor, översiktssidor osv.
+		$type_and = '';
+	}
 
+	$ci =& get_instance();
+	$ci->load->database();
+
+	$sql = "
+		## Hämta actions från n senaste timmarna
+		#EXPLAIN
+		select 
+		  count(pa.page_ids) AS count_page_ids, 
+		  pa.page_ids, 
+		  tt.id, 
+		  tt.page_num, 
+		  tt.title, 
+		  tt.date_updated,
+		  UNCOMPRESS(tt.page_content) AS page_content,
+		  DATE_FORMAT(tt.date_added, '%H:%i') AS date_added_formatted, 
+		  UNIX_TIMESTAMP(tt.date_added) AS date_added_unix, 
+		  tt.date_added
+		
+		FROM 
+		  texttv_stats.page_actions AS pa 
+		  INNER JOIN `texttv.nu`.texttv AS tt ON (tt.id = pa.page_ids)
+		
+		WHERE 
+		  # pa.created_at > DATE_SUB(NOW(), INTERVAL 1 HOUR) 
+		  pa.created_at BETWEEN '$time_from_ymd' and '$time_to_ymd'
+		  
+		  AND pa.type in(
+			'VIEW', 'SHARE', 'COPYLINK', 'COPYTEXT'
+		  )
+		  
+		  # Exkludera startsidan och nyheterna
+		  AND (
+			tt.page_num NOT BETWEEN 100 AND 105
+		  )
+		  
+		  # Exkludera börsen
+		  AND (
+			tt.page_num NOT BETWEEN 200 AND 299
+		  )
+		  
+		  # Exkludera sportens nyheter och resultatstartsidorna
+		  and (
+			tt.page_num NOT BETWEEN 300 AND 303
+		  ) 
+		  AND tt.page_num not in (
+			'377', '378', '379', '330', '331', '380', '344', '381'
+		  )
+		  
+		  # Exkludera tv
+		  AND (
+			tt.page_num NOT BETWEEN 600 AND 699
+		  )
+		  
+		  # Exkludera andra sidor
+		  AND (tt.page_num NOT IN ('202'))
+
+		  # Exkludera tomma sidor
+		  AND (tt.title > '')
+		  
+		  # Inkludera ev. endast t.ex. nyheter eller sport
+		  $type_and
+
+		GROUP BY
+		  pa.page_ids 
+		ORDER BY
+		  count_page_ids DESC, 
+		  pa.created_at ASC 
+		LIMIT 50
+	";
+	
+	// echo $sql; exit;
+	
+	$result = $ci->db->query($sql);
+	
+	return $result;
+} // end get most read pages for period
+
+function get_shared_pages_for_period($time_from, $time_to) {
 	$time_from_ymd = date("Y-m-d H:i", $time_from);
 	$time_to_ymd = date("Y-m-d H:i", $time_to);
 
@@ -17,7 +113,7 @@ function get_shared_pages_for_period($time_from, $time_to) {
 
 	$sql = "
 		SELECT 
-			id, date_added, 
+			id,
 			DATE_FORMAT(date_added, '%H:%i') as date_added_formatted, 
 			UNIX_TIMESTAMP(date_added) as date_added_unix, 
 			date_added, 
@@ -39,9 +135,7 @@ function get_shared_pages_for_period($time_from, $time_to) {
 	$result = $ci->db->query($sql);
 	
 	return $result;
-
 } // end get shared pages for period
-
 
 function get_latest_updated_pages($from, $to, $maxcount = 20) {
 
@@ -415,7 +509,6 @@ function autolink_email($text, $tagfill=''){
 // Skapa permalänk för 1 eller flera sidor
 function get_permalink_from_pages($arr_pages, $page, $pagenum) {
 	
-	// $text_archive = "";
 	$permalink = "";
 
 	if ( sizeof( $arr_pages) > 1 ) {
@@ -426,7 +519,6 @@ function get_permalink_from_pages($arr_pages, $page, $pagenum) {
 		}
 
 		$page_title_for_url = date("j M Y", $one_page_obj->date_updated_unix);
-
 		$page_title_for_url = trim(strtolower($page_title_for_url));
 		$page_title_for_url = url_title($page_title_for_url);	
 
@@ -437,20 +529,19 @@ function get_permalink_from_pages($arr_pages, $page, $pagenum) {
 			implode(",", $arr_mutliple_archive_ids), // 2 id
 			$page_title_for_url // 3 titel
 		);
-	
-		// $text_archive .= sprintf('<p><strong>Permanent länk</strong> till dessa sidor:<br><a href="%1$s">%1$s</a></p>', $permalink);
 
 	} else if ( isset( $page ) ) {
 	
 		$permalink = $arr_pages[0]->get_permalink();
-		// $text_archive .= sprintf('<p><strong>Permanent länk</strong> till denna sida:<br><a href="%1$s">%1$s</a></p>', $arr_pages[0]->get_permalink());
 		
 	}
 
 	return $permalink;
+
 }
 
 function mark_archive_ids_as_shared($arr_page_ids) {
+	
 	if (empty($arr_page_ids)) {
 		return;
 	}

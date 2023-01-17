@@ -74,55 +74,8 @@ foreach ($arr_pages as $one_page) {
 }
 $this->output->append_output("</ul>");
 
-
 	if ( ! $this->input->get("apiAppShare") ) {
 		
-		// Dela-knappar under arkivsida
-		$this->output->append_output('
-	<script>
-  window.fbAsyncInit = function() {
-    FB.init({
-      xappId      : "your-app-id",
-      xfbml      : true,
-      version    : "v2.5"
-    });
-  };
-  
-  (function(d, s, id){
-     var js, fjs = d.getElementsByTagName(s)[0];
-     if (d.getElementById(id)) {return;}
-     js = d.createElement(s); js.id = id;
-     js.src = "//connect.facebook.net/en_US/sdk.js";
-     fjs.parentNode.insertBefore(js, fjs);
-   }(document, "script", "facebook-jssdk"));
-   </script>
-   
-	   <div class="archive-share-buttons">
-   
-	   		<div class="archive-share-button archive-share-button-fb">
-			    <div class="fb-like" 
-			        data-layout="button" 
-			        data-action="like" 
-			        colorscheme="dark"
-			        data-show-faces="true">
-			    </div>
-			</div>
-
-	   		<div class="archive-share-button archive-share-button-fb archive-share-button-fb--send">
-				<div class="fb-send" 
-					data-layout="button_count">
-				</div>
-			</div>
-	
-			<div class="archive-share-button archive-share-button-twitter">
-				<a href="https://twitter.com/share" class="twitter-share-button" data-via="texttv_nu" data-size="large" data-count="none" data-hashtags="texttv">Tweet</a>
-			</div>
-		</div>
-
-		<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?"http":"https";if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document, "script", "twitter-wjs");</script>
-		    
-');
-
 		// Info-text längst ner under arkivsida
 		$this->output->append_output( sprintf(
 			'

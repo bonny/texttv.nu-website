@@ -32,9 +32,14 @@
 	</p>
 	
 	<h2>Om tekniken</h2>
+	
 	<p>Webbplatsen driftas på en VPS hos <a href="https://www.digitalocean.com/?refcode=f9805ade6685">Digital Ocean</a> i Amsterdam.</p>
 	<p>Som webbserver använder vi <a href="http://nginx.org/">Nginx</a> med <a href="http://nginx.org/en/docs/http/ngx_http_fastcgi_module.html">FastCGI-cache</a> påslaget för att klara av de stora trafikmängderna.</p>
 	<p>Databasen <a href="https://www.mysql.com/">MySQL</a> används för att lagra alla sidor.</p>
 	<p>Hämtning av sidor från SVT Text TV sker med egenutvecklade skript.</p>
+	
+	<h2>Gänget bakom TextTV.nu</h2>
+	<p>Sajten är ett sidoprojekt främst utvecklad av programmeraren Pär Thernström.
+		Du når honom på <a href="mailto:par.thernstrom@gmail.com">par.thernstrom@gmail.com</a></p>
 
 </div>

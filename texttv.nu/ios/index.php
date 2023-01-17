@@ -60,6 +60,8 @@
 
 			<p class="text-center">
 				<a href="https://itunes.apple.com/se/app/texttv.nu/id607998045?mt=8" class="button">Installera text-tv-appen</a>
+				<br>
+				eller besök <a href="https://TextTV.nu/">TextTV.nu</a> i din webbläsare.
 			</p>
 
 			<div class="row">

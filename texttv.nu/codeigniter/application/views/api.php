@@ -4,7 +4,6 @@
  * Api
  */
 
-
 switch ($api_call) {
 
 	/**
@@ -115,16 +114,37 @@ switch ($api_call) {
 			$arr_pages_json = array();
 			foreach ($arr_pages as $one_page) {
 				$page = new texttv_page($one_page);
-				$arr_pages_json[] = array(
+				
+				$content = $page->get_content_with_fixes();
+				$page_content_plain = [];
+				$include_content_plain = $this->input->get("includePlainTextContent");
+				
+				if ($include_content_plain) {
+					foreach ( $content as $one_sub_page ) {
+						$sub_page_content_plain = strip_tags($one_sub_page);
+						$sub_page_content_plain = trim($sub_page_content_plain);
+						$page_content_plain[] = $sub_page_content_plain;
+					}
+				}
+				
+				$return_arr = array(
 					"num" => $page->num,
 					"title" => $page->title,
-					"content" => $page->get_content_with_fixes(),
+					"content" => $content,
+					"content_plain" => $page_content_plain,
 					"next_page" => $page->next_page,
 					"prev_page" => $page->prev_page,
 					"date_updated_unix" => $page->date_updated_unix,
-					"permalink" => $page->get_permalink(TRUE),
-					"id" => $page->id
+					"permalink" => $page->get_permalink(true),
+					"id" => $page->id,
+					"breadcrumbs" => $page->get_breadcrumbs()
 				);
+				
+				if ($include_content_plain) {
+					$return_arr["content_plain"] = $page_content_plain;
+				}
+				
+				$arr_pages_json[] = $return_arr;
 			}
 
 			// Store in cache

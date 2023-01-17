@@ -10,27 +10,25 @@
 		</p>
 
 		<?php
-
-		// Inget datum, visa för idag + igår
+				
 		echo "<div class='brottsplatskartan-events-wrapper'>";
-		// echo '<h2>Mest delat idag</h2>';
-		// $result = get_shared_pages_for_period(strtotime("today"), time());
-		// output_shared_pages($result);
+
+		foreach ( $events_in_media->data as $one_event ) {
+			?>
+			<h2><a href="<?php echo $one_event->permalink ?>"><?php echo html_escape( $one_event->description ) ?></a></h2>
+			<p><?php echo html_escape( $one_event->content_teaser ) ?></p>
+			<p><a href="<?php echo $one_event->permalink ?>"><img src="<?php echo html_escape( $one_event->image ) ?>" alt=""/></a></p>
+			<?php
+		}
+
 		echo "</div>";
-		
-		/*
-		echo "<div class='most-shared-section most-shared-section--yesterday'>";	
-		echo '<h2>Mest delat igår</h2>';
-		$result = get_shared_pages_for_period(strtotime("yesterday 00:00"), strtotime("yesterday 24:00"));
-		output_shared_pages($result);
-		echo "</div>";
-		*/	
-		
+				
 		?>
 	</div>
 		
 </div>
 
+<!-- 
 <script>
 	window.addEventListener("load", function(event) {
  		const eventsWrappers = document.querySelectorAll('.brottsplatskartan-events-wrapper');
@@ -59,4 +57,4 @@
 			}
 		});
 	});	
-</script>
+</script> -->

@@ -71,7 +71,7 @@ if (isset($pages) && is_array($pages)) {
 
 	if ($pagenum >= 440 && $pagenum < 500) {
 		$arr_parent	= [
-			"title" => "OS i Rio",
+			"title" => "Sport › OS",
 			"url" => "https://texttv.nu/440"
 		];
 	}
@@ -126,19 +126,19 @@ if (isset($pages) && is_array($pages)) {
 	
 	
 	printf('
-			<ol class="breadcrumbs" itemscope itemtype="http://schema.org/BreadcrumbList">
+			<ol class="breadcrumbs" itemscope itemtype="https://schema.org/BreadcrumbList">
 
-				<li class="breadcrumbs__item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+				<li class="breadcrumbs__item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
 					<a class="breadcrumbs__link" href="http://texttv.nu/" itemprop="item"><span itemprop="name">Hem</span><meta itemprop="position" content="1" /></a> › 
 				</li>
 
-				<li class="breadcrumbs__item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+				<li class="breadcrumbs__item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
 					<a class="breadcrumbs__link" href="%3$s" itemprop="item"><span itemprop="name">%2$s</span><meta itemprop="position" content="2" /></a> › 
 				</li>
 				
 				%4$s
 
-				<li class="breadcrumbs__item breadcrumbs__item--current" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+				<li class="breadcrumbs__item breadcrumbs__item--current" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
 					<span itemprop="item"><span itemprop="name">%1$d<meta itemprop="url" content="/%1$d" /><meta itemprop="position" content="%5$d" /></span></span>
 				</li>
 

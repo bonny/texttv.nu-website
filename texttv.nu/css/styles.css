@@ -656,6 +656,9 @@ body {
   -ms-transition: all 300ms ease-in-out;
   -o-transition: all 300ms ease-in-out;
   transition: all 300ms ease-in-out;
+  
+  /* Se till att ev. annons inte täcker sista länkarna */
+  padding-bottom: 6em;
 }
 
 .sidebar,
@@ -907,7 +910,8 @@ http://api.texttv.nu/100/arkiv/sida/2664651/?apiAppShare=1
 
 body {
   /* 	background: rgb(20, 28, 42) url(/images/bg-blurred.png); */
-  background: rgb(17, 30, 63);
+  /* background: rgb(17, 30, 63); */
+  background: black;
   background-size: cover;
   background-attachment: fixed;
 }

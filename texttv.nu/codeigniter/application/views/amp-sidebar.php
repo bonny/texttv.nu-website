@@ -12,6 +12,8 @@
 			<li><a href="/330/amp">Resultatbörsen <span class="num">330</span></a></li>
 			<li><a href="/376/amp">Målservice <span class="num">376</span></a></li>
 			<li><a href="/377/amp">Målservice, resultat <span class="num">377</span></a></li>
+			<li><a href="/400/amp">Väder <span class="num">400</span></a></li>
+			<li><a href="/401/amp">Vädret i dag/i morgon <span class="num">401</span></a></li>
 			<li><a href="/571/amp">Sport, resultat V75 <span class="num">571</span></a></li>
 			<li><a href="/376-395/amp">Målservice &amp; resultat <span class="num">376-395</span></a></li>
 			<li><a href="/600,650-656/amp">TV-tablåer <span class="num">600, 650-656</span></a></li>			

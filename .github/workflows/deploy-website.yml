@@ -41,7 +41,7 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.KEY }}
           source: "texttv.nu/"
-          target: "/usr/share/nginx/texttv.nu-website"
+          target: "/usr/share/nginx/"
 
       - name: executing remote ssh commands using password
         uses: appleboy/ssh-action@master
@@ -50,6 +50,6 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.KEY }}
           script: |
-            cd /usr/share/nginx/texttv.nu-website
+            cd /usr/share/nginx/texttv.nu
             sudo chown -R root:root .
-            chmod 777 -R /usr/share/nginx/texttv.nu-website/texttv.nu/shares
+            chmod 777 -R /usr/share/nginx/texttv.nu/shares

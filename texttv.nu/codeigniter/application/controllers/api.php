@@ -802,19 +802,9 @@ class Api extends CI_Controller
 			exit;
 		}
 
-		$statsdb = $this->load->database('stats', TRUE);
-
 		$created_at = date("Y-m-d H:i:s");
 
-		$insert_data = [
-			'page_ids' => $page_ids,
-			'created_at' => $created_at,
-			'type' => $type
-		];
-
-		$statsdb->insert('page_actions', $insert_data);
-
-		$arr_json = [
+		$arr_json_response = [
 			'success' => true,
 			"request" => [
 				"page_ids" => $page_ids,
@@ -824,7 +814,27 @@ class Api extends CI_Controller
 		];
 
 		$this->output->set_content_type("text/json");
-		$this->output->append_output(json_encode($arr_json));
+
+		// VIEW har stöd för max 100 tecken i page_ids.
+		$view_page_ids_max_length = 100;
+		if ($type === 'VIEW' && mb_strlen($page_ids)> $view_page_ids_max_length) {
+			$arr_json_response['success'] = false;
+			$arr_json_response['error_message'] = 'page_ids more than 100 chars';
+			$this->output->append_output(json_encode($arr_json_response));
+			return;
+		}
+
+		$statsdb = $this->load->database('stats', TRUE);
+
+		$insert_data = [
+			'page_ids' => $page_ids,
+			'created_at' => $created_at,
+			'type' => $type
+		];
+
+		$statsdb->insert('page_actions', $insert_data);
+
+		$this->output->append_output(json_encode($arr_json_response));
 	}
 }
 

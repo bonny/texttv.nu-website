@@ -69,7 +69,7 @@ if ($HTTP_HOST === 'texttv.nu.test') {
 	$db['default']['stricton'] = FALSE;
 
 	// DB för sidvisningar och dela-statistik
-	$db['stats']['hostname'] = 'localhost';
+	$db['stats']['hostname'] = '127.0.0.1';
 	$db['stats']['username'] = 'root';
 	$db['stats']['password'] = '';
 	$db['stats']['database'] = 'texttv_stats';

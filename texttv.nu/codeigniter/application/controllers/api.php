@@ -764,7 +764,7 @@ class Api extends CI_Controller
 	}
 
 	/**
-	 * Åtgärdet för sida.
+	 * Åtgärded för sida.
 	 * Modernare/mer korrekt API-REST-URLigt.
 	 * 
 	 * Endpoints:

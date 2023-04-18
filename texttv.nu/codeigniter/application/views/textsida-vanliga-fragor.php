@@ -100,6 +100,21 @@
 				"
 			],
 
+			[
+				"question" => "Var har ekonomisidorna tagit vägen?",
+				"answer" => "
+					<p>
+						Text-tv:s ekonomisidor togs bort hösten 2022.
+					</p>
+					<p>
+						Anledningen är enligt SVT höga licenskostnader.
+					</p>
+					<p>
+						<a href='https://texttv.nu/200'>Läs mer på sidan 200</a>
+					</p>
+				"
+			],
+
 		];
 		
 		// Meny först.

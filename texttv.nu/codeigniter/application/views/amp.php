@@ -54,6 +54,10 @@ if ($isMultiplePages || (isset($is_archive) && $is_archive)) {
 ?><!doctype html>
 <html ⚡ lang="sv">
   <head>
+	<script>
+		// 2023-06-07: Redirect old school.
+		document.location = '<?php echo htmlspecialchars($canonical); ?>';
+	</script>
     <meta charset="utf-8">
     <title><?php echo html_escape($page_title) ?> | SVT Text TV</title>
     <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">

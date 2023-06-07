@@ -3,3 +3,4 @@ importer/live-db-latest-rows-export.sql
 .vscode/settings.json
 importer/.vscode/settings.json
 texttv.nu/.valet-env.php
+texttv.nu/debug.txt

@@ -107,9 +107,8 @@ if (isset($is_archive_overview)) {
 	}
 
 	// Om permalink
-	if (isset($is_archive)) {
-		// $page_title .= sprintf(' (%1$s)', trim(strftime("%e %b %Y kl %H:%M", $page->date_updated_unix)));
-	}
+	// if (isset($is_archive)) {
+	// }
 
 	// startpage has: 100,300,700
 	// but has many pages so check for that so /100 is not considered start
@@ -478,11 +477,9 @@ if ($is_start) {
 	*/
 
 	if (isset($is_archive) && !$this->input->get("apiAppShare")) {
-
 		$archive_date = date("c", $pages[0]->date_updated_unix);
-
-		// $page_title .= sprintf(' (%1$s)', trim(strftime("%e %b %Y kl %H:%M", $page->date_updated_unix)));
-	?>
+		
+		?>
 		<script type="application/ld+json">
 			{
 				"@context": "https://schema.org",

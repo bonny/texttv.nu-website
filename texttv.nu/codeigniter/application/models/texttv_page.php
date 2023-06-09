@@ -944,7 +944,6 @@ class Texttv_page extends CI_Model {
     function get_permalink($include_domain = FALSE) {
 
 		$page_title_for_url = $this->get_page_title();
-		# $page_title_for_url = strftime("%e %b %Y", $this->date_updated_unix) . "-$page_title_for_url";
 		$page_title_for_url = mb_strtolower($page_title_for_url);
 		$page_title_for_url = str_replace("å", "a", $page_title_for_url);
 		$page_title_for_url = str_replace("ä", "a", $page_title_for_url);

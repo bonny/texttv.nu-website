@@ -144,6 +144,8 @@ class Importer
                 if ($charInfo['charType']['type'] === 'image') {
                     $charInfoHash = $charInfo['charImageHash'];
                     $charFilename = "storage/chars/{$charInfoHash}.gif";
+                    
+                    // @string $charUrl For example "http://localhost:8000/storage/chars/2335531887.gif".
                     $charUrl = asset($charFilename);
 
                     // Bild

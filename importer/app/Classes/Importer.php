@@ -1144,6 +1144,13 @@ class Importer
             // genom att lägga till mellanslag
             // före och efter omvartannat.
             $pageLines->transform(function ($line, $key) {
+
+                if ($this->pageNum() == 100 && mb_strlen($line) < 40) {
+                    // Sedan sommar 2023 så är inte sifforna under rubrikerna på startsidan centerade,
+                    // så vi lägger till ett extra mellanslag i början av raden.
+                    $line = ' ' . $line;
+                }
+
                 while (mb_strlen($line) < 40) {
                     if ($this->pageNum() == 100) {
                         // På båda sidorna på startsidan för att centrera.

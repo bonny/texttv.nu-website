@@ -211,6 +211,24 @@ class Importer
             $subPageLines[3] = str_replace('SVT Text                               ', '                            SVT Text   ', $subPageLines[3]);
         }
 
+        // Flytta Rubriker 101-103 till höger på 101
+        // "   Rubriker 101-103            "
+        if (in_array($this->pageNum(), [101, 102, 103])) {
+            $subPageLines[22] = str_replace(
+                '   Rubriker 101-103            ',
+                '            Rubriker 101-103', 
+                $subPageLines[22]
+            );
+        }
+
+        if (in_array($this->pageNum(), [104, 105])) {
+            $subPageLines[22] = str_replace(
+                '   Rubriker 104-105            ',
+                '            Rubriker 104-105', 
+                $subPageLines[22]
+            );
+        }
+
         // Flytta 1,2 milj/dag till höger
         if (in_array($this->pageNum(), [300, 301, 302])) {
             $subPageLines[1] = str_replace(' 1,2 milj/dag                           ', '                           1,2 milj/dag ', $subPageLines[1]);

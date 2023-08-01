@@ -5,9 +5,16 @@
 	<title>Text TV-app för Android</title>
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.2.3/foundation.min.css">
 	<meta charset="utf-8">
-	<link rel="canonical" href="https://texttv.nu/android/">
+	<link rel="canonical" href="https://texttv.nu/android">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<meta property="og:url" content="https://texttv.nu/android" />
+	<meta property="og:type" content="website" />
+	<meta property="og:title" content="Text TV-app för Android • Moderna funktioner • Bra betyg" />
+	<meta property="og:description" content="Text-TV-app för Android – Få snabb och enkel tillgång till nyheter och sportresultat från SVT Text direkt på din Android-telefon med text-tv-appen från texttv.nu. Mobilanpassad, dela sidor på sociala medier, favoritmärk, få uppdateringar, och följ sportnyheter på text tv 300. Ladda ner nu!" />
+	<meta property="og:image" content="http://texttv.nu.test/android/svt-text-tv-start.png" />
+
 	<style>
 		.logo {
 			margin-top: 20px;
@@ -15,14 +22,14 @@
 			display: inline-block;
 		}
 	</style>
+
 	<!-- Google tag (gtag.js) -->
 	<script async src="https://www.googletagmanager.com/gtag/js?id=G-J9BM4E3WHD"></script>
 	<script>
-	window.dataLayer = window.dataLayer || [];
-	function gtag(){dataLayer.push(arguments);}
-	gtag('js', new Date());
-
-	gtag('config', 'G-J9BM4E3WHD');
+		window.dataLayer = window.dataLayer || [];
+		function gtag(){dataLayer.push(arguments);}
+		gtag('js', new Date());
+		gtag('config', 'G-J9BM4E3WHD');
 	</script>
 </head>
 

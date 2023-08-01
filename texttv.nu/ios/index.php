@@ -8,11 +8,31 @@
 	<link rel="canonical" href="https://texttv.nu/ios/">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 	<meta property="og:url" content="https://texttv.nu/ios" />
 	<meta property="og:type" content="website" />
 	<meta property="og:title" content="Text TV-app för iPhone och iPad (iOS)" />
 	<meta property="og:description" content="Med text-tv-appen från texttv.nu så får du nyheter & sportresultat snabbt och enkelt rakt in i din mobil. Se dina favoritsidor som 100, 300 och 377 i din Iphone eller Ipad." />
 	<meta property="og:image" content="https://texttv.nu/ios/iphone-text-tv-app-screenshot.png" />
+
+    <script type="application/ld+json">
+		{
+			"@context": "https://schema.org",
+			"@type": "SoftwareApplication",
+			"name": "TextTV.nu",
+			"operatingSystem": "Ios",
+			"aggregateRating": {
+				"@type": "AggregateRating",
+				"ratingValue": "4.5",
+				"ratingCount": "7560"
+			},
+			"offers": {
+				"@type": "Offer",
+				"price": "0",
+			}
+		}
+    </script>
+
 	<style>
 		.logo {
 			margin-top: 20px;
@@ -20,6 +40,7 @@
 			display: inline-block;
 		}
 	</style>
+
 	<!-- Google tag (gtag.js) -->
 	<script async src="https://www.googletagmanager.com/gtag/js?id=G-J9BM4E3WHD"></script>
 	<script>

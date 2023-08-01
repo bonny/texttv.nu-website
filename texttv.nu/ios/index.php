@@ -21,6 +21,7 @@
 			"@type": "SoftwareApplication",
 			"name": "TextTV.nu",
 			"operatingSystem": "Ios",
+			"applicationCategory": "NewsApplication, SportsApplication",
 			"aggregateRating": {
 				"@type": "AggregateRating",
 				"ratingValue": "4.5",

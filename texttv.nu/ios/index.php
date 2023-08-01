@@ -19,7 +19,7 @@
 		{
 			"@context": "https://schema.org",
 			"@type": "SoftwareApplication",
-			"name": "TextTV.nu",
+			"name": "TextTV.nu: smartare SVT Text",
 			"operatingSystem": "Ios",
 			"applicationCategory": "NewsApplication, SportsApplication",
 			"aggregateRating": {

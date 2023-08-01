@@ -15,6 +15,25 @@
 	<meta property="og:description" content="Text-TV-app för Android – Få snabb och enkel tillgång till nyheter och sportresultat från SVT Text direkt på din Android-telefon med text-tv-appen från texttv.nu. Mobilanpassad, dela sidor på sociala medier, favoritmärk, få uppdateringar, och följ sportnyheter på text tv 300. Ladda ner nu!" />
 	<meta property="og:image" content="http://texttv.nu.test/android/svt-text-tv-start.png" />
 
+    <script type="application/ld+json">
+		{
+			"@context": "https://schema.org",
+			"@type": "SoftwareApplication",
+			"name": "TextTV.nu: smartare SVT Text",
+			"operatingSystem": "Android",
+			"applicationCategory": "NewsApplication, SportsApplication",
+			"aggregateRating": {
+				"@type": "AggregateRating",
+				"ratingValue": "3.9",
+				"ratingCount": "45"
+			},
+			"offers": {
+				"@type": "Offer",
+				"price": "0"
+			}
+		}
+    </script>
+
 	<style>
 		.logo {
 			margin-top: 20px;

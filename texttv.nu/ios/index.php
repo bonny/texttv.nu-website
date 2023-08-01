@@ -28,7 +28,7 @@
 			},
 			"offers": {
 				"@type": "Offer",
-				"price": "0",
+				"price": "0"
 			}
 		}
     </script>

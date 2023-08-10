@@ -53,3 +53,5 @@ jobs:
             cd /usr/share/nginx/texttv.nu
             sudo chown -R root:root .
             chmod 777 -R /usr/share/nginx/texttv.nu/shares
+            chmod 777 /usr/share/nginx/texttv.nu/codeigniter/application/cache/
+

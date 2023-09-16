@@ -76,7 +76,11 @@
 			links.forEach(link => {
 				link.addEventListener('click', e => {
 					e.preventDefault();
-					window.ReactNativeWebView.postMessage(link.href);
+					const data = {
+						href: link.href,
+						text: link.innerText,
+					};
+					window.ReactNativeWebView.postMessage(JSON.stringify(data));
 				});
 			});
 		}

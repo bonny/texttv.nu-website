@@ -107,5 +107,8 @@ $route['text-tv-fakta/(:any)'] = "fakta/sida/$1";
 $route['fb/webhook'] = "fb/webhook";
 $route['fb/generate_screenshot'] = "fb/generate_screenshot/$1";
 
+// /embed/<pageRange>/ for new apps.
+$route['appembed/(:any)'] = "appembed/visa/$1";
+
 /* End of file routes.php */
 /* Location: ./application/config/routes.php */

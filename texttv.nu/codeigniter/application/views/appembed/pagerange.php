@@ -68,19 +68,29 @@
 	<script>
 		function addPostMessageLinkListener() {
 			// Bail if ReactNativeWebView is not defined.
-			if (typeof window.ReactNativeWebView === 'undefined') {
-				return;
-			}
+			// if (typeof window.ReactNativeWebView === 'undefined') {
+			// 	return;
+			// }
 
 			let links = document.querySelectorAll('a');
 			links.forEach(link => {
 				link.addEventListener('click', e => {
 					e.preventDefault();
+
+					const href = link.href;
+					const pageRange = href.match(/\/(\d{3}(-\d{3})?)/)[1];
+					
 					const data = {
-						href: link.href,
+						href: href,
 						text: link.innerText,
+						pageRange: pageRange
 					};
-					window.ReactNativeWebView.postMessage(JSON.stringify(data));
+
+					if (typeof window.ReactNativeWebView !== 'undefined') {
+						window.ReactNativeWebView.postMessage(JSON.stringify(data));
+					} else {
+						console.log('postMessage data', data);
+					}
 				});
 			});
 		}

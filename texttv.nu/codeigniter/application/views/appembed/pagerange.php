@@ -30,7 +30,7 @@
 		}
 
 		.appembed {
-			font-size: clamp(.75rem, 4vw, 2rem);
+			font-size: clamp(1px, 4.5vw, 2rem);
 		}
 
 		.appembed .pages {

@@ -20,7 +20,6 @@
 	<base href="/appembed/" />
 	<link rel="stylesheet" href="/css/fonts.css">
 	<link rel="stylesheet" href="/css/texttvpage.css">
-	<!-- <link rel="stylesheet" href="/min/?f=css/fonts.css,css/styles.css,css/texttvpage.css&amp;v=16"> -->
 	<style>
 		.appembed {
 			background-color: #111;
@@ -47,7 +46,7 @@
 			<?php
 			foreach ($pages as $one_page_obj) {
 				$page_output = $one_page_obj->get_output();
-				
+
 				// Make absolute links relative so they can go
 				// to this page instead of the root of the site.
 				// E.g. convert link "<a href="/401">401</a>"
@@ -65,6 +64,26 @@
 			?>
 		</ul>
 	</section>
+
+	<script>
+		function addPostMessageLinkListener() {
+			// Bail if ReactNativeWebView is not defined.
+			if (typeof window.ReactNativeWebView === 'undefined') {
+				return;
+			}
+
+			let links = document.querySelectorAll('a');
+			links.forEach(link => {
+				link.addEventListener('click', e => {
+					e.preventDefault();
+					window.ReactNativeWebView.postMessage(link.href);
+				});
+			});
+		}
+
+		addPostMessageLinkListener();
+	</script>
+
 </body>
 
 </html>

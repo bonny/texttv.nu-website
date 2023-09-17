@@ -39,7 +39,8 @@
 			list-style: none;
 		}
 
-		.TextTVPage .root {
+		.TextTVPage .root,
+		.TextTVPage .inpage-pages {
 			text-align: center;
 		}
 

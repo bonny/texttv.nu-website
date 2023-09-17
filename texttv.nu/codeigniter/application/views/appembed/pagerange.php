@@ -44,8 +44,8 @@
 		}
 
 		.one-page {
-			margin-top: 4rem;
-			margin-bottom: 4rem;
+			margin-top: 25px;
+			margin-bottom: 25px;
 		}
 
 		.TextTVPage .root,

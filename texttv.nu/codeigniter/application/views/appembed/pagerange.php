@@ -30,13 +30,17 @@
 		}
 
 		.appembed {
-			font-size: clamp(1px, 4.5vw, 2rem);
+			font-size: clamp(1px, 4.2vw, 2rem);
 		}
 
 		.appembed .pages {
 			margin: 0;
 			padding: 0;
 			list-style: none;
+		}
+
+		.TextTVPage .root {
+			text-align: center;
 		}
 
 		footer {
@@ -100,8 +104,10 @@
 			}, $pages));
 
 			// Convert to DateTime object.
-			$max_date_updated = new DateTime('@' . $max_date_updated_unix, new DateTimeZone('Europe/Stockholm'));
-			echo "<li>Ändrad " . $max_date_updated->format('Y-m-d H:i:s') . '</li>';
+			if ($max_date_updated_unix) {
+				$max_date_updated = new DateTime('@' . $max_date_updated_unix, new DateTimeZone('Europe/Stockholm'));
+				echo "<li>Ändrad " . $max_date_updated->format('Y-m-d H:i:s') . '</li>';
+			}
 			?>
 		</ul>
 	</footer>

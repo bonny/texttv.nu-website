@@ -21,6 +21,10 @@
 	<link rel="stylesheet" href="/css/fonts.css">
 	<link rel="stylesheet" href="/css/texttvpage.css">
 	<style>
+		body {
+			margin: 0;
+		}
+
 		.appembed {
 			background-color: #111;
 			font-family: "Ubuntu Mono", 'Courier New', Courier, monospace;
@@ -37,6 +41,11 @@
 			margin: 0;
 			padding: 0;
 			list-style: none;
+		}
+
+		.one-page {
+			margin-top: 4rem;
+			margin-bottom: 4rem;
 		}
 
 		.TextTVPage .root,

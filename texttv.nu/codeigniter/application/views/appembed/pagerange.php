@@ -25,6 +25,7 @@
 			background-color: #111;
 			font-family: "Ubuntu Mono", 'Courier New', Courier, monospace;
 			display: flex;
+			flex-direction: column;
 			justify-content: center;
 		}
 
@@ -36,6 +37,21 @@
 			margin: 0;
 			padding: 0;
 			list-style: none;
+		}
+
+		footer {
+			color: #eee;
+			border-top: 1px solid #6d6c80;
+			padding-top: 1em;
+			margin-top: 1.5em;
+		}
+
+		footer ul {
+			margin: 0;
+		}
+
+		footer li {
+			padding: .2rem 0;
 		}
 	</style>
 </head>
@@ -65,6 +81,31 @@
 		</ul>
 	</section>
 
+	<footer>
+		<ul>
+			<?php
+			/**
+			 * Output last modified date and fetch date (to detect caches and old pages).
+			 * 
+			 * Example output:
+			 * "Ändrad: 2023-09-17 12:23"
+			 * "Hämtad: 2023-09-17 12:23"
+			 */
+			$now = new DateTime('now', new DateTimeZone('Europe/Stockholm'));
+			echo "<li>Hämtad " . $now->format('Y-m-d H:i:s') . '</li>';
+
+			// Get max value of date_updated_unix from all pages.
+			$max_date_updated_unix = max(array_map(function ($page) {
+				return $page->date_updated_unix;
+			}, $pages));
+
+			// Convert to DateTime object.
+			$max_date_updated = new DateTime('@' . $max_date_updated_unix, new DateTimeZone('Europe/Stockholm'));
+			echo "<li>Ändrad " . $max_date_updated->format('Y-m-d H:i:s') . '</li>';
+			?>
+		</ul>
+	</footer>
+
 	<script>
 		function addPostMessageLinkListener() {
 			// Bail if ReactNativeWebView is not defined.
@@ -72,6 +113,7 @@
 			// 	return;
 			// }
 
+			// postMessage to React Native when a link is clicked.
 			let links = document.querySelectorAll('a');
 			links.forEach(link => {
 				link.addEventListener('click', e => {
@@ -79,7 +121,7 @@
 
 					const href = link.href;
 					const pageRange = href.match(/\/(\d{3}(-\d{3})?)/)[1];
-					
+
 					const data = {
 						href: href,
 						text: link.innerText,

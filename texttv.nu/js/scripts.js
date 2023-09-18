@@ -95,26 +95,12 @@ var texttvnu = (function ($) {
       },
       function (data) {
         var permalink = data.permalink;
-        var permalinkTwitter = escape(
-          encodeURI(
-            permalink + "?utm_source=site&utm_medium=share&utm_campaign=twitter"
-          )
-        );
-        var permalinkFacebook = escape(
-          encodeURI(
-            permalink +
-              "?utm_source=site&utm_medium=share&utm_campaign=facebook"
-          )
-        );
-        var permalinkEmail = encodeURI(
-          permalink + "?utm_source=site&utm_medium=share&utm_campaign=email"
-        );
-        var permalinkLink = encodeURI(
-          permalink + "?utm_source=site&utm_medium=share&utm_campaign=link"
-        );
+        var permalinkTwitter = escape(encodeURI(permalink));
+        var permalinkFacebook = escape(encodeURI(permalink));
+        var permalinkEmail = encodeURI(permalink);
+        var permalinkLink = encodeURI(permalink);
 
         var title = data.title;
-        var escapedTitle = encodeURI(title);
         var escapedEmailTitle = encodeURI("Text TV: " + title);
         var escapedEmailBody =
           encodeURI("" + title + "\n\n") + escape(permalinkEmail);
@@ -395,9 +381,9 @@ texttvnu.onDomReady();
     // Update URL to bypass cache.
     // Should be safe because not all click update at the same time or so often.
     // 'https://texttv.nu/101'
-    var newUrl = new URL(window.location.href)
+    var newUrl = new URL(window.location.href);
     var unixtime = Math.floor(Date.now() / 1000);
-    newUrl.searchParams.set('uppdaterad', unixtime);
+    newUrl.searchParams.set("uppdaterad", unixtime);
 
     // Track click and then reload
     ga("send", "event", "button", "click", "update_available", {

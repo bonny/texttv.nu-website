@@ -36,7 +36,7 @@
 		.appembed {
 			/* font-size: clamp(1px, 4.2vw, 2rem); */
 			/* Like clamp but works in Ios 13.3.1 */
-			font-size: max(1px, min(4.2vw, 2rem));
+			font-size: max(1px, min(4.5vw, 2rem));
 		}
 
 		.appembed .pages {

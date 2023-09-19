@@ -768,8 +768,8 @@ class Api extends CI_Controller
 	 * Modernare/mer korrekt API-REST-URLigt.
 	 * 
 	 * Endpoints:
-	 * - api.texttv.nu/page/<pageid>/view
-	 * - api.texttv.nu/page/<pageid>/share
+	 * - api.texttv.nu/api/page/<pageid>/view
+	 * - api.texttv.nu/api/page/<pageid>/share
 	 */
 	public function page($page_ids = null, $type = null)
 	{

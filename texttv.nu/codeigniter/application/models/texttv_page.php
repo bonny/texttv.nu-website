@@ -1011,9 +1011,9 @@ class Texttv_page extends CI_Model {
 		// Remove pages that are not in range 100-999.
 		// This is to avoid e.g. 1000, 1001, 1002, 1003, 1004, 1005, 1006, 1007
 		// when we want to get 1000-1007
-		$arr_pages = array_filter($arr_pages, function($page_num) {
-			return $page_num >= 100 && $page_num <= 999;
-		});
+		// $arr_pages = array_filter($arr_pages, function($page_num) {
+		// 	return $page_num >= 100 && $page_num <= 999;
+		// });
 		
 		return $arr_pages;
 		

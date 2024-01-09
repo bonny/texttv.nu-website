@@ -1162,20 +1162,28 @@ class Importer
             // genom att lägga till mellanslag
             // före och efter omvartannat.
             $pageLines->transform(function ($line, $key) {
-
                 if ($this->pageNum() == 100 && mb_strlen($line) < 40) {
                     // Sedan sommar 2023 så är inte sifforna under rubrikerna på startsidan centerade,
                     // så vi lägger till ett extra mellanslag i början av raden.
-                    $line = ' ' . $line;
+                    // Update januari 2023: Nu verkar det som att texten är centerad igen.
+                    // $line = '' . $line;
+
+                    // Verkar vara fler mellanslag före än efter så trimma texten först.
+                    $line_contains_only_numbers = preg_match('/^\d+$/', trim($line));
+                    if ($line_contains_only_numbers) {
+                        // Behåll endast siffror.
+                        $line = trim($line);
+                    }
                 }
 
+                // Så länge raden är kortare än 40 tecken, lägg till mellanslag.
                 while (mb_strlen($line) < 40) {
                     if ($this->pageNum() == 100) {
                         // På båda sidorna på startsidan för att centrera.
                         if (mb_strlen($line) % 2) {
-                            $line = ' ' . $line;
-                        } else {
                             $line = $line . ' ';
+                        } else {
+                            $line = ' ' . $line;
                         }
                     } else {
                         // Bara i slutet på andra sidorna.

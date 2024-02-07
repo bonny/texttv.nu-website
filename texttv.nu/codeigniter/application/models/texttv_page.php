@@ -833,7 +833,8 @@ class Texttv_page extends CI_Model {
 				$old_version_info = "<div class='root'>";
 				$old_version_info .= "<span class='line'>Detta är en gammal version av TextTV.nu.</span>";
 				$old_version_info .= "\n<span class='line toprow'>Ladda hem ny version i Play Butik</span>";
-				$old_version_info .= "\n<span class='line toprow'><a href='https://texttv.nu/'>Ladda</a> <a href='#' onclick='window.open(\"https://texttv.nu/\");'>hem</a> <i onclick='alert();'>ny</i> version i Play Butik</span>";
+				// Länka till ny version. Vanliga <a> fungerar inte, men kanske window.open eller annan JS-lösning fungerar.
+				$old_version_info .= "\n<span class='line toprow'><a href='#' onclick='window.open(\"https://play.google.com/store/apps/details?id=com.mufflify.TextTVnu2\");'>Ladda</a> <a href='#' onclick='window.open(\"https://texttv.nu/\");'>hem</a> <i onclick='alert();'>ny</i> version i Play Butik</span>";
 				$old_version_info .= "\n<span class='line toprow'>";
 
 				$one_content = str_replace(

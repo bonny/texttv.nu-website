@@ -834,6 +834,8 @@ class Texttv_page extends CI_Model {
 				$old_version_info .= "<span class='line'>Detta är en gammal version av TextTV.nu.</span>";
 				$old_version_info .= "\n<span class='line toprow'>Ladda hem ny version i Play Butik</span>";
 				// Länka till ny version. Vanliga <a> fungerar inte, men kanske window.open eller annan JS-lösning fungerar.
+				// https://cordova.apache.org/docs/en/3.1.0/cordova/inappbrowser/window.open.html
+				// Testa länka direkt till market:// https://stackoverflow.com/questions/46719776/android-native-store-link-not-working-in-cordova-app
 				$old_version_info .= "\n<span class='line toprow'><a href='#' target='_blank' onclick='window.open(\"https://play.google.com/store/apps/details?id=com.mufflify.TextTVnu2\", \"_system\");'>Ladda</a> <a href='#' target='_system' onclick='window.open(\"https://texttv.nu/android\");'>hem</a> <i onclick='cordova.InAppBrowser.open(\"https://texttv.nu/android\", \"_blank\", \"location=yes\");'>ny</i> version i Play Butik</span>";
 				$old_version_info .= "\n<span class='line toprow'>";
 

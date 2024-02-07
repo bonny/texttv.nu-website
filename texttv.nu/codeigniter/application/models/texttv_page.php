@@ -831,7 +831,6 @@ class Texttv_page extends CI_Model {
 				$findthis = '<div class="root"><span class="line toprow">';
 
 				$old_version_info = "<div class='root'><span class='line'>Detta är en gammal version av TextTV.nu.</span>";
-				$old_version_info .= "\n<span class='line'>Ladda ner den <a href='https://play.google.com/store/apps/details?id=com.mufflify.TextTVnu2'>nya appen för Text TV på Google Play</a></span>".
 				$old_version_info .= "\n<span class='line toprow'>";
 
 				$one_content = str_replace(

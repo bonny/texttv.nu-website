@@ -820,7 +820,23 @@ class Texttv_page extends CI_Model {
 			Hitta nummer nnn som inte har > före sig eller </ efter sig. typ.
 			*/
 
-    		// print_r($one_content);
+			// Testa skriv ut info till gamla Android-appen.
+			$old_android_app_key = 'texttvnu.android1';
+			$show_old_android_app_info = false;
+			if ( ($_GET['app'] ?? '') === $old_android_app_key && $this->num == 800 ) {
+				$show_old_android_app_info = true;
+			}
+
+			if ($show_old_android_app_info) {
+				$findthis = '<div class="root"><span class="line toprow">';
+				$old_version_info = "Detta är en gammal version av TextTV.nu. Ladda ner den nya appen för Text TV på Google Play.";
+				$old_version_info .= "<a href='https://play.google.com/store/apps/details?id=com.mufflify.TextTVnu2'>Ladda ner Text TV-appen</a>";
+
+				$one_content = str_replace(
+					$findthis, 
+					$findthis . $old_version_info, $one_content);
+			}
+
 
     		$arr_contents[$key] = $one_content;
 

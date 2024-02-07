@@ -830,7 +830,9 @@ class Texttv_page extends CI_Model {
 			if ($show_old_android_app_info) {
 				$findthis = '<div class="root"><span class="line toprow">';
 
-				$old_version_info = "<div class='root'><span class='line'>Detta är en gammal version av TextTV.nu.</span>";
+				$old_version_info = "<div class='root'>";
+				$old_version_info .= "<span class='line'>Detta är en gammal version av TextTV.nu.</span>";
+				$old_version_info .= "\n<span class='line toprow'>Ladda hem ny version i Play Butik</span>";
 				$old_version_info .= "\n<span class='line toprow'>";
 
 				$one_content = str_replace(

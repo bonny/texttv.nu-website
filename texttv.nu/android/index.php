@@ -72,7 +72,7 @@
 			</p>
 
 			<p class="text-center">
-				<a href="https://play.google.com/store/apps/details?id=com.mufflify.TextTVnu&hl=sv" class="button">
+				<a href="https://play.google.com/store/apps/details?id=com.mufflify.TextTVnu&hl=sv" class="button" target="_blank">
 					Ladda hem text-tv-appen
 				</a>
 			</p>

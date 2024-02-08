@@ -823,7 +823,9 @@ class Texttv_page extends CI_Model {
 			// Testa skriv ut info till gamla Android-appen.
 			$old_android_app_key = 'texttvnu.android1';
 			$show_old_android_app_info = false;
-			if ( ($_GET['app'] ?? '') === $old_android_app_key && $this->num == 800 ) {
+
+			// Visa uppdateringsinfo på några få sidor till att börja med.
+			if ( ($_GET['app'] ?? '') === $old_android_app_key && in_array($this->num, [100, 200, 300, 800])) {
 				$show_old_android_app_info = true;
 			}
 

@@ -47,9 +47,17 @@ if ($isMultiplePages || (isset($is_archive) && $is_archive)) {
 	$allowIndex = false;
 }
 
+// 2023-06-07: Skickade vidare från /100/amp till /100 pga använder inte AMP aktivt längre.
+// $canonical = /100-102,211 osv.
+#$this->output->set_header('Location: ' . $canonical);
+
 ?><!doctype html>
 <html ⚡ lang="sv">
   <head>
+	<script>
+		// 2023-06-07: Redirect old school.
+		document.location = '<?php echo htmlspecialchars($canonical); ?>';
+	</script>
     <meta charset="utf-8">
     <title><?php echo html_escape($page_title) ?> | SVT Text TV</title>
     <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">

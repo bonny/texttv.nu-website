@@ -14,14 +14,6 @@ $out .= "<section id='pages'>";
 
 // Lägg till H1-rubriker ovanför sidorna.
 $headline = null;
-// if (isset($_GET['apa'])) {
-// 	#print_r($arr_pages);
-// 	print_r($page);
-// 	print_r($pages);
-// 	print_r($pagenum);
-// 	print_r($pagedescription);
-// 	exit;
-// }
 
 if ($pagedescription === 'startpage') {
 	$headline = 'SVT Text TV – Nyheter och Sportresultat';

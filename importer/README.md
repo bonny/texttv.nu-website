@@ -4,25 +4,20 @@ Nytt importskript skrivet i Laravel för att klara av ändringarna som SVT gjord
 
 ## Kör med PHP 8
 
-`/opt/homebrew/opt/php@8.1/bin/php `which composer` update`
+`valet use` to use correct PHP version
+`valet composer install`
+`valet composer update`
 `/opt/homebrew/opt/php@8.1/bin/php artisan serve --host=localhost`
 `/opt/homebrew/opt/php@8.1/bin/php artisan schedule:run`
 `/opt/homebrew/opt/php@8.1/bin/php artisan texttv:import 100`
 
-## Kör med PHP 7.4
-
-`/opt/homebrew/opt/php@7.4/bin/php `which composer` update`
-`/opt/homebrew/opt/php@7.4/bin/php artisan serve --host=localhost`
-`/opt/homebrew/opt/php@7.4/bin/php artisan schedule:run`
-`/opt/homebrew/opt/php@7.4/bin/php artisan texttv:import 100`
-
 ## Kör lokalt
 
-Starta med `$ php artisan serve --host=localhost`.
+Starta med `$ valet php artisan serve --host=localhost`.
 
 Testa lokalt på http://localhost:8000/ (inte 127.0.0.1 pga. misstolkar som sidnummer).
 
-Kör import med `$ php artisan schedule:run`.
+Kör import med `$ php artisan schedule:run` eller `$ valet php artisan texttv:import 100`.
 
 ### Tester
 

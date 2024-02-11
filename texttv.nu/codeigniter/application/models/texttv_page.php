@@ -820,7 +820,35 @@ class Texttv_page extends CI_Model {
 			Hitta nummer nnn som inte har > före sig eller </ efter sig. typ.
 			*/
 
-    		// print_r($one_content);
+			// Testa skriv ut info till gamla Android-appen.
+			$old_android_app_key = 'texttvnu.android1';
+			$show_old_android_app_info = false;
+
+			// Visa uppdateringsinfo på några få sidor till att börja med.
+			if ( ($_GET['app'] ?? '') === $old_android_app_key && in_array($this->num, [100, 200, 300, 800])) {
+				$show_old_android_app_info = true;
+			}
+
+			if ($show_old_android_app_info) {
+				$findthis = '<div class="root"><span class="line toprow">';
+
+				$old_version_info = "<div class='root'>";
+				$old_version_info .= "<span class='line'>      Denna app slutar snart fungera.   </span>";
+				$old_version_info .= "\n<span class='line'>    <a href='#' target='_blank' onclick='window.open(\"https://play.google.com/store/apps/details?id=com.mufflify.TextTVnu2\", \"_system\");'>Ladda hem ny version i Play Butik</a>   </span>";
+				$old_version_info .= "\n<span class='line'>                                        </span>";
+				// Länka till ny version. Vanliga <a> fungerar inte, men kanske window.open eller annan JS-lösning fungerar.
+				// https://cordova.apache.org/docs/en/3.1.0/cordova/inappbrowser/window.open.html
+				// Testa länka direkt till market:// https://stackoverflow.com/questions/46719776/android-native-store-link-not-working-in-cordova-app
+				// $old_version_info .= "\n<span class='line toprow'><a href='#' target='_blank' onclick='window.open(\"https://play.google.com/store/apps/details?id=com.mufflify.TextTVnu2\", \"_system\");'>Ladda</a> <a href='#' target='_system' onclick='window.open(\"https://texttv.nu/android\");'>hem</a> <i onclick='cordova.InAppBrowser.open(\"https://texttv.nu/android\", \"_blank\", \"location=yes\");'>ny</i> version i Play Butik</span>";
+				$old_version_info .= "\n<span class='line toprow'>";
+
+				$one_content = str_replace(
+					$findthis, 
+					$old_version_info,
+					$one_content
+				);
+			}
+
 
     		$arr_contents[$key] = $one_content;
 
@@ -944,7 +972,6 @@ class Texttv_page extends CI_Model {
     function get_permalink($include_domain = FALSE) {
 
 		$page_title_for_url = $this->get_page_title();
-		# $page_title_for_url = strftime("%e %b %Y", $this->date_updated_unix) . "-$page_title_for_url";
 		$page_title_for_url = mb_strtolower($page_title_for_url);
 		$page_title_for_url = str_replace("å", "a", $page_title_for_url);
 		$page_title_for_url = str_replace("ä", "a", $page_title_for_url);
@@ -1008,10 +1035,16 @@ class Texttv_page extends CI_Model {
 				}
 			}
 		}
+
+		// Remove pages that are not in range 100-999.
+		// This is to avoid e.g. 1000, 1001, 1002, 1003, 1004, 1005, 1006, 1007
+		// when we want to get 1000-1007
+		// $arr_pages = array_filter($arr_pages, function($page_num) {
+		// 	return $page_num >= 100 && $page_num <= 999;
+		// });
 		
 		return $arr_pages;
 		
 	}
-
 
 }

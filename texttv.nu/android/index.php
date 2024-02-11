@@ -5,9 +5,35 @@
 	<title>Text TV-app för Android</title>
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.2.3/foundation.min.css">
 	<meta charset="utf-8">
-	<link rel="canonical" href="https://texttv.nu/android/">
+	<link rel="canonical" href="https://texttv.nu/android">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<meta property="og:url" content="https://texttv.nu/android" />
+	<meta property="og:type" content="website" />
+	<meta property="og:title" content="Text TV-app för Android • Moderna funktioner • Bra betyg" />
+	<meta property="og:description" content="Text-TV-app för Android – Få snabb och enkel tillgång till nyheter och sportresultat från SVT Text direkt på din Android-telefon med text-tv-appen från texttv.nu. Mobilanpassad, dela sidor på sociala medier, favoritmärk, få uppdateringar, och följ sportnyheter på text tv 300. Ladda ner nu!" />
+	<meta property="og:image" content="http://texttv.nu.test/android/svt-text-tv-start.png" />
+
+    <script type="application/ld+json">
+		{
+			"@context": "https://schema.org",
+			"@type": "SoftwareApplication",
+			"name": "TextTV.nu: smartare SVT Text",
+			"operatingSystem": "Android",
+			"applicationCategory": "NewsApplication, SportsApplication",
+			"aggregateRating": {
+				"@type": "AggregateRating",
+				"ratingValue": "3.9",
+				"ratingCount": "45"
+			},
+			"offers": {
+				"@type": "Offer",
+				"price": "0"
+			}
+		}
+    </script>
+
 	<style>
 		.logo {
 			margin-top: 20px;
@@ -15,21 +41,14 @@
 			display: inline-block;
 		}
 	</style>
+
+	<!-- Google tag (gtag.js) -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-J9BM4E3WHD"></script>
 	<script>
-		(function(i, s, o, g, r, a, m) {
-			i['GoogleAnalyticsObject'] = r;
-			i[r] = i[r] || function() {
-				(i[r].q = i[r].q || []).push(arguments)
-			}, i[r].l = 1 * new Date();
-			a = s.createElement(o),
-				m = s.getElementsByTagName(o)[0];
-			a.async = 1;
-			a.src = g;
-			m.parentNode.insertBefore(a, m)
-		})(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
-		ga('create', 'UA-181460-18', 'auto');
-		ga('require', 'linkid', 'linkid.js');
-		ga('send', 'pageview');
+		window.dataLayer = window.dataLayer || [];
+		function gtag(){dataLayer.push(arguments);}
+		gtag('js', new Date());
+		gtag('config', 'G-J9BM4E3WHD');
 	</script>
 </head>
 
@@ -53,7 +72,7 @@
 			</p>
 
 			<p class="text-center">
-				<a href="https://play.google.com/store/apps/details?id=com.mufflify.TextTVnu&hl=sv" class="button">
+				<a href="https://play.google.com/store/apps/details?id=com.mufflify.TextTVnu&hl=sv" class="button" target="_blank">
 					Ladda hem text-tv-appen
 				</a>
 			</p>

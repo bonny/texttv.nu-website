@@ -5,9 +5,9 @@
 	<title>Text TV-app för iPhone och iPad (iOS)</title>
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.2.3/foundation.min.css">
 	<meta charset="utf-8">
-	<link rel="canonical" href="https://texttv.nu/ios/">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="canonical" href="https://texttv.nu/ios">
 	<meta property="og:url" content="https://texttv.nu/ios" />
 	<meta property="og:type" content="website" />
 	<meta property="og:title" content="Text TV-app för iPhone och iPad (iOS)" />

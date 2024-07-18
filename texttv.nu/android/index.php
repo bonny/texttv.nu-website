@@ -15,7 +15,7 @@
 	<meta property="og:description" content="Text-TV-app för Android – Få snabb och enkel tillgång till nyheter och sportresultat från SVT Text direkt på din Android-telefon med text-tv-appen från texttv.nu. Mobilanpassad, dela sidor på sociala medier, favoritmärk, få uppdateringar, och följ sportnyheter på text tv 300. Ladda ner nu!" />
 	<meta property="og:image" content="http://texttv.nu.test/android/svt-text-tv-start.png" />
 
-    <script type="application/ld+json">
+	<script type="application/ld+json">
 		{
 			"@context": "https://schema.org",
 			"@type": "SoftwareApplication",
@@ -32,7 +32,7 @@
 				"price": "0"
 			}
 		}
-    </script>
+	</script>
 
 	<style>
 		.logo {
@@ -46,7 +46,10 @@
 	<script async src="https://www.googletagmanager.com/gtag/js?id=G-J9BM4E3WHD"></script>
 	<script>
 		window.dataLayer = window.dataLayer || [];
-		function gtag(){dataLayer.push(arguments);}
+
+		function gtag() {
+			dataLayer.push(arguments);
+		}
 		gtag('js', new Date());
 		gtag('config', 'G-J9BM4E3WHD');
 	</script>
@@ -62,77 +65,65 @@
 
 			<h1 class="text-center">Text TV-app för Android</h1>
 
-			<p>
+			<h1 class="text-center">
 				Med <a href="https://play.google.com/store/apps/details?id=com.mufflify.TextTVnu&hl=sv">text-tv-appen</a> från <a href="/">texttv.nu</a>
 				så får du nyheter och sportresultat från SVT Text snabb och enkelt rakt in i din android-telefon.
-			</p>
+				</p>
 
-			<p>
-				Du kan såklart titta på text tv på <a href="/">vår hemsida</a> i din webbläsare också.
-			</p>
+				<p class="text-center">
+					Du kan såklart titta på text tv på <a href="/">vår hemsida</a> i din webbläsare också.
+				</p>
 
-			<p class="text-center">
-				<a href="https://play.google.com/store/apps/details?id=com.mufflify.TextTVnu&hl=sv" class="button" target="_blank">
-					Ladda hem text-tv-appen
-				</a>
-			</p>
-
-			<div class="row">
-			
-				<div class="column small-12">
-					
-					<a 
-						href="https://play.google.com/store/apps/details?id=com.mufflify.TextTVnu2&hl=sv"
-						class="small-6 column"
-						>
-						<img 
-							src="/android/svt-text-tv-start.png" 
-							alt="Skärmdump som visar hur sidan 100 ser ut i Androidappen för text tv"
-							/>
+				<p class="text-center">
+					<a href="https://play.google.com/store/apps/details?id=com.mufflify.TextTVnu&hl=sv" class="button" target="_blank">
+						Ladda hem text-tv-appen
 					</a>
-					<a 
-						href="https://play.google.com/store/apps/details?id=com.mufflify.TextTVnu2&hl=sv"
-						class="small-6 column"
-						>
-						<img 
-							src="/android/svt-text-tv-sport.png" 
-							alt="Skärmdump som visar hur sidan 300 ser ut i Androidappen för text tv"
-						/>
-					</a>
-				</div>			
+				</p>
 
-			</div>
+				<div class="row">
 
-			<div class="row">
+					<div class="column small-12">
 
-				<div class="column small-12">
+						<a href="https://play.google.com/store/apps/details?id=com.mufflify.TextTVnu2&hl=sv" class="small-6 column">
+							<img src="/android/svt-text-tv-start.png" alt="Skärmdump som visar hur sidan 100 ser ut i Androidappen för text tv" />
+						</a>
+						<a href="https://play.google.com/store/apps/details?id=com.mufflify.TextTVnu2&hl=sv" class="small-6 column">
+							<img src="/android/svt-text-tv-sport.png" alt="Skärmdump som visar hur sidan 300 ser ut i Androidappen för text tv" />
+						</a>
+					</div>
 
-					<h2 class="text-center">Funktioner i appen</h2>
-
-					<ul>
-						<li>Mobilanpassad text tv från grunden och upp</li>
-						<li>Möjlighet att dela text tv-sidor till Twitter och Facebook, med skärmdump och permalänk</li>
-						<li>Visa flera sidor samtidigt</li>
-						<li>Favoritmärk dina favoritsidor och visa dom automatiskt när appen startas</li>
-						<li>Få meddelande när det finns en uppdatering av sidan</li>
-						<li>Se sportnyheterna på <a href="/300">text tv 300</a> och resultaten på <a href="/377">text tv 377</a></li>
-					</ul>
-
-					<p>
-						<a href="https://play.google.com/store/apps/details?id=com.mufflify.TextTVnu2&hl=sv" class="button">Ladda hem appen</a>
-						<br>
-						eller besök <a href="https://TextTV.nu/">TextTV.nu</a> i din webbläsare.
-					</p>
-					
 				</div>
 
-				<div class="column small-12 medium-4 text-center">
-					<a href="https://play.google.com/store/apps/details?id=com.mufflify.TextTVnu&hl=sv">
-						<img src="/android/text-tv-android-app-screenshot.png" alt="Skärmdump som visar hur sidan 100 ser ut i Androidappen för text tv">
-					</a>
-				</div>
+				<div class="row">
 
-			</div>
+					<div class="column small-12">
+
+						<h2 class="text-center">Funktioner i appen</h2>
+
+						<ul>
+							<li>Mobilanpassad text tv från grunden och upp</li>
+							<li>Möjlighet att dela text tv-sidor till Twitter och Facebook, med skärmdump och permalänk</li>
+							<li>Visa flera sidor samtidigt</li>
+							<li>Favoritmärk dina favoritsidor och visa dom automatiskt när appen startas</li>
+							<li>Få meddelande när det finns en uppdatering av sidan</li>
+							<li>Se sportnyheterna på <a href="/300">text tv 300</a> och resultaten på <a href="/377">text tv 377</a></li>
+						</ul>
+
+						<p>
+							<a href="https://play.google.com/store/apps/details?id=com.mufflify.TextTVnu2&hl=sv" class="button">Ladda hem appen</a>
+							<br>
+							eller besök <a href="https://TextTV.nu/">TextTV.nu</a> i din webbläsare.
+						</p>
+
+					</div>
+
+					<div class="column small-12 medium-4 text-center">
+						<a href="https://play.google.com/store/apps/details?id=com.mufflify.TextTVnu&hl=sv">
+							<img src="/android/text-tv-android-app-screenshot.png" alt="Skärmdump som visar hur sidan 100 ser ut i Androidappen för text tv">
+						</a>
+					</div>
+
+				</div>
 
 		</div>
 

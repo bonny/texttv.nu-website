@@ -261,10 +261,10 @@ if (!isset($disableSidebar) && !$this->input->get("apiAppShare")) {
 			<?php
 			} else {
 			?>
-				<li><a href="https://texttv.nu/ios">
+				<li><a href="/ios">
 						Text-TV-app för Iphone
 					</a></li>
-				<li><a href="https://texttv.nu/android">
+				<li><a href="/android">
 						Text-TV-app för Android
 					</a></li>
 			<?php

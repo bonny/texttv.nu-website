@@ -1,4 +1,7 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+use \AllowDynamicProperties;
+
 /**
  * CodeIgniter
  *
@@ -27,6 +30,7 @@
  * @category	Libraries
  * @link		http://codeigniter.com/user_guide/general/routing.html
  */
+#[AllowDynamicProperties]
 class CI_Router {
 
 	/**

@@ -1,4 +1,7 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+use \AllowDynamicProperties;
+
 /**
  * CodeIgniter
  *
@@ -28,6 +31,7 @@
  * @author		EllisLab Dev Team
  * @link		http://codeigniter.com/user_guide/general/controllers.html
  */
+#[AllowDynamicProperties]
 class CI_Controller {
 
 	private static $instance;

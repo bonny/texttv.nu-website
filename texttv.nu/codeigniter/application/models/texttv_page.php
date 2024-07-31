@@ -30,7 +30,9 @@ class Texttv_page extends CI_Model {
 		$date_added_unix,
 
 		// base url, where to look for remote pages
-		$url_base = "http://www.svt.se/svttext/web/pages/"
+		$url_base = "http://www.svt.se/svttext/web/pages/",
+
+		$is_shared
 
 		;
 

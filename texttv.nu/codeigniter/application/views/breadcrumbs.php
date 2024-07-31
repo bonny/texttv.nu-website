@@ -1,12 +1,12 @@
 <?php
 
 // No breadcrumb for archive pages
-if ( isset($is_archive_overview) ) {
+if (isset($is_archive_overview)) {
 	return;
 }
 
 // No breadcrum if taking screenshot for sharing
-if ( $this->input->get("apiAppShare") ) {
+if ($this->input->get("apiAppShare")) {
 	return;
 }
 
@@ -17,23 +17,23 @@ if (isset($pages) && is_array($pages)) {
 	#if ( sizeof($pages) != 1 ) {
 	#	return;
 	#}
-	
+
 	$pagenum = (int) $pages[0]->num;
-	
+
 	// Skip breadcrumb on some pages, like overview pages
 	$arr_pagenums_to_skip = array(
-		100, 101, 102, 103, 104, 105	
+		100, 101, 102, 103, 104, 105
 	);
 
-	if ( in_array($pagenum, $arr_pagenums_to_skip) ) {
+	if (in_array($pagenum, $arr_pagenums_to_skip)) {
 		return;
 	}
-	
+
 	// Inrikes = 101 - 130
 	// Utrikes = 130 - 199
 	// Ekonomi = 200 -
 	$arr_parent = array();
-	
+
 	if ($pagenum > 101 && $pagenum < 130) {
 		$arr_parent	= [
 			"title" => "Nyheter Sverige",
@@ -101,31 +101,31 @@ if (isset($pages) && is_array($pages)) {
 	if (!$arr_parent) {
 		return;
 	}
-	
+
 	$arr_extra_breadcrumb_html = "";
-	
+
 	// If page below målservice, ie 377 - 380
 	if ($pagenum >= 377 && $pagenum <= 380) {
-		
+
 		$arr_extra_breadcrumb_html = sprintf(
 			'
 				<li class="breadcrumbs__item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
 					<a class="breadcrumbs__link" href="/%1$d" itemprop="item"><span itemprop="name">%2$s</span><meta itemprop="position" content="3" /></a> › 
 				</li>
-			', 
+			',
 			376, // 1 link pagenum
 			"Målservice" // 2 name of link
 		);
-		
 	}
-	
+
 	$lastitem_position = 3;
-	if ( $arr_extra_breadcrumb_html ) {
+	if ($arr_extra_breadcrumb_html) {
 		$lastitem_position = 4;
 	}
-	
-	
-	printf('
+
+
+	printf(
+		'
 			<ol class="breadcrumbs" itemscope itemtype="https://schema.org/BreadcrumbList">
 
 				<li class="breadcrumbs__item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
@@ -143,27 +143,28 @@ if (isset($pages) && is_array($pages)) {
 				</li>
 
 			</ol>
-		', 
+		',
 		$pagenum, // 1
 		$arr_parent["title"], // 2
 		$arr_parent["url"], // 3
 		$arr_extra_breadcrumb_html, // 4 extra breadcrumb after parent and before pagenum
 		$lastitem_position // 5
 	);
-		
 };
 
-function mb_str_pad($str, $pad_len, $pad_str = ' ', $dir = STR_PAD_RIGHT, $encoding = NULL)
-{
-    $encoding = $encoding === NULL ? mb_internal_encoding() : $encoding;
-    $padBefore = $dir === STR_PAD_BOTH || $dir === STR_PAD_LEFT;
-    $padAfter = $dir === STR_PAD_BOTH || $dir === STR_PAD_RIGHT;
-    $pad_len -= mb_strlen($str, $encoding);
-    $targetLen = $padBefore && $padAfter ? $pad_len / 2 : $pad_len;
-    $strToRepeatLen = mb_strlen($pad_str, $encoding);
-    $repeatTimes = ceil($targetLen / $strToRepeatLen);
-    $repeatedString = str_repeat($pad_str, max(0, $repeatTimes)); // safe if used with valid unicode sequences (any charset)
-    $before = $padBefore ? mb_substr($repeatedString, 0, floor($targetLen), $encoding) : '';
-    $after = $padAfter ? mb_substr($repeatedString, 0, ceil($targetLen), $encoding) : '';
-    return $before . $str . $after;
+// Function exists in PHP 8.3.0.
+if (!function_exists('mb_str_pad')) {
+	function mb_str_pad($str, $pad_len, $pad_str = ' ', $dir = STR_PAD_RIGHT, $encoding = NULL) {
+		$encoding = $encoding === NULL ? mb_internal_encoding() : $encoding;
+		$padBefore = $dir === STR_PAD_BOTH || $dir === STR_PAD_LEFT;
+		$padAfter = $dir === STR_PAD_BOTH || $dir === STR_PAD_RIGHT;
+		$pad_len -= mb_strlen($str, $encoding);
+		$targetLen = $padBefore && $padAfter ? $pad_len / 2 : $pad_len;
+		$strToRepeatLen = mb_strlen($pad_str, $encoding);
+		$repeatTimes = ceil($targetLen / $strToRepeatLen);
+		$repeatedString = str_repeat($pad_str, max(0, $repeatTimes)); // safe if used with valid unicode sequences (any charset)
+		$before = $padBefore ? mb_substr($repeatedString, 0, floor($targetLen), $encoding) : '';
+		$after = $padAfter ? mb_substr($repeatedString, 0, ceil($targetLen), $encoding) : '';
+		return $before . $str . $after;
+	}
 }

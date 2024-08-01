@@ -40,7 +40,7 @@ class texttvlive extends Command
     {
         $pageNumber = $this->argument('pageNumber');
         $page = new Importer($pageNumber);
-        $page->fromRemote()->cleanup()->decorate();
+        $page->fromRemote()->cleanup();
         dump($page->subpages());
 
         return 0;

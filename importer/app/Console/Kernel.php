@@ -7,8 +7,7 @@ use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Illuminate\Support\Facades\Artisan;
 
-class Kernel extends ConsoleKernel
-{
+class Kernel extends ConsoleKernel {
     /**
      * Importerar alla sidor inom ett intervall.
      * 
@@ -16,8 +15,7 @@ class Kernel extends ConsoleKernel
      * @param int $toPageNumber 
      * @return void 
      */
-    protected function importRange(int $fromPageNumber, int $toPageNumber)
-    {
+    protected function importRange(int $fromPageNumber, int $toPageNumber) {
         Artisan::call('texttv:import', ['pageNumber' => "$fromPageNumber-$toPageNumber"]);
     }
 
@@ -27,33 +25,32 @@ class Kernel extends ConsoleKernel
      * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
      * @return void
      */
-    protected function schedule(Schedule $schedule)
-    {
+    protected function schedule(Schedule $schedule) {
         // Startsidan, nyheter inrikes & utrikes.
         $schedule->command(texttvimport::class, ['100-105'])
-                 ->everyMinute()
-                 ->runInBackground();
+            ->everyMinute()
+            ->runInBackground();
 
         // Nyhetsartiklarna
         $schedule->command(texttvimport::class, ['106-199'])
-                 ->everyMinute()
-                 ->runInBackground();
-        
+            ->everyMinute()
+            ->runInBackground();
+
         // Börs
         $schedule->command(texttvimport::class, ['200-245'])
-                 ->everyMinute()
-                 ->runInBackground();
+            ->everyMinute()
+            ->runInBackground();
 
         // Sport
         $schedule->command(texttvimport::class, ['300-399'])
-                 ->everyMinute()
-                 ->runInBackground();
+            ->everyMinute()
+            ->runInBackground();
 
         // OS-sidorna
         $schedule->call(function () {
             $this->importRange(440, 499);
         })->everyThreeMinutes();
-        
+
         # ofta pga vad som är på tv just nu, typ varannan minut
         #*/2 * * * * root cd /root/texttv-page-updater/ && php updater.php --pageRange 650-655 > 
         $schedule->call(function () {
@@ -112,7 +109,7 @@ class Kernel extends ConsoleKernel
             $this->importRange(700, 729);
             $this->importRange(751, 799);
         })->daily();
-        
+
         // 730-750 verkar ha någon form av sportresultat numera.
         $schedule->call(function () {
             $this->importRange(730, 750);
@@ -127,7 +124,9 @@ class Kernel extends ConsoleKernel
             $this->importRange(700, 799);
         })->weekly();
 
-        $schedule->command('import-status:remove-old')->daily();;
+        $schedule->command('import-status:remove-old')->daily();
+
+        $schedule->command('texttv:cleanup-page-actions')->everyFifteenMinutes();
     }
 
     /**
@@ -135,8 +134,7 @@ class Kernel extends ConsoleKernel
      *
      * @return void
      */
-    protected function commands()
-    {
+    protected function commands() {
         $this->load(__DIR__ . '/Commands');
 
         require base_path('routes/console.php');

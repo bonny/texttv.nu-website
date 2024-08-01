@@ -38,14 +38,12 @@ class CleanupPageActions extends Command {
     public function handle() {
         $this->line("Tar bort gamla rader från page actions-tabellen...");
 
-        
-
         $numDeletedRows = DB::connection('mysql_stats_db')->table('page_actions')
             ->where('created_at', '<', Date::now()->subDays(100))
             ->limit(50000)
             ->delete();
 
-        $this->line( "Rader borttagna: $numDeletedRows" );
+        $this->line("Rader borttagna: $numDeletedRows");
 
         $this->line("Klart!");
 

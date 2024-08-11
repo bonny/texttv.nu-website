@@ -36,11 +36,6 @@ class Kernel extends ConsoleKernel {
             ->everyMinute()
             ->runInBackground();
 
-        // Börs
-        $schedule->command(texttvimport::class, ['200-245'])
-            ->everyMinute()
-            ->runInBackground();
-
         // Sport
         $schedule->command(texttvimport::class, ['300-399'])
             ->everyMinute()
@@ -122,11 +117,15 @@ class Kernel extends ConsoleKernel {
             $this->importRange(900, 999);
             $this->importRange(802, 899);
             $this->importRange(700, 799);
+
+            // Börsen har lagts ner.
+            $this->importRange(200, 245);
+
         })->weekly();
 
         $schedule->command('import-status:remove-old')->daily();
 
-        $schedule->command('texttv:cleanup-page-actions')->everyFifteenMinutes();
+        $schedule->command('texttv:cleanup-page-actions')->daily();
     }
 
     /**

@@ -28,23 +28,23 @@ class Kernel extends ConsoleKernel {
     protected function schedule(Schedule $schedule) {
         // Startsidan, nyheter inrikes & utrikes.
         $schedule->command(texttvimport::class, ['100-105'])
-            ->everyMinute()
+            ->everyTwoMinutes()
             ->runInBackground();
 
         // Nyhetsartiklarna
         $schedule->command(texttvimport::class, ['106-199'])
-            ->everyMinute()
+            ->everyTwoMinutes()
             ->runInBackground();
 
         // Sport
         $schedule->command(texttvimport::class, ['300-399'])
-            ->everyMinute()
+            ->everyTwoMinutes()
             ->runInBackground();
 
         // OS-sidorna
         $schedule->call(function () {
             $this->importRange(440, 499);
-        })->everyThreeMinutes();
+        })->everyFourMinutes();
 
         # ofta pga vad som är på tv just nu, typ varannan minut
         #*/2 * * * * root cd /root/texttv-page-updater/ && php updater.php --pageRange 650-655 > 

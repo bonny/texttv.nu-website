@@ -35,7 +35,7 @@ if ($this->input->get("number")) {
 	// "tmp" fix
 ?>
 	<script>
-		document.location = "<?php echo "https://texttv.nu/" . $this->input->get("number"); ?>";
+		document.location = "<?php echo "https://texttv.nu/" . (int) $this->input->get("number"); ?>";
 	</script>
 <?php
 	exit;

@@ -31,3 +31,11 @@ Några av de saker som utmärker texttv.nu är:
 - Har du förslag på hur man kan göra texttv.nu ännu bättre?
 
 Tipsa oss på kontakt@texttv.nu eller på Twitter @texttv_nu. Vi har också en egen sida på Facebook.
+
+### Lokal utveckling
+
+Använder valet.
+
+Starta valet och gå till
+http://texttv.nu.test/
+

@@ -468,12 +468,17 @@ class Api extends CI_Controller
 			$arr_json["is_ok"] = false;
 		}*/
 
-		// Get title from first page
-		$page = new Texttv_page();
-		$page->id = (int) $arr_page_ids[0];
-		$page->load(true);
-		if (trim($page->title)) {
-			$title = trim($page->title);
+		// Default title/fallback.
+		$title = 'Text-TV';
+
+		// Get title from first page.
+		if (isset($arr_page_ids[0])) {
+			$page = new Texttv_page();
+			$page->id = (int) $arr_page_ids[0];
+			$page->load(true);
+			if (trim($page->title)) {
+				$title = trim($page->title);
+			}
 		}
 
 		$screenshotURL = "https://texttv.nu/api/screenshot/" . implode(",", $arr_page_ids);

@@ -248,7 +248,6 @@ if (!isset($disableSidebar) && !$this->input->get("apiAppShare")) {
 
 			<li class="sidebar-pages">
 				<a href="/blogg"><span class="icon icon-file"></span>Blogg</a>
-				<a href="/sida/vi-rekommenderar/"><span class="icon icon-file"></span>Länkar</a>
 				<a href="/sida/om-texttv-nu"><span class="icon icon-file"></span>Om TextTV.nu</a>
 			</li>
 			<?php

@@ -44,12 +44,6 @@ class Textsida extends CI_Controller {
 				$this->load->view("textsida-vanliga-fragor");
 				break;
 
-			case "vi-rekommenderar":
-				$data["custom_page_title"] = "Sidor och sajter vi rekommenderar";
-				$this->load->view("header", $data);
-				$this->load->view("textsida-vi-rekommenderar");
-				break;
-
 			case "blogg":
 				$this->load->view("header", $data);
 				$this->load->view("textsida-blogg");

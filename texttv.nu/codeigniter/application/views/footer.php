@@ -36,10 +36,28 @@ if (isset($pages) && is_array($pages) && function_exists("get_permalink_from_pag
 // no footer when generating share screenshot
 if (!$this->input->get("apiAppShare")) { ?>
 	<footer class="site-footer">
-		<p>TextTV.nu är en bättre text tv för din mobil, surfplatta och dator.</p>
-		<p>Sajten är ett fristående projekt och är inte en officiell webbplats från SVT.</p>
+		<div class="site-footer-col">
+			<p>TextTV.nu är en bättre text tv för din mobil, surfplatta och dator.</p>
+			<p>Sajten är ett fristående projekt och är inte en officiell webbplats från SVT.</p>
+		</div>
+
+		<div class="site-footer-col">
+			<ul class="site-footer-col-metalinkslist">
+				<li>
+					<a href="/sida/integritetspolicy/">Integritetspolicy</a>
+				</li>
+
+				<li>
+					<a href="/sida/cookies/">Om cookies</a>
+				</li>
+
+				<li>
+					<a onclick="googlefc.showRevocationMessage();" class="text--black">Cookieinställningar</a>
+				</li>
+			</ul>
+		</div>
 	</footer>
-	
+
 	<?php
 	// Inaktiverade egen cookie-ruta 2021-11-07 pga byter till
 	// Googles/AdSense egna.
@@ -221,7 +239,7 @@ if (!isset($disableSidebar) && !$this->input->get("apiAppShare")) {
 
 			?>
 		</ul>
-		
+
 		<ul class="nav-secondary">
 			<li>
 				<a href="/sida/delat">Mest delat</a>
@@ -270,18 +288,6 @@ if (!isset($disableSidebar) && !$this->input->get("apiAppShare")) {
 			}
 
 			?>
-
-			<li>
-				<a href="/sida/integritetspolicy/">Integritetspolicy</a>
-			</li>
-
-			<li>
-				<a href="/sida/cookies/">Om cookies</a>
-			</li>
-			
-			<li>
-				<a onclick="googlefc.showRevocationMessage();" class="text--black">Cookieinställningar</a>
-			</li>
 
 		</ul>
 

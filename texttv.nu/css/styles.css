@@ -656,7 +656,7 @@ body {
   -ms-transition: all 300ms ease-in-out;
   -o-transition: all 300ms ease-in-out;
   transition: all 300ms ease-in-out;
-  
+
   /* Se till att ev. annons inte täcker sista länkarna */
   padding-bottom: 6em;
 }
@@ -669,7 +669,7 @@ body {
 }
 
 .sidebar span.num {
-  color: #A3A3A3;
+  color: #a3a3a3;
   /* Contrast Ratio 4.58:1 */
 }
 
@@ -1242,10 +1242,11 @@ body {
 .site-footer,
 .page-text {
   font-family: sans-serif;
-  font-size: 14px;
-  line-height: 1.2;
+  font-size: 16px;
+  line-height: 1.4;
   color: #888;
-  padding: 1em;
+  text-align: left;
+  padding: 2rem;
   border-top: 1px solid rgb(42, 51, 74);
   background-color: rgb(17, 22, 35);
 }
@@ -1257,7 +1258,22 @@ body {
   line-height: 1.2;
 }
 
-.page-text p {
+.site-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.site-footer-col-metalinkslist {
+  list-style-type: none;
+  margin-top: 0.25em;
+
+  a {
+    display: block;
+    padding: 0.25em;
+    color: #888;
+    text-decoration: none;
+  }
 }
 
 /*
@@ -1361,7 +1377,7 @@ so do "something" while we wait, so the webb page at least feels snappy
 .controls {
   /* background: #028efa; */
   box-shadow: 0 0px 20px 0px rgb(0, 0, 0);
-  background: #0276CF; /* Contrast Ratio 4.67:1 */
+  background: #0276cf; /* Contrast Ratio 4.67:1 */
 }
 .controls a {
   color: white;

@@ -403,7 +403,7 @@ if ($is_start) {
 	*/
 	?>
 	<!-- <link rel='stylesheet' href='//fonts.googleapis.com/css?family=Ubuntu+Mono:400,700'> -->
-	<link rel="stylesheet" href="/min/?f=css/fonts.css,css/styles.css,css/texttvpage.css&amp;v=16">
+	<link rel="stylesheet" href="/min/?f=css/fonts.css,css/styles.css,css/texttvpage.css&amp;v=17">
 	<?php if ($this->input->get("skipScriptsHeader")) {
 		// no scripts
 	} else {

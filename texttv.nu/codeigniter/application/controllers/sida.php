@@ -9,9 +9,7 @@ class Sida extends CI_Controller {
 	// Om ingen sida anges går vi till 100
 	// Update 3 april 2015: vi visar över sporten, 300, pga. det är säkert bra
 	public function index() {
-
-		$this->visa("100,300", "startpage");
-
+		$this->visa("100,300,401,101-105", "startpage");
 	}
 
 	/**

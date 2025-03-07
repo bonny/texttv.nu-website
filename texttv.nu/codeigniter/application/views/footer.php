@@ -36,6 +36,67 @@ if (isset($pages) && is_array($pages) && function_exists("get_permalink_from_pag
 // no footer when generating share screenshot
 if (!$this->input->get("apiAppShare")) { ?>
 	<footer class="site-footer">
+
+		<div class="site-footer-pages">
+			<h2>Sidor</h2>
+
+			<ul>
+				<li><a href="/">Hem <span class="num">100, 300</span></a></li>
+				<li>
+					<a href="/101-102,103-105">Nyheter <span class="num">101-105</span></a>
+					<ul>
+						<li><a href="/101-103">Inrikes <span class="num">101-103</span></a></li>
+						<li><a href="/104-105">Utrikes <span class="num">104-105</span></a></li>
+					</ul>
+				</li>
+				<li>
+					<a href="/300-302">Sport <span class="num">300-302</span></a>
+					<ul>
+						<li><a href="/330">Resultatbörsen <span class="num">330</span></a></li>
+						<li><a href="/376">Målservice <span class="num">376</span></a></li>
+						<li><a href="/377">Målservice, resultat <span class="num">377</span></a></li>
+						<li><a href="/376-395">Målservice &amp; resultat <span class="num">376-395</span></a></li>
+					</ul>
+				</li>
+				<li>
+					<a href="/400">Väder <span class="num">400</span></a>
+					<ul>
+						<li><a href="/401">Vädret i dag/i morgon <span class="num">401</span></a></li>
+					</ul>
+				</li>
+				<li><a href="/600,650-656">TV-tablåer <span class="num">600, 650-656</span></a></li>
+				<li><a href="/700">Innehåll <span class="num">700</span></a></li>
+			</ul>
+		</div>
+
+		<div class="site-footer-pages-nav">
+			<ul class="nav-secondary">
+				<li>
+					<a href="/sida/delat">Mest delat</a>
+				</li>
+
+				<li>
+					<a href="/sida/polisen">Omnämnt av Polisen</a>
+				</li>
+
+				<li>
+					<a href="/sida/vanliga-fragor">Vanliga frågor</a>
+				</li>
+
+				<li class="sidebar-pages">
+					<a href="/blogg"><span class="icon icon-file"></span>Blogg</a>
+					<a href="/sida/om-texttv-nu"><span class="icon icon-file"></span>Om TextTV.nu</a>
+				</li>
+
+				<li><a href="/ios">
+						Text-TV-app för Iphone
+					</a></li>
+				<li><a href="/android">
+						Text-TV-app för Android
+					</a></li>
+			</ul>
+		</div>
+
 		<div class="site-footer-cols">
 			<div class="site-footer-col">
 				<p>TextTV.nu är en bättre text tv för din mobil, surfplatta och dator.</p>
@@ -59,33 +120,7 @@ if (!$this->input->get("apiAppShare")) { ?>
 			</div>
 		</div>
 
-		<div class="site-footer-cols">
-			<ul class="nav-secondary">
-				<li>
-					<a href="/sida/delat">Mest delat</a>
-				</li>
 
-				<li>
-					<a href="/sida/polisen">Omnämnt av Polisen</a>
-				</li>
-
-				<li>
-					<a href="/sida/vanliga-fragor">Vanliga frågor</a>
-				</li>
-
-				<li class="sidebar-pages">
-					<a href="/blogg"><span class="icon icon-file"></span>Blogg</a>
-					<a href="/sida/om-texttv-nu"><span class="icon icon-file"></span>Om TextTV.nu</a>
-				</li>
-
-				<li><a href="/ios">
-							Text-TV-app för Iphone
-						</a></li>
-					<li><a href="/android">
-							Text-TV-app för Android
-				</a></li>
-			</ul>
-		</div>
 	</footer>
 
 	<?php
@@ -237,39 +272,7 @@ if (!isset($disableSidebar) && !$this->input->get("apiAppShare")) {
 			</li>
 			<li><a href="/600,650-656">TV-tablåer <span class="num">600, 650-656</span></a></li>
 			<li><a href="/700">Innehåll <span class="num">700</span></a></li>
-			<?php
-			/*
-			<!--
-				<li class="leifby">
-					<a href="/376,351,327,330,551?utm_source=texttvnu&amp;utm_medium=nav&amp;utm_campaign=leifby&amp;utm_term=favoriter_rubrik&amp;utm_nooverride=1" title="Visa alla leifbys favoriter på en och samma sida">Leifbys text-tv-favoriter</a>
-					<ul>
-						<li><a href="/376?utm_source=texttvnu&amp;utm_medium=nav&amp;utm_campaign=leifby&amp;utm_term=favorit_1&amp;utm_nooverride=1">1) Målservice <span class="num">376</span></a></li>
-						<li><a href="/351?utm_source=texttvnu&amp;utm_medium=nav&amp;utm_campaign=leifby&amp;utm_term=favorit_2&amp;utm_nooverride=1">2) Skytteligor (fotboll) <span class="num">351</span></a></li>
-						<li><a href="/327?utm_source=texttvnu&amp;utm_medium=nav&amp;utm_campaign=leifby&amp;utm_term=favorit_3&amp;utm_nooverride=1">3) Tipset i sista stund <span class="num">327</span></a></li>
-						<li><a href="/330?utm_source=texttvnu&amp;utm_medium=nav&amp;utm_campaign=leifby&amp;utm_term=favorit_4&amp;utm_nooverride=1">4) Resultat/Tabellbörsen <span class="num">330</span></a></li>
-						<li><a href="/551?utm_source=texttvnu&amp;utm_medium=nav&amp;utm_campaign=leifby&amp;utm_term=favorit_5&amp;utm_nooverride=1">5) Tipset <span class="num">551</span></a></li>
-					</ul>
-				</li>
-			-->
-			*/
-			?>
-
-			<?php
-
-			// inaktiverad 10 juli pga dela-knapp finns under sidorna numera
-			if (false && isset($permalink) && $permalink) {
-
-			?>
-				<li><a href="https://twitter.com/intent/tweet?original_referer=&amp;text=<?php echo rawurlencode($permalink_headline) ?>&amp;url=<?php echo rawurlencode("http://texttv.nu" . $permalink) ?>"><span class="icon icon-twitter"></span>Dela på Twitter</a></li>
-				<li><a href="https://www.facebook.com/sharer.php?u=<?php echo rawurlencode("http://texttv.nu" . $permalink) ?>&amp;t=<?php echo rawurlencode($permalink_headline) ?>"><span class="icon icon-facebook"></span>Dela på Facebook</a></li>
-				<li><a href="<?php echo "http://texttv.nu" . $permalink ?>"><span class="icon icon-share"></span>Permalänk</a></li>
-			<?php
-
-			} // if permalink
-
-			?>
 		</ul>
-
 	</div>
 <?php
 }

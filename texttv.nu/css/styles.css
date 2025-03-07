@@ -1256,10 +1256,29 @@ body {
   line-height: 1.2;
 }
 
-.site-footer-cols {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
+.site-footer-pages {
+  ul {
+    margin-top: 1rem;
+  }
+
+  a {
+    display: block;
+    padding: 0.25rem;
+  }
+}
+
+.site-footer-pages-nav {
+  border-top: 1px solid #666;
+  border-bottom: 1px solid #666;
+  margin: 2rem 0;
+  padding: 2rem 0;
+
+  a {
+    display: inline-block;
+    padding: 0.25em;
+    color: #888;
+    text-decoration: none;
+  }
 }
 
 .site-footer-col-metalinkslist {

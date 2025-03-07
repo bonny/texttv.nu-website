@@ -36,24 +36,54 @@ if (isset($pages) && is_array($pages) && function_exists("get_permalink_from_pag
 // no footer when generating share screenshot
 if (!$this->input->get("apiAppShare")) { ?>
 	<footer class="site-footer">
-		<div class="site-footer-col">
-			<p>TextTV.nu är en bättre text tv för din mobil, surfplatta och dator.</p>
-			<p>Sajten är ett fristående projekt och är inte en officiell webbplats från SVT.</p>
+		<div class="site-footer-cols">
+			<div class="site-footer-col">
+				<p>TextTV.nu är en bättre text tv för din mobil, surfplatta och dator.</p>
+				<p>Sajten är ett fristående projekt och är inte en officiell webbplats från SVT.</p>
+			</div>
+
+			<div class="site-footer-col">
+				<ul class="site-footer-col-metalinkslist">
+					<li>
+						<a href="/sida/integritetspolicy/">Integritetspolicy</a>
+					</li>
+
+					<li>
+						<a href="/sida/cookies/">Om cookies</a>
+					</li>
+
+					<li>
+						<a onclick="googlefc.showRevocationMessage();" class="text--black">Cookieinställningar</a>
+					</li>
+				</ul>
+			</div>
 		</div>
 
-		<div class="site-footer-col">
-			<ul class="site-footer-col-metalinkslist">
+		<div class="site-footer-cols">
+			<ul class="nav-secondary">
 				<li>
-					<a href="/sida/integritetspolicy/">Integritetspolicy</a>
+					<a href="/sida/delat">Mest delat</a>
 				</li>
 
 				<li>
-					<a href="/sida/cookies/">Om cookies</a>
+					<a href="/sida/polisen">Omnämnt av Polisen</a>
 				</li>
 
 				<li>
-					<a onclick="googlefc.showRevocationMessage();" class="text--black">Cookieinställningar</a>
+					<a href="/sida/vanliga-fragor">Vanliga frågor</a>
 				</li>
+
+				<li class="sidebar-pages">
+					<a href="/blogg"><span class="icon icon-file"></span>Blogg</a>
+					<a href="/sida/om-texttv-nu"><span class="icon icon-file"></span>Om TextTV.nu</a>
+				</li>
+
+				<li><a href="/ios">
+							Text-TV-app för Iphone
+						</a></li>
+					<li><a href="/android">
+							Text-TV-app för Android
+				</a></li>
 			</ul>
 		</div>
 	</footer>
@@ -238,57 +268,6 @@ if (!isset($disableSidebar) && !$this->input->get("apiAppShare")) {
 			} // if permalink
 
 			?>
-		</ul>
-
-		<ul class="nav-secondary">
-			<li>
-				<a href="/sida/delat">Mest delat</a>
-			</li>
-
-			<li>
-				<a href="/sida/polisen">Omnämnt av Polisen</a>
-			</li>
-
-			<li>
-				<a href="/sida/vanliga-fragor">Vanliga frågor</a>
-			</li>
-
-			<?php
-			/*
-			<li>
-				<form method="get" action="/sok" class="search-sidebar">
-					<input type="search" name="q" value="<?php echo html_escape( $this->input->get("q") ); ?>">
-					<input type="submit" value="Sök">
-				</form>
-			</li>
-			*/
-			?>
-
-			<li class="sidebar-pages">
-				<a href="/blogg"><span class="icon icon-file"></span>Blogg</a>
-				<a href="/sida/om-texttv-nu"><span class="icon icon-file"></span>Om TextTV.nu</a>
-			</li>
-			<?php
-
-			if ($this->input->get("version") === "StorText") {
-			?>
-				<li>
-					<a style="font-size: 1.5em; line-height: 1.2;" href="https://itunes.apple.com/se/app/texttv.nu/id607998045">Prova vår app för Iphone/Ipad</a>
-				</li>
-			<?php
-			} else {
-			?>
-				<li><a href="/ios">
-						Text-TV-app för Iphone
-					</a></li>
-				<li><a href="/android">
-						Text-TV-app för Android
-					</a></li>
-			<?php
-			}
-
-			?>
-
 		</ul>
 
 	</div>

@@ -395,15 +395,10 @@ if ($is_start) {
 
 	} // if pages
 
-	/*
-	27 jun 2015: flyttade denna css till styles.css istället, så har vi bara en enda style = 2 st färre anrop
-	             aktiverade google fonts från egen fil igen, safari desktop + mobile laddade inte fonterna om dom låg i styles.css
-	<link href='//fonts.googleapis.com/css?family=Ubuntu+Mono:400,700' rel='stylesheet'>
-	<link href="//netdna.bootstrapcdn.com/font-awesome/3.0/css/font-awesome.css" rel="stylesheet">
-	*/
 	?>
-	<!-- <link rel='stylesheet' href='//fonts.googleapis.com/css?family=Ubuntu+Mono:400,700'> -->
-	<link rel="stylesheet" href="/min/?f=css/fonts.css,css/styles.css,css/texttvpage.css&amp;v=17">
+	<link rel="stylesheet" href="/css/fonts.css">
+	<link rel="stylesheet" href="/css/styles.css">
+	<link rel="stylesheet" href="/css/texttvpage.css">
 	<?php if ($this->input->get("skipScriptsHeader")) {
 		// no scripts
 	} else {
@@ -414,16 +409,6 @@ if ($is_start) {
 	?>
 	<link rel="manifest" href="/manifest.json">
 	<?php
-	// Moved to body data attr 27 july 2016
-	/*
-	<script>var pages = [];<?php
-		if (isset($pages)) {
-			foreach ($pages as $one_page) {
-				printf("pages.push({num:%d,id:%d,added:%d});", $one_page->num, $one_page->id, $one_page->date_added_unix);
-			}
-		}?></script>
-	*/
-
 	// Add current pages to body data attr
 	$bodyPagesDataAttr = [];
 	if (isset($pages)) {
@@ -443,6 +428,7 @@ if ($is_start) {
 	$wrapclasses = isset($wrapclasses) ? $wrapclasses : array();
 	$wrapclasses[] = "clearfix";
 	/*
+
 	Add canonical to pages that have multiple indexed pages in google
 	
 	Examples of bad indexed pages:
@@ -455,27 +441,12 @@ if ($is_start) {
 		<link rel="canonical" href="https://texttv.nu/<?php echo $pages[0]->num  ?>" />
 	<?php
 	}
-
-	/* // AMP disabled on 2021-10-17
-	if (!empty($pagenum) && (!isset($is_archive) || false == $is_archive)) {
-		// AMP link for non-archived pages
-	?>
-		<link rel="amphtml" href="/<?php echo html_escape($pagenum) ?>/amp">
-	<?php
-	} else if (isset($is_archive) && $is_archive) {
-		// AMP link for archive version
-	?>
-		<link rel="amphtml" href="<?php echo html_escape($archive_permalink) ?>/amp">
-	<?php
-	}
-	*/
 	
 	/*
 	Google Rich Snippet
 	https://developers.google.com/structured-data/rich-snippets/articles
 	https://developers.google.com/structured-data/testing-tool/	
 	*/
-
 	if (isset($is_archive) && !$this->input->get("apiAppShare")) {
 		$archive_date = date("c", $pages[0]->date_updated_unix);
 		
@@ -557,7 +528,4 @@ if ($is_start) {
 </head>
 
 <body data-pages='<?php echo json_encode($bodyPagesDataAttr) ?>'>
-	<?php
-	// TODO: only load this on desktop
-	?>
 	<div class="wrap <?php echo implode(" ", $wrapclasses) ?>" id="wrap">

@@ -49,11 +49,9 @@
   content: "";
   display: table;
 }
+
 .clearfix:after {
   clear: both;
-}
-.clearfix {
-  *zoom: 1;
 }
 
 body {
@@ -1258,7 +1256,7 @@ body {
   line-height: 1.2;
 }
 
-.site-footer {
+.site-footer-cols {
   display: flex;
   justify-content: space-between;
   gap: 1rem;
@@ -1274,16 +1272,6 @@ body {
     color: #888;
     text-decoration: none;
   }
-}
-
-/*
-Loading feels slow when we first talk with GA and then navigate
-so do "something" while we wait, so the webb page at least feels snappy
-*/
-.is-loading #pages {
-  /* 	transition: all .5s ease-in-out;  */
-  /* 	opacity: .5; */
-  /* 	transform: translateY(10px); */
 }
 
 /**

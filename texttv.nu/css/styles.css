@@ -3,6 +3,11 @@
  * Mostly by Pär Thernstom par.thernstrom@gmail.com
  */
 
+:root {
+  --font-system-ui: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
 /**
  * Font awesome
  * Used to be http://netdna.bootstrapcdn.com/font-awesome/3.0/css/font-awesome.css
@@ -551,6 +556,28 @@ span.textfilltest {
 .textcontent img {
   max-width: 100%;
   height: auto;
+}
+
+.PrevBlogPostsNav {
+  text-align: left;
+  padding: 2rem;
+  margin-bottom: 1rem;
+  border-top: 1px solid #666;
+  font-family: var(--font-system-ui);
+  line-height: 1.4;
+}
+
+.PrevBlogPostsNav-article {
+  font-size: 1rem;
+  padding-block: 0.5rem;
+}
+
+.PrevBlogPostsNav-article-date {
+  font-size: .8rem;
+}
+
+.PrevBlogPostsNav-article-title {
+  margin-top: 0.25rem;
 }
 
 .image-float {

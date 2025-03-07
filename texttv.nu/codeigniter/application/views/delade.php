@@ -142,7 +142,7 @@ function output_shared_pages_nav_form() {
 	}
 	
 	.most-shared-dates-ul-list {
-		height: 4em;
+		height: 20em;
 		overflow: hidden;
 		overflow-y: auto;
 	}

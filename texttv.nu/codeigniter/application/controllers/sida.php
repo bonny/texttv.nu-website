@@ -1,4 +1,4 @@
-<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+<?php if (! defined('BASEPATH')) exit('No direct script access allowed');
 
 /*
 Controller for most of the pages
@@ -33,13 +33,13 @@ class Sida extends CI_Controller {
 				}
 				$page = new texttv_page();
 				$page->id = $one_db_id;
-				
+
 				$load_ok = $page->load(TRUE);
-				
+
 				$arr_pages[] = $page;
 			}
 
-			if ( $load_ok ) {
+			if ($load_ok) {
 
 				$data = [];
 				$data["page"] = $page;
@@ -47,33 +47,29 @@ class Sida extends CI_Controller {
 				$data["pagenum"] = $page_num;
 				$data["is_archive"] = TRUE;
 				$data["page_permalink"] = $page->get_permalink();
-				
+
 				$this->load->view('header', $data);
 				$this->load->view('pages_inner_output_archive', $data);
 				$this->load->view('pages-latest-updated', $data);
 				$this->load->view('controls', $data);
 				$this->load->view('footer', $data);
-
 			} else {
-				
+
 				// not load ok
 				$this->output->set_status_header('404');
-				
+
 				$data = [];
 				$data["custom_page_title"] = "Sidan hittades inte (felkod 404)";
-				
+
 				$this->load->view('header', $data);
 				$this->load->view('404', $data);
 				$this->load->view('pages-latest-updated', $data);
 				$this->load->view('controls', $data);
 				$this->load->view('footer', $data);
-				
 			}
-			
 		}
-
 	}
-	
+
 
 	// Tar emot $pagenum som en eller flera sidor
 	function visa($pagenum = NULL, $pagedescription = NULL) {
@@ -82,18 +78,17 @@ class Sida extends CI_Controller {
 		// $this->output->enable_profiler(TRUE);
 
 		$arr_pages = texttv_page::extract_pages_from_ranges($pagenum);
-		
+
 		// Om inga sidor är nåt knas, så då fortsätter vi inte.
 		if (empty($arr_pages)) {
-			
+
 			$this->output->set_status_header('400');
 			$this->output->set_header("Content-Type: text/html; charset=utf-8");
-			$this->output->append_output( sprintf("<p>Fel: '%s' är inte en giltig sida.", htmlspecialchars($pagenum)) );
-			
+			$this->output->append_output(sprintf("<p>Fel: '%s' är inte en giltig sida.", htmlspecialchars($pagenum)));
+
 			return;
-			
 		}
-		
+
 		// Samla ihop alla sidor i en array med sid-object
 		$arr_page_objs = array();
 		foreach ($arr_pages as $one_page) {
@@ -133,13 +128,13 @@ class Sida extends CI_Controller {
 			}
 			$page = new texttv_page();
 			$page->id = $one_db_id;
-			
+
 			$load_ok = $page->load(TRUE);
-			
+
 			$arr_pages[] = $page;
 		}
-		
-		if ( $load_ok ) {
+
+		if ($load_ok) {
 
 			$data = [];
 			$data["page"] = $page;
@@ -147,30 +142,16 @@ class Sida extends CI_Controller {
 			$data["pagenum"] = $page_num;
 			$data["is_archive"] = TRUE;
 			$data["page_permalink"] = $page->get_permalink();
-			
-			$this->load->view('amp', $data);
-			/*
-			$this->load->view('header', $data);
-			$this->load->view('pages_inner_output_archive', $data);
-			$this->load->view('pages-latest-updated', $data);
-			$this->load->view('controls', $data);
-			$this->load->view('footer', $data);
-			*/
 
-		} else {				
+			$this->load->view('amp', $data);
+		} else {
 			// page not loaded ok
 			$this->output->set_status_header('404');
 			$data = [];
 			$data["custom_page_title"] = "Sidan hittades inte (felkod 404)";
-			
-			$this->load->view('header', $data);
+
 			$this->load->view('404', $data);
-			$this->load->view('pages-latest-updated', $data);
-			$this->load->view('controls', $data);
-			$this->load->view('footer', $data);
-
 		}
-
 	}
 
 	// Tar emot $pagenum som en eller flera sidor
@@ -181,18 +162,17 @@ class Sida extends CI_Controller {
 		// $this->output->enable_profiler(TRUE);
 
 		$arr_pages = texttv_page::extract_pages_from_ranges($pagenum);
-		
+
 		// Om inga sidor är nåt knas, så då fortsätter vi inte.
 		if (empty($arr_pages)) {
 
 			$this->output->set_status_header('400');
 			$this->output->set_header("Content-Type: text/html; charset=utf-8");
-			$this->output->append_output( sprintf("<p>Fel: '%s' är inte en giltig sida.", htmlspecialchars($pagenum)) );
-			
-			return;
+			$this->output->append_output(sprintf("<p>Fel: '%s' är inte en giltig sida.", htmlspecialchars($pagenum)));
 
+			return;
 		}
-		
+
 		// Samla ihop alla sidor i en array med sid-object
 		$arr_page_objs = array();
 		foreach ($arr_pages as $one_page) {
@@ -208,8 +188,5 @@ class Sida extends CI_Controller {
 		$data["pagedescription"] = $pagedescription;
 
 		$this->load->view('amp', $data);
-		
 	}
-
 }
-

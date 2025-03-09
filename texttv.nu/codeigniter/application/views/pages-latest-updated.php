@@ -16,6 +16,7 @@ $out_latest .= "<div class='latest-pages'>";
 $out_latest .= "<section class='latest-pages-list latest-pages-list--news'>";
 $out_latest .= "<h2>Senaste nyheterna</h2>";
 $out_latest .= "<ul>";
+
 foreach ( $result->result() as $row ) {
 
 	if ( in_array($row->page_num, $arr_outputed_page_nums)) {

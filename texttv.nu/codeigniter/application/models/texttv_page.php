@@ -95,7 +95,6 @@ class Texttv_page extends CI_Model {
 	 * @param $by_id bool if we should load a page by id instead of page number
      */
     function load($from_archive = FALSE) {
-
 		try {
 			
 			// first check if page exists in db and what age it has

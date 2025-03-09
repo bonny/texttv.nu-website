@@ -110,6 +110,7 @@ class Sida extends CI_Controller {
 		$this->load->view("breadcrumbs", $data);
 		$this->load->view("pages_current_page_top", $data);
 		$this->load->view("pages_inner_output_current", $data);
+		$this->load->view('pages-thumbs', $data);
 		$this->load->view('pages-latest-updated', $data);
 		$this->load->view('controls', $data);
 		$this->load->view('page_text', $data);

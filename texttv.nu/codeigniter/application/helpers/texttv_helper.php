@@ -12,7 +12,15 @@ function d($str = "") {
  * @param int $time_to Unixtime
  * @param string $type
  */
-function get_most_read_pages_for_period($time_from, $time_to, $type = 'news') {
+function get_most_read_pages_for_period($time_from = null, $time_to = null, $type = 'news') {
+
+	// Fallback to most read today if no times are set.
+	if (empty($time_from) || empty($time_to)) {
+		$dateUnix = time();
+		$time_from = strtotime("today 00:00", $dateUnix);
+		$time_to = strtotime("today 24:00", $dateUnix);
+	}
+
 	$time_from_ymd = date("Y-m-d H:i", $time_from);
 	$time_to_ymd = date("Y-m-d H:i", $time_to);
 		

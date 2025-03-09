@@ -23,31 +23,6 @@ class Api extends CI_Controller
 		$this->load->view('404');
 	}
 
-	// https://texttv.nu/api/amp_form_goto_page
-	public function amp_form_goto_page()
-	{
-
-		$domain_url = (isset($_SERVER['HTTPS']) ? "https" : "http") . "://$_SERVER[HTTP_HOST]";
-
-		$this->output->set_content_type("application/json");
-		$this->output->set_header("Access-Control-Allow-Credentials: true");
-		$this->output->set_header("Access-Control-Allow-Origin: *.ampproject.org");
-		$this->output->set_header("AMP-Access-Control-Allow-Source-Origin: " . $domain_url);
-
-		$sida = (int) $this->input->get("sida");
-
-		if ($sida >= 100 && $sida <= 999) {
-			$redirectTo = "https://texttv.nu/$sida/amp";
-			$this->output->set_header("AMP-Redirect-To: $redirectTo");
-		}
-
-		$arr_json = [
-			"sida" => $sida
-		];
-
-		$this->output->append_output(json_encode($arr_json));
-	}
-
 	/**
 	 * Hämta mest lästa sidorna.
 	 * Nya funktionen som aktiverades 2021-09-11.

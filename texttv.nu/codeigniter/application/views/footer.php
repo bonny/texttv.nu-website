@@ -41,7 +41,7 @@ if (!$this->input->get("apiAppShare")) { ?>
 			<h2>Sidor</h2>
 
 			<ul>
-				<li><a href="/">Hem <span class="num">100, 300</span></a></li>
+				<li><a href="/">Hem</a></li>
 				<li>
 					<a href="/101-102,103-105">Nyheter <span class="num">101-105</span></a>
 					<ul>
@@ -247,7 +247,7 @@ if (!isset($disableSidebar) && !$this->input->get("apiAppShare")) {
 ?>
 	<div class="sidebar">
 		<ul>
-			<li><a href="/">Hem <span class="num">100, 300</span></a></li>
+			<li><a href="/">Hem</a></li>
 			<li>
 				<a href="/101-102,103-105">Nyheter <span class="num">101-105</span></a>
 				<ul>

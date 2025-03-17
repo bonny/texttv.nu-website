@@ -48,7 +48,8 @@ class CleanupOldPages extends Command
         // Build the query
         $query = TextTV::where('date_added', '<', Date::now()->subYear())
             ->where('is_shared', 0)
-            ->whereNotIn('page_num', [100, 377]);
+            ->whereNotIn('page_num', [100, 377])
+            ->orderBy('date_added', 'asc');
 
         // Perform the deletion
         $numDeletedRows = $query->limit($limit)->delete();

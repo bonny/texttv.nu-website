@@ -126,6 +126,11 @@ class Kernel extends ConsoleKernel {
         $schedule->command('import-status:remove-old')->daily();
 
         $schedule->command('texttv:cleanup-page-actions')->hourly();
+
+        // Cleanup old pages hourly
+        $schedule->command('texttv:cleanup-old-pages')
+            ->hourly()
+            ->runInBackground();
     }
 
     /**

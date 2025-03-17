@@ -15,7 +15,6 @@ class CleanupOldPages extends Command
      * @var string
      */
     protected $signature = 'texttv:cleanup-old-pages 
-        {--dry-run : Visa vad som skulle tas bort utan att faktiskt ta bort något}
         {--limit=10000 : Antal sidor att ta bort per körning}';
 
     /**
@@ -42,12 +41,7 @@ class CleanupOldPages extends Command
      */
     public function handle()
     {
-        $isDryRun = $this->option('dry-run');
         $limit = (int) $this->option('limit');
-        
-        if ($isDryRun) {
-            $this->info("KÖR I TESTLÄGE - Inga sidor kommer att tas bort");
-        }
         
         $this->line("Tar bort gamla text-tv sidor (max {$limit} st)...");
 
@@ -56,23 +50,7 @@ class CleanupOldPages extends Command
             ->where('is_shared', 0)
             ->whereNotIn('page_num', [100, 377]);
 
-        if ($isDryRun) {
-            // In dry-run mode, show some statistics and sample pages
-            $totalCount = $query->count();
-            $samplePages = (clone $query)->select('id', 'page_num', 'date_added', 'title')
-                ->limit(5)
-                ->get();
-
-            $this->info("\nAntal sidor som skulle tas bort: " . min($totalCount, $limit));
-            $this->info("(Totalt antal sidor som uppfyller kriterier: {$totalCount})");
-            $this->info("\nExempel på sidor som skulle tas bort:");
-            foreach ($samplePages as $page) {
-                $this->line("- Sida {$page->page_num} (ID: {$page->id}, titel: {$page->title}, skapad: {$page->date_added}, delad: {$page->is_shared})");
-            }
-            return 0;
-        }
-
-        // Actually perform the deletion
+        // Perform the deletion
         $numDeletedRows = $query->limit($limit)->delete();
 
         $this->line("Antal borttagna sidor: $numDeletedRows");

@@ -146,7 +146,6 @@ function get_shared_pages_for_period($time_from, $time_to) {
 } // end get shared pages for period
 
 function get_latest_updated_pages($from, $to, $maxcount = 20) {
-
 	$from = (int) $from;
 	$to = (int) $to;
 

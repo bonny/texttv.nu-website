@@ -1,7 +1,6 @@
 <?php if (!defined('BASEPATH')) exit('No direct script access allowed');
 
-class Api extends CI_Controller
-{
+class Api extends CI_Controller {
 
 	/**
 	 * Index Page for this controller.
@@ -18,8 +17,7 @@ class Api extends CI_Controller
 	 * map to /index.php/welcome/<method_name>
 	 * @see http://codeigniter.com/user_guide/general/urls.html
 	 */
-	public function index()
-	{
+	public function index() {
 		$this->load->view('404');
 	}
 
@@ -34,44 +32,43 @@ class Api extends CI_Controller
 	 * https://texttv.nu/api/most_read
 	 * https://texttv.nu/api/most_read/sport
 	 */
-	public function most_read($type = "")
-	{
+	public function most_read($type = "") {
 		$arr_json = [
 			"ok" => true,
 			"pages" => []
 		];
-	
+
 		$count = (int) $this->input->get("count");
 		if (!$count) {
 			$count = 50;
 		}
-	
+
 		$date = $this->input->get("date");
 		if (!$date) {
 			$date = date('Y-m-d', strtotime("today"));
 		}
-	
+
 		$dateUnix = strtotime($date);
-		
+
 		if (!in_array($type, ['news', 'sport'])) {
 			$type = '';
 		}
-	
+
 		$result = get_most_read_pages_for_period(strtotime("today 00:00", $dateUnix), strtotime("today 24:00", $dateUnix), $type);
-	
+
 		// row = en text tv-sida
 		foreach ($result->result() as $row) {
-	
+
 			$page_content = unserialize($row->page_content);
 			$page_content = strip_tags($page_content[0]);
 			$page_content = trim($page_content);
-	
+
 			// permalink
 			$archive_page = new Texttv_page();
 			$archive_page->id = $row->id;
 			$archive_page->load(true);
 			$permalink = $archive_page->get_permalink(true);
-	
+
 			$arr_json["pages"][] = [
 				"id" => $row->id,
 				"title" => $row->title,
@@ -85,12 +82,12 @@ class Api extends CI_Controller
 				"query_date" => date("Y-m-d", $dateUnix),
 				"count_page_ids" => $row->count_page_ids,
 			];
-	
+
 			$arr_outputed_page_nums[] = $row->page_num;
 		}
-	
+
 		$arr_json["pages"] = array_splice($arr_json["pages"], 0, $count);
-	
+
 		$this->output->set_content_type("application/json");
 		$this->output->append_output(json_encode($arr_json));
 	}
@@ -106,119 +103,31 @@ class Api extends CI_Controller
 	 * https://texttv.nu/api/most_read
 	 * https://texttv.nu/api/most_read/sport
 	 */
-// 	public function most_read($type = "")
-// 	{
-// 		$arr_json = [
-// 			"ok" => true,
-// 			"pages" => []
-// 		];
-// 
-// 		$count = (int) $this->input->get("count");
-// 		if (!$count) {
-// 			$count = 50;
-// 		}
-// 
-// 		$date = $this->input->get("date");
-// 		if (!$date) {
-// 			$date = date('Y-m-d', strtotime("today"));
-// 		}
-// 
-// 		$dateUnix = strtotime($date);
-// 
-// 		if ("news" == $type) {
-// 			$result = get_shared_pages_for_period(strtotime("today 00:00", $dateUnix), strtotime("today 24:00", $dateUnix));
-// 		} else if ("sport" == $type) {
-// 			die('Not yet');
-// 		} else {
-// 			die('Not yet');
-// 		}
-// 
-// 		// row = en text tv-sida
-// 		foreach ($result->result() as $row) {
-// 
-// 			$page_content = unserialize($row->page_content);
-// 			$page_content = strip_tags($page_content[0]);
-// 			$page_content = trim($page_content);
-// 
-// 			// permalink
-// 			$archive_page = new Texttv_page();
-// 			$archive_page->id = $row->id;
-// 			$archive_page->load(true);
-// 			$permalink = $archive_page->get_permalink(true);
-// 
-// 			$type_for_json = empty($type) ? $row->type : $type;
-// 
-// 			$arr_json["pages"][] = [
-// 				"id" => $row->id,
-// 				"title" => $row->title,
-// 				"page_num" => $row->page_num,
-// 				"date_added_formatted" => $row->date_added_formatted,
-// 				"date_added_unix" => $row->date_added_unix,
-// 				"date_added" => $row->date_added,
-// 				"date_added_time" => date('H:i', $row->date_added_unix),
-// 				"type" => $type_for_json,
-// 				"page_content" => $page_content,
-// 				"permalink" => $permalink,
-// 				"query_date" => date("Y-m-d", $dateUnix),
-// 			];
-// 
-// 			$arr_outputed_page_nums[] = $row->page_num;
-// 		}
-// 
-// 		$arr_json["pages"] = array_splice($arr_json["pages"], 0, $count);
-// 
-// 		$this->output->set_content_type("application/json");
-// 		$this->output->append_output(json_encode($arr_json));
-// 	}
 
 	// https://texttv.nu/api/last_updated
-	public function last_updated($type = "")
-	{
-
+	public function last_updated($type = "") {
 		$arr_json = [
 			"ok" => true,
 			"html" => "",
 			"pages" => [],
 		];
 
-		/*
-		$sql = sprintf('
-				SELECT id, page_num, date_updated, title, date_added FROM texttv
-				WHERE
-				page_num IN (%1$s)
-				AND date_added > FROM_UNIXTIME(%2$d)
-				GROUP BY page_num
-				ORDER BY date_added DESC
-				LIMIT %3$d
-			', 
-			implode(",", $arr_page_nums), // 1
-			$latest_date_updated, // 2
-			$limit // 3
-		);
-		
-		#$arr_json["sql"] = $sql;
-		
-		$res = $this->db->query($sql);			
-		*/
 		// function get_latest_updated_pages($from, $to, $maxcount = 20) {
-		$count = $this->input->get("count");
+		$count = (int) $this->input->get("count");
 		if (!$count) {
 			$count = 50;
 		}
 
 		if ("news" == $type) {
-
 			// Senast uppdaterade nyhetssidorna
 			$result = get_latest_updated_pages(100, 200, 50);
 			$result = $result->result_array();
 		} else if ("sport" == $type) {
-
 			// Senast uppdaterade sportsidorna
 			$result = get_latest_updated_pages(300, 329, 50);
 			$result = $result->result_array();
 		} else {
-
-			// get both news and sport, not working yet...
+			// get both news and sport.
 			$result_news = get_latest_updated_pages(100, 200, 50)->result_array();
 			$result_sport = get_latest_updated_pages(300, 329, 50)->result_array();
 			$result_weather = get_latest_updated_pages(401, 401, 1)->result_array();
@@ -302,8 +211,7 @@ class Api extends CI_Controller
 	 * Calls is like:
 	 * http://texttv.nu/api/updated/100,300/1452244325?app=texttvnu.web
 	 */
-	public function updated($str_page_nums = "", $latest_date_updated = 0)
-	{
+	public function updated($str_page_nums = "", $latest_date_updated = 0) {
 
 		$arr_page_nums = texttv_page::extract_pages_from_ranges($str_page_nums);
 		$latest_date_updated = (int) $latest_date_updated;
@@ -376,8 +284,7 @@ class Api extends CI_Controller
 	Example call:
 	https://api.texttv.nu/api/share/2664652,2664653
 	*/
-	public function share($str_page_ids = "")
-	{
+	public function share($str_page_ids = "") {
 
 		$arr_json = array(
 			"is_ok" => true
@@ -473,8 +380,7 @@ class Api extends CI_Controller
 	 * 
 	 * @param int $id Id för sida (inte sidnummer)
 	 */
-	public function getid($page_id = null)
-	{
+	public function getid($page_id = null) {
 
 		$arr_json = [];
 
@@ -524,8 +430,7 @@ class Api extends CI_Controller
 	 * 
 	 * @param mixed $page_num
 	 */
-	public function get($page_num = "")
-	{
+	public function get($page_num = "") {
 		$data = array(
 			"page_num" 		=> $page_num,
 			"jsoncallback" 	=> (string) $this->input->get("jsoncallback"),
@@ -535,8 +440,7 @@ class Api extends CI_Controller
 	}
 
 	// Like get, but also force a reload from the svt-servers
-	public function update_page($page_num = "")
-	{
+	public function update_page($page_num = "") {
 		$data = array(
 			"page_num" 		=> $page_num,
 			"api_call"		=> "update_page",
@@ -544,8 +448,7 @@ class Api extends CI_Controller
 		$this->load->view('api', $data);
 	}
 
-	public function get_html($page_num = "")
-	{
+	public function get_html($page_num = "") {
 		$data = array(
 			"page_num" 		=> $page_num,
 			"jsoncallback" 	=> (string) $this->input->get("jsoncallback"),
@@ -561,8 +464,7 @@ class Api extends CI_Controller
 	 * 
 	 * @param string $archive_ids Kommaseparerad lista på idn på sidorna
 	 */
-	public function get_permalink($archive_ids)
-	{
+	public function get_permalink($archive_ids) {
 
 		$arr_pagenums = array();
 		$arr_archive_ids = explode(",", $archive_ids);
@@ -621,8 +523,7 @@ class Api extends CI_Controller
 	/**
 	 * Generate a screenshot of the current page
 	 */
-	public function screenshotCurrent($pagenum = 100)
-	{
+	public function screenshotCurrent($pagenum = 100) {
 		$page = new texttv_page($pagenum);
 
 		if (!$page) {
@@ -642,8 +543,7 @@ class Api extends CI_Controller
 	 * 
 	 * @param $str_page_ids comma separated list of page ids
 	 */
-	public function screenshot($str_page_ids = null)
-	{
+	public function screenshot($str_page_ids = null) {
 
 		$str_page_ids = str_replace(".jpg", "", $str_page_ids);
 
@@ -751,8 +651,7 @@ class Api extends CI_Controller
 	 * - api.texttv.nu/api/page/<pageid>/view
 	 * - api.texttv.nu/api/page/<pageid>/share
 	 */
-	public function page($page_ids = null, $type = null)
-	{
+	public function page($page_ids = null, $type = null) {
 		$arr_page_ids = texttv_page::extract_pages_from_ranges($page_ids);
 		$page_ids = implode(",", $arr_page_ids);
 
@@ -797,7 +696,7 @@ class Api extends CI_Controller
 
 		// VIEW har stöd för max 100 tecken i page_ids.
 		$view_page_ids_max_length = 100;
-		if ($type === 'VIEW' && mb_strlen($page_ids)> $view_page_ids_max_length) {
+		if ($type === 'VIEW' && mb_strlen($page_ids) > $view_page_ids_max_length) {
 			$arr_json_response['success'] = false;
 			$arr_json_response['error_message'] = 'page_ids more than 100 chars';
 			$this->output->append_output(json_encode($arr_json_response));

@@ -12,7 +12,7 @@ class CleanupPageActions extends Command {
      *
      * @var string
      */
-    protected $signature = 'texttv:cleanup-page-actions';
+    protected $signature = 'texttv:cleanup-page-actions {--limit=100000 : Antal rader att ta bort per körning}';
 
     /**
      * The console command description.
@@ -38,12 +38,13 @@ class CleanupPageActions extends Command {
     public function handle() {
         $this->line("Tar bort gamla rader från page actions-tabellen...");
 
+        $limit = (int) $this->option('limit');
         $numDeletedRows = DB::connection('mysql_stats_db')->table('page_actions')
             ->where('created_at', '<', Date::now()->subDays(100))
-            ->limit(100000)
+            ->limit($limit)
             ->delete();
 
-        $this->line("Rader borttagna: $numDeletedRows");
+        $this->line("Rader borttagna: $numDeletedRows (limit var: $limit)");
 
         $this->line("Klart!");
 

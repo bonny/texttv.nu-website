@@ -120,17 +120,27 @@ class Kernel extends ConsoleKernel {
 
             // Börsen har lagts ner.
             $this->importRange(200, 245);
-
         })->weekly();
 
         $schedule->command('import-status:remove-old')->daily();
 
-        $schedule->command('texttv:cleanup-page-actions')->hourly();
+        // Run cleanup with default limit (100000) during the day
+        $schedule->command('texttv:cleanup-page-actions')
+            ->hourly()
+            ->unlessBetween('01:30', '05:30');
+
+        // Run cleanup with increased limit during night
+        $schedule->command('texttv:cleanup-page-actions --limit=500000')
+            ->everyThirtyMinutes()
+            ->between('01:30', '05:30');
 
         // Cleanup old pages hourly
-        $schedule->command('texttv:cleanup-old-pages')
+        $schedule->command('texttv:cleanup-old-pages')->hourly();
+
+        // Cleanup more pages at night.
+        $schedule->command('texttv:cleanup-old-pages --limit=100000')
             ->hourly()
-            ->runInBackground();
+            ->between('01:00', '05:00');
     }
 
     /**

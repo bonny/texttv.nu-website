@@ -188,6 +188,39 @@ h2 {
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
 }
 
+.hero-screenshots {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    perspective: 1000px;
+}
+
+.hero-screenshots img {
+    max-width: calc(50% - 0.5rem);
+    height: auto;
+    border-radius: var(--border-radius);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease;
+}
+
+.hero-screenshots img:first-child {
+    transform: perspective(1000px) rotateY(-8deg);
+}
+
+.hero-screenshots img:last-child {
+    transform: perspective(1000px) rotateY(8deg);
+}
+
+.hero-screenshots:hover img:first-child {
+    transform: perspective(1000px) rotateY(-12deg);
+}
+
+.hero-screenshots:hover img:last-child {
+    transform: perspective(1000px) rotateY(12deg);
+}
+
 .button {
     display: inline-flex;
     align-items: center;

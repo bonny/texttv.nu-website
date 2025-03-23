@@ -1,0 +1,225 @@
+:root {
+    --primary-color: #005FA3;
+    --secondary-color: #FFD700;
+    --text-color: #333333;
+    --background-light: #F5F7FA;
+    --spacing-unit: 2rem;
+}
+
+/* Reset and base styles */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+.app-landing {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+/* Grid system */
+.row {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.row::after {
+    content: "";
+    clear: both;
+    display: table;
+}
+
+[class*="columns-"] {
+    float: left;
+    padding: 0 1rem;
+    width: 100%;
+}
+
+@media (min-width: 640px) {
+    .columns-6 {
+        width: 50%;
+    }
+    
+    .columns-4 {
+        width: 33.33%;
+    }
+}
+
+.text-center {
+    text-align: center;
+}
+
+/* Hero section */
+.hero {
+    background: linear-gradient(135deg, var(--primary-color), #003B66);
+    color: white;
+    padding: var(--spacing-unit) 0;
+    margin-bottom: var(--spacing-unit);
+}
+
+.hero h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.hero p {
+    font-size: 1.25rem;
+    opacity: 0.9;
+    margin-bottom: 2rem;
+}
+
+.app-screenshot {
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    max-width: 100%;
+    height: auto;
+}
+
+/* Features section */
+.features {
+    padding: var(--spacing-unit) 0;
+    background: var(--background-light);
+}
+
+.features h2 {
+    margin-bottom: 3rem;
+}
+
+.feature-item {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.feature-item img {
+    width: 64px;
+    height: 64px;
+    margin-bottom: 1rem;
+}
+
+.feature-item h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Reviews section */
+.reviews {
+    padding: var(--spacing-unit) 0;
+}
+
+.reviews h2 {
+    margin-bottom: 2rem;
+}
+
+.reviews-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin: 0 auto;
+    max-width: 1000px;
+}
+
+.review {
+    background: white;
+    padding: 1rem;
+    box-shadow: 0 0 1rem rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+.review-title {
+    font-size: 1rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.review-stars {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.review-text {
+    margin-bottom: 1rem;
+}
+
+.review-user {
+    font-style: italic;
+}
+
+/* Benefits section */
+.benefits {
+    padding: var(--spacing-unit) 0;
+}
+
+.benefits h2 {
+    margin-bottom: 2rem;
+}
+
+.benefit-item {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+}
+
+.benefit-item img {
+    width: 32px;
+    height: 32px;
+    margin-right: 1rem;
+    flex-shrink: 0;
+}
+
+/* CTA section */
+.cta-section {
+    text-align: center;
+    padding: var(--spacing-unit) 0;
+    background: var(--background-light);
+}
+
+.cta-section h2 {
+    margin-bottom: 1rem;
+}
+
+.cta-section p {
+    margin-bottom: 2rem;
+}
+
+.download-button {
+    display: inline-block;
+    background: var(--primary-color);
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: transform 0.2s;
+}
+
+.download-button:hover {
+    transform: translateY(-2px);
+    color: white;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+    .hero h1 {
+        font-size: 2rem;
+    }
+    
+    .hero p {
+        font-size: 1.1rem;
+    }
+    
+    .feature-item {
+        margin-bottom: 3rem;
+    }
+    
+    .reviews-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .benefit-item {
+        margin-bottom: 2rem;
+    }
+} 

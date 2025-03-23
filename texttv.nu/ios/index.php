@@ -8,6 +8,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="description" content="Få SVT Text TV direkt i din iPhone eller iPad. Snabba nyheter, sport och resultat från text-tv sidorna 100, 300, 377 med flera. Gratis app med pushnotiser och favoritsidor.">
     <link rel="canonical" href="https://texttv.nu/ios">
+    <link rel="stylesheet" href="/css/app-landing.css">
     
     <!-- Open Graph -->
     <meta property="og:url" content="https://texttv.nu/ios">
@@ -23,7 +24,7 @@
             "@type": "SoftwareApplication",
             "name": "TextTV.nu: smartare SVT Text",
             "operatingSystem": "iOS",
-            "applicationCategory": "NewsApplication",
+            "applicationCategory": ["NewsApplication", "SportsApplication"],
             "offers": {
                 "@type": "Offer",
                 "price": "0",
@@ -42,335 +43,6 @@
         }
     </script>
 
-    <style>
-        :root {
-            --primary-color: #1779ba;
-            --primary-dark: #126195;
-            --text-color: #222;
-            --bg-color: #fff;
-            --light-gray: #f8f8f8;
-            --spacing: 1rem;
-            --border-radius: 8px;
-            --gradient: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            line-height: 1.6;
-            color: var(--text-color);
-            background: var(--bg-color);
-            padding: var(--spacing);
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 var(--spacing);
-        }
-
-        .header {
-            text-align: center;
-            margin: 2rem 0;
-        }
-
-        .logo {
-            max-width: 80px;
-            height: auto;
-            margin-bottom: 1rem;
-        }
-
-        h1 {
-            font-size: 2rem;
-            margin-bottom: 1rem;
-            line-height: 1.2;
-        }
-
-        h2 {
-            font-size: 1.5rem;
-            margin: 2rem 0 1rem;
-        }
-
-        .hero {
-            position: relative;
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 2rem;
-            align-items: center;
-            margin: 0 -1rem 2rem;
-            padding: 3rem 1rem;
-            background: var(--gradient);
-            color: white;
-            overflow: hidden;
-        }
-
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('/images/text-tv-nu-logotyp.svg') no-repeat center;
-            opacity: 0.05;
-            transform: scale(4);
-            pointer-events: none;
-        }
-
-        @media (min-width: 768px) {
-            .hero {
-                grid-template-columns: 1.2fr 0.8fr;
-                margin: 0 calc(50% - 50vw);
-                margin-bottom: 3rem;
-                padding: 4rem calc(50vw - 50%);
-            }
-        }
-
-        .hero-content {
-            position: relative;
-            text-align: left;
-            z-index: 1;
-        }
-
-        .hero-title {
-            font-size: 2.5rem;
-            font-weight: 800;
-            line-height: 1.2;
-            margin-bottom: 1.5rem;
-            color: white;
-        }
-
-        .hero-description {
-            font-size: 1.2rem;
-            line-height: 1.6;
-            margin-bottom: 2rem;
-            opacity: 0.9;
-        }
-
-        .hero-image {
-            position: relative;
-            z-index: 1;
-            transform: perspective(1000px) rotateY(-5deg);
-            transition: transform 0.3s ease;
-        }
-
-        .hero-image:hover {
-            transform: perspective(1000px) rotateY(-8deg);
-        }
-
-        .hero-image img {
-            max-width: 100%;
-            height: auto;
-            border-radius: var(--border-radius);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-        }
-
-        .button {
-            display: inline-flex;
-            align-items: center;
-            background: white;
-            color: var(--primary-color);
-            padding: 1rem 2rem;
-            border-radius: 2rem;
-            text-decoration: none;
-            margin: 1rem 0;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .button:hover {
-            background: var(--light-gray);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-            text-decoration: none;
-        }
-
-        .hero .button {
-            font-size: 1.1rem;
-            padding: 1.2rem 2.5rem;
-        }
-
-        .hero a:not(.button) {
-            color: white;
-            text-decoration: underline;
-            text-underline-offset: 2px;
-            opacity: 0.9;
-        }
-
-        .hero a:not(.button):hover {
-            opacity: 1;
-        }
-
-        .features {
-            background: var(--light-gray);
-            padding: 2rem;
-            border-radius: var(--border-radius);
-            margin: 2rem 0;
-        }
-
-        .features ul {
-            list-style-position: inside;
-            margin-left: 1rem;
-        }
-
-        .features li {
-            margin-bottom: 0.5rem;
-        }
-
-        .reviews {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1.5rem;
-            margin: 2rem 0;
-        }
-
-        .review {
-            background: var(--light-gray);
-            padding: 1.5rem;
-            border-radius: var(--border-radius);
-        }
-
-        .review-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-
-        .stars {
-            color: #f4b400;
-            margin-right: 1rem;
-        }
-
-        .review-title {
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-
-        .review-meta {
-            font-size: 0.9rem;
-            color: #666;
-            margin-bottom: 0.5rem;
-        }
-
-        a {
-            color: var(--primary-color);
-            text-decoration: none;
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
-
-        /* New footer styles */
-        .site-footer {
-            margin-top: 4rem;
-            padding: 3rem 0;
-            background: var(--gradient);
-            color: white;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .site-footer::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('/images/text-tv-nu-logotyp.svg') no-repeat center;
-            opacity: 0.05;
-            transform: scale(4);
-            pointer-events: none;
-        }
-
-        .footer-content {
-            position: relative;
-            z-index: 1;
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 2rem;
-            text-align: center;
-        }
-
-        @media (min-width: 768px) {
-            .footer-content {
-                grid-template-columns: repeat(3, 1fr);
-                text-align: left;
-            }
-        }
-
-        .footer-section {
-            padding: 0 1rem;
-        }
-
-        .footer-section h3 {
-            color: white;
-            font-size: 1.2rem;
-            margin-bottom: 1rem;
-            font-weight: 600;
-        }
-
-        .footer-links {
-            list-style: none;
-            padding: 0;
-        }
-
-        .footer-links li {
-            margin-bottom: 0.5rem;
-        }
-
-        .footer-links a {
-            color: rgba(255, 255, 255, 0.9);
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            transition: all 0.2s ease;
-        }
-
-        .footer-links a:hover {
-            color: white;
-            transform: translateX(3px);
-        }
-
-        .footer-links .page-number {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 0.2rem 0.5rem;
-            border-radius: 4px;
-            margin-right: 0.5rem;
-            font-size: 0.9rem;
-            font-family: monospace;
-        }
-
-        .footer-download {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        @media (min-width: 768px) {
-            .footer-download {
-                align-items: flex-start;
-            }
-        }
-
-        .footer-bottom {
-            margin-top: 2rem;
-            padding-top: 2rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            text-align: center;
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.9rem;
-        }
-    </style>
-
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-J9BM4E3WHD"></script>
     <script>
@@ -382,12 +54,21 @@
 </head>
 
 <body>
-    <div class="container">
-        <header class="header">
-            <img class="logo" src="/images/text-tv-nu-logotyp.svg" alt="TextTV.nu logotyp">
-            <h1>Text TV-app för iPhone och iPad</h1>
-        </header>
+    <header class="header">
+        <div class="container">
+            <a href="/" class="header-brand">
+                <img class="logo" src="/images/text-tv-nu-logotyp.svg" alt="TextTV.nu logotyp">
+                <h1>Text TV för iPhone & iPad</h1>
+            </a>
+            <nav class="header-nav">
+                <a href="/">TextTV.nu</a>
+                <a href="/ios">iOS</a>
+                <a href="/android">Android</a>
+            </nav>
+        </div>
+    </header>
 
+    <div class="container">
         <section class="hero">
             <div class="hero-content">
                 <h2 class="hero-title">SVT Text TV i din ficka</h2>
@@ -421,10 +102,10 @@
                 <li>Se sportnyheterna på <a href="/300">text tv 300</a> och resultaten på <a href="/377">text tv 377</a></li>
             </ul>
 
-            <div style="margin-top: 2rem; padding: 1.5rem; background: white; border-radius: var(--border-radius); box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                <h3 style="color: var(--primary-color); margin-bottom: 0.5rem;">Älskad av användarna</h3>
-                <p style="margin-bottom: 0.5rem;">Appen har ett genomsnittligt betyg på <strong>4,5 av 5 stjärnor</strong> baserat på hela <strong>10 792 recensioner</strong>. Hela <strong>7 140</strong> användare har gett appen högsta betyg!</p>
-                <div style="color: #f4b400; font-size: 1.5rem;">★★★★½</div>
+            <div class="ratings-highlight">
+                <h3>Älskad av användarna</h3>
+                <p>Appen har ett genomsnittligt betyg på <strong>4,5 av 5 stjärnor</strong> baserat på hela <strong>10 792 recensioner</strong>. Hela <strong>7 140</strong> användare har gett appen högsta betyg!</p>
+                <div class="stars-display">★★★★½</div>
             </div>
         </section>
 

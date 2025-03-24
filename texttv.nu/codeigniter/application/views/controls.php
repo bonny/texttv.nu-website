@@ -60,13 +60,13 @@ if ( "/" == current_url()) {
 		<li class="nav-menu">
 			<a class="btn" href="/">
 				<span class="icon icon-reorder"></span>
-				Meny
+				Sidor
 			</a>
 		</li>	
 		<li class="nav-home">
 			<a class="btn" href="/">
 				<span class="icon icon-home"></span>
-				100
+				Hem
 			</a>
 		</li>
 		<li class="go-page">

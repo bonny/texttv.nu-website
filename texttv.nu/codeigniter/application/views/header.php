@@ -95,7 +95,7 @@ if (isset($is_archive_overview)) {
 			}
 		}
 	}*/
-	
+
 	if (sizeof($pages) > 1) {
 		// check that it's not the startpage
 		if (sizeof($pages) == 7 && $pages[0]->num == 100 && $pages[1]->num == 300) {
@@ -264,10 +264,10 @@ if ($is_start) {
 		// inaktiverat 23 april pga jag fuckade upp och gjorde noindex på start / och jag fattade inte varför?!
 		// aktiverar igen 12 juli 2015 pga t.ex. texttv.nu/106,132 hamnade i index
 		// inaktiverar 23 maj 2022 pga satsar på long tail
-		
-		?>
+
+	?>
 		<meta name="robots" content="noindex, follow">
-		<?php		
+	<?php
 	}
 
 	/**
@@ -282,9 +282,9 @@ if ($is_start) {
 	}
 
 	if (false && isset($is_archive) && ($shareCount < 15)) {
-		?>
+	?>
 		<meta name="robots" content="noindex, follow" data-share-count="<?php echo $shareCount ?>">
-		<?php
+	<?php
 	} else {
 	?>
 		<meta name="x-share-count" content="<?php echo $shareCount ?>">
@@ -441,7 +441,7 @@ if ($is_start) {
 		<link rel="canonical" href="https://texttv.nu/<?php echo $pages[0]->num  ?>" />
 	<?php
 	}
-	
+
 	/*
 	Google Rich Snippet
 	https://developers.google.com/structured-data/rich-snippets/articles
@@ -449,8 +449,8 @@ if ($is_start) {
 	*/
 	if (isset($is_archive) && !$this->input->get("apiAppShare")) {
 		$archive_date = date("c", $pages[0]->date_updated_unix);
-		
-		?>
+
+	?>
 		<script type="application/ld+json">
 			{
 				"@context": "https://schema.org",
@@ -490,7 +490,7 @@ if ($is_start) {
 	} // archive rich data
 
 	if (!$this->input->get("apiAppShare")) {
-		?>
+	?>
 		<script type="application/ld+json">
 			{
 				"@context": "https://schema.org",
@@ -500,25 +500,19 @@ if ($is_start) {
 				"url": "https://texttv.nu"
 			}
 		</script>
-		<script>
-			(function(i, s, o, g, r, a, m) {
-				i['GoogleAnalyticsObject'] = r;
-				i[r] = i[r] || function() {
-					(i[r].q = i[r].q || []).push(arguments)
-				}, i[r].l = 1 * new Date();
-				a = s.createElement(o),
-					m = s.getElementsByTagName(o)[0];
-				a.async = 1;
-				a.src = g;
-				m.parentNode.insertBefore(a, m)
-			})(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
-			ga('create', 'UA-181460-18', 'auto');
-			ga('require', 'linkid', 'linkid.js');
-			ga('set', 'anonymizeIp', true);
-			ga('send', 'pageview');
-		</script>
-	<?php
 
+		<!-- Google tag (gtag.js) -->
+		<script async src="https://www.googletagmanager.com/gtag/js?id=G-J9BM4E3WHD"></script>
+		<script>
+			window.dataLayer = window.dataLayer || [];
+
+			function gtag() {
+				dataLayer.push(arguments);
+			}
+			gtag('js', new Date());
+			gtag('config', 'G-J9BM4E3WHD');
+		</script>
+		<?php
 	}
 
 	// Title and stuff for search page

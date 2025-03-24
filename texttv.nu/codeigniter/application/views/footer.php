@@ -281,7 +281,9 @@ if ($this->input->get("skipScriptsFooter") || $this->input->get("apiAppShare")) 
 	// no load script yo
 } else {
 ?>
-	<script src="/min/?b=js&amp;f=jquery.min.js,js.cookie.js,scripts.js&amp;18"></script>
+	<script src="/js/jquery.min.js"></script>
+	<script src="/js/js.cookie.js"></script>
+	<script src="/js/scripts.js"></script>
 	<?php
 	// Kod för annonser på sidnivå
 	?>

@@ -10,19 +10,19 @@ $out = "";
 
 
 // Lägg in output för sidinnehållet
-$out .= "<section id='pages'>";
+$out .= "<main id='pages'>";
 
 // Lägg till H1-rubriker ovanför sidorna.
 $headline = null;
 
 if ($pagedescription === 'startpage') {
-	$headline = 'SVT Text TV – Nyheter och Sportresultat';
+	$headline = 'SVT Text TV - Nyheter och Sportresultat';
 } else if ($pagenum == 377) {
-	$headline = 'SVT Text TV 377 – Målservice och målresultat';
+	$headline = 'SVT Text TV 377 - Målservice och målresultat';
 } else if ($pagenum == 101 || $pagenum == 102 || $pagenum == 103) {
-	$headline = "SVT Text TV $pagenum – Inrikesnyheter";
+	$headline = "SVT Text TV $pagenum - Inrikesnyheter";
 } else if ( in_array($pagenum, [104,105] )) {
-	$headline = "SVT Text TV $pagenum – Utrikesnyheter";
+	$headline = "SVT Text TV $pagenum - Utrikesnyheter";
 }
 
 if ($headline) {
@@ -32,7 +32,7 @@ if ($headline) {
 	);	
 }
 
-$out .= "<ul>";
+$out .= "<div>";
 
 // Här skrivs själva sidorna ut, 
 // en per li
@@ -40,9 +40,9 @@ foreach ($arr_pages as $one_page_obj) {
 	$out .= $one_page_obj->get_output();
 }
 
-$out .= "</ul>";
+$out .= "</div>";
 	
-$out .= "</section>"; // #pages
+$out .= "</main>"; // #pages
 
 // Arkivtext
 $text_archive = "";

@@ -53,7 +53,6 @@ $banner_output = <<<EOT
 	<!-- TextTV - arkivsida -->
 	<p>Annons:</p>
 	<ins class="adsbygoogle"
-	     xxstyle="display:inline-block;width:320px;height:100px"
 	     style="display:inline-block;width:100%;height:100px"
 	     data-ad-client="ca-pub-1689239266452655"
 	     data-ad-slot="8439735600"></ins>

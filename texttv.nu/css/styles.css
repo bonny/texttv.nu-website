@@ -204,6 +204,7 @@ ul {
   box-sizing: border-box;
 }
 .inpage-pages li,
+.inpage-pages .li,
 .alert {
   display: block;
   -webkit-box-sizing: border-box;
@@ -396,10 +397,8 @@ body {
   margin-top: 50px;
 }
 
-.inpage-pages li:first-child {
-  border-top: 0;
-}
 .inpage-pages li,
+.inpage-pages .li,
 .alert {
   -webkit-box-shadow: none;
   -moz-box-shadow: none;
@@ -698,7 +697,8 @@ body {
   background-attachment: fixed;
 }
 
-.inpage-pages li {
+.inpage-pages li,
+.inpage-pages .li {
   background: none;
   border: none !important;
 }

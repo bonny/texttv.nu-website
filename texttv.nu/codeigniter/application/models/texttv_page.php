@@ -869,7 +869,7 @@ class Texttv_page extends CI_Model {
 		// Output en sida
 		$page_num_data_attr = sprintf("data-sida=%d", $this->num);
 		
-		$out .= "<li $page_num_data_attr class='one-page TextTVPage'>";
+		$out .= "<div $page_num_data_attr class='one-page TextTVPage li'>";
 		
 		//$out .= sprintf('<div style="display:none" class="page-swipe-wrap page-swipe-wrap-prev">Föregående sida: %1$s:</div>', $this->prev_page);
 
@@ -885,10 +885,10 @@ class Texttv_page extends CI_Model {
 
 		// Alla sidor för ett nummer visas i en ul
 		// Denna kan innehålla bara en om sidan inte är en fler-sida
-		$out .= "<ul class='inpage-pages $subpages_class'>";
+		$out .= "<div class='inpage-pages ul $subpages_class'>";
 		foreach ($this->arr_contents as $one_page) {
 
-			$out .= "<li>";
+			$out .= "<div class='li'>";
 
 			//$one_page = $this->maybeChangeLineCount($one_page);
 
@@ -903,16 +903,16 @@ class Texttv_page extends CI_Model {
 
 			$out .= $one_page;
 
-			$out .= "</li>";
+			$out .= "</div>";
 			
 		}
-		$out .= "</ul>";
+		$out .= "</div>";
 
 		//$out .= "</div>"; // div för swipe
 
 		//$out .= sprintf('<div style="display:none" class="page-swipe-wrap page-swipe-wrap-next">Nästa sida: %1$s:</div>', $this->next_page);
 		
-		$out .= "</li>";
+		$out .= "</div>";
 
 	    return $out;
 

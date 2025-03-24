@@ -77,7 +77,7 @@ var texttvnu = (function ($) {
     });
 
     // Track share click
-    ga("send", "event", "Share", "Show share sheet");
+    //ga("send", "event", "Share", "Show share sheet");
 
     // get link
     // todo: need to get permaIDs of these pages
@@ -213,11 +213,11 @@ var texttvnu = (function ($) {
       e.preventDefault();
 
       // Track click
-      if (elms.body.hasClass("menu-active")) {
-        ga("send", "event", "Sidebar", "Close");
-      } else {
-        ga("send", "event", "Sidebar", "Open");
-      }
+      // if (elms.body.hasClass("menu-active")) {
+      //   ga("send", "event", "Sidebar", "Close");
+      // } else {
+      //   ga("send", "event", "Sidebar", "Open");
+      // }
 
       elms.body.toggleClass("menu-active");
     });
@@ -233,75 +233,75 @@ var texttvnu = (function ($) {
     // Track nav clicks
     controls.on("click", ".nav-home a", function (e) {
       my.loading();
-      ga("send", "event", "Menu", "Nav", "Home", {
-        hitCallback: my.onGaHitCallback.call(this, e),
-      });
+      // ga("send", "event", "Menu", "Nav", "Home", {
+      //   hitCallback: my.onGaHitCallback.call(this, e),
+      // });
     });
 
     // Track download app clicks
     controls.on("click", "a.controls-promo-item", function (e) {
-      ga("send", "event", "Menu", "Promo", "App", {
-        hitCallback: my.onGaHitCallback.call(this, e),
-      });
+      // ga("send", "event", "Menu", "Promo", "App", {
+      //   hitCallback: my.onGaHitCallback.call(this, e),
+      // });
     });
 
     controls.on("submit", "#frmGoPage", function (e) {
       my.loading();
       e.preventDefault();
 
-      ga("send", "event", "Menu", "Nav", "Custom page", {
-        hitCallback: function () {
-          var page_num = $("#goPageNum").val();
-          var pattern = /^\d{3}$/;
-          if (page_num.match(pattern)) {
-            document.location = "/" + parseInt(page_num, 0);
-          } else {
-            alert("Ange ett giltigt sidnummer");
-          }
-        },
-      });
+      // ga("send", "event", "Menu", "Nav", "Custom page", {
+      //   hitCallback: function () {
+      var page_num = $("#goPageNum").val();
+      var pattern = /^\d{3}$/;
+      if (page_num.match(pattern)) {
+        document.location = "/" + parseInt(page_num, 0);
+      } else {
+        alert("Ange ett giltigt sidnummer");
+      }
+      //},
+      //   });
     });
 
-    controls.on("click", ".nav-prev a", function (e) {
-      my.loading();
-      ga("send", "event", "Menu", "Nav", "Prev page", {
-        hitCallback: my.onGaHitCallback.call(this, e),
-      });
-    });
+    // controls.on("click", ".nav-prev a", function (e) {
+    //   my.loading();
+    //   ga("send", "event", "Menu", "Nav", "Prev page", {
+    //     hitCallback: my.onGaHitCallback.call(this, e),
+    //   });
+    // });
 
-    controls.on("click", ".nav-next a", function (e) {
-      my.loading();
-      ga("send", "event", "Menu", "Nav", "Next page", {
-        hitCallback: my.onGaHitCallback.call(this, e),
-      });
-    });
+    // controls.on("click", ".nav-next a", function (e) {
+    //   my.loading();
+    //   ga("send", "event", "Menu", "Nav", "Next page", {
+    //     hitCallback: my.onGaHitCallback.call(this, e),
+    //   });
+    // });
 
     // Track clicks on "Senaste nyheterna"
     var $latestNews = $(".latest-pages-list--news");
     var $latestSport = $(".latest-pages-list--sport");
 
-    $latestNews.on("click", ".latest-pages-title", function (e) {
-      my.loading();
-      ga("send", "event", "More news", "Click news item", {
-        hitCallback: my.onGaHitCallback.call(this, e),
-      });
-    });
+    // $latestNews.on("click", ".latest-pages-title", function (e) {
+    //   my.loading();
+    //   ga("send", "event", "More news", "Click news item", {
+    //     hitCallback: my.onGaHitCallback.call(this, e),
+    //   });
+    // });
 
-    $latestSport.on("click", ".latest-pages-title", function (e) {
-      my.loading();
-      ga("send", "event", "More news", "Click sport item", {
-        hitCallback: my.onGaHitCallback.call(this, e),
-      });
-    });
+    // $latestSport.on("click", ".latest-pages-title", function (e) {
+    //   my.loading();
+    //   ga("send", "event", "More news", "Click sport item", {
+    //     hitCallback: my.onGaHitCallback.call(this, e),
+    //   });
+    // });
 
     // Track clicks on breadcrumb
-    $breadcrumbs = $(".breadcrumbs");
-    $breadcrumbs.on("click", ".breadcrumbs__link", function (e) {
-      my.loading();
-      ga("send", "event", "Breadcrumbs", "Click", {
-        hitCallback: my.onGaHitCallback.call(this, e),
-      });
-    });
+    // $breadcrumbs = $(".breadcrumbs");
+    // $breadcrumbs.on("click", ".breadcrumbs__link", function (e) {
+    //   my.loading();
+    //   ga("send", "event", "Breadcrumbs", "Click", {
+    //     hitCallback: my.onGaHitCallback.call(this, e),
+    //   });
+    // });
   };
 
   my.onGaHitCallback = function (e) {
@@ -390,7 +390,7 @@ texttvnu.onDomReady();
     // ga("send", "event", "button", "click", "update_available", {
     //   hitCallback: function () {
 
-        window.location.replace(newUrl);
+    window.location.replace(newUrl);
     //   },
     // });
   });

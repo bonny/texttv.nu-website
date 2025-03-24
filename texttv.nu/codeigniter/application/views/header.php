@@ -102,7 +102,8 @@ if (isset($is_archive_overview)) {
 			// typ startsida
 		} else {
 			// 2022-12-26: Äh, indexera på
-			// $ok_to_archive = false;
+			// 2025-03-24: Äh, indexera inte
+			$ok_to_archive = false;
 		}
 	}
 

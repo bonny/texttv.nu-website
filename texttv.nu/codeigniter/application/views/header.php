@@ -45,7 +45,7 @@ $this->output->set_header('Content-Type: text/html; charset=utf-8');
 
 // Skapa sidtitel
 $page_title = "";
-$ok_to_archive = TRUE;
+$ok_to_archive = true;
 $is_start = false;
 
 if (isset($is_archive)) {
@@ -98,8 +98,11 @@ if (isset($is_archive_overview)) {
 
 	if (sizeof($pages) > 1) {
 		// check that it's not the startpage
-		if (sizeof($pages) == 7 && $pages[0]->num == 100 && $pages[1]->num == 300) {
-			// typ startsida
+		// Is "/" for startpage.
+		$url = base_url(uri_string());
+
+		if ( $url == "/" ) {
+			// startsidan, är flera pages men det är startsidan så den ska indexeras.
 		} else {
 			// 2022-12-26: Äh, indexera på
 			// 2025-03-24: Äh, indexera inte

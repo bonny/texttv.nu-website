@@ -385,13 +385,14 @@ texttvnu.onDomReady();
     var unixtime = Math.floor(Date.now() / 1000);
     newUrl.searchParams.set("uppdaterad", unixtime);
 
-    // Track click and then reload
-    ga("send", "event", "button", "click", "update_available", {
-      hitCallback: function () {
-        // document.location.reload();
+    // Track click and then reload.
+    // Disable since 2025-03-24 since it's not working, after switching to new GA script.
+    // ga("send", "event", "button", "click", "update_available", {
+    //   hitCallback: function () {
+
         window.location.replace(newUrl);
-      },
-    });
+    //   },
+    // });
   });
 
   function onData(data) {

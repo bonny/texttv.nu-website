@@ -126,20 +126,20 @@ class Kernel extends ConsoleKernel {
 
         // Run cleanup with default limit (100000) during the day
         $schedule->command('texttv:cleanup-page-actions')
-            ->hourly()
+            ->everyFifteenMinutes()
             ->unlessBetween('01:30', '05:30');
 
         // Run cleanup with increased limit during night
         $schedule->command('texttv:cleanup-page-actions --limit=1000000')
-            ->everyThirtyMinutes()
+            ->everyTenMinutes()
             ->between('01:30', '05:30');
 
         // Cleanup old pages hourly
-        $schedule->command('texttv:cleanup-old-pages')->hourly();
+        $schedule->command('texttv:cleanup-old-pages')->everyTenMinutes();
 
         // Cleanup more pages at night.
         $schedule->command('texttv:cleanup-old-pages --limit=300000')
-            ->hourly()
+        ->everyTenMinutes()
             ->between('01:00', '05:00');
     }
 

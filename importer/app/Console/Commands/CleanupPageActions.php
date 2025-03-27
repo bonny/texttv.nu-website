@@ -40,7 +40,7 @@ class CleanupPageActions extends Command {
 
         $limit = (int) $this->option('limit');
         $numDeletedRows = DB::connection('mysql_stats_db')->table('page_actions')
-            ->where('created_at', '<', Date::now()->subDays(30))
+            ->where('created_at', '<', Date::now()->subDays(10))
             ->limit($limit)
             ->delete();
 

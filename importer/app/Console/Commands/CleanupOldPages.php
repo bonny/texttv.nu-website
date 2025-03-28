@@ -46,7 +46,7 @@ class CleanupOldPages extends Command
         $this->line("Tar bort gamla text-tv sidor (max {$limit} st)...");
 
         // Build the query
-        $query = TextTV::where('date_added', '<', Date::now()->subYear())
+        $query = TextTV::where('date_updated', '<', Date::now()->subYear())
             ->where('is_shared', 0)
             ->whereNotIn('page_num', [100, 377]);
 

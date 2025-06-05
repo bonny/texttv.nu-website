@@ -25,13 +25,13 @@ jobs:
       matrix:
         server:
           - name: "current-server"
-            host: ${{ secrets.HOST }}
-            username: ${{ secrets.USERNAME }}
-            key: ${{ secrets.KEY }}
+            host_secret: "HOST"
+            username_secret: "USERNAME"
+            key_secret: "KEY"
           - name: "hetzner-server"
-            host: ${{ secrets.HETZNER_HOST }}
-            username: ${{ secrets.HETZNER_USERNAME }}
-            key: ${{ secrets.HETZNER_KEY }}
+            host_secret: "HETZNER_HOST"
+            username_secret: "HETZNER_USERNAME"
+            key_secret: "HETZNER_KEY"
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -55,18 +55,18 @@ jobs:
       - name: Copy files to ${{ matrix.server.name }}
         uses: appleboy/scp-action@master
         with:
-          host: ${{ matrix.server.host }}
-          username: ${{ matrix.server.username }}
-          key: ${{ matrix.server.key }}
+          host: ${{ secrets[matrix.server.host_secret] }}
+          username: ${{ secrets[matrix.server.username_secret] }}
+          key: ${{ secrets[matrix.server.key_secret] }}
           source: "importer/"
           target: "/usr/share/nginx/l.texttv.nu/"
 
       - name: Execute remote commands on ${{ matrix.server.name }}
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ matrix.server.host }}
-          username: ${{ matrix.server.username }}
-          key: ${{ matrix.server.key }}
+          host: ${{ secrets[matrix.server.host_secret] }}
+          username: ${{ secrets[matrix.server.username_secret] }}
+          key: ${{ secrets[matrix.server.key_secret] }}
           script: |
             cd /usr/share/nginx/l.texttv.nu/importer
             sudo chown -R root:root .

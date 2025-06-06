@@ -21,6 +21,18 @@ jobs:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        server:
+          - name: "current-server"
+            host_secret: "HOST"
+            username_secret: "USERNAME"
+            key_secret: "KEY"
+          - name: "hetzner-server"
+            host_secret: "HETZNER_HOST"
+            username_secret: "HETZNER_USERNAME"
+            key_secret: "HETZNER_KEY"
+
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - name: Checkout
@@ -34,24 +46,23 @@ jobs:
           ini-values: post_max_size=256M, max_execution_time=180
           tools: php-cs-fixer, phpunit
 
-      - name: Copy files to server
+      - name: Copy files to ${{ matrix.server.name }}
         uses: appleboy/scp-action@master
         with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.KEY }}
+          host: ${{ secrets[matrix.server.host_secret] }}
+          username: ${{ secrets[matrix.server.username_secret] }}
+          key: ${{ secrets[matrix.server.key_secret] }}
           source: "texttv.nu/"
           target: "/usr/share/nginx/"
 
-      - name: executing remote ssh commands using password
+      - name: Execute remote commands on ${{ matrix.server.name }}
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.KEY }}
+          host: ${{ secrets[matrix.server.host_secret] }}
+          username: ${{ secrets[matrix.server.username_secret] }}
+          key: ${{ secrets[matrix.server.key_secret] }}
           script: |
             cd /usr/share/nginx/texttv.nu
             sudo chown -R root:root .
             chmod 777 -R /usr/share/nginx/texttv.nu/shares
             chmod 777 /usr/share/nginx/texttv.nu/codeigniter/application/cache/
-

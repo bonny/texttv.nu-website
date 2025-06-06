@@ -580,17 +580,6 @@ class Api extends CI_Controller {
 			#$cmd_wkhtml = "/root/wkhtmltopdf/wkhtmltox/bin/wkhtmltoimage --width 650 {$screenshotURL} {$destImageName}";
 			$cmd_wkhtml = "/usr/bin/wkhtmltoimage --width 650 {$screenshotURL} {$destImageName}";
 
-			// Bail if $destImageName was not created, ie does not exist in filesystem.
-			if (!file_exists($destImageName)) {
-				$this->output->set_header("X-texttv-image: failed-to-create");
-				error_log("texttv: api/screenshot: failed to create image");
-				error_log("texttv: api/screenshot: destImageName: " . $destImageName);
-				error_log("texttv: api/screenshot: screenshotURL: " . $screenshotURL);
-				error_log("texttv: api/screenshot: cmd_wkhtml: " . $cmd_wkhtml);
-				error_log(ob_get_contents());
-				exit;
-			}
-
 			$this->output->set_header("X-texttv-cmd_wkhtml: $cmd_wkhtml");
 			$this->output->set_header("X-texttv-saveFileName: $saveFileName");
 
@@ -601,6 +590,17 @@ class Api extends CI_Controller {
 			$this->output->set_header("X-texttv-before_exec_memory_get_peak_usage: " . memory_get_peak_usage());
 			exec($cmd_wkhtml, $output, $return_val);
 			$this->output->set_header("X-texttv-after_exec: 1");
+
+			// Bail if $destImageName was not created, ie does not exist in filesystem.
+			if (!file_exists($destImageName)) {
+				$this->output->set_header("X-texttv-image: failed-to-create");
+				error_log("texttv: api/screenshot: failed to create image");
+				error_log("texttv: api/screenshot: destImageName: " . $destImageName);
+				error_log("texttv: api/screenshot: screenshotURL: " . $screenshotURL);
+				error_log("texttv: api/screenshot: cmd_wkhtml: " . $cmd_wkhtml);
+				error_log(ob_get_contents());
+				exit;
+			}
 
 			$this->output->set_header("X-texttv-debug_output: " . json_encode($output));
 			$this->output->set_header("X-texttv-debug_return_val: $return_val");

@@ -577,16 +577,19 @@ class Api extends CI_Controller {
 			// 15 var saveFileName = md5(url) + ".jpg";
 			$destImageName = "/usr/share/nginx/texttv.nu/shares/" . md5($screenshotURL) . ".jpg";
 
-			// Bail if $destImageName was not created.
-			if (!$destImageName) {
+			#$cmd_wkhtml = "/root/wkhtmltopdf/wkhtmltox/bin/wkhtmltoimage --width 650 {$screenshotURL} {$destImageName}";
+			$cmd_wkhtml = "/usr/bin/wkhtmltoimage --width 650 {$screenshotURL} {$destImageName}";
+
+			// Bail if $destImageName was not created, ie does not exist in filesystem.
+			if (!file_exists($destImageName)) {
 				$this->output->set_header("X-texttv-image: failed-to-create");
 				error_log("texttv: api/screenshot: failed to create image");
+				error_log("texttv: api/screenshot: destImageName: " . $destImageName);
+				error_log("texttv: api/screenshot: screenshotURL: " . $screenshotURL);
+				error_log("texttv: api/screenshot: cmd_wkhtml: " . $cmd_wkhtml);
 				error_log(ob_get_contents());
 				exit;
 			}
-
-			#$cmd_wkhtml = "/root/wkhtmltopdf/wkhtmltox/bin/wkhtmltoimage --width 650 {$screenshotURL} {$destImageName}";
-			$cmd_wkhtml = "/usr/bin/wkhtmltoimage --width 650 {$screenshotURL} {$destImageName}";
 
 			$this->output->set_header("X-texttv-cmd_wkhtml: $cmd_wkhtml");
 			$this->output->set_header("X-texttv-saveFileName: $saveFileName");

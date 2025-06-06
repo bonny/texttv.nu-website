@@ -577,6 +577,14 @@ class Api extends CI_Controller {
 			// 15 var saveFileName = md5(url) + ".jpg";
 			$destImageName = "/usr/share/nginx/texttv.nu/shares/" . md5($screenshotURL) . ".jpg";
 
+			// Bail if $destImageName was not created.
+			if (!$destImageName) {
+				$this->output->set_header("X-texttv-image: failed-to-create");
+				error_log("texttv: api/screenshot: failed to create image");
+				error_log(ob_get_contents());
+				exit;
+			}
+
 			#$cmd_wkhtml = "/root/wkhtmltopdf/wkhtmltox/bin/wkhtmltoimage --width 650 {$screenshotURL} {$destImageName}";
 			$cmd_wkhtml = "/usr/bin/wkhtmltoimage --width 650 {$screenshotURL} {$destImageName}";
 

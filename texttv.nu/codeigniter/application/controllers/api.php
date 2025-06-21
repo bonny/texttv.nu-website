@@ -1,6 +1,7 @@
 <?php if (!defined('BASEPATH')) exit('No direct script access allowed');
 
-class Api extends CI_Controller {
+class Api extends CI_Controller
+{
 
 	/**
 	 * Index Page for this controller.
@@ -17,7 +18,8 @@ class Api extends CI_Controller {
 	 * map to /index.php/welcome/<method_name>
 	 * @see http://codeigniter.com/user_guide/general/urls.html
 	 */
-	public function index() {
+	public function index()
+	{
 		$this->load->view('404');
 	}
 
@@ -32,7 +34,8 @@ class Api extends CI_Controller {
 	 * https://texttv.nu/api/most_read
 	 * https://texttv.nu/api/most_read/sport
 	 */
-	public function most_read($type = "") {
+	public function most_read($type = "")
+	{
 		$arr_json = [
 			"ok" => true,
 			"pages" => []
@@ -105,7 +108,8 @@ class Api extends CI_Controller {
 	 */
 
 	// https://texttv.nu/api/last_updated
-	public function last_updated($type = "") {
+	public function last_updated($type = "")
+	{
 		$arr_json = [
 			"ok" => true,
 			"html" => "",
@@ -211,15 +215,14 @@ class Api extends CI_Controller {
 	 * Calls is like:
 	 * http://texttv.nu/api/updated/100,300/1452244325?app=texttvnu.web
 	 */
-	public function updated($str_page_nums = "", $latest_date_updated = 0) {
+	public function updated($str_page_nums = "", $latest_date_updated = 0)
+	{
 
 		$arr_page_nums = texttv_page::extract_pages_from_ranges($str_page_nums);
 		$latest_date_updated = (int) $latest_date_updated;
 
 		$arr_json = array(
 			"is_ok" => true,
-			// "page_nums" => $arr_page_nums,
-			// "latest_date_updated" => $latest_date_updated
 		);
 
 		// If API call is coming from a bot then "shortcut" it
@@ -245,37 +248,14 @@ class Api extends CI_Controller {
 			$limit // 3
 		);
 
-		#$arr_json["sql"] = $sql;
 
 		$res = $this->db->query($sql);
-		#$arr_json["num_rows"] = $res->num_rows;
 		$arr_json["update_available"] = $res->num_rows ? true : false;
 		$arr_json["res"] = $res->result();
 
 		$this->output->set_content_type("application/json");
 
 		$this->output->append_output(json_encode($arr_json));
-
-		// if number of pages are many, debug to see if we can find out who/what is causing it
-		/*if ( sizeof( $arr_page_nums ) > 10 ) {
-
-			$date_added = date("Y-m-d H:i:s");
-			$key = "update_many";
-			$text = json_encode( [ $_REQUEST, $_SERVER ], JSON_PRETTY_PRINT );
-
-			$this->db->query(
-				sprintf(
-					'INSERT INTO texttv_log (date_added, log_key, log_text) VALUES (%1$s, %2$s, %3$s)',
-					$this->db->escape($date_added),
-					$this->db->escape($key),
-					$this->db->escape($text)
-				)
-			);
-			
-		}*/
-
-		#exit;
-
 	}
 
 	/*
@@ -284,7 +264,8 @@ class Api extends CI_Controller {
 	Example call:
 	https://api.texttv.nu/api/share/2664652,2664653
 	*/
-	public function share($str_page_ids = "") {
+	public function share($str_page_ids = "")
+	{
 
 		$arr_json = array(
 			"is_ok" => true
@@ -380,7 +361,8 @@ class Api extends CI_Controller {
 	 * 
 	 * @param int $id Id för sida (inte sidnummer)
 	 */
-	public function getid($page_id = null) {
+	public function getid($page_id = null)
+	{
 
 		$arr_json = [];
 
@@ -430,7 +412,8 @@ class Api extends CI_Controller {
 	 * 
 	 * @param mixed $page_num
 	 */
-	public function get($page_num = "") {
+	public function get($page_num = "")
+	{
 		$data = array(
 			"page_num" 		=> $page_num,
 			"jsoncallback" 	=> (string) $this->input->get("jsoncallback"),
@@ -440,7 +423,8 @@ class Api extends CI_Controller {
 	}
 
 	// Like get, but also force a reload from the svt-servers
-	public function update_page($page_num = "") {
+	public function update_page($page_num = "")
+	{
 		$data = array(
 			"page_num" 		=> $page_num,
 			"api_call"		=> "update_page",
@@ -448,7 +432,8 @@ class Api extends CI_Controller {
 		$this->load->view('api', $data);
 	}
 
-	public function get_html($page_num = "") {
+	public function get_html($page_num = "")
+	{
 		$data = array(
 			"page_num" 		=> $page_num,
 			"jsoncallback" 	=> (string) $this->input->get("jsoncallback"),
@@ -464,7 +449,8 @@ class Api extends CI_Controller {
 	 * 
 	 * @param string $archive_ids Kommaseparerad lista på idn på sidorna
 	 */
-	public function get_permalink($archive_ids) {
+	public function get_permalink($archive_ids)
+	{
 
 		$arr_pagenums = array();
 		$arr_archive_ids = explode(",", $archive_ids);
@@ -523,7 +509,8 @@ class Api extends CI_Controller {
 	/**
 	 * Generate a screenshot of the current page
 	 */
-	public function screenshotCurrent($pagenum = 100) {
+	public function screenshotCurrent($pagenum = 100)
+	{
 		$page = new texttv_page($pagenum);
 
 		if (!$page) {
@@ -543,7 +530,8 @@ class Api extends CI_Controller {
 	 * 
 	 * @param $str_page_ids comma separated list of page ids
 	 */
-	public function screenshot($str_page_ids = null) {
+	public function screenshot($str_page_ids = null)
+	{
 
 		$str_page_ids = str_replace(".jpg", "", $str_page_ids);
 
@@ -662,7 +650,8 @@ class Api extends CI_Controller {
 	 * - api.texttv.nu/api/page/<pageid>/view
 	 * - api.texttv.nu/api/page/<pageid>/share
 	 */
-	public function page($page_ids = null, $type = null) {
+	public function page($page_ids = null, $type = null)
+	{
 		$arr_page_ids = texttv_page::extract_pages_from_ranges($page_ids);
 		$page_ids = implode(",", $arr_page_ids);
 

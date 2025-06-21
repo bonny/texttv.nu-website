@@ -24,10 +24,6 @@ jobs:
     strategy:
       matrix:
         server:
-          - name: "current-server"
-            host_secret: "HOST"
-            username_secret: "USERNAME"
-            key_secret: "KEY"
           - name: "hetzner-server"
             host_secret: "HETZNER_HOST"
             username_secret: "HETZNER_USERNAME"

@@ -1,4 +1,4 @@
-**Status:** aktiv
+**Status:** klar 2026-05-19 — LOG_LEVEL=warning + config:cache (99.9 % INFO-spam borta), logrotate-config installerad i /etc/logrotate.d/texttv-importer (daily, rotate 7, copytruncate), engångs-truncate frigjorde ~8 GB
 **Senast uppdaterad:** 2026-05-19
 
 # Todo #02 — Logrotate för laravel.log (8 GB) + diagnostik

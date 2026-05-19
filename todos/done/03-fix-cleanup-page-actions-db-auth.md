@@ -1,4 +1,4 @@
-**Status:** aktiv
+**Status:** klar 2026-05-19 — rotorsak var saknade dubbelquotes runt DB_STATS_PASSWORD i .env (phpdotenv tolkade `#` som kommentar och trunkerade lösenordet). Quotes tillagda + config:cache → cleanup-kommandot funkar. Schemaläggaren städar nu 158M-backloggen autonomt (~5 dygn). OPTIMIZE TABLE för att frigöra disk planerad till 2026-05-26.
 **Senast uppdaterad:** 2026-05-19
 
 # Todo #03 — Fixa `texttv:cleanup-page-actions` DB-auth

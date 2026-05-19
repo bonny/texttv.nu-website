@@ -4,3 +4,8 @@ importer/live-db-latest-rows-export.sql
 importer/.vscode/settings.json
 texttv.nu/.valet-env.php
 texttv.nu/debug.txt
+
+# Lighthouse-rapporter: HTML är stort och kan regenereras från JSON
+# (öppna en JSON via `lighthouse --view ...report.json` eller fyll i URL på
+# https://googlechrome.github.io/lighthouse/viewer/). JSON committas.
+baselines/*/*.report.html

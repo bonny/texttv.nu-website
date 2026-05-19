@@ -29,7 +29,13 @@ if ($headline) {
 	$out .= sprintf(
 		'<h1>%1$s</h1>',
 		$headline
-	);	
+	);
+} else if (isset($pagenum) && $pagenum) {
+	// Fallback: sr-only h1 för crawlers + screenreaders på sidor utan visuell rubrik.
+	$out .= sprintf(
+		'<h1 class="sr-only">SVT Text TV %d</h1>',
+		(int) $pagenum
+	);
 }
 
 $out .= "<div>";

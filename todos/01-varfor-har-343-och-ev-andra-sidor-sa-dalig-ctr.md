@@ -1,4 +1,4 @@
-**Status:** aktiv — fix implementerat 2026-05-19 (whitelist utökad med 18 entries i `header.php`), ej committat/deployat ännu. Väntar 30d GSC-mätning efter deploy.
+**Status:** aktiv — deployat 2026-05-19 (commit 5f9c6ad, 19/19 sidor live-verifierade). Väntar 30d GSC-mätning (2026-06-18).
 **Senast uppdaterad:** 2026-05-19
 
 # Todo #01 — Varför har /343 och ev andra sidor så dålig CTR?
@@ -189,16 +189,18 @@ Whitelist utökad i `texttv.nu/codeigniter/application/views/header.php` (efter 
 **/160, /190 hoppades över** — sidorna är just nu "Sidan ej i sändning" hos SVT.
 
 **Verifiering:**
-- `php -l` OK på filen.
-- Lokal Valet ej parkad → live verifiering sker efter deploy.
+- `php -l` OK på filen ✓
+- Commit 5f9c6ad pushad till main 2026-05-19 ✓
+- GitHub Actions deploy (run 26086488075) success 29s ✓
+- Live curl mot prod: 19/19 sidor returnerar kurerad `<title>` + `<meta name="description">` ✓ (cache-bust krävdes — sajten cachar HTML per page-num, vilket innebär att Google-bot får nya versioner vid nästa crawl)
 
 **Att göra härnäst:**
 
-1. Användare reviewar diff:en
-2. Commit + push → deploy via `.github/workflows/deploy-website.yml`
-3. Live-verifiera titles på alla 18 sidor (curl + grep `<title>`)
-4. Vänta 30d för GSC-mätning (mål: kohortens CTR från ~0.27 % → ~0.88 %)
-5. 60d efter deploy: utvärdera + skapa fix-todo för restpopulationen om mönstret fortsätter
+1. ~~Användare reviewar diff:en~~ ✓
+2. ~~Commit + push → deploy~~ ✓
+3. ~~Live-verifiera titles på alla 18 sidor~~ ✓ (19 sidor: 18 enligt plan + /601 räknades med)
+4. **2026-06-18** — 30d GSC-mätning (mål: kohort-CTR ~0.27 % → ~0.88 %)
+5. **2026-07-18** — 60d slutmätning + ev. restpopulation-todo
 
 ## Förslag
 

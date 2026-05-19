@@ -4,13 +4,13 @@ Index över förbättringsarbete. Varje todo har en egen fil under
 [`todos/`](todos/) med fullständig analys. Konvention och
 mappstruktur: [`todos/README.md`](todos/README.md).
 
-Senast uppdaterad: 2026-05-19 (#01 fix implementerat — 18 nya whitelist-entries i header.php, ej committat).
+Senast uppdaterad: 2026-05-19 (#01 deployat — commit 5f9c6ad, 19/19 sidor live-verifierade, väntar 30d GSC-mätning).
 
 ## Aktiva
 
 | #   | Titel | Status | Fil |
 | --- | ----- | ------ | --- |
-| 01  | Varför har /343 och ev andra sidor så dålig CTR? | fix implementerat 2026-05-19 (18 whitelist-entries) — väntar på commit + deploy + 30d GSC-mätning | [todos/01-varfor-har-343-och-ev-andra-sidor-sa-dalig-ctr.md](todos/01-varfor-har-343-och-ev-andra-sidor-sa-dalig-ctr.md) |
+| 01  | Varför har /343 och ev andra sidor så dålig CTR? | deployat 2026-05-19 (commit 5f9c6ad), 19/19 sidor live-verifierade — 30d-mätning till 2026-06-18 | [todos/01-varfor-har-343-och-ev-andra-sidor-sa-dalig-ctr.md](todos/01-varfor-har-343-och-ev-andra-sidor-sa-dalig-ctr.md) |
 
 ### Beroenden
 

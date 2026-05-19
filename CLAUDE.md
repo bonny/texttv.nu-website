@@ -44,7 +44,7 @@ The whole project assumes **Laravel Valet** on macOS, with `texttv.nu/` served a
 
 ### Website (CodeIgniter)
 1. Park `texttv.nu/` in Valet so `http://texttv.nu.test/` serves it.
-2. Create local MySQL DBs `texttv_nu` and `texttv_stats` (root, no password — see `database.php`).
+2. Create local MySQL DBs `texttv_nu` and `texttv_stats` (root, no password — see `database.php`). **Note:** prod uses `texttv.nu` (with a literal dot) for the page-content DB, not `texttv_nu` — the local underscore-name is a Valet-friendly alias. See `server.md` for the actual prod DB-name location.
 3. Populate `texttv_nu` by running the importer at least once (see below).
 
 ### Importer (Laravel)
@@ -78,7 +78,9 @@ Both apps deploy automatically via GitHub Actions on push to `main`, gated by **
 - `.github/workflows/deploy-website.yml` fires only on changes under `texttv.nu/**`.
 - `.github/workflows/deploy-importer.yml` fires only on changes under `importer/**`.
 
-Each workflow uses a **matrix** to deploy to two servers (`current-server` + `hetzner-server`) via SCP + SSH. The importer post-deploy step runs `composer install` and `php artisan optimize`. There is no staging environment — `main` is production. Branch out and merge deliberately.
+Each workflow uses a **matrix** to deploy via SCP + SSH. Currently only `hetzner-server` är aktiv (`current-server` togs bort i 04ea660/795a4f2). Importerns post-deploy-steg kör `composer install` och `php artisan optimize`. Det finns inget staging — `main` är produktion. Branch:a och merge:a medvetet.
+
+Production runtime details (PHP version, OPcache, nginx HTTP-cache, deploy-flöde, cache-gotchas vid post-deploy-verifiering) finns i [`server.md`](server.md). Läs den när du jobbar med deploy, prod-debugging eller cache-frågor — inte annars.
 
 ## Conventions and gotchas
 

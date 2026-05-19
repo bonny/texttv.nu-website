@@ -14,6 +14,10 @@ Detaljer om hur prod-servern är uppsatt. Läs när du jobbar med deploy, cache-
   - Website: `/usr/share/nginx/texttv.nu/`
   - **Importer:** `/usr/share/nginx/l.texttv.nu/importer/` — annan path än website, körs som separat Laravel-app på samma server.
 - **Ingen CDN framför** (inga `cf-cache-status` eller `via`-headers i responsen).
+- **DB-namn i prod:** `texttv.nu` (med punkt!) för sid-innehåll, `texttv_stats` för pageviews/share-counts. Lokalt heter motsvarande DB:s `texttv_nu` resp. `texttv_stats` — namn-skillnaden är dolt under `application/config/database.php`-logiken.
+- **nginx-vhost för website:** `/etc/nginx/sites-enabled/texttv.nu`. Servar **fyra hostnames från samma server-block:** `texttv.nu`, `api.texttv.nu`, `hetzner.texttv.nu`, `api-hetzner.texttv.nu`. Alla träffar samma codeigniter-app.
+- **TLS hanteras av Certbot** (`# managed by Certbot`-kommentarer i vhost). `listen 443 ssl`, `ssl_certificate*` och redirect-blocket för :80 är auto-genererade — undvik manuell redigering av just de raderna utan att förstå Certbot-renewal-effekten. Cert-paths: `/etc/letsencrypt/live/texttv.nu/`.
+- **`fastcgi_hide_header "X-Powered-By"`** är aktivt i vhost — PHP-versionen läcker inte via response-header (men finns i `errors-in-console` om något PHP-fel slungar ut paths).
 
 ## Cache-lager (tre stycken)
 
@@ -45,6 +49,7 @@ fastcgi_cache_path /var/cache/nginx levels=1:2 keys_zone=cachezone:10m max_size=
 - **Stale-while-revalidate:** vid `updating | timeout | invalid_header | http_500` servas STALE från cachen medan re-render händer i bakgrunden. Första request post-deploy får ofta STALE; andra+ får fresh.
 - **`fastcgi_cache_lock on`** — single-flight: bara en request renderar åt gången per cache-key, övriga väntar/får stale.
 - **Cache-storage:** `/var/cache/nginx/` (10 MB keys, max 100 MB content).
+- **OBS:** `fastcgi_cache_path` (zonen som de andra direktiven refererar till) ligger **inte** i sites-enabled-vhost:en. Den måste deklareras globalt — leta i `/etc/nginx/nginx.conf` eller `/etc/nginx/conf.d/*.conf` om du behöver verifiera/ändra storlek.
 
 ### 2. Zend OPcache (PHP-bytecode)
 
@@ -123,7 +128,7 @@ Utan cache-buster kan du få `X-Cache: STALE` (gammal HTML). Givet TTL=4s hålle
 - Full nginx site-config (vi har dock cache-snippet ovan)
 - php-fpm pool-config (workers, max_children, timeouts)
 - MariaDB `my.cnf` + tabellstorlek + index-info
-- `.env` / DB-credentials (sätts via `$_SERVER['DB_USERNAME']` av nginx fastcgi_param på live)
+- `.env` / DB-credentials. Sätts via `$_SERVER['DB_*']` av nginx `fastcgi_param`-direktiv i `/etc/nginx/sites-enabled/texttv.nu` (inom `location ~ \.php$`-blocket). Det är **den enda platsen** de bor — inte i `.env`, inte i någon fil i repot. Värt att veta: variabel-namn som sätts där är `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`, `DB_DATABASE_STATS`, `VIEW_PHPINFO_SECRET`.
 - OPcache-tuning (memory_consumption, max_accelerated_files, revalidate_freq)
 - Backup-strategi (om sådan finns)
 - Error tracking / monitoring (om sådant finns)

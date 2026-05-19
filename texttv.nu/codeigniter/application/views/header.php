@@ -165,114 +165,114 @@ if ($this->input->get("navAtBottom")) {
 }
 
 // Override description for 100 and 377 and some more pages, because so important
-$twitter_description = "";
-$twitter_title = $page_title;
-$create_twitter_title = true;
+$meta_description = "";
+$meta_title = $page_title;
+$generate_meta_title = true;
 if (!isset($is_archive)) {
 
 	if (isset($pages) && $pages[sizeof($pages) - 1]->num == 100) {
 		// Direkt /100-request (single-page). Startpage / hanteras av $is_start-blocket längre ner.
-		$twitter_description = "SVT Text TV 100 – startsidan med dagens senaste rubriker från inrikes, utrikes, sport, väder och TV-tablåer. Uppdateras löpande.";
-		$create_twitter_title = false;
+		$meta_description = "SVT Text TV 100 – startsidan med dagens senaste rubriker från inrikes, utrikes, sport, väder och TV-tablåer. Uppdateras löpande.";
+		$generate_meta_title = false;
 	} else if (isset($pages) && sizeof($pages) == 1) {
 		// 1 page and specific number
 		$first_page_num = $pages[0]->num;
 
 		if (376 == $first_page_num) {
-			$twitter_title = "376 - SVT Text TV";
-			$twitter_description = "Målservice från SVT Text TV 376";
+			$meta_title = "376 - SVT Text TV";
+			$meta_description = "Målservice från SVT Text TV 376";
 		} else if (377 == $first_page_num) {
-			$twitter_title = "377 - SVT Text TV";
-			$twitter_description = "På SVT Text TV 377 finns dagens sportresultat & målservice. ⚽️️ 377 – sportnördens bästa vän!";
+			$meta_title = "377 - SVT Text TV";
+			$meta_description = "På SVT Text TV 377 finns dagens sportresultat & målservice. ⚽️️ 377 – sportnördens bästa vän!";
 		} else if (330 == $first_page_num) {
-			$twitter_title = "330 - SVT Text TV";
-			$twitter_description = "Resultatbörsen på SVT Text TV 330";
+			$meta_title = "330 - SVT Text TV";
+			$meta_description = "Resultatbörsen på SVT Text TV 330";
 		} else if (551 == $first_page_num) {
-			$twitter_title = "551 - SVT Text TV - Stryktipset";
-			$twitter_description = "Resultat stryktipset – sida 551 på SVT Text TV med senaste resultatet för stryktipset";
+			$meta_title = "551 - SVT Text TV - Stryktipset";
+			$meta_description = "Resultat stryktipset – sida 551 på SVT Text TV med senaste resultatet för stryktipset";
 		} else if (552 == $first_page_num) {
-			$twitter_title = "552 - SVT Text TV - Stryktipset";
-			$twitter_description = "Resultat stryktipset – sida 552 på SVT Text TV med senaste resultatet för stryktipset";
+			$meta_title = "552 - SVT Text TV - Stryktipset";
+			$meta_description = "Resultat stryktipset – sida 552 på SVT Text TV med senaste resultatet för stryktipset";
 		} else if (383 == $first_page_num) {
-			$twitter_title = "383 - Målservice från SVT Text TV";
-			// $twitter_description = "";
+			$meta_title = "383 - Målservice från SVT Text TV";
+			// $meta_description = "";
 		} else if (553 == $first_page_num) {
-			//$twitter_title = "553 - SVT Text TV - Europatips & Topptips";
+			//$meta_title = "553 - SVT Text TV - Europatips & Topptips";
 			// en av de vanligaste sökningarna enligt google ads är "svt text 553"
-			$twitter_title = "SVT Text 553";
-			$twitter_description = "Europatipset på SVT Text TV 553 (resultat och utdelning för europatipset och topptipset)";
+			$meta_title = "SVT Text 553";
+			$meta_description = "Europatipset på SVT Text TV 553 (resultat och utdelning för europatipset och topptipset)";
 		} else if (560 == $first_page_num) {
-			$twitter_title = "560 - Oddset Bomben (sid 1 av 2) - SVT Text TV";
-			$twitter_description = "Resultat för Oddset Bomben hittar du här på sid 560 hos SVT Text TV";
+			$meta_title = "560 - Oddset Bomben (sid 1 av 2) - SVT Text TV";
+			$meta_description = "Resultat för Oddset Bomben hittar du här på sid 560 hos SVT Text TV";
 		} else if (561 == $first_page_num) {
-			$twitter_title = "561 - Oddset Bomben (sid 2 av 2) - SVT Text TV";
-			$twitter_description = "Resultat för Oddset Bomben hittar du här på sid 561 hos SVT Text TV";
+			$meta_title = "561 - Oddset Bomben (sid 2 av 2) - SVT Text TV";
+			$meta_description = "Resultat för Oddset Bomben hittar du här på sid 561 hos SVT Text TV";
 		} else if (571 == $first_page_num) {
-			$twitter_title = "Text TV 571 med V75-resultat";
-			$twitter_description = "Se dagens V75-resultat med vinnare, odds/proc och värde på SVT Text TV 571.";
+			$meta_title = "Text TV 571 med V75-resultat";
+			$meta_description = "Se dagens V75-resultat med vinnare, odds/proc och värde på SVT Text TV 571.";
 		} else if (202 == $first_page_num) {
-			$twitter_title = "202 - SVT Text TV - Börsen";
-			$twitter_description = "Följ omsättningen för stockholmsbörsen varje dag på SVT Text TV sid 202. Omsättning large cap och sammanfattning OMX Stockholm.";
+			$meta_title = "202 - SVT Text TV - Börsen";
+			$meta_description = "Följ omsättningen för stockholmsbörsen varje dag på SVT Text TV sid 202. Omsättning large cap och sammanfattning OMX Stockholm.";
 		} else if (101 == $first_page_num) {
-			$twitter_title = "101 - SVT Text TV - Inrikes";
-			$twitter_description = "Dagens inrikesnyheter i korthet på SVT Text TV 101. Rubrikerna från Sverige uppdateras löpande genom dagen.";
+			$meta_title = "101 - SVT Text TV - Inrikes";
+			$meta_description = "Dagens inrikesnyheter i korthet på SVT Text TV 101. Rubrikerna från Sverige uppdateras löpande genom dagen.";
 		} else if (104 == $first_page_num) {
-			$twitter_title = "104 - SVT Text TV - Utrikes";
-			$twitter_description = "Dagens utrikesnyheter i korthet på SVT Text TV 104. Vad som händer i världen just nu, uppdaterat löpande.";
+			$meta_title = "104 - SVT Text TV - Utrikes";
+			$meta_description = "Dagens utrikesnyheter i korthet på SVT Text TV 104. Vad som händer i världen just nu, uppdaterat löpande.";
 		} else if (106 == $first_page_num) {
-			$twitter_title = "106 - SVT Text TV - Inrikes nyhet";
-			$twitter_description = "Dagens topp-inrikesnyhet i sin helhet på SVT Text TV 106. Uppdateras varje dag med senaste nytt från Sverige.";
+			$meta_title = "106 - SVT Text TV - Inrikes nyhet";
+			$meta_description = "Dagens topp-inrikesnyhet i sin helhet på SVT Text TV 106. Uppdateras varje dag med senaste nytt från Sverige.";
 		} else if (127 == $first_page_num) {
-			$twitter_title = "127 - SVT Text TV - Börsindex";
-			$twitter_description = "Dagens stängningskurser för OMX Stockholm, Dow Jones, Nasdaq, DAX, FTSE och Nikkei på SVT Text TV 127.";
+			$meta_title = "127 - SVT Text TV - Börsindex";
+			$meta_description = "Dagens stängningskurser för OMX Stockholm, Dow Jones, Nasdaq, DAX, FTSE och Nikkei på SVT Text TV 127.";
 		} else if (130 == $first_page_num) {
-			$twitter_title = "130 - SVT Text TV - Utrikes nyhet";
-			$twitter_description = "Dagens topp-utrikesnyhet i sin helhet på SVT Text TV 130. Uppdateras varje dag med det viktigaste från världen.";
+			$meta_title = "130 - SVT Text TV - Utrikes nyhet";
+			$meta_description = "Dagens topp-utrikesnyhet i sin helhet på SVT Text TV 130. Uppdateras varje dag med det viktigaste från världen.";
 		} else if (300 == $first_page_num) {
-			$twitter_title = "300 - SVT Text TV - Sport";
-			$twitter_description = "Sportens startsida på SVT Text TV 300. ⚽️ Dagens sportrubriker + snabb väg till resultat, tabeller och målservice.";
+			$meta_title = "300 - SVT Text TV - Sport";
+			$meta_description = "Sportens startsida på SVT Text TV 300. ⚽️ Dagens sportrubriker + snabb väg till resultat, tabeller och målservice.";
 		} else if (336 == $first_page_num) {
-			$twitter_title = "336 - SVT Text TV - Premier League";
-			$twitter_description = "Premier League på SVT Text TV 336. ⚽️ Resultat från senaste omgången, kommande matcher och färsk tabell.";
+			$meta_title = "336 - SVT Text TV - Premier League";
+			$meta_description = "Premier League på SVT Text TV 336. ⚽️ Resultat från senaste omgången, kommande matcher och färsk tabell.";
 		} else if (339 == $first_page_num) {
-			$twitter_title = "339 - SVT Text TV - La Liga";
-			$twitter_description = "La Liga på SVT Text TV 339. ⚽️ Resultat från Spaniens Primera Division och uppdaterad tabell.";
+			$meta_title = "339 - SVT Text TV - La Liga";
+			$meta_description = "La Liga på SVT Text TV 339. ⚽️ Resultat från Spaniens Primera Division och uppdaterad tabell.";
 		} else if (343 == $first_page_num) {
-			$twitter_title = "343 - SVT Text TV - Allsvenskan tabell";
-			$twitter_description = "Allsvenskans tabell på SVT Text TV 343. ⚽️ Hela ställningen för alla 16 lag – matcherna hittar du på 344.";
+			$meta_title = "343 - SVT Text TV - Allsvenskan tabell";
+			$meta_description = "Allsvenskans tabell på SVT Text TV 343. ⚽️ Hela ställningen för alla 16 lag – matcherna hittar du på 344.";
 		} else if (344 == $first_page_num) {
-			$twitter_title = "344 - SVT Text TV - Allsvenskan resultat";
-			$twitter_description = "Allsvenskans resultat och kommande matcher på SVT Text TV 344. ⚽️ Senaste omgången direkt – tabellen ligger på 343.";
+			$meta_title = "344 - SVT Text TV - Allsvenskan resultat";
+			$meta_description = "Allsvenskans resultat och kommande matcher på SVT Text TV 344. ⚽️ Senaste omgången direkt – tabellen ligger på 343.";
 		} else if (345 == $first_page_num) {
-			$twitter_title = "345 - SVT Text TV - Superettan";
-			$twitter_description = "Superettan på SVT Text TV 345. ⚽️ Resultat från senaste omgången och uppdaterad tabell.";
+			$meta_title = "345 - SVT Text TV - Superettan";
+			$meta_description = "Superettan på SVT Text TV 345. ⚽️ Resultat från senaste omgången och uppdaterad tabell.";
 		} else if (349 == $first_page_num) {
-			$twitter_title = "349 - SVT Text TV - Damallsvenskan";
-			$twitter_description = "Damallsvenskan på SVT Text TV 349. ⚽️ Resultat från senaste omgången och uppdaterad tabell.";
+			$meta_title = "349 - SVT Text TV - Damallsvenskan";
+			$meta_description = "Damallsvenskan på SVT Text TV 349. ⚽️ Resultat från senaste omgången och uppdaterad tabell.";
 		} else if (358 == $first_page_num) {
-			$twitter_title = "358 - SVT Text TV - SHL tabell";
-			$twitter_description = "SHL-tabellen på SVT Text TV 358. 🏒 Hela ställningen i Svenska Hockeyligan, uppdaterad efter varje omgång.";
+			$meta_title = "358 - SVT Text TV - SHL tabell";
+			$meta_description = "SHL-tabellen på SVT Text TV 358. 🏒 Hela ställningen i Svenska Hockeyligan, uppdaterad efter varje omgång.";
 		} else if (364 == $first_page_num) {
-			$twitter_title = "364 - SVT Text TV - Hockeyettan slutspel";
-			$twitter_description = "Hockeyettans slutspel på SVT Text TV 364. 🏒 Final, kvartsfinaler och åttondelar – resultat och matcher.";
+			$meta_title = "364 - SVT Text TV - Hockeyettan slutspel";
+			$meta_description = "Hockeyettans slutspel på SVT Text TV 364. 🏒 Final, kvartsfinaler och åttondelar – resultat och matcher.";
 		} else if (365 == $first_page_num) {
-			$twitter_title = "365 - SVT Text TV - SHL poängliga";
-			$twitter_description = "SHL:s poängliga på SVT Text TV 365. 🏒 Toppscorerlistan med mål, assist och poäng – uppdateras löpande.";
+			$meta_title = "365 - SVT Text TV - SHL poängliga";
+			$meta_description = "SHL:s poängliga på SVT Text TV 365. 🏒 Toppscorerlistan med mål, assist och poäng – uppdateras löpande.";
 		} else if (374 == $first_page_num) {
-			$twitter_title = "374 - SVT Text TV - Beijer Hockey Games";
-			$twitter_description = "Beijer Hockey Games på SVT Text TV 374. 🏒 Resultat och tabell från landslagsturneringen med Sverige, Finland, Tjeckien och Schweiz.";
+			$meta_title = "374 - SVT Text TV - Beijer Hockey Games";
+			$meta_description = "Beijer Hockey Games på SVT Text TV 374. 🏒 Resultat och tabell från landslagsturneringen med Sverige, Finland, Tjeckien och Schweiz.";
 		} else if (399 == $first_page_num) {
-			$twitter_title = "399 - SVT Text TV - TV-tider sport";
-			$twitter_description = "Sport på SVT i dag – tider och sändningar samlade på SVT Text TV 399. Fotbollsstudion, friidrott, damallsvenskan med mera.";
+			$meta_title = "399 - SVT Text TV - TV-tider sport";
+			$meta_description = "Sport på SVT i dag – tider och sändningar samlade på SVT Text TV 399. Fotbollsstudion, friidrott, damallsvenskan med mera.";
 		} else if (402 == $first_page_num) {
-			$twitter_title = "402 - SVT Text TV - Temperaturer Sverige";
-			$twitter_description = "Gårdagens temperaturer från orter i hela Sverige – Kiruna till Malmö – på SVT Text TV 402. Mätningen kl 14, uppdateras dagligen.";
+			$meta_title = "402 - SVT Text TV - Temperaturer Sverige";
+			$meta_description = "Gårdagens temperaturer från orter i hela Sverige – Kiruna till Malmö – på SVT Text TV 402. Mätningen kl 14, uppdateras dagligen.";
 		} else if (601 == $first_page_num) {
-			$twitter_title = "601 - SVT Text TV - TV-tablå SVT1";
-			$twitter_description = "Dagens TV-tablå för SVT1 på SVT Text TV 601. Alla program från morgon till sen kväll – uppdateras varje dag.";
+			$meta_title = "601 - SVT Text TV - TV-tablå SVT1";
+			$meta_description = "Dagens TV-tablå för SVT1 på SVT Text TV 601. Alla program från morgon till sen kväll – uppdateras varje dag.";
 		} else if (700 == $first_page_num) {
-			$twitter_title = "700 - SVT Text TV - Innehåll";
-			$twitter_description = "Innehållsförteckningen på SVT Text TV 700. Hitta alla sidor – nyheter, sport, väder, TV-tablåer och mer – med sidnummer.";
+			$meta_title = "700 - SVT Text TV - Innehåll";
+			$meta_description = "Innehållsförteckningen på SVT Text TV 700. Hitta alla sidor – nyheter, sport, väder, TV-tablåer och mer – med sidnummer.";
 		}
 
 		// Blockbaserad fallback för sidor utan specifik whitelist-entry.
@@ -280,51 +280,51 @@ if (!isset($is_archive)) {
 		// som har samma mappning). Ger keyword-rik description som är stabil per
 		// sid-kategori istället för generiska "SVT Text sid NNN". Påverkar bara
 		// sidor som inte redan fick description ovan.
-		if (!$twitter_description) {
+		if (!$meta_description) {
 			$n = (int) $first_page_num;
 			if ($n >= 101 && $n <= 129) {
-				$twitter_title = "$n - SVT Text TV - Inrikes";
-				$twitter_description = "SVT Text TV $n – inrikesnyheter från Sverige. Senaste rubrikerna och nyhetsuppdateringarna direkt från SVT, uppdateras löpande.";
+				$meta_title = "$n - SVT Text TV - Inrikes";
+				$meta_description = "SVT Text TV $n – inrikesnyheter från Sverige. Senaste rubrikerna och nyhetsuppdateringarna direkt från SVT, uppdateras löpande.";
 			} else if ($n >= 130 && $n <= 199) {
-				$twitter_title = "$n - SVT Text TV - Utrikes";
-				$twitter_description = "SVT Text TV $n – utrikesnyheter från världen. Vad som händer just nu, uppdateras löpande genom dagen.";
+				$meta_title = "$n - SVT Text TV - Utrikes";
+				$meta_description = "SVT Text TV $n – utrikesnyheter från världen. Vad som händer just nu, uppdateras löpande genom dagen.";
 			} else if ($n >= 200 && $n <= 299) {
-				$twitter_title = "$n - SVT Text TV - Ekonomi";
-				$twitter_description = "SVT Text TV $n – ekonomi och börsen. Aktuella kurser, räntor och valutor från Stockholmsbörsen och världsmarknaderna.";
+				$meta_title = "$n - SVT Text TV - Ekonomi";
+				$meta_description = "SVT Text TV $n – ekonomi och börsen. Aktuella kurser, räntor och valutor från Stockholmsbörsen och världsmarknaderna.";
 			} else if ($n >= 300 && $n <= 399) {
-				$twitter_title = "$n - SVT Text TV - Sport";
-				$twitter_description = "SVT Text TV $n – sport. Resultat, tabeller och senaste sportnyheterna från fotboll, hockey, längdskidor och mer.";
+				$meta_title = "$n - SVT Text TV - Sport";
+				$meta_description = "SVT Text TV $n – sport. Resultat, tabeller och senaste sportnyheterna från fotboll, hockey, längdskidor och mer.";
 			} else if ($n >= 400 && $n <= 439) {
-				$twitter_title = "$n - SVT Text TV - Väder";
-				$twitter_description = "SVT Text TV $n – vädret i Sverige och omvärlden. Prognoser, temperaturer och varningar uppdaterade dagligen.";
+				$meta_title = "$n - SVT Text TV - Väder";
+				$meta_description = "SVT Text TV $n – vädret i Sverige och omvärlden. Prognoser, temperaturer och varningar uppdaterade dagligen.";
 			} else if ($n >= 440 && $n <= 499) {
-				$twitter_title = "$n - SVT Text TV - Sport / OS";
-				$twitter_description = "SVT Text TV $n – sport och OS-bevakning. Resultat, tabeller och scheman från större mästerskap.";
+				$meta_title = "$n - SVT Text TV - Sport / OS";
+				$meta_description = "SVT Text TV $n – sport och OS-bevakning. Resultat, tabeller och scheman från större mästerskap.";
 			} else if ($n >= 500 && $n <= 549) {
-				$twitter_title = "$n - SVT Text TV - Spel";
-				$twitter_description = "SVT Text TV $n – lotto och spel. Vinstrader, dragningar och resultat från Svenska Spel.";
+				$meta_title = "$n - SVT Text TV - Spel";
+				$meta_description = "SVT Text TV $n – lotto och spel. Vinstrader, dragningar och resultat från Svenska Spel.";
 			} else if ($n >= 550 && $n <= 569) {
-				$twitter_title = "$n - SVT Text TV - Tipset";
-				$twitter_description = "SVT Text TV $n – stryktipset, europatipset och topptipset. Senaste raderna, resultat och utdelningar.";
+				$meta_title = "$n - SVT Text TV - Tipset";
+				$meta_description = "SVT Text TV $n – stryktipset, europatipset och topptipset. Senaste raderna, resultat och utdelningar.";
 			} else if ($n >= 570 && $n <= 599) {
-				$twitter_title = "$n - SVT Text TV - Trav och Galopp";
-				$twitter_description = "SVT Text TV $n – trav och galopp. V75, V64, V86 med resultat, vinnare och utdelningar.";
+				$meta_title = "$n - SVT Text TV - Trav och Galopp";
+				$meta_description = "SVT Text TV $n – trav och galopp. V75, V64, V86 med resultat, vinnare och utdelningar.";
 			} else if ($n >= 600 && $n <= 669) {
-				$twitter_title = "$n - SVT Text TV - TV-tablåer";
-				$twitter_description = "SVT Text TV $n – TV-tablåer för dagens program. SVT1, SVT2, SVT24, Barnkanalen och Kunskapskanalen från morgon till natt.";
+				$meta_title = "$n - SVT Text TV - TV-tablåer";
+				$meta_description = "SVT Text TV $n – TV-tablåer för dagens program. SVT1, SVT2, SVT24, Barnkanalen och Kunskapskanalen från morgon till natt.";
 			} else if ($n >= 670 && $n <= 699) {
-				$twitter_title = "$n - SVT Text TV - Radio";
-				$twitter_description = "SVT Text TV $n – radio och poddinformation. Programtider och innehåll från SR.";
+				$meta_title = "$n - SVT Text TV - Radio";
+				$meta_description = "SVT Text TV $n – radio och poddinformation. Programtider och innehåll från SR.";
 			} else if ($n >= 700 && $n <= 799) {
-				$twitter_title = "$n - SVT Text TV - Innehåll";
-				$twitter_description = "SVT Text TV $n – innehållsöversikter, programinformation och navigation till andra sidor på text-tv.";
+				$meta_title = "$n - SVT Text TV - Innehåll";
+				$meta_description = "SVT Text TV $n – innehållsöversikter, programinformation och navigation till andra sidor på text-tv.";
 			} else if ($n >= 800 && $n <= 999) {
-				$twitter_title = "$n - SVT Text TV";
-				$twitter_description = "SVT Text TV $n – sidan med text-tv-information. Innehåller aktuell information från SVT.";
+				$meta_title = "$n - SVT Text TV";
+				$meta_description = "SVT Text TV $n – sidan med text-tv-information. Innehåller aktuell information från SVT.";
 			}
 		}
 
-		$create_twitter_title = false;
+		$generate_meta_title = false;
 	}
 }
 
@@ -338,16 +338,16 @@ if (isset($is_archive) && $is_archive) {
 
 // startpage gets its own (composite-rendering av 100,300,401,101-105 — se sida::index)
 if ($is_start) {
-	$twitter_title = "SVT Text TV";
-	$twitter_description = "TextTV.nu – snabbare och mobilanpassad SVT Text TV. Dagens senaste rubriker från inrikes, utrikes, sport, väder och TV-tablåer. Uppdateras löpande.";
-	$create_twitter_title = false;
+	$meta_title = "SVT Text TV";
+	$meta_description = "TextTV.nu – snabbare och mobilanpassad SVT Text TV. Dagens senaste rubriker från inrikes, utrikes, sport, väder och TV-tablåer. Uppdateras löpande.";
+	$generate_meta_title = false;
 }
 ?>
 <!DOCTYPE html>
 <html lang="sv" class="<?php echo join(" ", $arr_html_classes) ?>">
 
 <head>
-	<title><?php echo @htmlspecialchars($twitter_title, ENT_QUOTES, "UTF-8"); ?></title>
+	<title><?php echo @htmlspecialchars($meta_title, ENT_QUOTES, "UTF-8"); ?></title>
 	<meta content='width=device-width, initial-scale=1.0, maximum-scale=5.0' id='viewport' name='viewport' />
 	<link rel="shortcut icon" href="/favicon.ico">
 	<link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32" />
@@ -400,22 +400,22 @@ if ($is_start) {
 
 	// Meta-stuff för twitter på text-tv-sidorna
 	if (isset($pages) && is_array($pages)) {
-		#$twitter_title = "";
-		#$twitter_description = "";
-		if ($create_twitter_title) {
+		#$meta_title = "";
+		#$meta_description = "";
+		if ($generate_meta_title) {
 
-			$twitter_title = "";
+			$meta_title = "";
 
 			if (trim($pages[0]->title)) {
-				$twitter_title .= trim($pages[0]->title);
+				$meta_title .= trim($pages[0]->title);
 			} else {
-				$twitter_title .= "SVT Text TV sid ";
+				$meta_title .= "SVT Text TV sid ";
 				foreach ($pages as $one_page) {
-					$twitter_title .= $one_page->num . ", ";
+					$meta_title .= $one_page->num . ", ";
 				}
-				$twitter_title = rtrim($twitter_title, " ,");
+				$meta_title = rtrim($meta_title, " ,");
 			}
-			$twitter_title = mb_substr($twitter_title, 0, 70);
+			$meta_title = mb_substr($meta_title, 0, 70);
 
 			$show_twitter_card_meta = false;
 
@@ -438,40 +438,40 @@ if ($is_start) {
 				106 SVT Text Lördag 30 jan 2016 INRIKES PUBLICERAD 30 JANUARI Medborgarskap försvårar USA-resor Sedan 21 januari kan svenskar som också har medborgarskap i eller har besökt Iran, Irak, Sudan och Syri
 				
 			*/
-			$twitter_description .= @$pages[0]->arr_contents[0];
-			$twitter_description = strip_tags($twitter_description);
-			$twitter_description = preg_replace('![ \n]+!', ' ', $twitter_description);
+			$meta_description .= @$pages[0]->arr_contents[0];
+			$meta_description = strip_tags($meta_description);
+			$meta_description = preg_replace('![ \n]+!', ' ', $meta_description);
 
 			// Ta bort text om svt + dag
 			// 130 SVT Text Söndag 31 jan 2016 UTRIKES PUBLICERAD 31 JANUARI Experter möter WHO om zikaviruset En grupp experter samlas i Geneve i morgon för att ge råd till WHO-chefen om hur världshälsoorganisatio
-			$first_year_location = preg_match('/\d{4}/', $twitter_description, $matches, PREG_OFFSET_CAPTURE);
+			$first_year_location = preg_match('/\d{4}/', $meta_description, $matches, PREG_OFFSET_CAPTURE);
 			if ($matches) {
 
 				#echo "\nFound match {$matches[0][0]} with start on offset {$matches[0][1]}";
 				#echo "\nnew string:";
-				$twitter_description = mb_substr($twitter_description, $matches[0][1] + 4);
-				$twitter_description = trim($twitter_description);
+				$meta_description = mb_substr($meta_description, $matches[0][1] + 4);
+				$meta_description = trim($meta_description);
 			}
 
 
-			$twitter_description = mb_substr($twitter_description, 0, 200);
-			$twitter_description = trim($twitter_description);
+			$meta_description = mb_substr($meta_description, 0, 200);
+			$meta_description = trim($meta_description);
 		}
 	?>
 		<meta property="twitter:card" content="summary">
 		<meta property="twitter:site" content="@texttv_nu">
-		<meta property="twitter:title" content="<?php echo @htmlspecialchars($twitter_title, ENT_QUOTES, "UTF-8"); ?>">
-		<?php if ($twitter_description) { ?>
-			<meta property="twitter:description" content="<?php echo @htmlspecialchars($twitter_description, ENT_QUOTES, "UTF-8"); ?>">
+		<meta property="twitter:title" content="<?php echo @htmlspecialchars($meta_title, ENT_QUOTES, "UTF-8"); ?>">
+		<?php if ($meta_description) { ?>
+			<meta property="twitter:description" content="<?php echo @htmlspecialchars($meta_description, ENT_QUOTES, "UTF-8"); ?>">
 		<?php } ?>
 		<meta property="twitter:app:name:iphone" content="TextTV.nu">
 		<meta property="twitter:app:id:iphone" content="607998045">
 		<meta property="twitter:app:id:ipad" content="607998045">
 		<meta property="fb:admins" content="685381489" />
 		<meta property="fb:admins" content="761320320" />
-		<meta property="og:title" content="<?php echo @htmlspecialchars($twitter_title, ENT_QUOTES, "UTF-8"); ?>">
-		<?php if ($twitter_description) { ?>
-			<meta property="og:description" content="<?php echo @htmlspecialchars($twitter_description, ENT_QUOTES, "UTF-8"); ?>">
+		<meta property="og:title" content="<?php echo @htmlspecialchars($meta_title, ENT_QUOTES, "UTF-8"); ?>">
+		<?php if ($meta_description) { ?>
+			<meta property="og:description" content="<?php echo @htmlspecialchars($meta_description, ENT_QUOTES, "UTF-8"); ?>">
 		<?php } ?>
 		<meta property="og:type" content="article" />
 		<?php
@@ -482,8 +482,8 @@ if ($is_start) {
 		}
 		?>
 		<meta property="og:image" content="<?php echo $screenshot_url ?>" />
-		<?php if ($twitter_description) { ?>
-			<meta name="description" content="<?php echo @htmlspecialchars($twitter_description, ENT_QUOTES, "UTF-8"); ?>">
+		<?php if ($meta_description) { ?>
+			<meta name="description" content="<?php echo @htmlspecialchars($meta_description, ENT_QUOTES, "UTF-8"); ?>">
 		<?php } ?>
 	<?php
 		/*
@@ -589,7 +589,7 @@ if ($is_start) {
 						"height": 66
 					}
 				},
-				"description": "<?php echo $twitter_description ?>"
+				"description": "<?php echo $meta_description ?>"
 			}
 		</script>
 	<?php

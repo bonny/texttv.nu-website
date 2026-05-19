@@ -11,7 +11,7 @@ Senast uppdaterad: 2026-05-19 (+#04 perf/SEO-fixar från Lighthouse-baseline).
 | #   | Titel | Status | Fil |
 | --- | ----- | ------ | --- |
 | 01  | Varför har /343 och ev andra sidor så dålig CTR? | deployat 2026-05-19 (commit 5f9c6ad), 19/19 sidor live-verifierade — 30d-mätning till 2026-06-18 | [todos/01-varfor-har-343-och-ev-andra-sidor-sa-dalig-ctr.md](todos/01-varfor-har-343-och-ev-andra-sidor-sa-dalig-ctr.md) |
-| 04  | Perf/SEO-fixar från Lighthouse-baseline 2026-05-19 | ny — 9 fix-punkter, börja med A (`errors-in-console`) | [todos/04-perf-seo-fixar-fran-baseline-2026-05-19.md](todos/04-perf-seo-fixar-fran-baseline-2026-05-19.md) |
+| 04  | Perf/SEO-fixar från Lighthouse-baseline 2026-05-19 | G/E/H klara, A delvis, F släppt, I/B/C deprio:ade — kvar: **D dynamiska meta descriptions** | [todos/04-perf-seo-fixar-fran-baseline-2026-05-19.md](todos/04-perf-seo-fixar-fran-baseline-2026-05-19.md) |
 
 ### Beroenden
 

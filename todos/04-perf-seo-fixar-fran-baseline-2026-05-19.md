@@ -138,16 +138,17 @@ andra. Kör i en sittning.
 
 ## Föreslagen ordning
 
-1. **A — `errors-in-console`.** Trivial. Hög Best Practices-vinst.
-2. **G — `crawlable-anchors`.** Trivial. Möjlig SEO-vinst.
-3. **I — Rotera credentials.** Säkerhets-hygien, värt att inte glömma.
-4. **E — `<h1>` per sida.** Litet jobb, SEO + a11y.
-5. **F — `color-contrast` audit.** Förstå först innan fix.
-6. **H — API `Content-Type`-fix.** Behöver app-rökttest.
-7. **D — Dynamiska meta descriptions.** Större jobb, stor SEO-vinst.
-8. **B — Defer + inline-audit.** Komplext, kräver noggrann
-   view-genomgång.
-9. **C — Minify/tree-shake.** Större infrastruktur-beslut.
+**Status 2026-05-19 kväll:** A delvis fixad, F släppt (tredjepart), G/E/H klara, I/B/C deprioriterade.
+
+1. ~~**A — `errors-in-console`.**~~ Delvis fixat (`bf88bab`), släppt — felet kvarstår men syns inte i normal användning.
+2. ~~**G — `crawlable-anchors`.**~~ Klart (`d5a37db`).
+3. ~~**I — Rotera credentials.**~~ Deprioriterat 2026-05-19.
+4. ~~**E — `<h1>` per sida.**~~ Klart (`7cfa051`).
+5. ~~**F — `color-contrast` audit.**~~ Släppt — fyndet är i Googles FC-modal, ej vår kod.
+6. ~~**H — API `Content-Type`-fix.**~~ Klart (`1449808`), app-verifierat.
+7. **D — Dynamiska meta descriptions.** ENDA KVARSTÅENDE. Större jobb, stor SEO-vinst.
+8. ~~**B — Defer + inline-audit.**~~ Deprioriterat — HTTP/2-multiplexing har sänkt vinsten.
+9. ~~**C — Minify/tree-shake.**~~ Deprioriterat — kräver build-pipeline-beslut.
 
 ## Confidence
 
@@ -161,6 +162,17 @@ mot.
 
 - **2026-05-19** — Skapad efter dagens audit + Batch 1 + Batch 2
   deployerade. Innan start.
+- **2026-05-19** — Punkterna **I, B, C deprioriterade** (användarbeslut):
+  - **I** (rotera DB_PASSWORD + VIEW_PHPINFO_SECRET) — säkerhetsåtgärd
+    skippad. Värdena ligger fortfarande i Claude:s konversations-
+    kontext från idag. Inte publikt, men inte längre "bara på
+    servern". Om de blir komprometterade någon annan väg är vi mer
+    sårbara.
+  - **B** (defer + inline-script-audit) — vinsten har sjunkit efter
+    HTTP/2 multiplexing (Batch 2). Inte värd den komplexiteten just
+    nu.
+  - **C** (minify/tree-shake JS/CSS) — kräver build-pipeline. Större
+    infrastrukturbeslut, väntar.
 - **2026-05-19** — Punkt **H klar** (commit `1449808`): API
   content-type bytt från `text/json` till `application/json` i 4
   ställen (3 i `controllers/api.php` + 1 i `views/api.php`). 5 andra
@@ -169,8 +181,8 @@ mot.
   returnerar `application/json` + giltig JSON med oförändrad struktur
   (num, title, date_updated_unix, content_root). Native app-klienter
   parse:ar JSON från raw bytes oberoende av MIME, så ingen påverkan
-  förväntad. Användare bör ändå öppna iOS- och Android-appen och
-  verifiera att senaste-nyheter laddas korrekt.
+  förväntad. **App-rökttest 2026-05-19: appen fungerade ✓** — ingen
+  regression från MIME-bytet.
 - **2026-05-19** — Punkt **F släppt** (tredjepartskod):
   color-contrast-fyndet är inom `.fc-dialog-content` → `.fc-faq-label`
   ("Läs mer") från **Googles Funding Choices** consent-modal som

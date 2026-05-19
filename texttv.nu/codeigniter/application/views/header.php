@@ -212,6 +212,63 @@ if (!isset($is_archive)) {
 		} else if (202 == $first_page_num) {
 			$twitter_title = "202 - SVT Text TV - Börsen";
 			$twitter_description = "Följ omsättningen för stockholmsbörsen varje dag på SVT Text TV sid 202. Omsättning large cap och sammanfattning OMX Stockholm.";
+		} else if (101 == $first_page_num) {
+			$twitter_title = "101 - SVT Text TV - Inrikes";
+			$twitter_description = "Dagens inrikesnyheter i korthet på SVT Text TV 101. Rubrikerna från Sverige uppdateras löpande genom dagen.";
+		} else if (104 == $first_page_num) {
+			$twitter_title = "104 - SVT Text TV - Utrikes";
+			$twitter_description = "Dagens utrikesnyheter i korthet på SVT Text TV 104. Vad som händer i världen just nu, uppdaterat löpande.";
+		} else if (106 == $first_page_num) {
+			$twitter_title = "106 - SVT Text TV - Inrikes nyhet";
+			$twitter_description = "Dagens topp-inrikesnyhet i sin helhet på SVT Text TV 106. Uppdateras varje dag med senaste nytt från Sverige.";
+		} else if (127 == $first_page_num) {
+			$twitter_title = "127 - SVT Text TV - Börsindex";
+			$twitter_description = "Dagens stängningskurser för OMX Stockholm, Dow Jones, Nasdaq, DAX, FTSE och Nikkei på SVT Text TV 127.";
+		} else if (130 == $first_page_num) {
+			$twitter_title = "130 - SVT Text TV - Utrikes nyhet";
+			$twitter_description = "Dagens topp-utrikesnyhet i sin helhet på SVT Text TV 130. Uppdateras varje dag med det viktigaste från världen.";
+		} else if (300 == $first_page_num) {
+			$twitter_title = "300 - SVT Text TV - Sport";
+			$twitter_description = "Sportens startsida på SVT Text TV 300. ⚽️ Dagens sportrubriker + snabb väg till resultat, tabeller och målservice.";
+		} else if (336 == $first_page_num) {
+			$twitter_title = "336 - SVT Text TV - Premier League";
+			$twitter_description = "Premier League på SVT Text TV 336. ⚽️ Resultat från senaste omgången, kommande matcher och färsk tabell.";
+		} else if (339 == $first_page_num) {
+			$twitter_title = "339 - SVT Text TV - La Liga";
+			$twitter_description = "La Liga på SVT Text TV 339. ⚽️ Resultat från Spaniens Primera Division och uppdaterad tabell.";
+		} else if (343 == $first_page_num) {
+			$twitter_title = "343 - SVT Text TV - Allsvenskan tabell";
+			$twitter_description = "Allsvenskans tabell på SVT Text TV 343. ⚽️ Hela ställningen för alla 16 lag – matcherna hittar du på 344.";
+		} else if (344 == $first_page_num) {
+			$twitter_title = "344 - SVT Text TV - Allsvenskan resultat";
+			$twitter_description = "Allsvenskans resultat och kommande matcher på SVT Text TV 344. ⚽️ Senaste omgången direkt – tabellen ligger på 343.";
+		} else if (345 == $first_page_num) {
+			$twitter_title = "345 - SVT Text TV - Superettan";
+			$twitter_description = "Superettan på SVT Text TV 345. ⚽️ Resultat från senaste omgången och uppdaterad tabell.";
+		} else if (349 == $first_page_num) {
+			$twitter_title = "349 - SVT Text TV - Damallsvenskan";
+			$twitter_description = "Damallsvenskan på SVT Text TV 349. ⚽️ Resultat från senaste omgången och uppdaterad tabell.";
+		} else if (358 == $first_page_num) {
+			$twitter_title = "358 - SVT Text TV - SHL tabell";
+			$twitter_description = "SHL-tabellen på SVT Text TV 358. 🏒 Hela ställningen i Svenska Hockeyligan, uppdaterad efter varje omgång.";
+		} else if (364 == $first_page_num) {
+			$twitter_title = "364 - SVT Text TV - Hockeyettan slutspel";
+			$twitter_description = "Hockeyettans slutspel på SVT Text TV 364. 🏒 Final, kvartsfinaler och åttondelar – resultat och matcher.";
+		} else if (365 == $first_page_num) {
+			$twitter_title = "365 - SVT Text TV - SHL poängliga";
+			$twitter_description = "SHL:s poängliga på SVT Text TV 365. 🏒 Toppscorerlistan med mål, assist och poäng – uppdateras löpande.";
+		} else if (374 == $first_page_num) {
+			$twitter_title = "374 - SVT Text TV - Beijer Hockey Games";
+			$twitter_description = "Beijer Hockey Games på SVT Text TV 374. 🏒 Resultat och tabell från landslagsturneringen med Sverige, Finland, Tjeckien och Schweiz.";
+		} else if (399 == $first_page_num) {
+			$twitter_title = "399 - SVT Text TV - TV-tider sport";
+			$twitter_description = "Sport på SVT i dag – tider och sändningar samlade på SVT Text TV 399. Fotbollsstudion, friidrott, damallsvenskan med mera.";
+		} else if (402 == $first_page_num) {
+			$twitter_title = "402 - SVT Text TV - Temperaturer Sverige";
+			$twitter_description = "Gårdagens temperaturer från orter i hela Sverige – Kiruna till Malmö – på SVT Text TV 402. Mätningen kl 14, uppdateras dagligen.";
+		} else if (601 == $first_page_num) {
+			$twitter_title = "601 - SVT Text TV - TV-tablå SVT1";
+			$twitter_description = "Dagens TV-tablå för SVT1 på SVT Text TV 601. Alla program från morgon till sen kväll – uppdateras varje dag.";
 		}
 
 		$create_twitter_title = false;

@@ -170,11 +170,8 @@ $twitter_title = $page_title;
 $create_twitter_title = true;
 if (!isset($is_archive)) {
 
-	if (isset($pagedescription) && $pagedescription === 'startpage') {
-		// Root URL / — composite-rendering av 100,300,401,101-105 (se sida::index)
-		$twitter_description = "TextTV.nu – snabbare och mobilanpassad SVT Text TV. Dagens senaste rubriker från inrikes, utrikes, sport, väder och TV-tablåer. Uppdateras löpande.";
-		$create_twitter_title = false;
-	} else if (isset($pages) && $pages[sizeof($pages) - 1]->num == 100) {
+	if (isset($pages) && $pages[sizeof($pages) - 1]->num == 100) {
+		// Direkt /100-request (single-page). Startpage / hanteras av $is_start-blocket längre ner.
 		$twitter_description = "SVT Text TV 100 – startsidan med dagens senaste rubriker från inrikes, utrikes, sport, väder och TV-tablåer. Uppdateras löpande.";
 		$create_twitter_title = false;
 	} else if (isset($pages) && sizeof($pages) == 1) {
@@ -339,17 +336,10 @@ if (isset($is_archive) && $is_archive) {
 	}
 }
 
-// startpage gets its own
+// startpage gets its own (composite-rendering av 100,300,401,101-105 — se sida::index)
 if ($is_start) {
-	// $twitter_title = "SVT Text TV från TextTV.nu";
 	$twitter_title = "SVT Text TV";
-
-	// $twitter_description = "På TextTV.nu hittar du SVT Text TV med fler och bättre funktioner. Vi gör allt för att ge dig bästa text-tv-upplevelsen!";
-	$twitter_description = "
-		Snabb, enkel, och mobilanpassad SVT Text TV. 
-		Se 100, 300, 377 och dina andra Text TV-favoriter.
-	";
-
+	$twitter_description = "TextTV.nu – snabbare och mobilanpassad SVT Text TV. Dagens senaste rubriker från inrikes, utrikes, sport, väder och TV-tablåer. Uppdateras löpande.";
 	$create_twitter_title = false;
 }
 ?>

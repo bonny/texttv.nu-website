@@ -82,7 +82,7 @@ switch ($api_call) {
 	case "get":
 
 		// Output as json
-		$this->output->set_content_type("text/json");
+		$this->output->set_content_type("application/json");
 		$out = "";
 		$used_cached_values = false;
 

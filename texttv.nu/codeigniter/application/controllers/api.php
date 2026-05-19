@@ -350,7 +350,7 @@ class Api extends CI_Controller
 		$arr_json["permalink"] = $permalinkURL;
 		$arr_json["title"] = $title;
 
-		$this->output->set_content_type("text/json");
+		$this->output->set_content_type("application/json");
 		echo json_encode($arr_json);
 
 		exit;
@@ -497,7 +497,7 @@ class Api extends CI_Controller
 			"screenshot" => $screenshotURL
 		);
 
-		$this->output->set_content_type("text/json");
+		$this->output->set_content_type("application/json");
 		echo json_encode($arr_json);
 
 		// Mark pages as shared in db
@@ -692,7 +692,7 @@ class Api extends CI_Controller
 			]
 		];
 
-		$this->output->set_content_type("text/json");
+		$this->output->set_content_type("application/json");
 
 		// VIEW har stöd för max 100 tecken i page_ids.
 		$view_page_ids_max_length = 100;

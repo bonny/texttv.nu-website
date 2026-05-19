@@ -194,8 +194,8 @@ if (!isset($is_archive)) {
 			$meta_title = "552 - SVT Text TV - Stryktipset";
 			$meta_description = "Resultat stryktipset – sida 552 på SVT Text TV med senaste resultatet för stryktipset";
 		} else if (383 == $first_page_num) {
-			$meta_title = "383 - Målservice från SVT Text TV";
-			// $meta_description = "";
+			$meta_title = "383 - SVT Text TV - Målservice fotboll";
+			$meta_description = "Målservice för fotboll på SVT Text TV 383. ⚽️ Aktuella målsiffror och resultat från svenska och internationella matcher.";
 		} else if (553 == $first_page_num) {
 			//$meta_title = "553 - SVT Text TV - Europatips & Topptips";
 			// en av de vanligaste sökningarna enligt google ads är "svt text 553"

@@ -13,6 +13,10 @@ $out = "";
 $out .= "<main id='pages'>";
 
 // Lägg till H1-rubriker ovanför sidorna.
+// TODO: Logiken här är hardkodad för bara 5 fall (startpage, 377, 101-103, 104-105).
+// header.php har en mycket större whitelist + blockbaserad fallback för meta-taggar.
+// På sikt bör de två filerna källa samma metadata istället för att duplicera.
+// Tills dess fyller sr-only-fallbacken (slutet av blocket) ut för icke-träffade sidor.
 $headline = null;
 
 if ($pagedescription === 'startpage') {

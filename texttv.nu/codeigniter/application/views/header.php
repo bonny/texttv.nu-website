@@ -269,6 +269,9 @@ if (!isset($is_archive)) {
 		} else if (601 == $first_page_num) {
 			$twitter_title = "601 - SVT Text TV - TV-tablå SVT1";
 			$twitter_description = "Dagens TV-tablå för SVT1 på SVT Text TV 601. Alla program från morgon till sen kväll – uppdateras varje dag.";
+		} else if (700 == $first_page_num) {
+			$twitter_title = "700 - SVT Text TV - Innehåll";
+			$twitter_description = "Innehållsförteckningen på SVT Text TV 700. Hitta alla sidor – nyheter, sport, väder, TV-tablåer och mer – med sidnummer.";
 		}
 
 		$create_twitter_title = false;

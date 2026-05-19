@@ -4,7 +4,7 @@ Index över förbättringsarbete. Varje todo har en egen fil under
 [`todos/`](todos/) med fullständig analys. Konvention och
 mappstruktur: [`todos/README.md`](todos/README.md).
 
-Senast uppdaterad: 2026-05-19 (+#05 utvärdera externa SEO-skills).
+Senast uppdaterad: 2026-05-19 (+#05 klar — Article JSON-LD live-validerad av Google Rich Results).
 
 ## Aktiva
 
@@ -12,7 +12,6 @@ Senast uppdaterad: 2026-05-19 (+#05 utvärdera externa SEO-skills).
 | --- | ----- | ------ | --- |
 | 01  | Varför har /343 och ev andra sidor så dålig CTR? | deployat 2026-05-19 (commit 5f9c6ad), 19/19 sidor live-verifierade — 30d-mätning till 2026-06-18 | [todos/01-varfor-har-343-och-ev-andra-sidor-sa-dalig-ctr.md](todos/01-varfor-har-343-och-ev-andra-sidor-sa-dalig-ctr.md) |
 | 04  | Perf/SEO-fixar från Lighthouse-baseline 2026-05-19 | G/E/H klara, A delvis, F släppt, I/B/C deprio:ade — kvar: **D dynamiska meta descriptions** | [todos/04-perf-seo-fixar-fran-baseline-2026-05-19.md](todos/04-perf-seo-fixar-fran-baseline-2026-05-19.md) |
-| 05  | Utvärdera externa SEO-skills (addyosmani + coreyhaines31) | JSON-LD från addyosmani gör nu (1-2h), seo-audit-skillet efter 2026-06-18, ai-seo skippas | [todos/05-utvardera-seo-skills.md](todos/05-utvardera-seo-skills.md) |
 
 ### Beroenden
 
@@ -44,6 +43,7 @@ eller markera todon som klar.
 
 | #   | Titel | Datum | Fil |
 | --- | ----- | ----- | --- |
+| 05  | Utvärdera externa SEO-skills (addyosmani + coreyhaines31) | 2026-05-19 | [todos/done/05-utvardera-seo-skills.md](todos/done/05-utvardera-seo-skills.md) |
 | 03  | Fixa `texttv:cleanup-page-actions` DB-auth | 2026-05-19 | [todos/done/03-fix-cleanup-page-actions-db-auth.md](todos/done/03-fix-cleanup-page-actions-db-auth.md) |
 | 02  | Logrotate för laravel.log (8 GB) + diagnostik | 2026-05-19 | [todos/done/02-logrotate-laravel-log-8gb.md](todos/done/02-logrotate-laravel-log-8gb.md) |
 

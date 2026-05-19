@@ -1,4 +1,4 @@
-**Status:** aktiv — Article JSON-LD implementerad 2026-05-19, väntar på deploy + Rich Results-validering
+**Status:** klar 2026-05-19 — Article JSON-LD live + validerad av Google Rich Results Test (3/3 sidor + appShare-skip OK). #2/#3 (seo-audit + ai-seo) kvar för senare bedömning.
 **Senast uppdaterad:** 2026-05-19
 
 # Todo #05 — Utvärdera externa SEO-skills

@@ -71,15 +71,39 @@ Verifiera mot Bruno API files innan deploy.
    jobb men eliminerar största single-bundlen.
 **Risk:** medel-hög beroende på väg.
 
-### D. Dynamiska meta descriptions per sida
-**Lighthouse-audit:** `meta-description` (passerar idag på alla URLer
-efter Batch 1, men descriptions är generic på icke-whitelist:ade sidor).
-**Plan:** Generera description från sidans rubriker/innehåll i
-`Texttv_page`-controllern. Idag i `header.php` finns en hardcoded
-whitelist (rad 167–272) som täcker ~30 sidor; resterande 800+ får
-default "SVT Text sid NNN".
-**Risk:** låg. Påverkar bara SEO-score + SERP-snippets. Inget kan
-brytas.
+### D. Bättre meta descriptions per sida (för Google-ranking, ej Lighthouse-score)
+**Mål (klargjort 2026-05-19):** Inte SEO-score per se — utan
+**ranking + CTR på text-tv-queries** i Google för AdSense-intäkter.
+Statiska keyword-rika descriptions vinner över dynamic content-snippets
+(text-tv-sidor ändras varje 2:a min, dynamic snippets ger inkonsekvent
+SERP).
+
+**Tvådelad plan:**
+
+**Fas 2 — Blockbaserad fallback för icke-whitelist:ade sidor.** Ge
+description baserat på sidnummer-block (100-199 inrikes, 200-299
+ekonomi, 300-399 sport, osv. enligt SVT Text TV:s konvention som
+matchar `breadcrumbs.php`). 95 % av specificiteten med 5 % av jobbet
+jämfört med per-sida-tuning. ~700 sidor får keyword-rik description
+istället för generic "SVT Text sid NNN".
+
+**Fas 1 — Datadriven utvidgning av whitelist (VÄNTA till efter
+2026-06-18).** Använd `mcp-gsc` för att lista topp 100 sidor efter
+impressions, korsreferera mot existing whitelist, lägg till 30–50
+nya. **Varför vänta:** Todo #01:s 30d-mätperiod (deployerade 18
+sidor 2026-05-19) pågår till 2026-06-18. Om vi puttar in 30 sidor
+till nu blandas signalerna — vi vet inte vilka som drev förändringen
+om #01:s resultat blir bra. Datat från #01:s mätning ger sedan bättre
+prioritering för Fas 1 — vi kan välja kandidater där bra description
+faktiskt höjde CTR.
+
+**Plats för Fas 2:** `texttv.nu/codeigniter/application/views/header.php`
+efter befintliga whitelist-checks (rad 273+). Aktiveras bara om
+`$twitter_description` fortfarande är tom efter alla specifika fall.
+
+**Risk:** låg. Påverkar bara SEO/SERP-snippets, inget kan brytas.
+Block-mappningen matchar redan `breadcrumbs.php`-konventionen så det
+finns historisk konsistens.
 
 ### E. `<h1>` per sida
 **Lighthouse-audit:** flaggades inte explicit, men avsaknad är ett

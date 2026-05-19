@@ -3,6 +3,10 @@
  * Mostly by Pär Thernstom par.thernstrom@gmail.com
  */
 
+@view-transition {
+  navigation: auto;
+}
+
 :root {
   --font-system-ui: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";

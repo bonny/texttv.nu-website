@@ -274,6 +274,55 @@ if (!isset($is_archive)) {
 			$twitter_description = "Innehållsförteckningen på SVT Text TV 700. Hitta alla sidor – nyheter, sport, väder, TV-tablåer och mer – med sidnummer.";
 		}
 
+		// Blockbaserad fallback för sidor utan specifik whitelist-entry.
+		// Sidnummer-blocken följer SVT Text TV:s indelning (se även breadcrumbs.php
+		// som har samma mappning). Ger keyword-rik description som är stabil per
+		// sid-kategori istället för generiska "SVT Text sid NNN". Påverkar bara
+		// sidor som inte redan fick description ovan.
+		if (!$twitter_description) {
+			$n = (int) $first_page_num;
+			if ($n >= 101 && $n <= 129) {
+				$twitter_title = "$n - SVT Text TV - Inrikes";
+				$twitter_description = "SVT Text TV $n – inrikesnyheter från Sverige. Senaste rubrikerna och nyhetsuppdateringarna direkt från SVT, uppdateras löpande.";
+			} else if ($n >= 130 && $n <= 199) {
+				$twitter_title = "$n - SVT Text TV - Utrikes";
+				$twitter_description = "SVT Text TV $n – utrikesnyheter från världen. Vad som händer just nu, uppdateras löpande genom dagen.";
+			} else if ($n >= 200 && $n <= 299) {
+				$twitter_title = "$n - SVT Text TV - Ekonomi";
+				$twitter_description = "SVT Text TV $n – ekonomi och börsen. Aktuella kurser, räntor och valutor från Stockholmsbörsen och världsmarknaderna.";
+			} else if ($n >= 300 && $n <= 399) {
+				$twitter_title = "$n - SVT Text TV - Sport";
+				$twitter_description = "SVT Text TV $n – sport. Resultat, tabeller och senaste sportnyheterna från fotboll, hockey, längdskidor och mer.";
+			} else if ($n >= 400 && $n <= 439) {
+				$twitter_title = "$n - SVT Text TV - Väder";
+				$twitter_description = "SVT Text TV $n – vädret i Sverige och omvärlden. Prognoser, temperaturer och varningar uppdaterade dagligen.";
+			} else if ($n >= 440 && $n <= 499) {
+				$twitter_title = "$n - SVT Text TV - Sport / OS";
+				$twitter_description = "SVT Text TV $n – sport och OS-bevakning. Resultat, tabeller och scheman från större mästerskap.";
+			} else if ($n >= 500 && $n <= 549) {
+				$twitter_title = "$n - SVT Text TV - Spel";
+				$twitter_description = "SVT Text TV $n – lotto och spel. Vinstrader, dragningar och resultat från Svenska Spel.";
+			} else if ($n >= 550 && $n <= 569) {
+				$twitter_title = "$n - SVT Text TV - Tipset";
+				$twitter_description = "SVT Text TV $n – stryktipset, europatipset och topptipset. Senaste raderna, resultat och utdelningar.";
+			} else if ($n >= 570 && $n <= 599) {
+				$twitter_title = "$n - SVT Text TV - Trav och Galopp";
+				$twitter_description = "SVT Text TV $n – trav och galopp. V75, V64, V86 med resultat, vinnare och utdelningar.";
+			} else if ($n >= 600 && $n <= 669) {
+				$twitter_title = "$n - SVT Text TV - TV-tablåer";
+				$twitter_description = "SVT Text TV $n – TV-tablåer för dagens program. SVT1, SVT2, SVT24, Barnkanalen och Kunskapskanalen från morgon till natt.";
+			} else if ($n >= 670 && $n <= 699) {
+				$twitter_title = "$n - SVT Text TV - Radio";
+				$twitter_description = "SVT Text TV $n – radio och poddinformation. Programtider och innehåll från SR.";
+			} else if ($n >= 700 && $n <= 799) {
+				$twitter_title = "$n - SVT Text TV - Innehåll";
+				$twitter_description = "SVT Text TV $n – innehållsöversikter, programinformation och navigation till andra sidor på text-tv.";
+			} else if ($n >= 800 && $n <= 999) {
+				$twitter_title = "$n - SVT Text TV";
+				$twitter_description = "SVT Text TV $n – sidan med text-tv-information. Innehåller aktuell information från SVT.";
+			}
+		}
+
 		$create_twitter_title = false;
 	}
 }

@@ -161,3 +161,27 @@ mot.
 
 - **2026-05-19** — Skapad efter dagens audit + Batch 1 + Batch 2
   deployerade. Innan start.
+- **2026-05-19** — Punkt **F släppt** (tredjepartskod):
+  color-contrast-fyndet är inom `.fc-dialog-content` → `.fc-faq-label`
+  ("Läs mer") från **Googles Funding Choices** consent-modal som
+  AdSense injekterar. Inte vår CSS, kan inte fixas härifrån.
+- **2026-05-19** — Punkt **E klar** (commit `7cfa051`):
+  `pages_inner_output_current.php` har fått en sr-only h1-fallback
+  ("SVT Text TV NNN") för alla sidor som inte träffar specifika
+  headline-fall (startpage, 377, 101-105). Använder befintlig
+  `.sr-only`-klass (styles.css rad 1302). Arkivvyn har egen h1-fråga,
+  lämnas till senare. Verifierat live på /100.
+- **2026-05-19** — Punkt **G klar** (commit `d5a37db`):
+  cookieinställningar-länken har fått `href="#cookieinstallningar"` +
+  `return false`. Verifierat live: SEO 92 → **100** på `/100`
+  (crawlable-anchors 0 → 1). Andra URL:er sannolikt också +8 SEO
+  eftersom samma footer renderas överallt.
+- **2026-05-19** — Punkt **A delvis fixad** (commit `bf88bab`):
+  `pages_current_page_top.php`-ad-blockets push() hoppar nu över när
+  `<ins>` är dolt (`.ad--beforeMainText` utan `.breadcrumbs`-syskon).
+  **MEN:** Lighthouse-felet kvarstår efter deploy (Best Practices
+  fortsatt 96, `errors-in-console` fortsatt 0). Resterande fel kommer
+  troligen från annat ad-block (`pages_inner_output_current.php`-
+  `.ad--before-latest`) eller `enable_page_level_ads: true` i
+  `footer.php`. **Släppt:** felet syns inte i normal användning,
+  prioritet låg. Återuppta vid behov.

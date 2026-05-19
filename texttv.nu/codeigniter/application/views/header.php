@@ -170,8 +170,12 @@ $twitter_title = $page_title;
 $create_twitter_title = true;
 if (!isset($is_archive)) {
 
-	if (isset($pages) && $pages[sizeof($pages) - 1]->num == 100) {
-		$twitter_description = "SVT Text sid 100";
+	if (isset($pagedescription) && $pagedescription === 'startpage') {
+		// Root URL / — composite-rendering av 100,300,401,101-105 (se sida::index)
+		$twitter_description = "TextTV.nu – snabbare och mobilanpassad SVT Text TV. Dagens senaste rubriker från inrikes, utrikes, sport, väder och TV-tablåer. Uppdateras löpande.";
+		$create_twitter_title = false;
+	} else if (isset($pages) && $pages[sizeof($pages) - 1]->num == 100) {
+		$twitter_description = "SVT Text TV 100 – startsidan med dagens senaste rubriker från inrikes, utrikes, sport, väder och TV-tablåer. Uppdateras löpande.";
 		$create_twitter_title = false;
 	} else if (isset($pages) && sizeof($pages) == 1) {
 		// 1 page and specific number

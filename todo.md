@@ -4,7 +4,7 @@ Index över förbättringsarbete. Varje todo har en egen fil under
 [`todos/`](todos/) med fullständig analys. Konvention och
 mappstruktur: [`todos/README.md`](todos/README.md).
 
-Senast uppdaterad: 2026-05-19 (+#04 perf/SEO-fixar från Lighthouse-baseline).
+Senast uppdaterad: 2026-05-19 (+#05 utvärdera externa SEO-skills).
 
 ## Aktiva
 
@@ -12,6 +12,7 @@ Senast uppdaterad: 2026-05-19 (+#04 perf/SEO-fixar från Lighthouse-baseline).
 | --- | ----- | ------ | --- |
 | 01  | Varför har /343 och ev andra sidor så dålig CTR? | deployat 2026-05-19 (commit 5f9c6ad), 19/19 sidor live-verifierade — 30d-mätning till 2026-06-18 | [todos/01-varfor-har-343-och-ev-andra-sidor-sa-dalig-ctr.md](todos/01-varfor-har-343-och-ev-andra-sidor-sa-dalig-ctr.md) |
 | 04  | Perf/SEO-fixar från Lighthouse-baseline 2026-05-19 | G/E/H klara, A delvis, F släppt, I/B/C deprio:ade — kvar: **D dynamiska meta descriptions** | [todos/04-perf-seo-fixar-fran-baseline-2026-05-19.md](todos/04-perf-seo-fixar-fran-baseline-2026-05-19.md) |
+| 05  | Utvärdera externa SEO-skills (addyosmani + coreyhaines31) | JSON-LD från addyosmani gör nu (1-2h), seo-audit-skillet efter 2026-06-18, ai-seo skippas | [todos/05-utvardera-seo-skills.md](todos/05-utvardera-seo-skills.md) |
 
 ### Beroenden
 

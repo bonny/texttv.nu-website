@@ -596,6 +596,45 @@ if ($is_start) {
 
 	} // archive rich data
 
+	// Article structured data för live (non-archive) single-page sidor.
+	// Arkivsidor får NewsArticle ovan; multi-page-vyer och appShare hoppas över.
+	// json_encode säkerställer att citat-tecken i $meta_title/$meta_description inte bryter JSON.
+	if (!isset($is_archive) && !$this->input->get("apiAppShare") && isset($pages) && sizeof($pages) == 1) {
+		$live_canonical = "https://texttv.nu/" . (int) $pages[0]->num;
+		$article_data = [
+			"@context" => "https://schema.org",
+			"@type" => "Article",
+			"mainEntityOfPage" => [
+				"@type" => "WebPage",
+				"@id" => $live_canonical
+			],
+			"headline" => $meta_title,
+			"description" => $meta_description,
+			"image" => "https://texttv.nu/images/texttv-nu-publisher-logo.png",
+			"datePublished" => date("c", $pages[0]->date_added_unix),
+			"dateModified" => date("c", $pages[0]->date_updated_unix),
+			"author" => [
+				"@type" => "Organization",
+				"name" => "SVT Text TV",
+				"url" => "https://www.svt.se/text-tv/"
+			],
+			"publisher" => [
+				"@type" => "Organization",
+				"name" => "TextTV.nu",
+				"url" => "https://texttv.nu",
+				"logo" => [
+					"@type" => "ImageObject",
+					"url" => "https://texttv.nu/images/texttv-nu-publisher-logo.png",
+					"width" => 600,
+					"height" => 66
+				]
+			]
+		];
+		echo "\n\t\t<script type=\"application/ld+json\">"
+			. json_encode($article_data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT)
+			. "</script>\n";
+	}
+
 	if (!$this->input->get("apiAppShare")) {
 	?>
 		<script type="application/ld+json">

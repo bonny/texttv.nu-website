@@ -161,6 +161,16 @@ mot.
 
 - **2026-05-19** — Skapad efter dagens audit + Batch 1 + Batch 2
   deployerade. Innan start.
+- **2026-05-19** — Punkt **H klar** (commit `1449808`): API
+  content-type bytt från `text/json` till `application/json` i 4
+  ställen (3 i `controllers/api.php` + 1 i `views/api.php`). 5 andra
+  ställen hade redan rätt värde. Verifierat live mot
+  `api.texttv.nu/api/get/100` och `texttv.nu/api/get/100`: båda
+  returnerar `application/json` + giltig JSON med oförändrad struktur
+  (num, title, date_updated_unix, content_root). Native app-klienter
+  parse:ar JSON från raw bytes oberoende av MIME, så ingen påverkan
+  förväntad. Användare bör ändå öppna iOS- och Android-appen och
+  verifiera att senaste-nyheter laddas korrekt.
 - **2026-05-19** — Punkt **F släppt** (tredjepartskod):
   color-contrast-fyndet är inom `.fc-dialog-content` → `.fc-faq-label`
   ("Läs mer") från **Googles Funding Choices** consent-modal som

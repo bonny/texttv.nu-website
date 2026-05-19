@@ -137,6 +137,31 @@ Android-apparna fungerar idag men dependent på lös parsing.
 **Risk:** medel. App-impact-risk (se [`CLAUDE.md`](../CLAUDE.md) sista
 gotcha).
 
+### J. Refaktorera header.php-whitelist till associativ array
+**Bakgrund (från self-review 2026-05-19):** Whitelist:en på rad ~181–275
+har vuxit till 30+ `else if`-grenar med duplicerad struktur (`$meta_title
+= "..."; $meta_description = "...";`). Plus 13 block-fallback-grenar
+under det.
+
+**Förslag:** Definiera `$meta_overrides = [pagenum => ["title" => "...",
+"description" => "..."]]` och `$meta_block_fallbacks = [["min" => N,
+"max" => M, "title" => "...%d...", "description" => "...%d..."]]` ovanför
+if-blocket. Ersätt if-chain med array-lookup + sprintf för block-fall.
+
+**Varför inte gjord idag:** Försökte 2026-05-19 men Edit av ~150 rad
+block misslyckades pga whitespace-mismatch. Att splita i flera mindre
+edits ökar regressionsrisken. Bättre i en lugn session med ett enda
+fokus, INTE i slutet av en dag med 10+ deploys.
+
+**Plan när vi tar oss an:**
+1. Read aktuell header.php-fil
+2. Skriv om hela ändrings-blocket via Write (replace entire file or
+   targeted range)
+3. Verifiera mot ~10 olika sid-typer via curl
+4. Förvänta sig ~50% kortare och mer scannable
+
+**Risk:** medel. Refaktor utan tester. Värt försiktighet.
+
 ### I. Rotera DB_PASSWORD + VIEW_PHPINFO_SECRET
 **Skäl:** Värdena gick genom Claude:s kontext 2026-05-19 när
 nginx-config klistrades in. Inte i repot, inte publikt — men inte

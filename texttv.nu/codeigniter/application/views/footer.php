@@ -114,7 +114,8 @@ if (!$this->input->get("apiAppShare")) { ?>
 					</li>
 
 					<li>
-						<a onclick="googlefc.showRevocationMessage();" class="text--black">Cookieinställningar</a>
+						<!-- href + return false: cookieinställningar är en action, inte navigation, men Lighthouse vill ha href på <a> (crawlable-anchors). Fragment som inte finns på sidan → ingen scroll. -->
+						<a href="#cookieinstallningar" onclick="googlefc.showRevocationMessage(); return false;" class="text--black">Cookieinställningar</a>
 					</li>
 				</ul>
 			</div>

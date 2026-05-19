@@ -1,0 +1,163 @@
+**Status:** aktiv
+**Senast uppdaterad:** 2026-05-19
+
+# Todo #04 — Perf/SEO-fixar från Lighthouse-baseline 2026-05-19
+
+## Sammanfattning
+
+Paraply-todo för de fix-punkter som identifierades i [Lighthouse-baseline
+2026-05-19](../baselines/2026-05-19/README.md) och som **inte** redan är
+gjorda i Batch 1 (`/700` meta description) eller Batch 2 (HTTP/2 +
+säkerhetsheaders + statisk-asset cache). Varje punkt här är liten nog
+att inte motivera egen todo, men sammantaget är listan värd att hålla
+synlig så den inte tappas bort.
+
+Mätning: efter varje större grupp av fixar, kör om
+`baselines/2026-05-19-batch2/run.sh` (kopierad till ny datum-katalog
+`baselines/YYYY-MM-DD/`) och skriv `vs <föregående>`-jämförelse i
+README:n. Se [`baselines/README.md`](../baselines/README.md) för
+metodik.
+
+## Bakgrund
+
+Två baselines togs 2026-05-19:
+- [`baselines/2026-05-19/`](../baselines/2026-05-19/) — pre-fixar
+- [`baselines/2026-05-19-batch2/`](../baselines/2026-05-19-batch2/) — efter Batch 1 + 2
+
+Resultat efter Batch 1+2: FCP −600 ms överallt, Speed Index −200…−400 ms,
+arkivsidan perf 96 → 99, `/700` SEO 85 → 92. Kvarstående audits nedan.
+
+## Förslag — fix-punkter (sorterade efter förväntad vinst)
+
+### A. `errors-in-console` — trivial
+**Lighthouse-audit:** Best Practices 0/1.
+**Konkret fel:** `Uncaught TagError: adsbygoogle.push() error: No slot
+size for availableWidth=0` från
+`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js`.
+Pushar `adsbygoogle` innan dess container fått layout.
+**Plats:** `texttv.nu/codeigniter/application/views/footer.php` rad
+~291 (`(adsbygoogle = window.adsbygoogle || []).push(...)`) + den i
+samma view rad ~119 (`<div class='ad ad--before-latest'>`-blockets
+script).
+**Fix-idé:** vänta på `load`-event eller använd IntersectionObserver
+innan push:en körs. Alternativt sätt `style="min-height:N"` på `<ins>`
+så `availableWidth` inte är 0 vid push-tillfället.
+**Risk:** låg. Påverkar bara annonsladdning. Bör inte bryta sidan.
+
+### B. Defer + inline-script-audit — medium
+**Lighthouse-audit:** `render-blocking-resources` (delvis mitigerat av
+HTTP/2 men inte borta).
+**Hinder:** `polisen.php` rad 52 anropar `jQuery.getJSON()` i inline-
+script. Att defer:a `<script src="/js/jquery.min.js">` skulle bryta det
+inline-anropet eftersom jQuery inte är laddad när inline-scriptet kör.
+**Plan:**
+1. Grep alla view-templates efter `jQuery`/`$.` i inline-`<script>`-blocks (`polisen.php:52`, `header.php:37,567`, `pages_inner_output_archive.php:59`, `blogg_overview.php:126`, `pages_current_page_top.php:14`, `appembed/pagerange.php:127`).
+2. Wrapa varje inline-jQuery-anrop i `document.addEventListener('DOMContentLoaded', () => { ... })` eller motsv.
+3. Lägg `defer` på `<script src="/js/jquery.min.js">`, `js.cookie.js`, `scripts.js` i `footer.php` rad 284-286.
+4. Testa varje view manuellt eller via curl + grep för förväntad markup.
+**Risk:** medel. Lätt att missa ett inline-anrop → trasig sida.
+Verifiera mot Bruno API files innan deploy.
+
+### C. Minifiera + tree-shake JS/CSS — medium
+**Lighthouse-audits:** `unminified-javascript`, `legacy-javascript`,
+`unused-javascript`, `unused-css-rules`.
+**Plan:** Bygg-pipeline saknas idag (filerna i `texttv.nu/js/` och
+`texttv.nu/css/` editeras direkt). Möjligheter:
+1. Lägg in enkel build-step (esbuild eller swc) som minifierar +
+   tree-shakear vid deploy. Risk: introducerar Node-toolchain.
+2. Eller manuell genomgång av `scripts.js` + `styles.css` för att ta
+   bort uppenbart oanvänt. Lägre vinst, ingen build-komplexitet.
+3. Byt ut jQuery mot vanilig JS (modern browsers behöver inte). Stort
+   jobb men eliminerar största single-bundlen.
+**Risk:** medel-hög beroende på väg.
+
+### D. Dynamiska meta descriptions per sida
+**Lighthouse-audit:** `meta-description` (passerar idag på alla URLer
+efter Batch 1, men descriptions är generic på icke-whitelist:ade sidor).
+**Plan:** Generera description från sidans rubriker/innehåll i
+`Texttv_page`-controllern. Idag i `header.php` finns en hardcoded
+whitelist (rad 167–272) som täcker ~30 sidor; resterande 800+ får
+default "SVT Text sid NNN".
+**Risk:** låg. Påverkar bara SEO-score + SERP-snippets. Inget kan
+brytas.
+
+### E. `<h1>` per sida
+**Lighthouse-audit:** flaggades inte explicit, men avsaknad är ett
+välkänt SEO-tapp.
+**Plan:** Lägg in `<h1 class="sr-only">NNN — <titel></h1>` i sid-views.
+Sr-only = visuellt dold men läses av screenreaders + crawlers.
+**Risk:** låg.
+
+### F. `color-contrast`
+**Lighthouse-audit:** Accessibility 0/1.
+**Plan:** Öppna baseline-HTML-rapport och se exakt vilket element som
+flaggas. Text-tv-paletten är speciell (svart bg, färgad text) — kan
+vara false-positive eller verklig WCAG-fail. Undersök först, fix sen.
+**Risk:** låg-medel. Att fixa kontrast utan att förstöra text-tv-
+estetiken kräver finess.
+
+### G. `crawlable-anchors`
+**Lighthouse-audit:** SEO 0/1.
+**Plan:** Förmodligen cookieinställningar-länken i
+`footer.php` rad ~264: `<a onclick="googlefc.showRevocationMessage()">`
+saknar `href`. Lägg `href="#"` eller byt till `<button>`.
+**Risk:** trivial.
+
+### H. API `Content-Type: text/json` → `application/json`
+**Inte i Lighthouse, fynd från curl-verifiering 2026-05-19.**
+`controllers/api.php` (CodeIgniter) returnerar `text/json` istället för
+`application/json`. Icke-standard, kan bita strict klient. Native iOS/
+Android-apparna fungerar idag men dependent på lös parsing.
+**Plan:** Hitta `$this->output->set_content_type(...)` i `api.php` och
+ändra. Verifiera mot Bruno API files + båda apparna efter deploy.
+**Risk:** medel. App-impact-risk (se [`CLAUDE.md`](../CLAUDE.md) sista
+gotcha).
+
+### I. Rotera DB_PASSWORD + VIEW_PHPINFO_SECRET
+**Skäl:** Värdena gick genom Claude:s kontext 2026-05-19 när
+nginx-config klistrades in. Inte i repot, inte publikt — men inte
+längre "bara på servern".
+**Plan:**
+1. SSH:a in på hetzner. Generera nya värden (`openssl rand -base64 24`).
+2. Uppdatera `/etc/nginx/sites-enabled/texttv.nu` `fastcgi_param`-rader.
+3. Uppdatera MariaDB-användaren: `ALTER USER 'root'@'localhost' IDENTIFIED BY '<nytt>';`
+4. `nginx -t && systemctl reload nginx`.
+5. Verifiera att sajten fortfarande renderar och att
+   `?VIEW_PHPINFO_SECRET=<gammalt>` inte längre fungerar.
+**Risk:** medel. Bryts om password ändras på en sida men inte den
+andra. Kör i en sittning.
+
+## Risker
+
+- **Defer-jobbet (B)** är största fallgrop. Lätt att missa en inline-
+  jQuery-användning och få trasig sida. Bör verifieras view-för-view.
+- **Minify-pipelinen (C)** introducerar Node-toolchain i ett PHP-repo —
+  värt att överväga om kostnaden är värd vinsten.
+- **API content-type (H)** påverkar shippade app-versioner direkt.
+  CLAUDE.md flaggar det.
+
+## Föreslagen ordning
+
+1. **A — `errors-in-console`.** Trivial. Hög Best Practices-vinst.
+2. **G — `crawlable-anchors`.** Trivial. Möjlig SEO-vinst.
+3. **I — Rotera credentials.** Säkerhets-hygien, värt att inte glömma.
+4. **E — `<h1>` per sida.** Litet jobb, SEO + a11y.
+5. **F — `color-contrast` audit.** Förstå först innan fix.
+6. **H — API `Content-Type`-fix.** Behöver app-rökttest.
+7. **D — Dynamiska meta descriptions.** Större jobb, stor SEO-vinst.
+8. **B — Defer + inline-audit.** Komplext, kräver noggrann
+   view-genomgång.
+9. **C — Minify/tree-shake.** Större infrastruktur-beslut.
+
+## Confidence
+
+**Hög** — fix-punkterna är konkreta och bunden till Lighthouse-output
+i `baselines/2026-05-19/` och `baselines/2026-05-19-batch2/`. Två är
+trivial-fixar (A, G), en är säkerhets-rotation (I), resten är
+välavgränsade kod-ändringar med tydliga mätbara baselines att jämföra
+mot.
+
+## Status-logg
+
+- **2026-05-19** — Skapad efter dagens audit + Batch 1 + Batch 2
+  deployerade. Innan start.

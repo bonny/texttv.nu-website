@@ -4,13 +4,14 @@ Index över förbättringsarbete. Varje todo har en egen fil under
 [`todos/`](todos/) med fullständig analys. Konvention och
 mappstruktur: [`todos/README.md`](todos/README.md).
 
-Senast uppdaterad: 2026-05-19 (#03 klar — DB-auth-fix: dubbelquotes runt DB_STATS_PASSWORD).
+Senast uppdaterad: 2026-05-19 (+#04 perf/SEO-fixar från Lighthouse-baseline).
 
 ## Aktiva
 
 | #   | Titel | Status | Fil |
 | --- | ----- | ------ | --- |
 | 01  | Varför har /343 och ev andra sidor så dålig CTR? | deployat 2026-05-19 (commit 5f9c6ad), 19/19 sidor live-verifierade — 30d-mätning till 2026-06-18 | [todos/01-varfor-har-343-och-ev-andra-sidor-sa-dalig-ctr.md](todos/01-varfor-har-343-och-ev-andra-sidor-sa-dalig-ctr.md) |
+| 04  | Perf/SEO-fixar från Lighthouse-baseline 2026-05-19 | ny — 9 fix-punkter, börja med A (`errors-in-console`) | [todos/04-perf-seo-fixar-fran-baseline-2026-05-19.md](todos/04-perf-seo-fixar-fran-baseline-2026-05-19.md) |
 
 ### Beroenden
 

@@ -422,16 +422,6 @@ class Api extends CI_Controller
 		$this->load->view('api', $data);
 	}
 
-	// Like get, but also force a reload from the svt-servers
-	public function update_page($page_num = "")
-	{
-		$data = array(
-			"page_num" 		=> $page_num,
-			"api_call"		=> "update_page",
-		);
-		$this->load->view('api', $data);
-	}
-
 	public function get_html($page_num = "")
 	{
 		$data = array(
@@ -544,7 +534,6 @@ class Api extends CI_Controller
 			exit;
 		}
 
-		$permalinkURL = "https://www.texttv.nu/100/arkiv/sida/" . implode(",", $arr_page_ids);
 		$screenshotURL = "https://api.texttv.nu/100/arkiv/sida/" . implode(",", $arr_page_ids) . "/?apiAppShare=1";
 
 		$saveFileName = md5($screenshotURL) . ".jpg";
@@ -558,8 +547,6 @@ class Api extends CI_Controller
 
 			// no existing screenshot, create new
 			#echo $saveFileName;exit;
-
-			$cmd = "/root/phantomjs-2.1.1-linux-x86_64/bin/phantomjs /usr/share/nginx/share-screenshot/create-share-screenshot-2.js $screenshotURL";
 
 			// new since 27 aug 2016
 			// 15 var saveFileName = md5(url) + ".jpg";

@@ -43,5 +43,9 @@ Scriptet är idempotent — befintliga `.json`-filer hoppas över.
 ## Datum-kataloger
 
 - [`2026-05-19/`](2026-05-19/) — första baselinen. Pre-fixar. Commit
-  [`a85ba01`](https://github.com/parnerell/texttv.nu/commit/a85ba01).
+  [`a85ba01`](https://github.com/bonny/texttv.nu-website/commit/a85ba01).
   Lighthouse 12.8.2, Chrome 148.0.7778.168.
+- [`2026-05-19-batch2/`](2026-05-19-batch2/) — efter Batch 1 (`/700`
+  meta description, commit [`22ef0c6`](https://github.com/bonny/texttv.nu-website/commit/22ef0c6))
+  + Batch 2 (nginx HTTP/2 + säkerhetsheaders + statisk-asset cache,
+  manuell server-edit). FCP −600 ms överallt, arkivsidan perf 96 → 99.

@@ -4,7 +4,7 @@ Index över förbättringsarbete. Varje todo har en egen fil under
 [`todos/`](todos/) med fullständig analys. Konvention och
 mappstruktur: [`todos/README.md`](todos/README.md).
 
-Senast uppdaterad: 2026-05-19 (+#05 klar — Article JSON-LD live-validerad av Google Rich Results).
+Senast uppdaterad: 2026-05-27 (+#07 specat med serversideup-image, service-struktur, seed-strategi).
 
 ## Aktiva
 
@@ -12,6 +12,8 @@ Senast uppdaterad: 2026-05-19 (+#05 klar — Article JSON-LD live-validerad av G
 | --- | ----- | ------ | --- |
 | 01  | Varför har /343 och ev andra sidor så dålig CTR? | deployat 2026-05-19 (commit 5f9c6ad), 19/19 sidor live-verifierade — 30d-mätning till 2026-06-18 | [todos/01-varfor-har-343-och-ev-andra-sidor-sa-dalig-ctr.md](todos/01-varfor-har-343-och-ev-andra-sidor-sa-dalig-ctr.md) |
 | 04  | Perf/SEO-fixar från Lighthouse-baseline 2026-05-19 | G/E/H klara, A delvis, F släppt, I/B/C deprio:ade — kvar: **D dynamiska meta descriptions** | [todos/04-perf-seo-fixar-fran-baseline-2026-05-19.md](todos/04-perf-seo-fixar-fran-baseline-2026-05-19.md) |
+| 06  | Byt facade/ignition mot spatie/laravel-ignition | ny — workaround i `AppServiceProvider` (commit 6ba0656) maskerar problemet, vill byta paket istället | [todos/06-byt-facade-ignition-mot-spatie-laravel-ignition.md](todos/06-byt-facade-ignition-mot-spatie-laravel-ignition.md) |
+| 07  | Docker Compose för lokal utveckling | aktionerbar — image-val (`serversideup/php:8.2-fpm-nginx`), service-struktur och seed-strategi specificerade. Pattern kopierat från brottsplatskartan | [todos/07-docker-compose-lokal-utveckling.md](todos/07-docker-compose-lokal-utveckling.md) |
 
 ### Beroenden
 

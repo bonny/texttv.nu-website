@@ -4,7 +4,7 @@ Index över förbättringsarbete. Varje todo har en egen fil under
 [`todos/`](todos/) med fullständig analys. Konvention och
 mappstruktur: [`todos/README.md`](todos/README.md).
 
-Senast uppdaterad: 2026-05-27 (+#07 specat med serversideup-image, service-struktur, seed-strategi).
+Senast uppdaterad: 2026-05-27 (#03-uppföljning klar — OPTIMIZE TABLE page_actions frigjorde ~13 GB; +#07 specat).
 
 ## Aktiva
 
@@ -34,12 +34,12 @@ eller markera todon som klar.
 | ---------- | --------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
 | 2026-06-18 | #01 GSC-mätning — 30d post-deploy: kohort-CTR (343/336/345 etc.) från ~0.27 % → mål 0.88 %. Verifiera även live `<title>`/`<meta>` på 18 sidor | [#01](todos/01-varfor-har-343-och-ev-andra-sidor-sa-dalig-ctr.md)         |
 | 2026-07-18 | #01 GSC-mätning — 60d: slutbeslut om restpopulation behöver egen fix-todo                                                              | [#01](todos/01-varfor-har-343-och-ev-andra-sidor-sa-dalig-ctr.md)         |
-| 2026-05-26 | #03 OPTIMIZE TABLE texttv_stats.page_actions efter ~5 dygns cleanup-städning (backlog 158M → ~6M). Kollar `data_length` i information_schema.tables före/efter — bör frigöra ~12 GB. | [#03](todos/done/03-fix-cleanup-page-actions-db-auth.md) |
 
 ### Avklarade uppföljningar
 
 | Planerat | Utfört | Åtgärd | Todo |
 | -------- | ------ | ------ | ---- |
+| 2026-05-26 | 2026-05-27 | #03 OPTIMIZE TABLE texttv_stats.page_actions efter cleanup-städning. Backlog: 158M → 3.6M rader (10d retention). Frigjorde **~13 GB** disk (data_free 13 252 MB → 4 MB; total 13.4 GB → 317 MB). | [#03](todos/done/03-fix-cleanup-page-actions-db-auth.md) |
 
 ## Klara
 

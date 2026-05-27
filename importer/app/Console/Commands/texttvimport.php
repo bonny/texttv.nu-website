@@ -57,7 +57,19 @@ class texttvimport extends Command
         }, $pageNumber);
 
         foreach (explode(',', $pageNumbers) as $onePageNumber) {
-            $this->importPage($onePageNumber);
+            try {
+                $this->importPage($onePageNumber);
+            } catch (\Throwable $e) {
+                // Låt inte en trasig sida döda resten av rangen.
+                $msg = "{$onePageNumber}: Importen misslyckades: {$e->getMessage()} ({$e->getFile()}:{$e->getLine()})";
+                $this->error($msg);
+                Log::error($msg, ['exception' => $e]);
+
+                PageImportsLog::create([
+                    'page_num' => $onePageNumber,
+                    'import_result' => 'NOT_IMPORTED_EXCEPTION'
+                ]);
+            }
         }
     }
     

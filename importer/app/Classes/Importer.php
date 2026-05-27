@@ -862,6 +862,9 @@ class Importer
 
         foreach ($lineChars as $charIndex => $char) {
             $charInfo = $charsExtractor->getChar($lineIndex, $charIndex);
+            if (!$charInfo) {
+                continue;
+            }
             $isHeadlineChar = $charInfo['charType']['type'] === 'text' && $charInfo['charType']['scale'] === 2;
             if ($isHeadlineChar) {
                 $currentLineHasHeadlineChars = true;

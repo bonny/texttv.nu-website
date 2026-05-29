@@ -8,6 +8,7 @@ texttv.nu/debug.txt
 # Claude Code lokala settings + harness-state
 .claude/settings.local.json
 .claude/scheduled_tasks.lock
+.playwright-mcp/
 
 # Lighthouse-rapporter: HTML är stort och kan regenereras från JSON
 # (öppna en JSON via `lighthouse --view ...report.json` eller fyll i URL på

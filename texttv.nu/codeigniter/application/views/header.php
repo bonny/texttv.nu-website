@@ -273,6 +273,72 @@ if (!isset($is_archive)) {
 		} else if (700 == $first_page_num) {
 			$meta_title = "700 - SVT Text TV - Innehåll";
 			$meta_description = "Innehållsförteckningen på SVT Text TV 700. Hitta alla sidor – nyheter, sport, väder, TV-tablåer och mer – med sidnummer.";
+
+			// Datadriven whitelist-utvidgning #04 Fas 1 (2026-06-22): högimpressions-sidor
+			// (GSC topp-sidor) som tidigare bara fick generisk block-fallback. Sidor med
+			// stabil sid-identitet enligt SVT Text TV:s numrering. Efemära event-/tomsidor
+			// (VM-grupper, tomma sidor, roterande lokalprognoser) lämnas medvetet till
+			// block-fallbacken — se #04-todon.
+		} else if (328 == $first_page_num) {
+			$meta_title = "328 - SVT Text TV - Ishockey NHL";
+			$meta_description = "Ishockey NHL på SVT Text TV 328. 🏒 Matchfakta, resultat och målskyttar från NHL.";
+		} else if (337 == $first_page_num) {
+			$meta_title = "337 - SVT Text TV - Engelska Championship";
+			$meta_description = "Engelska Championship på SVT Text TV 337. ⚽️ Resultat, playoff och tabell från Englands näst högsta fotbollsdivision.";
+		} else if (346 == $first_page_num) {
+			$meta_title = "346 - SVT Text TV - Fotboll Ettan";
+			$meta_description = "Ettan på SVT Text TV 346. ⚽️ Resultat från senaste omgången och uppdaterad tabell i herrfotbollens tredjedivision.";
+		} else if (347 == $first_page_num) {
+			$meta_title = "347 - SVT Text TV - Division 2 fotboll";
+			$meta_description = "Division 2 herr på SVT Text TV 347. ⚽️ Resultat och tabeller från fotbollens fjärdedivision.";
+		} else if (348 == $first_page_num) {
+			$meta_title = "348 - SVT Text TV - Division 2 fotboll";
+			$meta_description = "Division 2 herr på SVT Text TV 348. ⚽️ Resultat och tabeller från fotbollens fjärdedivision.";
+		} else if (359 == $first_page_num) {
+			$meta_title = "359 - SVT Text TV - SHL spelschema";
+			$meta_description = "SHL på SVT Text TV 359. 🏒 Kommande matcher och resultat i Svenska Hockeyligan – tabellen ligger på 358.";
+		} else if (375 == $first_page_num) {
+			$meta_title = "375 - SVT Text TV - Ishockey VM";
+			$meta_description = "Ishockey-VM på SVT Text TV 375. 🏒 Resultat och gruppspel från världsmästerskapet i ishockey.";
+		} else if (378 == $first_page_num) {
+			$meta_title = "378 - SVT Text TV - Målservice fotboll";
+			$meta_description = "Målservice för fotboll på SVT Text TV 378. ⚽️ Live målsiffror medan matcherna spelas. Index på 376, resultat på 330.";
+		} else if (379 == $first_page_num) {
+			$meta_title = "379 - SVT Text TV - Målservice fotboll";
+			$meta_description = "Målservice för fotboll på SVT Text TV 379. ⚽️ Live målsiffror medan matcherna spelas. Index på 376, resultat på 330.";
+		} else if (380 == $first_page_num) {
+			$meta_title = "380 - SVT Text TV - Målservice fotboll";
+			$meta_description = "Målservice för fotboll på SVT Text TV 380. ⚽️ Live målsiffror medan matcherna spelas. Index på 376, resultat på 330.";
+		} else if (381 == $first_page_num) {
+			$meta_title = "381 - SVT Text TV - Målservice fotboll";
+			$meta_description = "Målservice för fotboll på SVT Text TV 381. ⚽️ Live målsiffror medan matcherna spelas. Index på 376, resultat på 330.";
+		} else if (400 == $first_page_num) {
+			$meta_title = "400 - SVT Text TV - Väder";
+			$meta_description = "Väderöversikten på SVT Text TV 400. Hitta vädersidorna: prognos (401), temperaturer (402), femdygnsprognoser och sjöväder.";
+		} else if (404 == $first_page_num) {
+			$meta_title = "404 - SVT Text TV - Varmast och kallast";
+			$meta_description = "Varmast och kallast i Sverige på SVT Text TV 404. Dagens högsta och lägsta temperaturer ort för ort, mätt kl 14.";
+		} else if (600 == $first_page_num) {
+			$meta_title = "600 - SVT Text TV - TV-tablåer";
+			$meta_description = "TV-tablåernas startsida på SVT Text TV 600. Hitta dagens program: SVT1 (601), SVT2 (604), SVT Barn, Kunskapskanalen, TV3, TV4 med flera.";
+		} else if (602 == $first_page_num) {
+			$meta_title = "602 - SVT Text TV - TV-tablå SVT1";
+			$meta_description = "Dagens TV-tablå för SVT1 på SVT Text TV 602 (forts. från 601). Alla program med tider – uppdateras varje dag.";
+		} else if (621 == $first_page_num) {
+			$meta_title = "621 - SVT Text TV - TV-tablå TV4";
+			$meta_description = "Dagens TV-tablå för TV4 på SVT Text TV 621. Alla program från morgon till kväll – uppdateras varje dag.";
+		} else if (730 == $first_page_num) {
+			$meta_title = "730 - SVT Text TV - Cykel";
+			$meta_description = "Cykel på SVT Text TV 730. 🚴 Resultat och etappplaceringar från Giro d'Italia, Tour de France och andra stora lopp.";
+		} else if (731 == $first_page_num) {
+			$meta_title = "731 - SVT Text TV - Tennis ATP";
+			$meta_description = "Tennis på SVT Text TV 731. 🎾 Resultat från ATP-touren – herrarnas turneringar, finaler och matcher.";
+		} else if (732 == $first_page_num) {
+			$meta_title = "732 - SVT Text TV - Tennis WTA";
+			$meta_description = "Tennis på SVT Text TV 732. 🎾 Resultat från WTA-touren – damernas turneringar, finaler och matcher.";
+		} else if (744 == $first_page_num) {
+			$meta_title = "744 - SVT Text TV - Formel 1";
+			$meta_description = "Formel 1 på SVT Text TV 744. 🏎️ Resultat och placeringar från F1-loppen – Grand Prix för Grand Prix.";
 		}
 
 		// Blockbaserad fallback för sidor utan specifik whitelist-entry.

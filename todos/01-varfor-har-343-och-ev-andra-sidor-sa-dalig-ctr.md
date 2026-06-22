@@ -1,5 +1,5 @@
-**Status:** aktiv — deployat 2026-05-19 (commit 5f9c6ad, 19/19 sidor live-verifierade). Väntar 30d GSC-mätning (2026-06-18).
-**Senast uppdaterad:** 2026-05-19
+**Status:** aktiv — deployat 2026-05-19 (commit 5f9c6ad, 19/19 sidor live-verifierade). **30d-mätning gjord 2026-06-22: kohort-CTR 0.31% → 0.73% (~2.3×), clicks 236 → 534. Vinst bekräftad.** Kvar: 60d-slutmätning 2026-07-18.
+**Senast uppdaterad:** 2026-06-22
 
 # Todo #01 — Varför har /343 och ev andra sidor så dålig CTR?
 
@@ -201,6 +201,42 @@ Whitelist utökad i `texttv.nu/codeigniter/application/views/header.php` (efter 
 3. ~~Live-verifiera titles på alla 18 sidor~~ ✓ (19 sidor: 18 enligt plan + /601 räknades med)
 4. **2026-06-18** — 30d GSC-mätning (mål: kohort-CTR ~0.27 % → ~0.88 %)
 5. **2026-07-18** — 60d slutmätning + ev. restpopulation-todo
+
+## Mätning 30d (2026-06-22)
+
+`mcp-gsc`, property `sc-domain:texttv.nu`. Jämförelse av samma kohort
+**före** deploy (2026-04-21→05-19) vs **efter** (2026-05-20→06-18):
+
+| Sida          | CTR före  | CTR efter | Pos före→efter | Clicks före→efter |
+| ------------- | --------- | --------- | -------------- | ----------------- |
+| /300          | 0.52%     | **0.83%** | 4.7→4.4        | 135→282           |
+| /343          | 0.26%     | **0.63%** | 4.7→**3.6**    | 54→107            |
+| /345          | 0.11%     | **0.70%** | 3.8→3.4        | 5→35              |
+| /336          | 0.10%     | **0.42%** | 3.9→3.1        | 11→9              |
+| /358          | 0.27%     | **0.99%** | 4.1→4.5        | 11→35             |
+| /344          | 0.13%     | **0.51%** | 4.7→4.9        | 3→9               |
+| /101          | 0.29%     | **0.67%** | 5.2→3.8        | 6→23              |
+| /127          | 0.31%     | **0.83%** | 3.9→3.2        | 4→14              |
+| /349          | 0.19%     | **0.58%** | 4.5→4.0        | 2→10              |
+| /104          | 0.19%     | **0.45%** | 4.2→3.4        | 1→4               |
+| /106          | 0.21%     | 0.32%     | 4.5→4.7        | 2→4               |
+| /130          | 0.24%     | 0.17%     | 4.7→4.6        | 2→2               |
+| **Kohort (12)** | **0.31%** | **0.73%** | —            | **236→534**       |
+
+**Utfall:** kohort-CTR **0.31% → 0.73%** (~2.3×), clicks **nästan
+fördubblade** (236→534) vid ~oförändrade impressions (~75 800 → 73 500).
+Sidor som var "ej i sändning" vid deploy (160/190 hoppades över) och nu
+är tillbaka presterar starkt på block-fallbacken/whitelisten: **/402
+1.11%**, **/399 1.47%**, **/601 0.78%**, **/345 0.70%**. Flera positioner
+förbättrades (343: 4.7→3.6, 101: 5.2→3.8) — sannolikt delvis CTR-driven
+omranking.
+
+**Mot målet:** 0.73% vs sajt-snitt 0.88% — strax under men stor
+förflyttning. Crawl-lag i fönstrets början (Google serverar gammalt
+snippet tills nästa crawl) håller troligen nere snittet. 60d-mätningen
+(2026-07-18) väntas visa högre. **Slutsats: fixen fungerade — whitelist-
+utvidgningen drev både CTR och position uppåt.** Detta validerar #04 D
+Fas 1 (datadriven whitelist-utvidgning).
 
 ## Förslag
 

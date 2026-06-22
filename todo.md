@@ -4,14 +4,14 @@ Index över förbättringsarbete. Varje todo har en egen fil under
 [`todos/`](todos/) med fullständig analys. Konvention och
 mappstruktur: [`todos/README.md`](todos/README.md).
 
-Senast uppdaterad: 2026-05-27 (#03-uppföljning klar — OPTIMIZE TABLE page_actions frigjorde ~13 GB; +#07 specat).
+Senast uppdaterad: 2026-06-22 (#01 30d-mätning klar — kohort-CTR 0.31%→0.73%, vinst bekräftad; #04 D Fas 1 avblockad).
 
 ## Aktiva
 
 | #   | Titel | Status | Fil |
 | --- | ----- | ------ | --- |
-| 01  | Varför har /343 och ev andra sidor så dålig CTR? | deployat 2026-05-19 (commit 5f9c6ad), 19/19 sidor live-verifierade — 30d-mätning till 2026-06-18 | [todos/01-varfor-har-343-och-ev-andra-sidor-sa-dalig-ctr.md](todos/01-varfor-har-343-och-ev-andra-sidor-sa-dalig-ctr.md) |
-| 04  | Perf/SEO-fixar från Lighthouse-baseline 2026-05-19 | G/E/H klara, A delvis, F släppt, I/B/C deprio:ade — kvar: **D dynamiska meta descriptions** | [todos/04-perf-seo-fixar-fran-baseline-2026-05-19.md](todos/04-perf-seo-fixar-fran-baseline-2026-05-19.md) |
+| 01  | Varför har /343 och ev andra sidor så dålig CTR? | **30d-mätning klar 2026-06-22: kohort-CTR 0.31%→0.73% (~2.3×), clicks 236→534 — vinst bekräftad.** Kvar: 60d-slutmätning 2026-07-18 | [todos/01-varfor-har-343-och-ev-andra-sidor-sa-dalig-ctr.md](todos/01-varfor-har-343-och-ev-andra-sidor-sa-dalig-ctr.md) |
+| 04  | Perf/SEO-fixar från Lighthouse-baseline 2026-05-19 | G/E/H + **D Fas 2** klara, A delvis, F släppt, I/B/C/J deprio:ade. Kvar: **D Fas 1 — entries skrivna 2026-06-22, deployas** (20 sidor) | [todos/04-perf-seo-fixar-fran-baseline-2026-05-19.md](todos/04-perf-seo-fixar-fran-baseline-2026-05-19.md) |
 | 06  | Byt facade/ignition mot spatie/laravel-ignition | ny — workaround i `AppServiceProvider` (commit 6ba0656) maskerar problemet, vill byta paket istället | [todos/06-byt-facade-ignition-mot-spatie-laravel-ignition.md](todos/06-byt-facade-ignition-mot-spatie-laravel-ignition.md) |
 | 07  | Docker Compose för lokal utveckling | aktionerbar — image-val (`serversideup/php:8.2-fpm-nginx`), service-struktur och seed-strategi specificerade. Pattern kopierat från brottsplatskartan | [todos/07-docker-compose-lokal-utveckling.md](todos/07-docker-compose-lokal-utveckling.md) |
 
@@ -30,15 +30,14 @@ MCP:s som `mcp-gsc`, SSH-nycklar till prod, eller mänsklig bedömning).
 Granska veckovis. När en åtgärd är gjord, flytta raden till "Avklarade" nedan
 eller markera todon som klar.
 
-| Datum      | Åtgärd                                                                                                                                  | Todo                                                                       |
-| ---------- | --------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
-| 2026-06-18 | #01 GSC-mätning — 30d post-deploy: kohort-CTR (343/336/345 etc.) från ~0.27 % → mål 0.88 %. Verifiera även live `<title>`/`<meta>` på 18 sidor | [#01](todos/01-varfor-har-343-och-ev-andra-sidor-sa-dalig-ctr.md)         |
 | 2026-07-18 | #01 GSC-mätning — 60d: slutbeslut om restpopulation behöver egen fix-todo                                                              | [#01](todos/01-varfor-har-343-och-ev-andra-sidor-sa-dalig-ctr.md)         |
 
 ### Avklarade uppföljningar
 
 | Planerat | Utfört | Åtgärd | Todo |
 | -------- | ------ | ------ | ---- |
+| 2026-06-18 | 2026-06-22 | #01 GSC-mätning 30d post-deploy. Kohort (12 sidor) CTR **0.31% → 0.73%** (~2.3×), clicks **236 → 534** vid ~oförändrade impressions. /343 0.26→0.63% (pos 4.7→3.6), /345 0.11→0.70%, /336 0.10→0.42%. Strax under sajt-snitt 0.88% (crawl-lag). **Vinst bekräftad.** | [#01](todos/01-varfor-har-343-och-ev-andra-sidor-sa-dalig-ctr.md) |
+| 2026-06-18 | 2026-06-22 | #04 D Fas 1 gate-check: #01:s mätperiod stängd, vinst bekräftad → Fas 1 avblockad. `mcp-gsc` topp-sidor efter impressions hämtade; kandidatlista för 30–50 nya whitelist-entries klar. Implementation pendar användarbeslut. | [#04](todos/04-perf-seo-fixar-fran-baseline-2026-05-19.md) |
 | 2026-05-26 | 2026-05-27 | #03 OPTIMIZE TABLE texttv_stats.page_actions efter cleanup-städning. Backlog: 158M → 3.6M rader (10d retention). Frigjorde **~13 GB** disk (data_free 13 252 MB → 4 MB; total 13.4 GB → 317 MB). | [#03](todos/done/03-fix-cleanup-page-actions-db-auth.md) |
 
 ## Klara

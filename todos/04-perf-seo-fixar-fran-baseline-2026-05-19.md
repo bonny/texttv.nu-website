@@ -1,5 +1,5 @@
-**Status:** aktiv
-**Senast uppdaterad:** 2026-05-19
+**Status:** aktiv — **D Fas 1 avblockad 2026-06-22** (#01-mätning klar, vinst bekräftad). 20 nya whitelist-entries skrivna i header.php (`php -l` OK), **väntar på diff-review + deploy**. D Fas 2 klar (8b81494), J avfärdad.
+**Senast uppdaterad:** 2026-06-22
 
 # Todo #04 — Perf/SEO-fixar från Lighthouse-baseline 2026-05-19
 
@@ -137,7 +137,11 @@ Android-apparna fungerar idag men dependent på lös parsing.
 **Risk:** medel. App-impact-risk (se [`CLAUDE.md`](../CLAUDE.md) sista
 gotcha).
 
-### J. Refaktorera header.php-whitelist till associativ array
+### J. Refaktorera header.php-whitelist till associativ array — AVFÄRDAD 2026-05-31
+**Avfärdad (användarbeslut 2026-05-31):** ren teknisk skuld utan SEO- eller
+perf-vinst, känns inte viktig nog att prioritera. Whitelist:en fungerar som
+den är. Återuppta bara om den blir faktiskt svår att underhålla.
+
 **Bakgrund (från self-review 2026-05-19):** Whitelist:en på rad ~181–275
 har vuxit till 30+ `else if`-grenar med duplicerad struktur (`$meta_title
 = "..."; $meta_description = "...";`). Plus 13 block-fallback-grenar
@@ -187,7 +191,8 @@ andra. Kör i en sittning.
 
 ## Föreslagen ordning
 
-**Status 2026-05-19 kväll:** A delvis fixad, F släppt (tredjepart), G/E/H klara, I/B/C deprioriterade.
+**Status 2026-05-31:** Allt aktionerbart klart. Enda kvarstående är **D Fas 1**,
+som är gated till efter 2026-06-18 (#01:s mätperiod). J avfärdad.
 
 1. ~~**A — `errors-in-console`.**~~ Delvis fixat (`bf88bab`), släppt — felet kvarstår men syns inte i normal användning.
 2. ~~**G — `crawlable-anchors`.**~~ Klart (`d5a37db`).
@@ -195,9 +200,10 @@ andra. Kör i en sittning.
 4. ~~**E — `<h1>` per sida.**~~ Klart (`7cfa051`).
 5. ~~**F — `color-contrast` audit.**~~ Släppt — fyndet är i Googles FC-modal, ej vår kod.
 6. ~~**H — API `Content-Type`-fix.**~~ Klart (`1449808`), app-verifierat.
-7. **D — Dynamiska meta descriptions.** ENDA KVARSTÅENDE. Större jobb, stor SEO-vinst.
+7. **D — Dynamiska meta descriptions.** ~~Fas 2 (blockbaserad fallback)~~ klar (`8b81494`). **Fas 1 (datadriven whitelist-utvidgning) väntar på #01-mätning till 2026-06-18.**
 8. ~~**B — Defer + inline-audit.**~~ Deprioriterat — HTTP/2-multiplexing har sänkt vinsten.
 9. ~~**C — Minify/tree-shake.**~~ Deprioriterat — kräver build-pipeline-beslut.
+10. ~~**J — Refaktorera whitelist till array.**~~ Avfärdad 2026-05-31 — teknisk skuld utan SEO/perf-vinst.
 
 ## Confidence
 
@@ -209,6 +215,37 @@ mot.
 
 ## Status-logg
 
+- **2026-06-22** — **D Fas 1 påbörjad (gate lyft).** #01:s 30d-mätning klar
+  samma dag med bekräftad vinst (kohort-CTR 0.31%→0.73%), så signal-blandnings-
+  risken är borta. Hämtade GSC topp-sidor efter impressions (`mcp-gsc`, 30d
+  2026-05-20→06-18), korsade mot whitelisten, och hämtade live-innehåll för ~30
+  kandidater via publika API:t för korrekt sid-identitet. **20 nya entries
+  skrivna** i `header.php` (efter 700-entryn): 328 NHL, 337 Engelska
+  Championship, 346 Ettan, 347/348 Division 2, 359 SHL-schema, 375 Ishockey-VM,
+  378–381 Målservice fotboll, 400 Väder-översikt, 404 Varmast/kallast, 600
+  TV-tablåer, 602 TV-tablå SVT1, 621 TV-tablå TV4, 730 Cykel, 731 Tennis ATP,
+  732 Tennis WTA, 744 Formel 1. `php -l` OK. **Väntar på diff-review + deploy.**
+  - **Medvetet skippade (efemära):** 160/190/477/555 (tomma "ej i sändning"),
+    386/388 (tomma målservice-platshållare just nu), 303/304 (roterande
+    sportnyheter — block-fallback "Sport" räcker), 411 (roterande lokal
+    femdygnsprognos), 331 (VM-grupp — försvinner efter VM).
+  - **Bugg-fynd:** 730/731/732/744 är live-sport men fick titeln "Innehåll" via
+    700-blockets fallback (730–799 → Innehåll). Individuella entries löser de
+    fyra trafikstarka; överväg att smalna 700-blocket (730–749 → Sport) som
+    egen uppföljning om fler 73x-sidor visar sig vara sport.
+  - **Kvar efter deploy:** live-verifiera `<title>`/`<meta>` på de 20 sidorna
+    (cache-bust som i #01), och 60d-effektmätning kan slås ihop med #01:s
+    2026-07-18-mätning.
+- **2026-05-31** — Review: upptäckte att todons status var inaktuell.
+  **D Fas 2 (blockbaserad meta-description-fallback) är klar sedan
+  `8b81494`** — verifierat live i `header.php` (rad ~284–333): block-
+  mappning 101-129 inrikes … 800-999, enligt `breadcrumbs.php`-
+  konventionen. Whitelist:en har dessutom vuxit till 30+ specifika sidor
+  (343/336/339/344/345 m.fl.). **Enda kvarstående är D Fas 1** (datadriven
+  whitelist-utvidgning via `mcp-gsc`), fortfarande gated till efter
+  2026-06-18 så signalerna inte blandas med #01:s 30d-mätning. Lade till
+  Fas 1 som egen rad i Uppföljningar. **Punkt J avfärdad** (användarbeslut):
+  ren teknisk skuld utan SEO/perf-vinst.
 - **2026-05-19** — Skapad efter dagens audit + Batch 1 + Batch 2
   deployerade. Innan start.
 - **2026-05-19** — Punkterna **I, B, C deprioriterade** (användarbeslut):

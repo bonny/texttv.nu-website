@@ -1,4 +1,4 @@
-**Status:** aktiv — **D Fas 1 avblockad 2026-06-22** (#01-mätning klar, vinst bekräftad). 20 nya whitelist-entries skrivna i header.php (`php -l` OK), **väntar på diff-review + deploy**. D Fas 2 klar (8b81494), J avfärdad.
+**Status:** aktiv — **D Fas 1 deployad 2026-06-22** (commit 1e9a61b): 20 nya whitelist-entries, alla 20 sidor live-verifierade på prod (korrekt `<title>`+`<meta>`). Kvar: 60d-effektmätning (slås ihop med #01 2026-07-18). D Fas 2 klar (8b81494), J avfärdad.
 **Senast uppdaterad:** 2026-06-22
 
 # Todo #04 — Perf/SEO-fixar från Lighthouse-baseline 2026-05-19

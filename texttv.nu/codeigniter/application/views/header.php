@@ -329,7 +329,7 @@ if (!isset($is_archive)) {
 			$meta_description = "Dagens TV-tablå för TV4 på SVT Text TV 621. Alla program från morgon till kväll – uppdateras varje dag.";
 		} else if (730 == $first_page_num) {
 			$meta_title = "730 - SVT Text TV - Cykel";
-			$meta_description = "Cykel på SVT Text TV 730. 🚴 Resultat och etappplaceringar från Giro d'Italia, Tour de France och andra stora lopp.";
+			$meta_description = "Cykel på SVT Text TV 730. 🚴 Resultat och etapplaceringar från Giro d'Italia, Tour de France och andra stora lopp.";
 		} else if (731 == $first_page_num) {
 			$meta_title = "731 - SVT Text TV - Tennis ATP";
 			$meta_description = "Tennis på SVT Text TV 731. 🎾 Resultat från ATP-touren – herrarnas turneringar, finaler och matcher.";

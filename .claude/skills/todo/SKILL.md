@@ -1,6 +1,6 @@
 ---
 name: todo
-description: "Hantera projektets todos i `todo.md` + `todos/`. Använd när användaren frågar/ber om todos — t.ex. 'vad är nästa todo', 'vilka todos har vi', 'visa todo #N', 'markera #N klar', 'avfärda #N', 'skapa todo …'. Subkommandon: (tomt)/list, next, show <nr>, done <nr>, reject <nr>, new <titel>."
+description: "Hantera projektets todos i `todo.md` + `todos/`. Använd när användaren frågar/ber om todos — t.ex. 'todos', 'översikt', 'vad är nästa todo', 'vilka todos har vi', 'visa todo #N', 'markera #N klar', 'avfärda #N', 'skapa todo …'. Subkommandon: (tomt)=översikt/dashboard, list, next, show <nr>, done <nr>, reject <nr>, new <titel>."
 ---
 
 # /todo — todo-hantering
@@ -26,10 +26,11 @@ end, ramp-up av feature flag. Format: `| YYYY-MM-DD | <åtgärd> | [#NN](...)|`.
 
 Argumentet efter `/todo` (ord 1) avgör subkommando:
 
-| Argument        | Subkommando        |
-| --------------- | ------------------ |
-| (tomt) / `list` | Lista aktiva       |
-| `next`          | Rekommendera nästa |
+| Argument        | Subkommando         |
+| --------------- | ------------------- |
+| (tomt)          | Översikt / dashboard |
+| `list`          | Lista aktiva        |
+| `next`          | Rekommendera nästa  |
 | `show <nr>`     | Visa todo-fil      |
 | `done <nr>`     | Markera klar       |
 | `reject <nr>`   | Avfärda            |
@@ -37,7 +38,23 @@ Argumentet efter `/todo` (ord 1) avgör subkommando:
 
 Numret matchas mot filnamnets prefix (`<NN>-...`).
 
-## list / (tomt)
+## (tomt) — översikt
+
+Ge en kompakt dashboard. Läs bara `todo.md` — inga todo-filer öppnas.
+
+1. Read `todo.md`.
+2. **Räknarrad** överst: antal rader i Aktiva- / Klara- / Avfärdade-tabellerna —
+   `Aktiva: X · Klara: Y · Avfärdade: Z`.
+3. **▶ Aktionerbara nu** — klassificera Aktiva enligt samma väntar-regler som
+   `list` nedan; lista de aktionerbara (`#NN Titel — kort status`).
+   Om inga: skriv "(inga — <kort skäl>)".
+4. **⏳ Väntande** — resten av Aktiva, sorterat på närmaste framtida datum (närmast först).
+5. **📅 Nästa uppföljning** — närmaste rad i Uppföljningar-sektionen, med "(om N d)".
+   Flagga förfallna (datum < `currentDate`) tydligt med ⚠ — då är en check-in glömd.
+6. **💡 Nästa** — en mening: den första aktionerbara (jfr `next`), eller
+   "inget aktionerbart nu — <närmaste avblockning>" om alla väntar.
+
+## list
 
 1. Read `todo.md`.
 2. Klassificera varje rad i **Aktiva**-tabellen som **aktionerbar** eller

@@ -40,14 +40,45 @@ CodeIgniter routes (`codeigniter/application/config/routes.php`) map URL pattern
 
 ## Local development
 
-The whole project assumes **Laravel Valet** on macOS, with `texttv.nu/` served at `http://texttv.nu.test/` and the importer served at its own Valet hostname (or via `artisan serve`).
+Two supported setups: **Docker Compose** (rekommenderas — portabelt, prod-parity) eller **Laravel Valet** (macOS, äldre flödet).
 
-### Website (CodeIgniter)
+### Docker Compose (rekommenderas)
+
+`git clone && make up` ger hela stacken: importer (Laravel 8) + scheduler + website (CodeIgniter) + MariaDB 10.11, allt på `serversideup/php:8.2-fpm-nginx` (matchar prods PHP 8.2.31, se `server.md`). En engångs-`init`-service migrerar och seedar startsidans sidor (`100,300,401,101-105`) live från SVT, så sajten renderar direkt.
+
+```bash
+make up        # starta allt (bygger images auto första gången; init seedar DB:n)
+make build     # bygg om images efter ändrad Dockerfile (make rebuild = utan cache)
+# Sajt:        http://localhost:8380/100   ·  startsida: http://localhost:8380/
+# Importer:    http://localhost:8381  (debug-rutter /db/{n}, /live/{n}, /importstatus)
+make import RANGE=100-110   # importera fler sidor
+make artisan CMD="schedule:list"
+make mysql     # MariaDB-shell (texttv_nu)
+make logs      # följ loggar (LOG_CHANNEL=stderr → allt i docker logs)
+make down      # stoppa (behåller data)   ·   make destroy = + radera volym
+```
+
+Filer: `compose.yaml` (bas) + `compose.override.yaml` (dev: portar, bind-mounts, opcache-tweaks), `deploy/{importer,website}/Dockerfile`, `deploy/mariadb/init/*.sql`, `Makefile`, `.env.example` (allt har defaults — `.env` är valfritt).
+
+**Schedulern är opt-in.** `make up` startar den INTE (compose-profil `scheduler`). `schedule:work` kör hela prod-schemat och skrapar svt.se var 2:e minut dygnet runt — onödig SVT-last från varje dev-maskin. `init` seedar redan sidorna så webben funkar utan den. Starta den bara när du testar import-flödet: `make scheduler`.
+
+**Docker-specifika gotchas:**
+- **Webbens DB-creds injiceras som `fastcgi_param`** (i `deploy/website/Dockerfile`), inte som container-env — serversideup kör php med `variables_order="GPCS"` så env hamnar aldrig i `$_SERVER`, och CI:s `database.php` läser bara `$_SERVER`. Detta aktiverar CI:s "live"-gren mot host `mariadb`. Ändrar du DB-creds i `.env` måste webben byggas om (`make rebuild`).
+- **Stats-DB:n (`texttv_stats`) nås inte i Docker.** `database.php` hårdkodar `hostname = 'localhost'` för stats-anslutningen (rad 73), vilket pekar på website-containern, inte `mariadb`. Endast analytics-skrivning (`page_actions`, `controllers/api.php`) påverkas — aldrig sidrendering eller övriga API:t. Vill du ha stats lokalt: ändra raden till `$_SERVER['DB_HOSTNAME'] ?? 'localhost'` (prod-säkert).
+- **OPcache är PÅ för webben** (`compose.override.yaml`), tvärtemot vad man väntar i dev. CI:s bundlade `core/URI.php` avger en PHP 8.2 compile-time-warning som med opcache av läcker in i varje `/api/*`-svar (ogiltig JSON för iOS/Android-apparna). Prod tystar den via opcache; vi gör likadant. `validate_timestamps=1 + revalidate_freq=0` → kodändringar läses ändå om direkt.
+- **Webb-ägda hjälptabeller** (`texttv_page_text`, `texttv_blogg`, `texttv_log`) finns inte i importerns migrationer (de bor bara i prod). De skapas tomma av `deploy/mariadb/init/02-website-tables.sql` så rendering inte kraschar på "table doesn't exist".
+- **Block-grafiken (`storage/chars/*.gif`) serveras av importern, inte webben.** `Importer.php` bakar in `asset()`-URL:en i sidinnehållet vid import, så `APP_URL` (compose-default `http://localhost:8381`) måste peka på importerns nåbara host:port — annars blir URL:en `http://localhost/...` och grafiken 404:ar. Ändrar du importer-porten: uppdatera `APP_URL` **och** re-importera (`make seed`) så redan lagrade sidor får rätt URL.
+
+### Valet (alternativ, macOS)
+
+The Valet flow assumes **Laravel Valet** on macOS, with `texttv.nu/` served at `http://texttv.nu.test/` and the importer served at its own Valet hostname (or via `artisan serve`).
+
+#### Website (CodeIgniter)
 1. Park `texttv.nu/` in Valet so `http://texttv.nu.test/` serves it.
 2. Create local MySQL DBs `texttv_nu` and `texttv_stats` (root, no password — see `database.php`). **Note:** prod uses `texttv.nu` (with a literal dot) for the page-content DB, not `texttv_nu` — the local underscore-name is a Valet-friendly alias. See `server.md` for the actual prod DB-name location.
 3. Populate `texttv_nu` by running the importer at least once (see below).
 
-### Importer (Laravel)
+#### Importer (Laravel)
 ```bash
 cd importer
 valet use 8.1                                  # or another supported PHP

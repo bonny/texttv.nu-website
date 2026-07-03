@@ -1,0 +1,10 @@
+# Exkludera host-byggd vendor/ (php 8.5 lokalt) så imagen får en fräsch
+# install mot 8.2. Övrigt skräp som inte ska in i byggkontexten.
+/vendor
+/node_modules
+.env
+.env.backup
+/storage/logs/*
+/public/storage
+.phpunit.result.cache
+.git

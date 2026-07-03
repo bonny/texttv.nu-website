@@ -1,0 +1,128 @@
+# Lokal utvecklingsstack för texttv.nu — speglar prod (PHP 8.2, MariaDB 10.11).
+# Två oberoende PHP-appar som bara pratar via DB:n (se CLAUDE.md):
+#   importer  — Laravel 8, skrapar svt.se/text-tv och skriver till `texttv`
+#   website   — CodeIgniter, läser `texttv` och renderar sajten
+# Plus:
+#   scheduler — kör importens schema (schedule:work) i en egen container
+#   init      — engångsjobb: migrerar + seedar ett par sidor live från SVT
+#   mariadb   — delad databas (texttv_nu + texttv_stats)
+#
+# Dev-vänliga portar/bind-mounts ligger i compose.override.yaml (auto-laddas).
+# Förstagångsstart: `make up` (eller se CLAUDE.md).
+
+# Gemensam Laravel-env för importer/scheduler/init (DRY via YAML-anchor).
+x-importer-env: &importer-env
+  APP_ENV: ${APP_ENV:-local}
+  APP_KEY: ${APP_KEY:-base64:evvx/iy4U9nmQvUIop3Zq5QKIx0jbdgjsOshyotQW44=}
+  APP_DEBUG: "true"
+  # asset() bakar in den här host:porten i block-grafikens URL:er
+  # (storage/chars/*.gif) i sidinnehållet vid import. Måste peka på importerns
+  # nåbara adress — annars blir det http://localhost/... (default, fel) och
+  # grafiken 404:ar. Bilderna serveras av importern via dess /storage-symlink.
+  APP_URL: ${APP_URL:-http://localhost:8381}
+  LOG_CHANNEL: stderr            # loggar via `docker compose logs`, inte en 8 GB-fil
+  DB_CONNECTION: mysql
+  DB_HOST: mariadb
+  DB_PORT: "3306"
+  DB_DATABASE: ${DB_DATABASE:-texttv_nu}
+  DB_USERNAME: ${DB_USERNAME:-texttv}
+  DB_PASSWORD: ${DB_PASSWORD:-texttv}
+
+services:
+  mariadb:
+    image: mariadb:10.11           # matchar prod (server.md), inte 11
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
+      MARIADB_DATABASE: ${DB_DATABASE:-texttv_nu}
+      MARIADB_USER: ${DB_USERNAME:-texttv}
+      MARIADB_PASSWORD: ${DB_PASSWORD:-texttv}
+    volumes:
+      - mariadb-data:/var/lib/mysql
+      - ./deploy/mariadb/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--su-mysql", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks: [internal]
+
+  importer:
+    build:
+      context: ./importer
+      dockerfile: ../deploy/importer/Dockerfile
+    image: texttv-importer:local
+    restart: unless-stopped
+    environment:
+      <<: *importer-env
+      SSL_MODE: "off"
+      AUTORUN_ENABLED: "true"
+      AUTORUN_LARAVEL_MIGRATION: "false"   # init-servicen migrerar (ordningskontroll)
+      AUTORUN_LARAVEL_STORAGE_LINK: "true"
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    networks: [internal]
+
+  scheduler:
+    image: texttv-importer:local           # samma image som importer
+    restart: unless-stopped
+    # OPT-IN: körs INTE av `docker compose up` som standard. schedule:work kör
+    # hela prod-schemat och skrapar svt.se var 2:e minut dygnet runt — onödig
+    # last mot SVT från varje dev-maskin. `init` seedar redan sidorna, så
+    # webben funkar utan schedulern. Starta den bara när du testar import-
+    # flödet: `make scheduler` (eller `docker compose --profile scheduler up -d`).
+    profiles: ["scheduler"]
+    environment:
+      <<: *importer-env
+      AUTORUN_ENABLED: "false"             # importer-containern sköter storage:link
+    # schedule:work kör schedule:run internt varje minut, signal-medvetet,
+    # loggar till stdout. Inget supercronic/cron — single process.
+    command: ["php", "/var/www/html/artisan", "schedule:work"]
+    healthcheck:
+      disable: true                        # imagens default-check gäller fpm/nginx
+    depends_on:
+      importer:
+        condition: service_started
+      mariadb:
+        condition: service_healthy
+    networks: [internal]
+
+  init:
+    image: texttv-importer:local
+    restart: "no"                          # engångsjobb
+    environment:
+      <<: *importer-env
+      AUTORUN_ENABLED: "false"
+    # Migrera schemat och seeda sidorna startsidan renderar (100,300,401,101-105)
+    # live från SVT, så webben har nåt att visa direkt efter `up`.
+    command:
+      - sh
+      - -c
+      - |
+        php artisan migrate --force
+        php artisan texttv:import 100,300,401,101-105
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    networks: [internal]
+
+  website:
+    build:
+      context: ./deploy/website
+      dockerfile: Dockerfile
+    image: texttv-website:local
+    restart: unless-stopped
+    environment:
+      SSL_MODE: "off"
+      NGINX_WEBROOT: /var/www/html         # CI:s index.php ligger i roten, inte /public
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    networks: [internal]
+
+volumes:
+  mariadb-data:
+
+networks:
+  internal:

@@ -1,5 +1,5 @@
-**Status:** aktiv
-**Senast uppdaterad:** 2026-05-27
+**Status:** klar 2026-06-24 — Docker Compose-stack (importer + scheduler + website + mariadb + engångs-init) på `serversideup/php:8.2-fpm-nginx`, verifierad end-to-end (HTML /100 + startsida + `/api/*`-JSON + importer-debugrutt + scheduler + ren `down -v`→`up`). Webbens DB-creds via `fastcgi_param` (env når inte `$_SERVER` med GPCS), opcache PÅ för webben så CI:s 8.2-compile-warning inte läcker in i API-JSON, init seedar `100,300,401,101-105` live från SVT. Filer: `compose.yaml`+`compose.override.yaml`, `deploy/{importer,website}/Dockerfile`, `deploy/mariadb/init/*.sql`, `Makefile`, `.env.example`. CLAUDE.md uppdaterad (Valet kvar som alternativ). Efterföljande fix: `APP_URL=http://localhost:8381` så block-grafikens `asset()`-URL:er (`storage/chars/*.gif`) pekar på importerns nåbara host (annars `http://localhost/...` → 404) — verifierat visuellt att SVT Text-logga + mosaik renderar.
+**Senast uppdaterad:** 2026-06-24
 
 # Todo #07 — Docker Compose för lokal utveckling
 

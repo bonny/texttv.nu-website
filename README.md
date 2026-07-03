@@ -34,8 +34,45 @@ Tipsa oss på kontakt@texttv.nu eller på Twitter @texttv_nu. Vi har också en e
 
 ### Lokal utveckling
 
-Använder valet.
+Enklaste sättet är **Docker** – `make up` så snurrar hela sajten lokalt. Kräver bara [Docker Desktop](https://www.docker.com/products/docker-desktop/).
 
-Starta valet och gå till
-http://texttv.nu.test/
+#### Kom igång (första gången)
+
+```bash
+make up
+```
+
+Det bygger allt och startar fyra saker: webben (CodeIgniter), importern (Laravel), databasen (MariaDB) och ett engångsjobb som hämtar några startsidor direkt från SVT. Efter ~10 sekunder:
+
+- **Sajten:** http://localhost:8380/100
+- **Startsidan:** http://localhost:8380/
+- **Sport med färg/grafik:** http://localhost:8380/377
+
+#### Varje dag
+
+När datorn startats (och Docker Desktop är igång) räcker det med:
+
+```bash
+make up
+```
+
+Bygger inte om något – startar bara. Redigerar du PHP-kod syns ändringarna direkt, ingen omstart behövs.
+
+#### Vanliga kommandon
+
+| Kommando | Gör |
+| --- | --- |
+| `make up` | Starta allt |
+| `make down` | Stoppa (behåller databasen) |
+| `make logs` | Se vad som händer |
+| `make import RANGE=110-115` | Hämta fler sidor från SVT |
+| `make mysql` | Öppna databasen |
+| `make scheduler` | Starta auto-import från SVT (av som standard) |
+| `make destroy` | Nollställ allt inkl. databasen |
+
+`make help` listar alla kommandon. Detaljer och fallgropar finns i [`CLAUDE.md`](CLAUDE.md).
+
+#### Alternativ: Laravel Valet
+
+Går även att köra utan Docker via Valet: starta valet och gå till http://texttv.nu.test/
 

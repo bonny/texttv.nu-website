@@ -1,5 +1,8 @@
 importer/live-db-latest-rows-export.sql
 .DS_Store
+
+# Docker Compose: lokal env (kopia av .env.example, se CLAUDE.md)
+/.env
 .vscode/settings.json
 importer/.vscode/settings.json
 texttv.nu/.valet-env.php

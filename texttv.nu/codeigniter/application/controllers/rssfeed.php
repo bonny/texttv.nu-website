@@ -65,7 +65,11 @@ class rssfeed extends CI_Controller {
 	    $feed->link = 'https://texttv.nu/blogg';
 	    $feed->lang = 'sv';
 	    // date of your last update (in this example create date of your latest post)
-	    $feed->pubdate = date('c', $firstEntry->date_published_unix);
+	    //
+	    // En tom bloggtabell gav förut fatalt fel på $firstEntry->date_published_unix.
+	    // Falla tillbaka på nuet i stället — ett tomt flöde är ett giltigt flöde.
+	    // Se L3 i todos/08-sakerhetsgranskning-2026-08-01.md.
+	    $feed->pubdate = date('c', $firstEntry ? $firstEntry->date_published_unix : time());
 
 		$cutOff = '';
 			

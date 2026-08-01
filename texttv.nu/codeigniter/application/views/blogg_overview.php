@@ -40,8 +40,15 @@ if ($is_single_blog_entry) {
 				"datePublished": "<?php echo $date ?>",
 				"dateModified": "<?php echo $date ?>",
 				"mainEntityOfPage": true,
-				"headline": <?php echo json_encode($first_row->title) ?>,
-				"description": <?php echo json_encode(strip_tags($first_row->content)) ?>,
+				<?php
+				// JSON_HEX_TAG: json_encode escapar inte "</script>", så en titel
+				// eller ingress som innehåller det hade brutit ut ur script-taggen.
+				// Flaggan hex-kodar vinkelparenteserna i JSON-strängarna, vilket
+				// fortfarande är giltig JSON-LD för konsumenterna.
+				// Se L5 i todos/08-sakerhetsgranskning-2026-08-01.md.
+				?>
+				"headline": <?php echo json_encode($first_row->title, JSON_HEX_TAG) ?>,
+				"description": <?php echo json_encode(strip_tags($first_row->content), JSON_HEX_TAG) ?>,
 				"image": {
 					"@type": "imageObject",
 					"url": "https://texttv.nu/images/favicon-152.png",

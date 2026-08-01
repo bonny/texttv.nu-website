@@ -148,6 +148,10 @@ function get_shared_pages_for_period($time_from, $time_to) {
 function get_latest_updated_pages($from, $to, $maxcount = 20) {
 	$from = (int) $from;
 	$to = (int) $to;
+	// Interpoleras i LIMIT nedan — cast:as som $from/$to. Alla anropare skickar
+	// literaler idag, men parametern ska inte vara ett hål om någon kopplar den
+	// till input. Se L1 i todos/08-sakerhetsgranskning-2026-08-01.md.
+	$maxcount = (int) $maxcount;
 
 	$ci =& get_instance();
     $ci->load->database();
@@ -184,6 +188,10 @@ function get_latest_updated_pages($from, $to, $maxcount = 20) {
 }
 
 function get_shared_pages($days = 1, $limit = 10) {
+
+	// Interpoleras i INTERVAL respektive LIMIT nedan. Se L1 i #08.
+	$days = (int) $days;
+	$limit = (int) $limit;
 
 	$ci =& get_instance();
     $ci->load->database();
@@ -560,36 +568,11 @@ function mark_archive_ids_as_shared($arr_page_ids) {
 	$ci->db->query($sql_set_shared);	
 }
 
-function log2db( $key = "", $text = "" ) {
-
-	$ci =& get_instance();
-    $ci->load->database();
-
-	$date_added = date("Y-m-d H:i:s");
-
-	//$text = json_encode( [ $_REQUEST, $_SERVER ], JSON_PRETTY_PRINT );
-	
-	$ci->db->query(
-		sprintf(
-			'INSERT INTO texttv_log (date_added, log_key, log_text) VALUES (%1$s, %2$s, %3$s)',
-			$ci->db->escape($date_added),
-			$ci->db->escape($key),
-			$ci->db->escape($text)
-		)
-	);
-	
-}
-
-function json_encode_pretty($data) {
-	return json_encode($data, JSON_PRETTY_PRINT);
-}
-
-function removeWhiteSpace($text) {
-    $text = preg_replace('/[\t\n\r\0\x0B]/', '', $text);
-    $text = preg_replace('/([\s])\1+/', ' ', $text);
-    $text = trim($text);
-    return $text;
-}
+// Här låg log2db(), json_encode_pretty() och removeWhiteSpace(). De hade bara
+// fb.php som anropare och blev döda när Facebook Messenger-webhooken togs bort
+// 2026-08-01 (K4). log2db() var skrivvägen in i texttv_log — tabellen finns
+// kvar i databasen med sin historik, det är bara koden som är borta.
+// Se L8 i todos/08-sakerhetsgranskning-2026-08-01.md.
 
 // https://gist.github.com/stankusl/579e436892ef1cdb5d4a
 function shorten_text($text, $max_length = 140, $cut_off = '...', $keep_word = false)

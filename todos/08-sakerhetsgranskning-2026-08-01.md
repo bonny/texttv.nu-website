@@ -89,30 +89,47 @@ Fynden nedan bockas av löpande. Verifierade mot prod med read-only GET där ing
 
 ## Lågt / härdning
 
-- [ ] **L1 — Latenta SQL-injektioner.** `helpers/texttv_helper.php`: `$maxcount` (`get_latest_updated_pages`),
+- [x] **L1 — Latenta SQL-injektioner.** `helpers/texttv_helper.php`: `$maxcount` (`get_latest_updated_pages`),
       `$days`/`$limit` (`get_shared_pages`) interpoleras rakt in i `LIMIT`/`INTERVAL`. Alla anropare skickar
-      literaler idag → inte nåbart. Kasta till `(int)`.
+      literaler idag → inte nåbart. **Åtgärdat 2026-08-01:** `$maxcount`, `$days` och `$limit` cast:as
+      till `(int)` som `$from`/`$to` redan gjorde.
 - [ ] **L2 — Ingen output-escaping av SVT-innehåll.** `importer/app/Classes/Importer.php:109-190` lägger varje
       tecken rått i `<span>`. Att `<` inte blir XSS beror bara på att varje tecken hamnar i egen span;
       `if (!$charInfo) return $char;` (rad 118) släpper igenom obehandlade tecken i följd.
       **Fix:** `htmlspecialchars($char, ENT_QUOTES)`.
-- [ ] **L3 — Saknade null-kollar ger fatala fel** (→ K2/K3): `controllers/fakta.php:16` (`$res->row()->title`
+- [x] **L3 — Saknade null-kollar ger fatala fel** (→ K2/K3): `controllers/fakta.php:16` (`$res->row()->title`
       vid okänd slug), `rssfeed.php:65` (`$firstEntry->…` om bloggtabellen är tom).
-- [ ] **L4 — `blogg.php:33`** använder `mysqli_real_escape_string($this->db->conn_id, …)` direkt istället för
+      **Åtgärdat 2026-08-01:** `fakta.php` svarar 404 med 404-vyn på okänd slug (och den dubbelkörda,
+      oanvända `$query`-raden togs bort); RSS-flödet faller tillbaka på `time()` när bloggen är tom —
+      ett tomt flöde är ett giltigt flöde.
+- [x] **L4 — `blogg.php:33`** använder `mysqli_real_escape_string($this->db->conn_id, …)` direkt istället för
       `$this->db->escape()`. Funkar, men går sönder tyst om drivrutinen byts.
-- [ ] **L5 — `views/blogg_overview.php:43-44`** — `json_encode()` i `<script type="application/ld+json">`
+      **Åtgärdat 2026-08-01:** använder `$this->db->escape()`, som sätter citattecknen själv.
+- [x] **L5 — `views/blogg_overview.php:43-44`** — `json_encode()` i `<script type="application/ld+json">`
       escapar inte `</script>`. Bloggtiteln är admin-skriven, så bara teoretiskt.
-- [ ] **L6 — `config.php:269` `encryption_key` tom.** Ofarligt idag (sessioner används inte), kritiskt om de slås på.
+      **Åtgärdat 2026-08-01:** `JSON_HEX_TAG` i bloggens ld+json. Vid genomgången hittades två fall till
+      i `header.php`: arkivsidans `NewsArticle`-block echoade `$page_title`, `$meta_description` m.fl.
+      *helt oescapade* in i JSON-strängarna (ett citattecken i en nyhetstext bröt Googles strukturerade
+      data för hela sidan), och live-blockets `json_encode` saknade `JSON_HEX_TAG` trots
+      `JSON_UNESCAPED_SLASHES` — som gör att `</script>` står kvar ordagrant. Båda fixade.
+      Verifierat lokalt med en bloggpost vars titel innehåller `"` och `</script>`: ld+json parsar,
+      script-taggen bryts inte. (Den synliga brödsmulan renderar bloggtiteln som HTML — avsiktligt,
+      inlägg skrivs direkt i DB:n av sajtägaren.)
+- [x] **L6 — `config.php:269` `encryption_key` tom.** Ofarligt idag (sessioner används inte), kritiskt om de slås på.
+      **Åtgärdat 2026-08-01:** läses från `$_SERVER['ENCRYPTION_KEY']` med tom sträng som fallback.
+      Ingen nyckel committas — repot är publikt, så en nyckel i filen vore samma sak som ingen nyckel.
+      Kommentaren i koden säger vad som måste sättas innan sessioner eller CSRF slås på.
 - [ ] **L7 — Ingen rate limiting** någonstans i stacken.
 - [x] **L9 — oembed plockar fel id ur slugs med siffror.** `oembed.php:22` matchar `!\d+!`, dvs *första*
       siffergruppen i sista URL-segmentet. `/100/topp-10-nyheter-8490933/` ger id `10` i stället för
       `8490933`. Upptäckt vid M3-testet (payloaden `alert(1)627` gav id `1`). Ofarligt men fel sida
       returneras. **Fix:** matcha sista siffergruppen (`!(\d+)$!`). Lämnad orörd tills vidare eftersom
       den ändrar vilken sida befintliga inbäddningar löser upp till — egen commit, egen verifiering.
-- [ ] **L8 — Död kod efter K4.** `log2db()`, `json_encode_pretty()` och `removeWhiteSpace()` i
+- [x] **L8 — Död kod efter K4.** `log2db()`, `json_encode_pretty()` och `removeWhiteSpace()` i
       `helpers/texttv_helper.php` hade bara `fb.php` som anropare (0 träffar kvar i `application/`).
-      `log2db()` var skrivvägen in i `texttv_log`. Medvetet kvarlämnade för att hålla K4-deployen liten;
-      ta bort dem (och ev. `texttv_log`-tabellen) i en egen commit.
+      `log2db()` var skrivvägen in i `texttv_log`.
+      **Åtgärdat 2026-08-01:** funktionerna borttagna. `texttv_log`-tabellen är **kvar** i databasen med
+      sin historik — bara koden är borta.
 
 ## Ordning
 

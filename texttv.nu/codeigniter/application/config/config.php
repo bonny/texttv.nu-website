@@ -233,7 +233,16 @@ $config['cache_path'] = '';
 | MUST set an encryption key.  See the user guide for info.
 |
 */
-$config['encryption_key'] = '';
+// Läses från miljön, aldrig från den här filen: repot är publikt på GitHub, så
+// en nyckel som committas här är samma sak som ingen nyckel alls.
+//
+// Tom sträng är ofarligt så länge inget som använder nyckeln är påslaget:
+// sessioner används inte (ingen controller anropar $this->session),
+// sess_encrypt_cookie = FALSE och csrf_protection = FALSE. Slår du på något av
+// det måste ENCRYPTION_KEY sättas som fastcgi_param på servern först — annars
+// blir cookies och CSRF-tokens signerade med tomma strängen.
+// Se L6 i todos/08-sakerhetsgranskning-2026-08-01.md.
+$config['encryption_key'] = isset($_SERVER['ENCRYPTION_KEY']) ? $_SERVER['ENCRYPTION_KEY'] : '';
 
 /*
 |--------------------------------------------------------------------------

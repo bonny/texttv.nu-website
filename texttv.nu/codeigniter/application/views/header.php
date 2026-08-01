@@ -628,19 +628,27 @@ if ($is_start) {
 			{
 				"@context": "https://schema.org",
 				"@type": "NewsArticle",
+				<?php
+				// Värdena echoades förut rakt in i JSON-strängarna. $page_title och
+				// $meta_description kommer från sidinnehållet, så ett citattecken i en
+				// nyhetstext bröt JSON-LD:n för hela arkivsidan — och "</script>" hade
+				// brutit ut ur script-taggen. json_encode + JSON_HEX_TAG i stället,
+				// samma grepp som live-blocket nedan redan använder.
+				// Se L5 i todos/08-sakerhetsgranskning-2026-08-01.md.
+				?>
 				"mainEntityOfPage": {
 					"@type": "WebPage",
-					"@id": "https://texttv.nu<?php echo $archive_permalink ?>"
+					"@id": <?php echo json_encode("https://texttv.nu" . $archive_permalink, JSON_HEX_TAG) ?>
 				},
-				"headline": "<?php echo $page_title ?>",
+				"headline": <?php echo json_encode($page_title, JSON_HEX_TAG) ?>,
 				"image": {
 					"@type": "ImageObject",
-					"url": "<?php echo $screenshot_url ?>",
+					"url": <?php echo json_encode($screenshot_url, JSON_HEX_TAG) ?>,
 					"height": 800,
 					"width": 800
 				},
-				"datePublished": "<?php echo $archive_date ?>",
-				"dateModified": "<?php echo $archive_date ?>",
+				"datePublished": <?php echo json_encode($archive_date, JSON_HEX_TAG) ?>,
+				"dateModified": <?php echo json_encode($archive_date, JSON_HEX_TAG) ?>,
 				"author": {
 					"@type": "Person",
 					"name": "SVT Text TV"
@@ -655,7 +663,7 @@ if ($is_start) {
 						"height": 66
 					}
 				},
-				"description": "<?php echo $meta_description ?>"
+				"description": <?php echo json_encode($meta_description, JSON_HEX_TAG) ?>
 			}
 		</script>
 	<?php
@@ -697,7 +705,7 @@ if ($is_start) {
 			]
 		];
 		echo "\n\t\t<script type=\"application/ld+json\">"
-			. json_encode($article_data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT)
+			. json_encode($article_data, JSON_HEX_TAG | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT)
 			. "</script>\n";
 	}
 

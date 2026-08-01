@@ -23,12 +23,17 @@ class Blogg extends CI_Controller {
 	public function visa($permalink) {
 
 		// Leta upp inlägg med denna permalink
+		//
+		// $this->db->escape() i stället för mysqli_real_escape_string() direkt:
+		// den senare tar conn_id och går sönder tyst om drivrutinen byts, och
+		// kringgår CI:s egen escaping. escape() sätter citattecknen själv, därav
+		// inga runt %1$s. Se L4 i todos/08-sakerhetsgranskning-2026-08-01.md.
 		$query = sprintf(
 			'
-				SELECT id, date_published, UNIX_TIMESTAMP(date_published) AS date_published_unix, permalink, title, content 
+				SELECT id, date_published, UNIX_TIMESTAMP(date_published) AS date_published_unix, permalink, title, content
 				FROM texttv_blogg
-				WHERE permalink = "%1$s"',
-			mysqli_real_escape_string($this->db->conn_id, $permalink)
+				WHERE permalink = %1$s',
+			$this->db->escape($permalink)
 		);
 		$result = $this->db->query($query);
 

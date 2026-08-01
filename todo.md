@@ -13,7 +13,7 @@ Senast uppdaterad: 2026-08-01 (+#08 säkerhetsgranskning — 12 av 19 fynd stän
 | 01  | Varför har /343 och ev andra sidor så dålig CTR? | **30d-mätning klar 2026-06-22: kohort-CTR 0.31%→0.73% (~2.3×), clicks 236→534 — vinst bekräftad.** Kvar: 60d-slutmätning 2026-07-18 | [todos/01-varfor-har-343-och-ev-andra-sidor-sa-dalig-ctr.md](todos/01-varfor-har-343-och-ev-andra-sidor-sa-dalig-ctr.md) |
 | 04  | Perf/SEO-fixar från Lighthouse-baseline 2026-05-19 | G/E/H + **D Fas 1+2** klara (Fas 1 deployad+live-verifierad 2026-06-22, 20 sidor), A delvis, F släppt, I/B/C/J deprio:ade. Kvar: 60d-effektmätning (m. #01 2026-07-18) | [todos/04-perf-seo-fixar-fran-baseline-2026-05-19.md](todos/04-perf-seo-fixar-fran-baseline-2026-05-19.md) |
 | 06  | Byt facade/ignition mot spatie/laravel-ignition | ny — workaround i `AppServiceProvider` (commit 6ba0656) maskerar problemet, vill byta paket istället | [todos/06-byt-facade-ignition-mot-spatie-laravel-ignition.md](todos/06-byt-facade-ignition-mot-spatie-laravel-ignition.md) |
-| 08  | Säkerhetsgranskning 2026-08-01 | **Alla fyra kritiska (K1–K4) stängda 2026-08-01** och deployade. **12 av 19 fynd stängda 2026-08-01** (K1–K4, M3, L1, L3–L6, L8, L9). Kvar: M1, M2 (rate limiting), M4 (EOL-ramverk), M5, M6 (serversidiga: dev-ytor + CSP/headers), L2, L7 | [todos/08-sakerhetsgranskning-2026-08-01.md](todos/08-sakerhetsgranskning-2026-08-01.md) |
+| 08  | Säkerhetsgranskning 2026-08-01 | **12 av 19 fynd stängda 2026-08-01** och deployade (K1–K4, M3, L1, L3–L6, L8, L9). Kvar: M1, M2, L7 (rate limiting), M4 (EOL-ramverk), M5, M6 (serversidiga: dev-ytor + CSP/headers), L2 (escaping i importern) | [todos/08-sakerhetsgranskning-2026-08-01.md](todos/08-sakerhetsgranskning-2026-08-01.md) |
 
 ### Beroenden
 

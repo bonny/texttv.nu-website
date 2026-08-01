@@ -62,3 +62,8 @@ jobs:
             sudo chown -R root:root .
             chmod 777 -R /usr/share/nginx/texttv.nu/shares
             chmod 777 /usr/share/nginx/texttv.nu/codeigniter/application/cache/
+            # scp kopierar bara — raderade filer ligger kvar på servern. CI:s
+            # auto-routing når en controller även utan route-rad, så borttagna
+            # controllers måste raderas explicit här.
+            # fb.php: Facebook Messenger-webhook, borttagen 2026-08-01 (K4).
+            sudo rm -f /usr/share/nginx/texttv.nu/codeigniter/application/controllers/fb.php

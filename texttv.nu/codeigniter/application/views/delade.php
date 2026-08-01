@@ -75,18 +75,20 @@ function output_shared_pages_nav_form() {
 				
 				while ( $day != $start_date ) {
 			
-					$this_month = date("F Y", strtotime($day));
+					$this_month = date("Y-m", strtotime($day));
 					if ($this_month != $prev_month) {
-						
+
 						if ( $optgroup_needs_close ) {
 							printf("</optgroup>");
 						}
-						
-						printf('<optgroup label="%1$s">', ucfirst( date("F", strtotime($this_month))));
+
+						// Med år i etiketten, annars är "Augusti" tvetydigt —
+						// listan går tillbaka till 2015.
+						printf('<optgroup label="%1$s">', ucfirst( date_sv("F Y", strtotime($day))));
 						$optgroup_needs_close = true;
 					}
-			
-					$str_date = ucfirst( date("D j F", strtotime($day)) );
+
+					$str_date = ucfirst( date_sv("D j F", strtotime($day)) );
 					if ( date("Y-m-d") == $day ) {
 						$str_date = $str_date . " (idag)";
 					} else if ( date("Y-m-d", strtotime("-1 day", strtotime(date("Y-m-d")))) == $day ) {
@@ -167,7 +169,7 @@ function output_shared_pages_nav_form() {
 		// Datum satt i följande URL-format:
 		// http://texttv.nu/sida/delat/2015-08-24
 		$date_unix = strtotime($date);
-		printf('<h1>Text TV: mest delat %1$s</h1>', date("l j F Y", $date_unix));
+		printf('<h1>Text TV: mest delat %1$s</h1>', date_sv("l j F Y", $date_unix));
 		
 		output_shared_pages_nav_form();
 		

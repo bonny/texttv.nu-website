@@ -110,7 +110,7 @@ if ($is_single_blog_entry) {
 		printf(
 			$printf_format, 
 			$row->title, // 1
-			ucfirst(date("j F Y", $row->date_published_unix)), // 2
+			ucfirst(date_sv("j F Y", $row->date_published_unix)), // 2
 			$row->content, // 3
 			$row->permalink, // 4
 			date('c', $row->date_published_unix), // 5

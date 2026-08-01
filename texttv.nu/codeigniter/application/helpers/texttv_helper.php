@@ -8,6 +8,124 @@ function d($str = "") {
 }
 
 /**
+ * Som date() fast med svenska veckodags- och månadsnamn.
+ *
+ * date() är alltid engelsk oavsett locale. Sajten fick tidigare svenska datum
+ * via strftime() + setlocale(LC_TIME, "sv_SE.utf8") i config/config.php, men
+ * strftime() är deprecated sedan PHP 8.1 och ersattes rakt av med date() —
+ * varpå alla utskrivna datum blev engelska.
+ *
+ * Här hanteras de fyra locale-beroende formattecknen (D, l, M, F) med egna
+ * tabeller; resten skickas vidare till date(). Inga extratillägg krävs (intl
+ * finns inte garanterat i prod), och namnen matchar glibc:s sv_SE, dvs samma
+ * strängar som strftime %a/%A/%b/%B gav förut.
+ *
+ * Namnen returneras med gemener precis som strftime gjorde — anropare som vill
+ * ha versal begynnelsebokstav kör ucfirst() själva.
+ *
+ * OBS: använd inte för maskinläsbara datum (RSS pubDate, HTTP Last-Modified,
+ * URL-slugs) — de ska vara kvar på engelska/ISO.
+ *
+ * @param string   $format    Formatsträng enligt date().
+ * @param int|null $timestamp Unixtime. Default: nu.
+ * @return string
+ */
+function date_sv($format, $timestamp = null) {
+
+	static $weekdays = array(
+		"Monday"    => "måndag",
+		"Tuesday"   => "tisdag",
+		"Wednesday" => "onsdag",
+		"Thursday"  => "torsdag",
+		"Friday"    => "fredag",
+		"Saturday"  => "lördag",
+		"Sunday"    => "söndag",
+	);
+
+	static $weekdays_short = array(
+		"Mon" => "mån",
+		"Tue" => "tis",
+		"Wed" => "ons",
+		"Thu" => "tors",
+		"Fri" => "fre",
+		"Sat" => "lör",
+		"Sun" => "sön",
+	);
+
+	static $months = array(
+		"January"   => "januari",
+		"February"  => "februari",
+		"March"     => "mars",
+		"April"     => "april",
+		"May"       => "maj",
+		"June"      => "juni",
+		"July"      => "juli",
+		"August"    => "augusti",
+		"September" => "september",
+		"October"   => "oktober",
+		"November"  => "november",
+		"December"  => "december",
+	);
+
+	static $months_short = array(
+		"Jan" => "jan",
+		"Feb" => "feb",
+		"Mar" => "mar",
+		"Apr" => "apr",
+		"May" => "maj",
+		"Jun" => "jun",
+		"Jul" => "jul",
+		"Aug" => "aug",
+		"Sep" => "sep",
+		"Oct" => "okt",
+		"Nov" => "nov",
+		"Dec" => "dec",
+	);
+
+	if ($timestamp === null) {
+		$timestamp = time();
+	}
+
+	$output = "";
+	$format_length = strlen($format);
+
+	for ($i = 0; $i < $format_length; $i++) {
+
+		$char = $format[$i];
+
+		// Escapat tecken ("\l") — skriv ut nästa tecken orört.
+		if ($char === "\\") {
+			$output .= isset($format[$i + 1]) ? $format[$i + 1] : "";
+			$i++;
+			continue;
+		}
+
+		switch ($char) {
+			case "D":
+				$output .= $weekdays_short[ date("D", $timestamp) ];
+				break;
+			case "l":
+				$output .= $weekdays[ date("l", $timestamp) ];
+				break;
+			case "M":
+				$output .= $months_short[ date("M", $timestamp) ];
+				break;
+			case "F":
+				$output .= $months[ date("F", $timestamp) ];
+				break;
+			default:
+				// Allt annat (inkl. rena literaler som ":" och ",") till date().
+				$output .= date($char, $timestamp);
+				break;
+		}
+
+	}
+
+	return $output;
+
+}
+
+/**
  * @param int $time_from Unixtime
  * @param int $time_to Unixtime
  * @param string $type

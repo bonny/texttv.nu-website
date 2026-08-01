@@ -20,7 +20,7 @@ if (sizeof($arr_pages) == 1) {
 
 			</div>
 			',
-			date('D j M Y, H:i', $page->date_updated_unix),
+			ucfirst( date_sv('D j M Y, H:i', $page->date_updated_unix) ),
 			(int) $page->num,
 			site_url( $page->num )
 		);
@@ -39,8 +39,8 @@ if (sizeof($arr_pages) == 1) {
 			<br><em>Mobilanpassad Text TV med smarta funktioner</em></p>
 		</div>
 		',
-		// Fri 13 Jan 2023, 21:35
-		date('D j M Y, H:i', $arr_pages[0]->date_updated_unix),
+		// Fre 13 jan 2023, 21:35
+		ucfirst( date_sv('D j M Y, H:i', $arr_pages[0]->date_updated_unix) ),
 		$pagenum
 	);
 

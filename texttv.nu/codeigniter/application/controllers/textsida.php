@@ -54,7 +54,7 @@ class Textsida extends CI_Controller {
 				$data["custom_page_title"] = "Mest delade text-tv-sidorna";
 				
 				if ( $this->input->get("datum") ) {
-					$data["custom_page_title"] = "Mest delat " . date("l j F Y", strtotime($this->input->get("datum")));
+					$data["custom_page_title"] = "Mest delat " . date_sv("l j F Y", strtotime($this->input->get("datum")));
 				}
 				
 				$this->load->view("header", $data);

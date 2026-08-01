@@ -1,143 +1,70 @@
-**Status:** aktiv
+**Status:** aktiv — 12 av 19 fynd stängda 2026-08-01, 7 kvar
 **Senast uppdaterad:** 2026-08-01
 
 # Todo #08 — Säkerhetsgranskning 2026-08-01
 
 Granskning av `texttv.nu/` (CodeIgniter 2.2.6) och `importer/` (Laravel 8.83).
-Fynden nedan bockas av löpande. Verifierade mot prod med read-only GET där inget annat anges.
+Kodgenomläsning av controllers, modell, helpers, vyer, konfig och deploy, plus riktad
+provning mot prod. **Inte** ett penetrationstest — `codeigniter/system/` lästes bara punktvis.
 
-**Svar på utgångsfrågorna:**
+**Svaren på utgångsfrågorna:**
 
 - **SQL-injection:** inga utnyttjbara. All användarstyrd data mot SQL passerar `is_numeric`-filter
   (`Texttv_page::extract_pages_from_ranges`), `intval`, `db->escape()` eller `escape_like_str()`.
-  Se L1 för latenta hål och K3 för att felmeddelandena läcker frågorna.
-- **XSS:** en bekräftad reflekterad XSS i prod (K1).
-- **Kan användare posta data:** ja, fem oautentiserade skrivvägar (M1).
+- **XSS:** en bekräftad reflekterad XSS i prod (K1) — stängd.
+- **Kan användare posta data:** ja. Var fem oautentiserade skrivvägar, är nu tre (se M1).
 
-## Kritiskt
+Efter 2026-08-01 finns inget känt kvar där en utomstående kan köra kod, läsa ut credentials
+eller komma åt något de inte ska. Resten är missbruk och härdning.
 
-- [x] **K1 — Reflekterad XSS via `jsoncallback`.** `views/api.php:139-145`. `get_html`-grenen sätter aldrig
-      content-type → svaret går ut som `text/html` med callbacken oescapad. Ingen CSP på domänen.
-      PoC: `/api/get_html/100?jsoncallback=XSSTEST%3Cscript%3E` → `content-type: text/html`.
-      `get`-grenen (rad 96-112) har samma brist men räddas av `application/json` + `nosniff`.
-      **Fix:** vitlista callbacken (`^[A-Za-z0-9_.]{1,64}$`) + `set_content_type("application/javascript")`.
-      **Åtgärdat 2026-08-01:** vitlista `^[A-Za-z0-9_.]{1,64}$` i `Api::get_valid_jsoncallback()`,
-      används av både `get` och `get_html`. Content-type lämnades medvetet orörd — att ändra den på
-      `/api/*` är precis vad CLAUDE.md varnar för mot shippade appar, och vitlistan stänger hålet ensam.
-      Kvar som frivillig städning: `get_html` borde svara `application/json` i stället för `text/html`.
-- [x] **K2 — Fatalt fel dumpar DB-lösenordet till webbroten.** `config/config.php:6-44`. Shutdown-handlern
-      skriver `$_SERVER` + `$GLOBALS` till `DOCUMENT_ROOT/debug.txt` vid varje `E_ERROR`. `$_SERVER` innehåller
-      `DB_PASSWORD`/`DB_USERNAME` (injiceras som `fastcgi_param`). Fatalt fel triggas anonymt via
-      `/api/updated/abc/0`. `/debug.txt` ger 404 idag (root-ägd webbrot → skrivningen misslyckas), dvs
-      en rättighetsändring från publik kreddläcka.
-      **Åtgärdat 2026-08-01:** hela `register_shutdown_function`-blocket borttaget ur `config.php`. Behövs
-      diagnostik igen: `error_log()`, den hamnar utanför webbroten. Triggern (`/api/updated/abc/0`) är
-      dessutom borta via vakten i K3, så det finns inte längre någon känd väg till ett fatalt fel här.
-- [x] **K3 — `display_errors` + `db_debug` på i prod.** `config/database.php:66,86`. `/api/updated/abc/0`
-      returnerar full stack trace, absoluta sökvägar och den SQL-fråga som fallerade. Samma läckage smutsar
-      ner `/api/*`-svaren idag (`Undefined variable $pagedescription` mitt i JSON:en till apparna).
-      **Åtgärdat 2026-08-01:** `codeigniter/index.php` hårdkodade `ENVIRONMENT = 'development'`, vilket gav
-      `error_reporting(E_ALL)` på prod. Nu härleds miljön: `APP_ENV=local` (Docker, via fastcgi_param) eller
-      `texttv.nu.test` (Valet) → development, allt annat → production. `db_debug` följer `ENVIRONMENT` i
-      stället för att vara hårdkodat `TRUE` (live-grenen används även av Docker-dev, så villkoret måste hänga
-      på miljön). Dessutom fixad i grunden: `pages_inner_output_current.php:22` saknade `isset()` på
-      `$pagedescription` — det var den varning som läckte in i `/api/get_html`-svaren.
-      Triggern för 500:an är också borta: `Api::updated()` bommar ut på tom sidlista i stället för att bygga
-      `IN ()`. (Sedan PHP 8.1 kastar mysqli undantag i stället för att returnera `false`, så CI 2.2.6:s egen
-      `db_debug`-hantering nås aldrig — `db_debug = FALSE` ensamt hade inte räckt.)
-- [x] **K4 — Facebook page access token hårdkodad i publikt repo.** `controllers/fb.php:8,13`, repot är
-      PUBLIC på GitHub. `/fb/webhook` (rad 31) verifierade ingen `X-Hub-Signature` → vem som helst kunde få
-      servern att skicka Messenger-meddelanden via vår sida till godtyckligt `recipient.id`. Verify-token
-      var `"yolo_verify"`. **Åtgärdat 2026-08-01:** hela `fb`-controllern och rutterna borttagna, deployad
-      och verifierad (`/fb/webhook` → 404).
-      **Token verifierad död 2026-08-01** via Metas Access Token Debugger: `Valid: False`, invaliderad av
-      Facebook. Utfärdad 2016-04-15, data access utgången 2020-08-25. App ID 323210141035659 (TextTV.nu),
-      Page ID 217037721716285. Scopes den *hade*: `pages_messaging`, `pages_manage_ads`,
-      `business_management`, `pages_read_user_content` m.fl. — brett, men aldrig utnyttjbart eftersom
-      sessionen var invaliderad långt innan repot granskades. Ingen ytterligare åtgärd krävs.
-      Frivillig upprensning: appen 323210141035659 finns kvar och är fortfarande kopplad till sidan med
-      en webhook mot en URL som nu ger 404. App-ID:t används **inte** någonstans i kodbasen (ingen FB SDK,
-      ingen `fb:app_id`, inga delningsknappar), så appen kan raderas utan att något på sajten påverkas.
+---
 
-## Medel
+## Kvar att göra (7)
 
-- [ ] **M1 — Oautentiserade skrivningar till databasen.** Ingen är injicerbar, men "ingen kan posta data"
-      stämmer inte idag:
-      - `/api/page/{ids}/{type}` (`api.php:640-704`) → INSERT i `page_actions`. `page_ids` joinas mot `texttv`
-        i `get_most_read_pages_for_period()` → **"mest lästa"-listan kan manipuleras fritt**.
-      - `/api/share/{ids}`, `/api/get_permalink/{ids}`, `/oembed?url=` → `UPDATE texttv SET is_shared = is_shared + 1`
-        (`texttv_helper.php:mark_archive_ids_as_shared`) → delningsräknare och "mest delade" kan pumpas.
-      - ~~`POST /fb/webhook` → INSERT i `texttv_log` av hela råa bodyn~~ — borttagen med K4.
-      **Fix:** rate limiting per IP + storleksgräns; helst delad hemlighet från apparna för `/api/page/`.
-- [ ] **M2 — Anonym processpawn och diskfyllning.** `api.php:566` kör `exec(wkhtmltoimage …)` per
-      `/api/screenshot/{ids}`-anrop. Argumenten är rent numeriska (ingen kommandoinjektion), men filnamnet är
-      `md5($url)` → olika ordning/intervall ger obegränsat antal nya JPG:er i `/shares/`.
-      `l.texttv.nu/live/{n}` är publik och hämtar live från svt.se vid varje anrop.
-      (`fb.php:382` `system(phantomjs …)` — borttagen med K4.)
-- [x] **M3 — HTML-injektion i oembed.** `controllers/oembed.php:135` — `$url` från query-strängen läggs
-      oescapad i `<a href="%s">` i `html`-fältet som JSON-konsumenter (WordPress m.fl.) bäddar in.
-      **Åtgärdat 2026-08-01:** permalänken byggs nu från de laddade sidorna via
-      `get_permalink_from_pages()` i stället för att eka tillbaka `?url=`. Användarinput lämnar därmed
-      svaret helt — bättre än att escapa den — och länken blir alltid den kanoniska. `$url` används
-      fortfarande för att parsa ut id:n, men skrivs aldrig ut.
-- [ ] **M4 — EOL-ramverk.** CodeIgniter 2.2.6 (support slut 2015), Laravel 8.83.27 (säkerhetsstöd slut
-      jan 2023). Inga kända CVE:er slår direkt mot koden som den används här, men inga fixar kommer.
-- [ ] **M5 — Publika debug-/dev-ytor.** `/dev/search`, `/dev/stats`, `/dev/updated` (200 i prod),
-      `l.texttv.nu/importstatus`, `/live/{n}`, `/db/{n}`. `/pi.php` är skyddad av env-secret (OK men bör bort).
-- [ ] **M6 — Saknade svarsheaders.** Ingen `Content-Security-Policy`, ingen `X-Frame-Options`/`frame-ancestors`.
-      `Access-Control-Allow-Origin: *` sitter på HTML-sidorna, inte bara `/api/*`. En CSP hade neutraliserat K1.
+| # | Vad | Lösning | Var |
+| --- | --- | --- | --- |
+| **M1** | Oautentiserad skrivning till DB. `/api/page/` styr "mest lästa" (INSERT i `page_actions`, joinas mot `texttv` i `get_most_read_pages_for_period()`), `/api/share/` + `/api/get_permalink/` + `/oembed` styr "mest delade" (`is_shared + 1` via `mark_archive_ids_as_shared`) | Rate limiting per IP; helst delad hemlighet från apparna på `/api/page/` | Kod |
+| **M2** | `api.php:566` kör `exec(wkhtmltoimage …)` per `/api/screenshot/`-anrop. Filnamn = `md5($url)`, så olika id-ordning ger obegränsat antal JPG:er i `/shares/`. `l.texttv.nu/live/{n}` skrapar svt.se per anrop | Rate limiting, tak för antal id per anrop, städjobb för `/shares/` | Kod |
+| **M4** | EOL-ramverk: CodeIgniter 2.2.6 (2015), Laravel 8.83.27 (jan 2023). Inga kända CVE:er träffar koden som den används, men inga fixar kommer | Laravel 8 → 10/11 först. CI 2 → omskrivning. Plan, inte patch | Kod |
+| **M5** | Publika dev-ytor: `/dev/search`, `/dev/stats`, `/dev/updated`, `l.texttv.nu/importstatus`, `/live/{n}`, `/db/{n}`. `/pi.php` är skyddad av env-secret men bör bort | Radera `dev`-controllern (ser oanvänd ut); importerns rutter bakom basic auth eller IP-spärr | Kod + server |
+| **M6** | Ingen `Content-Security-Policy`, ingen `X-Frame-Options`. `Access-Control-Allow-Origin: *` på alla HTML-sidor, inte bara API:t | Nginx: CSP i `report-only` först, `X-Frame-Options: SAMEORIGIN`, `ACAO` bara på `/api/*` | Server |
+| **L2** | `importer/app/Classes/Importer.php:109-190` lägger varje tecken från SVT rått i `<span>`. Att `<` inte blir XSS beror bara på att varje tecken hamnar i egen span; `if (!$charInfo) return $char;` (rad 118) släpper igenom obehandlade tecken i följd | `htmlspecialchars($char, ENT_QUOTES)` | Kod |
+| **L7** | Ingen rate limiting någonstans i stacken | Går upp i M1 + M2 | Kod + server |
 
-## Lågt / härdning
+**Föreslagen ordning:** M6 ger mest per insats (ren nginx-config, ingen PHP rörs, och en CSP är
+djupförsvar mot hela XSS-klassen). Sedan M1 + M2 + L7 som ett paket. M4 är den strukturella skulden.
 
-- [x] **L1 — Latenta SQL-injektioner.** `helpers/texttv_helper.php`: `$maxcount` (`get_latest_updated_pages`),
-      `$days`/`$limit` (`get_shared_pages`) interpoleras rakt in i `LIMIT`/`INTERVAL`. Alla anropare skickar
-      literaler idag → inte nåbart. **Åtgärdat 2026-08-01:** `$maxcount`, `$days` och `$limit` cast:as
-      till `(int)` som `$from`/`$to` redan gjorde.
-- [ ] **L2 — Ingen output-escaping av SVT-innehåll.** `importer/app/Classes/Importer.php:109-190` lägger varje
-      tecken rått i `<span>`. Att `<` inte blir XSS beror bara på att varje tecken hamnar i egen span;
-      `if (!$charInfo) return $char;` (rad 118) släpper igenom obehandlade tecken i följd.
-      **Fix:** `htmlspecialchars($char, ENT_QUOTES)`.
-- [x] **L3 — Saknade null-kollar ger fatala fel** (→ K2/K3): `controllers/fakta.php:16` (`$res->row()->title`
-      vid okänd slug), `rssfeed.php:65` (`$firstEntry->…` om bloggtabellen är tom).
-      **Åtgärdat 2026-08-01:** `fakta.php` svarar 404 med 404-vyn på okänd slug (och den dubbelkörda,
-      oanvända `$query`-raden togs bort); RSS-flödet faller tillbaka på `time()` när bloggen är tom —
-      ett tomt flöde är ett giltigt flöde.
-- [x] **L4 — `blogg.php:33`** använder `mysqli_real_escape_string($this->db->conn_id, …)` direkt istället för
-      `$this->db->escape()`. Funkar, men går sönder tyst om drivrutinen byts.
-      **Åtgärdat 2026-08-01:** använder `$this->db->escape()`, som sätter citattecknen själv.
-- [x] **L5 — `views/blogg_overview.php:43-44`** — `json_encode()` i `<script type="application/ld+json">`
-      escapar inte `</script>`. Bloggtiteln är admin-skriven, så bara teoretiskt.
-      **Åtgärdat 2026-08-01:** `JSON_HEX_TAG` i bloggens ld+json. Vid genomgången hittades två fall till
-      i `header.php`: arkivsidans `NewsArticle`-block echoade `$page_title`, `$meta_description` m.fl.
-      *helt oescapade* in i JSON-strängarna (ett citattecken i en nyhetstext bröt Googles strukturerade
-      data för hela sidan), och live-blockets `json_encode` saknade `JSON_HEX_TAG` trots
-      `JSON_UNESCAPED_SLASHES` — som gör att `</script>` står kvar ordagrant. Båda fixade.
-      Verifierat lokalt med en bloggpost vars titel innehåller `"` och `</script>`: ld+json parsar,
-      script-taggen bryts inte. (Den synliga brödsmulan renderar bloggtiteln som HTML — avsiktligt,
-      inlägg skrivs direkt i DB:n av sajtägaren.)
-- [x] **L6 — `config.php:269` `encryption_key` tom.** Ofarligt idag (sessioner används inte), kritiskt om de slås på.
-      **Åtgärdat 2026-08-01:** läses från `$_SERVER['ENCRYPTION_KEY']` med tom sträng som fallback.
-      Ingen nyckel committas — repot är publikt, så en nyckel i filen vore samma sak som ingen nyckel.
-      Kommentaren i koden säger vad som måste sättas innan sessioner eller CSRF slås på.
-- [ ] **L7 — Ingen rate limiting** någonstans i stacken.
-- [x] **L9 — oembed plockar fel id ur slugs med siffror.** `oembed.php:22` matchar `!\d+!`, dvs *första*
-      siffergruppen i sista URL-segmentet. `/100/topp-10-nyheter-8490933/` ger id `10` i stället för
-      `8490933`. Upptäckt vid M3-testet (payloaden `alert(1)627` gav id `1`). Ofarligt men fel sida
-      returneras. **Fix:** matcha sista siffergruppen (`!(\d+)$!`). Lämnad orörd tills vidare eftersom
-      den ändrar vilken sida befintliga inbäddningar löser upp till — egen commit, egen verifiering.
-- [x] **L8 — Död kod efter K4.** `log2db()`, `json_encode_pretty()` och `removeWhiteSpace()` i
-      `helpers/texttv_helper.php` hade bara `fb.php` som anropare (0 träffar kvar i `application/`).
-      `log2db()` var skrivvägen in i `texttv_log`.
-      **Åtgärdat 2026-08-01:** funktionerna borttagna. `texttv_log`-tabellen är **kvar** i databasen med
-      sin historik — bara koden är borta.
+**M5 och M6 bor på servern** — prod-nginx är inte versionshanterat i repot, så de kan inte deployas
+via `main` som allt annat i den här todon.
 
-## Ordning
+---
 
-1. ~~K4 (ta bort fb-controllern)~~ — klar 2026-08-01, deployad.
-2. ~~K1, K2, K3~~ — klara 2026-08-01, deployade i samma omgång.
-3. M6 — CSP + `X-Frame-Options`, begränsa `ACAO: *` till `/api/*`.
-4. M1 + M2 — rate limiting.
-5. M3 (oembed), M5 (dev-ytor), sedan L-listan.
+## Klart 2026-08-01
+
+Alla deployade via `main` och verifierade mot prod direkt efter deploy.
+
+| # | Fynd | Åtgärd | Commit |
+| --- | --- | --- | --- |
+| **K1** | Reflekterad XSS: `jsoncallback` echoades rått och `get_html` gick ut som `text/html`. Ingen CSP | Vitlista `^[A-Za-z0-9_.]{1,64}$` i `Api::get_valid_jsoncallback()`. Content-type medvetet orörd — CLAUDE.md varnar för det mot shippade appar, och vitlistan räcker | `e1bcbad` |
+| **K2** | Shutdown-handler skrev `$_SERVER` + `$GLOBALS` (dvs `DB_PASSWORD`) till `DOCUMENT_ROOT/debug.txt` vid varje fatalt fel. Triggades anonymt via `/api/updated/abc/0`. Skrivningen misslyckades på root-ägd webbrot — en filrättighet från kreddläcka | Hela `register_shutdown_function`-blocket borttaget | `e1bcbad` |
+| **K3** | `ENVIRONMENT` hårdkodat `development` → `error_reporting(E_ALL)` i prod. Gav stack traces med sökvägar och SQL till vem som helst, och PHP-varningar mitt i `/api/*`-JSON:en | Miljön härleds: `APP_ENV=local` (Docker) eller `texttv.nu.test` (Valet) → development, allt annat → production. `db_debug` följer `ENVIRONMENT`. Två grundorsaker fixade: `isset()` på `$pagedescription`, och vakt mot `IN ()` i `Api::updated()` — sedan PHP 8.1 kastar mysqli undantag, så CI:s egen `db_debug`-hantering nås aldrig och `db_debug = FALSE` hade inte räckt | `e1bcbad` |
+| **K4** | FB page access token hårdkodad i publikt repo. `/fb/webhook` utan signaturverifiering → godtyckliga Messenger-meddelanden via vår token, obegränsad skrivning i `texttv_log`, phantomjs-process per siffergrupp | Hela `fb`-controllern + rutterna borttagna. Token verifierad **död** hos Meta (`Valid: False`, utfärdad 2016-04-15, data access utgången 2020-08-25) | `9a0c385` |
+| — | scp-deployen speglar inte bort raderade filer, och CI auto-routar till en controller även utan route-rad | `rm -f` för borttagna controllers i ssh-steget i `deploy-website.yml` | `af7b178` |
+| **M3** | oembed ekade `?url=` oescapad in i `html`-fältet som WordPress m.fl. bäddar in | Permalänken byggs från de laddade sidorna via `get_permalink_from_pages()`. Användarinput lämnar svaret helt i stället för att escapas | `6abc10a` |
+| **L1** | `$maxcount`, `$days`, `$limit` interpolerades i `LIMIT`/`INTERVAL`. Inte nåbart (alla anropare skickar literaler) | Cast till `(int)` | `1d74fc0` |
+| **L3** | Fatala fel på saknade rader: `fakta.php` (okänd slug), `rssfeed.php` (tom bloggtabell) | 404-vy respektive fallback på `time()`. Tog även bort en dubbelkörd, oanvänd query i `fakta.php` | `1d74fc0` |
+| **L4** | `blogg.php` anropade `mysqli_real_escape_string()` direkt med `conn_id` | `$this->db->escape()` | `1d74fc0` |
+| **L5** | `json_encode()` i ld+json escapar inte `</script>` | `JSON_HEX_TAG` i bloggen. Genomgången hittade **två värre fall i `header.php`**: arkivsidans `NewsArticle`-block echoade `$page_title`/`$meta_description` m.fl. helt oescapade (ett citattecken i en nyhetstext bröt Googles strukturerade data för hela sidan), och live-blocket saknade `JSON_HEX_TAG` trots `JSON_UNESCAPED_SLASHES`. Båda fixade | `1d74fc0` |
+| **L6** | `encryption_key` tom | Läses från `$_SERVER['ENCRYPTION_KEY']`, tom sträng som fallback. **Ingen nyckel committas** — repot är publikt, en nyckel i filen vore samma sak som ingen nyckel | `1d74fc0` |
+| **L8** | `log2db()`, `json_encode_pretty()`, `removeWhiteSpace()` döda efter K4 | Borttagna. `texttv_log`-tabellen är **kvar** i databasen med sin historik | `1d74fc0` |
+| **L9** | oembed matchade `!\d+!`, dvs *första* siffergruppen. `/149/vm-2026-guld-till-sverige-7336730` löste upp till id 2026 — årtal i rubriker är vanligt, så riktiga inbäddningar har visat fel sida | Matchar sista siffergruppen; query och fragment kapas först (annars blev `?fbclid=abc123` tolkat som id) | `e8a6b2d` |
+
+## Kvarstående manuella åtgärder (ej kod)
+
+- **Radera Facebook-appen 323210141035659.** Ren städning — app-ID:t används inte någonstans i
+  kodbasen, och Facebook-*sidan* påverkas inte. Appen har fortfarande en webhook mot en URL som ger 404.
+- **Överväg att rotera prod:ens DB-lösenord.** Inte för att det läckt — `/debug.txt` gav 404 hela
+  tiden — utan för att det i flera år funnits en kodväg som skrev det till webbroten (K2).
 
 ## Anteckningar
 

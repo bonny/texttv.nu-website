@@ -4,7 +4,7 @@ Index över förbättringsarbete. Varje todo har en egen fil under
 [`todos/`](todos/) med fullständig analys. Konvention och
 mappstruktur: [`todos/README.md`](todos/README.md).
 
-Senast uppdaterad: 2026-06-24 (+#07 Docker Compose lokal utveckling klar — hela stacken verifierad end-to-end).
+Senast uppdaterad: 2026-08-01 (+#08 säkerhetsgranskning — fb-webhooken borttagen, resten avbockas löpande).
 
 ## Aktiva
 
@@ -13,6 +13,7 @@ Senast uppdaterad: 2026-06-24 (+#07 Docker Compose lokal utveckling klar — hel
 | 01  | Varför har /343 och ev andra sidor så dålig CTR? | **30d-mätning klar 2026-06-22: kohort-CTR 0.31%→0.73% (~2.3×), clicks 236→534 — vinst bekräftad.** Kvar: 60d-slutmätning 2026-07-18 | [todos/01-varfor-har-343-och-ev-andra-sidor-sa-dalig-ctr.md](todos/01-varfor-har-343-och-ev-andra-sidor-sa-dalig-ctr.md) |
 | 04  | Perf/SEO-fixar från Lighthouse-baseline 2026-05-19 | G/E/H + **D Fas 1+2** klara (Fas 1 deployad+live-verifierad 2026-06-22, 20 sidor), A delvis, F släppt, I/B/C/J deprio:ade. Kvar: 60d-effektmätning (m. #01 2026-07-18) | [todos/04-perf-seo-fixar-fran-baseline-2026-05-19.md](todos/04-perf-seo-fixar-fran-baseline-2026-05-19.md) |
 | 06  | Byt facade/ignition mot spatie/laravel-ignition | ny — workaround i `AppServiceProvider` (commit 6ba0656) maskerar problemet, vill byta paket istället | [todos/06-byt-facade-ignition-mot-spatie-laravel-ignition.md](todos/06-byt-facade-ignition-mot-spatie-laravel-ignition.md) |
+| 08  | Säkerhetsgranskning 2026-08-01 | **K4 (fb-webhook + hårdkodad FB-token) borttagen 2026-08-01.** Kvar: K1 reflekterad XSS via `jsoncallback`, K2 `debug.txt`-dump, K3 `display_errors`/`db_debug` i prod, M1–M6, L1–L8 | [todos/08-sakerhetsgranskning-2026-08-01.md](todos/08-sakerhetsgranskning-2026-08-01.md) |
 
 ### Beroenden
 

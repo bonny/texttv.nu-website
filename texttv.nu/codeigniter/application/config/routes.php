@@ -99,10 +99,9 @@ $route['svt-text-tv'] = "svttexttv";
 $route['text-tv-fakta'] = "fakta";
 $route['text-tv-fakta/(:any)'] = "fakta/sida/$1";
 
-// facebook messenger webhook
-// https://texttv.nu/fb/webhook
-$route['fb/webhook'] = "fb/webhook";
-$route['fb/generate_screenshot'] = "fb/generate_screenshot/$1";
+// Facebook Messenger-webhooken (fb/webhook + fb/generate_screenshot) togs bort
+// 2026-08-01, se todos/08-sakerhetsgranskning-2026-08-01.md (K4): oautentiserad
+// webhook utan signaturverifiering + page access token hårdkodad i publikt repo.
 
 // /embed/<pageRange>/ for new apps.
 $route['appembed/(:any)'] = "appembed/visa/$1";

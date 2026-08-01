@@ -74,9 +74,12 @@ Fynden nedan bockas av löpande. Verifierade mot prod med read-only GET där ing
       `md5($url)` → olika ordning/intervall ger obegränsat antal nya JPG:er i `/shares/`.
       `l.texttv.nu/live/{n}` är publik och hämtar live från svt.se vid varje anrop.
       (`fb.php:382` `system(phantomjs …)` — borttagen med K4.)
-- [ ] **M3 — HTML-injektion i oembed.** `controllers/oembed.php:135` — `$url` från query-strängen läggs
+- [x] **M3 — HTML-injektion i oembed.** `controllers/oembed.php:135` — `$url` från query-strängen läggs
       oescapad i `<a href="%s">` i `html`-fältet som JSON-konsumenter (WordPress m.fl.) bäddar in.
-      **Fix:** `html_escape($url)` eller bygg om länken från `$arr_db_real_ids`.
+      **Åtgärdat 2026-08-01:** permalänken byggs nu från de laddade sidorna via
+      `get_permalink_from_pages()` i stället för att eka tillbaka `?url=`. Användarinput lämnar därmed
+      svaret helt — bättre än att escapa den — och länken blir alltid den kanoniska. `$url` används
+      fortfarande för att parsa ut id:n, men skrivs aldrig ut.
 - [ ] **M4 — EOL-ramverk.** CodeIgniter 2.2.6 (support slut 2015), Laravel 8.83.27 (säkerhetsstöd slut
       jan 2023). Inga kända CVE:er slår direkt mot koden som den används här, men inga fixar kommer.
 - [ ] **M5 — Publika debug-/dev-ytor.** `/dev/search`, `/dev/stats`, `/dev/updated` (200 i prod),
@@ -101,6 +104,11 @@ Fynden nedan bockas av löpande. Verifierade mot prod med read-only GET där ing
       escapar inte `</script>`. Bloggtiteln är admin-skriven, så bara teoretiskt.
 - [ ] **L6 — `config.php:269` `encryption_key` tom.** Ofarligt idag (sessioner används inte), kritiskt om de slås på.
 - [ ] **L7 — Ingen rate limiting** någonstans i stacken.
+- [ ] **L9 — oembed plockar fel id ur slugs med siffror.** `oembed.php:22` matchar `!\d+!`, dvs *första*
+      siffergruppen i sista URL-segmentet. `/100/topp-10-nyheter-8490933/` ger id `10` i stället för
+      `8490933`. Upptäckt vid M3-testet (payloaden `alert(1)627` gav id `1`). Ofarligt men fel sida
+      returneras. **Fix:** matcha sista siffergruppen (`!(\d+)$!`). Lämnad orörd tills vidare eftersom
+      den ändrar vilken sida befintliga inbäddningar löser upp till — egen commit, egen verifiering.
 - [ ] **L8 — Död kod efter K4.** `log2db()`, `json_encode_pretty()` och `removeWhiteSpace()` i
       `helpers/texttv_helper.php` hade bara `fb.php` som anropare (0 träffar kvar i `application/`).
       `log2db()` var skrivvägen in i `texttv_log`. Medvetet kvarlämnade för att hålla K4-deployen liten;

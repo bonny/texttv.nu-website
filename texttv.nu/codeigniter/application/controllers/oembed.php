@@ -121,7 +121,24 @@ class Oembed extends CI_Controller {
 		// href="/104"
 		$html = str_replace('<a href="/', '<a href="http://texttv.nu/', $html);
 		
-		$html .= sprintf('<p class="texttvnu-oembed-permalink"><a href="%1$s">Texten kommer från SVT Text via texttv.nu</a></p>', $url);
+		// Permalänken byggs från de sidor vi faktiskt laddade, inte från ?url=.
+		//
+		// Förut ekades ?url= rakt in i href:en. Värdet kommer från anroparen och
+		// escapades inte, så vem som helst kunde få godtycklig HTML (eller en
+		// javascript:-länk) att hamna i html-fältet — det fält som oembed-
+		// konsumenter som WordPress bäddar in på sina egna sidor. Att bygga
+		// länken från $arr_pages tar bort användarinput ur svaret helt, i stället
+		// för att försöka escapa den. Bonus: länken blir alltid den kanoniska.
+		// Se M3 i todos/08-sakerhetsgranskning-2026-08-01.md.
+		$arr_pagenums = array();
+		foreach ($arr_pages as $one_page) {
+			$arr_pagenums[] = $one_page->num;
+		}
+
+		$permalink = get_permalink_from_pages($arr_pages, $arr_pages[0], implode(",", $arr_pagenums));
+		$permalink = "https://texttv.nu" . $permalink;
+
+		$html .= sprintf('<p class="texttvnu-oembed-permalink"><a href="%1$s">Texten kommer från SVT Text via texttv.nu</a></p>', $permalink);
 		
 		$json = array(
 			"type" => "rich",

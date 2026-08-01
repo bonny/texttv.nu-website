@@ -49,6 +49,12 @@ $active_group = 'default';
 $active_record = TRUE;
 
 // here: different config for local valet and live.
+//
+// db_debug följer ENVIRONMENT (sätts i codeigniter/index.php) i stället för att
+// vara hårdkodat TRUE: på prod skickade det ut den fallerande SQL-frågan och
+// full stack trace till anroparen. "live"-grenen nedan används även av lokal
+// Docker-dev (creds via fastcgi_param), så villkoret måste hänga på miljön —
+// inte på vilken gren vi hamnar i. Se K3 i todos/08-sakerhetsgranskning-2026-08-01.md.
 $HTTP_HOST = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : null;
 
 if (isset($_SERVER['DB_USERNAME'])) {
@@ -60,7 +66,7 @@ if (isset($_SERVER['DB_USERNAME'])) {
 	$db['default']['dbdriver'] = 'mysqli';
 	$db['default']['dbprefix'] = '';
 	$db['default']['pconnect'] = TRUE;
-	$db['default']['db_debug'] = TRUE;
+	$db['default']['db_debug'] = (ENVIRONMENT !== 'production');
 	$db['default']['cache_on'] = FALSE;
 	$db['default']['cachedir'] = '';
 	$db['default']['char_set'] = 'utf8';
@@ -77,7 +83,7 @@ if (isset($_SERVER['DB_USERNAME'])) {
 	$db['stats']['dbdriver'] = 'mysqli';
 	$db['stats']['dbprefix'] = '';
 	$db['stats']['pconnect'] = TRUE;
-	$db['stats']['db_debug'] = TRUE;
+	$db['stats']['db_debug'] = (ENVIRONMENT !== 'production');
 	$db['stats']['cache_on'] = FALSE;
 	$db['stats']['cachedir'] = '';
 	$db['stats']['char_set'] = 'utf8';
@@ -94,7 +100,7 @@ if (isset($_SERVER['DB_USERNAME'])) {
 	$db['default']['dbdriver'] = 'mysqli';
 	$db['default']['dbprefix'] = '';
 	$db['default']['pconnect'] = TRUE;
-	$db['default']['db_debug'] = TRUE;
+	$db['default']['db_debug'] = (ENVIRONMENT !== 'production');
 	$db['default']['cache_on'] = FALSE;
 	$db['default']['cachedir'] = '';
 	$db['default']['char_set'] = 'utf8';
@@ -111,7 +117,7 @@ if (isset($_SERVER['DB_USERNAME'])) {
 	$db['stats']['dbdriver'] = 'mysqli';
 	$db['stats']['dbprefix'] = '';
 	$db['stats']['pconnect'] = TRUE;
-	$db['stats']['db_debug'] = TRUE;
+	$db['stats']['db_debug'] = (ENVIRONMENT !== 'production');
 	$db['stats']['cache_on'] = FALSE;
 	$db['stats']['cachedir'] = '';
 	$db['stats']['char_set'] = 'utf8';

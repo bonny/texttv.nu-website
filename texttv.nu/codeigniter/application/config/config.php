@@ -3,45 +3,12 @@
 // ini_set("memory_limit", "2M");
 setlocale(LC_TIME, "sv_SE.utf8"); //sv_SE.UTF-8
 
-register_shutdown_function('shutdown');
-function shutdown(){
-	
-    $isError = false;
-    if ($error = error_get_last()){
-        switch($error['type']){
-            case E_ERROR:
-            case E_CORE_ERROR:
-            case E_COMPILE_ERROR:
-            case E_USER_ERROR:
-                $isError = true;
-                break;
-        }
-    }
-
-    if ($isError){
-	    try {
-	    	echo "Script execution halted ({$error['message']})";
-		    ini_set('memory_limit', (ini_get('memory_limit')+1).'M');
-		    echo "<br>start";
-		    echo $_SERVER["DOCUMENT_ROOT"];
-		    $file = $_SERVER["DOCUMENT_ROOT"] . "/debug.txt";
-		    $f = fopen($file, "w");
-		    $tofile = print_r($_SERVER, TRUE);
-		    // $tofile .= print_r(debug_backtrace(), TRUE); backtrace inte tillgänglig i shutdown..
-		    $tofile .= print_r($GLOBALS, TRUE);
-		    fwrite($f, $tofile);
-		    echo "<br>end";
-		} catch(Exception $e) {
-			echo "<br>exception";
-		}
-		echo "<br>out of try-block";
-
-    } else {
-		// echo "<br>Script completed";
-    }
-    
-
-}
+// Här låg tidigare en shutdown-handler som vid varje fatalt fel skrev
+// print_r($_SERVER) + print_r($GLOBALS) till DOCUMENT_ROOT/debug.txt — alltså
+// DB_PASSWORD och DB_USERNAME (de injiceras som fastcgi_param, se database.php)
+// till en publikt läsbar URL. Ett fatalt fel gick att trigga anonymt.
+// Borttagen 2026-08-01, se K2 i todos/08-sakerhetsgranskning-2026-08-01.md.
+// Behöver du diagnostik igen: använd error_log(), den hamnar utanför webbroten.
 /*
 |--------------------------------------------------------------------------
 | Base Site URL

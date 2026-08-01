@@ -19,7 +19,9 @@ $out .= "<main id='pages'>";
 // Tills dess fyller sr-only-fallbacken (slutet av blocket) ut för icke-träffade sidor.
 $headline = null;
 
-if ($pagedescription === 'startpage') {
+// isset-koll: api/get_html laddar den här vyn utan $pagedescription, vilket gav
+// en PHP-varning rakt in i JSON-svaret till apparna. Se K3 i #08.
+if (isset($pagedescription) && $pagedescription === 'startpage') {
 	$headline = 'SVT Text TV - Nyheter och Sportresultat';
 } else if ($pagenum == 377) {
 	$headline = 'SVT Text TV 377 - Målservice och målresultat';

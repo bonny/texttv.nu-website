@@ -30,6 +30,11 @@ fastcgi_param  DB_USERNAME        texttv;
 fastcgi_param  DB_PASSWORD        texttv;
 fastcgi_param  DB_DATABASE        texttv_nu;
 fastcgi_param  DB_DATABASE_STATS  texttv_stats;
+
+# Sätter ENVIRONMENT=development i codeigniter/index.php → error_reporting(E_ALL)
+# och db_debug=TRUE. Prod saknar den här och får därmed 'production'. Utan raden
+# blir lokal dev lika tyst som prod, vilket inte är vad man vill när man felsöker.
+fastcgi_param  APP_ENV            local;
 EOF
 
 USER www-data

@@ -18,8 +18,18 @@
  * NOTE: If you change these, also change the error_reporting() code below
  *
  */
-define('ENVIRONMENT', 'development');
-#define('ENVIRONMENT', 'production');
+// Lokalt = Docker (APP_ENV=local via fastcgi_param, se deploy/website/Dockerfile)
+// eller Valet (texttv.nu.test). Allt annat är produktion.
+//
+// Defaulten måste vara 'production': tidigare stod det hårdkodat 'development',
+// vilket gav error_reporting(E_ALL) på prod. Följden var att PHP-varningar
+// renderades mitt i /api/*-svaren (ogiltig JSON för iOS/Android-apparna) och att
+// okontrollerade undantag skickade full stack trace med absoluta sökvägar och
+// SQL-frågor till vem som helst. Se K3 i todos/08-sakerhetsgranskning-2026-08-01.md.
+$is_local_environment = (isset($_SERVER['APP_ENV']) && $_SERVER['APP_ENV'] === 'local')
+	|| (isset($_SERVER['HTTP_HOST']) && $_SERVER['HTTP_HOST'] === 'texttv.nu.test');
+
+define('ENVIRONMENT', $is_local_environment ? 'development' : 'production');
 /*
  *---------------------------------------------------------------
  * ERROR REPORTING

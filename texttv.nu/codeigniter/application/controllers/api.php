@@ -225,6 +225,21 @@ class Api extends CI_Controller
 			"is_ok" => true,
 		);
 
+		// Utan sidnummer blir det "page_num IN ()" = SQL-syntaxfel. Sedan PHP 8.1
+		// kastar mysqli undantag i stället för att returnera false, så CI:s egen
+		// db_debug-hantering nås aldrig — felet blir en okontrollerad 500. Bomma
+		// ut här i stället, samma vakt som sida.php redan har.
+		if (empty($arr_page_nums)) {
+			$arr_json["is_ok"] = false;
+			$arr_json["update_available"] = false;
+			$arr_json["res"] = array();
+
+			$this->output->set_content_type("application/json");
+			$this->output->append_output(json_encode($arr_json));
+
+			return;
+		}
+
 		// If API call is coming from a bot then "shortcut" it
 		$limit = 10;
 
@@ -412,11 +427,34 @@ class Api extends CI_Controller
 	 * 
 	 * @param mixed $page_num
 	 */
+	/**
+	 * Hämta och validera JSONP-callbacken från query-strängen.
+	 *
+	 * Callbacken echoas rått före JSON-svaret i views/api.php, och get_html-grenen
+	 * går ut som text/html — utan den här vitlistan blir vilken sträng som helst
+	 * reflekterad XSS på texttv.nu. Se K1 i todos/08-sakerhetsgranskning-2026-08-01.md.
+	 *
+	 * Tillåter bara det som faktiskt kan vara ett JS-funktionsnamn (jQuerys
+	 * "?jsoncallback=?" blir t.ex. jQuery112409… — punkt tillåts för namespace).
+	 *
+	 * @return string Callbacken, eller tom sträng om den inte är giltig.
+	 */
+	private function get_valid_jsoncallback()
+	{
+		$jsoncallback = (string) $this->input->get("jsoncallback");
+
+		if (!preg_match('/^[A-Za-z0-9_.]{1,64}$/', $jsoncallback)) {
+			return "";
+		}
+
+		return $jsoncallback;
+	}
+
 	public function get($page_num = "")
 	{
 		$data = array(
 			"page_num" 		=> $page_num,
-			"jsoncallback" 	=> (string) $this->input->get("jsoncallback"),
+			"jsoncallback" 	=> $this->get_valid_jsoncallback(),
 			"api_call"		=> "get"
 		);
 		$this->load->view('api', $data);
@@ -426,7 +464,7 @@ class Api extends CI_Controller
 	{
 		$data = array(
 			"page_num" 		=> $page_num,
-			"jsoncallback" 	=> (string) $this->input->get("jsoncallback"),
+			"jsoncallback" 	=> $this->get_valid_jsoncallback(),
 			"api_call"		=> "get_html"
 		);
 		$this->load->view('api', $data);

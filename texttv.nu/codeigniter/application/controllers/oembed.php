@@ -14,10 +14,14 @@ class Oembed extends CI_Controller {
 	public function index() {
 
 		$url = $this->input->get("url");
-		
+
+		// Id:t ligger sist i URL:en, men query och fragment måste kapas först —
+		// annars blir ?fbclid=abc123 eller #hash det som tolkas som id.
+		$url_path = preg_replace('/[?#].*$/', '', $url);
+
 		// just assume the last part of the url is the id
-		$parts = explode("/", rtrim($url, "/"));
-		
+		$parts = explode("/", rtrim($url_path, "/"));
+
 		$page_ids = end($parts);
 		
 		// What to return for this oembed:
@@ -32,15 +36,22 @@ class Oembed extends CI_Controller {
 		foreach ($arr_db_ids as $one_db_id) {
 			
 			// echo "one_db_id: $one_db_id";
-			preg_match("!\d+!", $one_db_id, $matches);
-		
+			//
+			// Matcha det AVSLUTANDE talet, inte det första. Permalänkarna ser ut
+			// som /129/tom-flygplats-plan-fick-vanda-8490933 (nytt format) eller
+			// /149/arkiv/4-jun-2015-varlden-runt/7336730/ (gammalt) — id:t ligger
+			// alltid sist. Med "!\d+!" plockades i stället första siffergruppen,
+			// så en rubrik med siffror i sig gav fel sida: "topp-10-nyheter-8490933"
+			// blev id 10. Se L9 i todos/08-sakerhetsgranskning-2026-08-01.md.
+			preg_match('!(\d+)$!', $one_db_id, $matches);
+
 			// om inte ett nummer: abort!
 			if ( empty( $matches ) ) {
 				die("There was an error, ey!");
 			}
 			#print_r($matches);
-			
-			$one_db_id = $matches[0];
+
+			$one_db_id = $matches[1];
 			$arr_db_real_ids[] = $one_db_id;
 
 			

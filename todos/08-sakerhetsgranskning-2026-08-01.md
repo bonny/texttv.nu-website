@@ -104,7 +104,7 @@ Fynden nedan bockas av löpande. Verifierade mot prod med read-only GET där ing
       escapar inte `</script>`. Bloggtiteln är admin-skriven, så bara teoretiskt.
 - [ ] **L6 — `config.php:269` `encryption_key` tom.** Ofarligt idag (sessioner används inte), kritiskt om de slås på.
 - [ ] **L7 — Ingen rate limiting** någonstans i stacken.
-- [ ] **L9 — oembed plockar fel id ur slugs med siffror.** `oembed.php:22` matchar `!\d+!`, dvs *första*
+- [x] **L9 — oembed plockar fel id ur slugs med siffror.** `oembed.php:22` matchar `!\d+!`, dvs *första*
       siffergruppen i sista URL-segmentet. `/100/topp-10-nyheter-8490933/` ger id `10` i stället för
       `8490933`. Upptäckt vid M3-testet (payloaden `alert(1)627` gav id `1`). Ofarligt men fel sida
       returneras. **Fix:** matcha sista siffergruppen (`!(\d+)$!`). Lämnad orörd tills vidare eftersom

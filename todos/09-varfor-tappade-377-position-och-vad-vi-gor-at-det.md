@@ -316,6 +316,39 @@ Mätmetod som #01: 30d och 60d efter deploy, samma frågeuppsättning som
 baselinetabellen ovan. Mät **klick och position**, inte CTR (se avsnittet om
 utspädning).
 
+## Trafikstrukturen — vad #01:s vinst faktiskt var (2026-08-02)
+
+Utrett i samband med `/344`-regressionen. Slutsatsen bundar vad titel- och
+H1-arbetet kan åstadkomma, så den hör hemma här.
+
+**Sajtens organiska fotavtryck är nästan helt navigationellt.** I topp-30 efter
+klick finns inte en enda ren ämnesfråga. Allt är sidnummer (`377`, `343`, `330`),
+varumärke (`text tv`, `texttv.nu`, `svt text`) eller kombinationer. De enda
+"ämnesorden" som fungerar är fastvuxna vid ett sidnummer: `text 377 målservice`,
+`resultat lången 377`, `text tv 377 idag`.
+
+**Ämnesfrågor når knappt fram.** Samtliga `allsvenskan`-frågor tillsammans ger
+**0 klick** på 90 dagar. `allsvenskan tabell` → `/343` på **position 51**, trots
+att sidan har tabellen och sedan #01 har titeln "343 - SVT Text TV - Allsvenskan
+tabell". Detsamma för `/336` (Premier League, 0.20 % CTR) — ingen som söker
+"premier league" kommer dit, bara folk som skriver "336".
+
+**Därmed: #01:s vinst var en snippet-vinst, inte en ny trafikkanal.** De
+kurerade titlarna gjorde sökresultatet mer klickvärt för dem som *redan* sökte
+på sidnumret — det är därför CTR fördubblades. De öppnade ingen ämneskanal.
+Utvidgning av whitelisten (#04) ger alltså mer av samma begränsade sort, och
+bör inte budgeteras som en ny trafikkälla.
+
+**Och den enskilt största rena ämnesfrågan serveras av arkivet, inte av de
+levande sidorna.** `resultatbörsen` (26 klick, 4 213 visningar, pos 6.9) går
+uteslutande till arkivpermalänkar — `/330/resultatborsen-13586101` (14 klick),
+`-14782676` (8), `-16782952` (2), `-13389199` (1). Levande `/330` får **noll**
+på den frågan. Samma mönster för nyhetsfrågor: `ebola milano` (24 klick),
+`mein schiff relax stockholm` (32 klick) landar också på arkivsidor.
+
+Det är alltså i arkivet ämnesefterfrågan faktiskt landar — vilket vänder på den
+tidigare bedömningen att arkivet var en återvändsgränd för SEO. Se **#10**.
+
 ## Risker och ärliga förbehåll
 
 - **Potten är liten.** 16 472 visningar mot navigationsfrågornas ~2 M. Även en

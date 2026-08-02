@@ -1,5 +1,5 @@
-**Status:** aktiv — deployat 2026-05-19 (commit 5f9c6ad, 19/19 sidor live-verifierade). **30d-mätning gjord 2026-06-22: kohort-CTR 0.31% → 0.73% (~2.3×), clicks 236 → 534. Vinst bekräftad.** Kvar: 60d-slutmätning 2026-07-18.
-**Senast uppdaterad:** 2026-06-22
+**Status:** klar 2026-08-02 — deployat 2026-05-19 (commit 5f9c6ad, 19/19 sidor live-verifierade). **30d: kohort-CTR 0.31% → 0.73% (~2.3×). 60d: CTR håller på 0.73%, klick/dag 8.4 → 19.3 (+129%), 10 av 12 sidor över baseline. Varaktig vinst bekräftad.** Kvar att titta på separat: /344 regresserade under baseline.
+**Senast uppdaterad:** 2026-08-02
 
 # Todo #01 — Varför har /343 och ev andra sidor så dålig CTR?
 
@@ -237,6 +237,62 @@ snippet tills nästa crawl) håller troligen nere snittet. 60d-mätningen
 (2026-07-18) väntas visa högre. **Slutsats: fixen fungerade — whitelist-
 utvidgningen drev både CTR och position uppåt.** Detta validerar #04 D
 Fas 1 (datadriven whitelist-utvidgning).
+
+## Mätning 60d (2026-08-02, planerad 2026-07-18)
+
+Fönster **2026-06-19→07-18**, samma 12-sidorskohort. Property
+`https://texttv.nu/` (URL-prefix) i stället för `sc-domain:texttv.nu` —
+domänpropertyn saknar historik före ~2026 och duger inte till bakåtjämförelser.
+Båda ger identiska siffror för nutid, så serien är jämförbar.
+
+| Sida | CTR före | 30d | **60d** | Pos före→60d | Clicks 60d |
+| ---- | -------- | --- | ------- | ------------ | ---------- |
+| /300 | 0.52% | 0.83% | 0.68% | 4.7→4.1 | 313 |
+| /343 | 0.26% | 0.63% | **0.69%** | 4.7→**3.3** | 112 |
+| /101 | 0.29% | 0.67% | **1.26%** | 5.2→3.3 | 53 |
+| /345 | 0.11% | 0.70% | **0.75%** | 3.8→3.5 | 29 |
+| /104 | 0.19% | 0.45% | **3.26%** | 4.2→3.1 | 25 |
+| /127 | 0.31% | 0.83% | **0.93%** | 3.9→3.5 | 14 |
+| /358 | 0.27% | 0.99% | 0.60% | 4.1→4.1 | 12 |
+| /106 | 0.21% | 0.32% | **0.61%** | 4.5→4.8 | 7 |
+| /130 | 0.24% | 0.17% | **0.87%** | 4.7→5.1 | 7 |
+| /336 | 0.10% | 0.42% | 0.29% | 3.9→3.4 | 3 |
+| /349 | 0.19% | 0.58% | 0.50% | 4.5→4.4 | 3 |
+| /344 | 0.13% | 0.51% | **0.07%** | 4.7→**6.2** | 1 |
+| **Kohort (12)** | **0.31%** | **0.73%** | **0.73%** | — | **579** |
+
+| Mätpunkt | Clicks | Impressions | CTR | Clicks/dag |
+| --- | --- | --- | --- | --- |
+| Före (28d) | 236 | ~75 800 | 0.31% | 8.4 |
+| 30d (30d) | 534 | ~73 500 | 0.73% | 17.8 |
+| 60d (30d) | 579 | 79 528 | 0.73% | 19.3 |
+
+**Utfall: vinsten håller.** CTR ligger stilla på 0.73 % medan klick/dag
+fortsätter uppåt (8.4 → 17.8 → **19.3**, +129 % mot baseline). **10 av 12
+sidor ligger över sin baseline.**
+
+Notera att "före"-fönstret är 28 dagar och de två efter-fönstren 30 — därför är
+CTR (fönsterlängdsoberoende) och klick/dag de jämförbara måtten, inte råa klick.
+
+Förväntningen i 30d-noten att 60d skulle visa **högre** CTR infriades inte —
+den planade ut på 0.73 % i stället för att närma sig sajtsnittet. Crawl-lag var
+alltså inte hela förklaringen till gapet.
+
+**Två sidor att titta på:**
+
+- **/344 regresserade under sin baseline** (0.13 % → 0.51 % → 0.07 %) och
+  tappade position (4.7 → 6.2). Enda sidan i kohorten som gått bakåt netto.
+  Egendomligt eftersom syskonet /343 (Allsvenskan tabell) samtidigt är
+  kohortens starkaste förbättring. Värt en egen titt.
+- **/336 (Premier League) föll 0.42 % → 0.29 %** — men mätfönstret jun–jul är
+  PL:s uppehåll, så det är sannolikt säsong och inte att fixen slutat verka.
+
+**Slutsats: #01 är klar.** Fixen fungerade och effekten är varaktig över 60
+dagar. Restpopulationen behöver ingen egen fix-todo — men /344 bör undersökas,
+och lärdomen om vad som *inte* fungerar på högtrafiksidor är dokumenterad i
+[#09](09-varfor-tappade-377-position-och-vad-vi-gor-at-det.md): på `/377`
+skriver Google om både `<title>` och `<meta description>`, så samma grepp är
+inte överförbart dit.
 
 ## Förslag
 

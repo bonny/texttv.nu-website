@@ -42,6 +42,11 @@ jobs:
           ini-values: post_max_size=256M, max_execution_time=180
           tools: php-cs-fixer, phpunit
 
+      # Används av städsteget nedan för att avgöra vad som ska finnas kvar.
+      - name: Lista controllers som finns i repot
+        run: |
+          echo "REPO_CONTROLLERS=$(ls texttv.nu/codeigniter/application/controllers | tr '\n' ' ')" >> "$GITHUB_ENV"
+
       - name: Copy files to ${{ matrix.server.name }}
         uses: appleboy/scp-action@master
         with:
@@ -62,8 +67,23 @@ jobs:
             sudo chown -R root:root .
             chmod 777 -R /usr/share/nginx/texttv.nu/shares
             chmod 777 /usr/share/nginx/texttv.nu/codeigniter/application/cache/
-            # scp kopierar bara — raderade filer ligger kvar på servern. CI:s
-            # auto-routing når en controller även utan route-rad, så borttagna
-            # controllers måste raderas explicit här.
-            # fb.php: Facebook Messenger-webhook, borttagen 2026-08-01 (K4).
-            sudo rm -f /usr/share/nginx/texttv.nu/codeigniter/application/controllers/fb.php
+            # scp kopierar bara — raderade filer ligger kvar på servern, och CI:s
+            # auto-routing når en controller även utan route-rad. En borttagen
+            # controller blir alltså kvar live om den inte raderas här.
+            #
+            # Detta var tidigare en handskriven rm-lista, vilket bet oss
+            # 2026-08-02: dev.php togs bort ur repot men låg kvar och svarade
+            # 200 på /dev/search och /dev/updated. Nu jämförs i stället mot vad
+            # repot faktiskt innehåller, så listan underhåller sig själv.
+            REPO_CONTROLLERS="${{ env.REPO_CONTROLLERS }}"
+            if [ -z "$REPO_CONTROLLERS" ]; then
+              echo "REPO_CONTROLLERS tom — hoppar över städning (raderar hellre inget än allt)."
+            else
+              cd /usr/share/nginx/texttv.nu/codeigniter/application/controllers
+              for f in *.php; do
+                case " $REPO_CONTROLLERS " in
+                  *" $f "*) ;;
+                  *) echo "Raderar controller som inte finns i repot: $f"; sudo rm -f "$f" ;;
+                esac
+              done
+            fi

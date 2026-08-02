@@ -116,8 +116,37 @@ Uppdatera de tre legacy-posterna till Fas 1-konventionen:
 377 tas med för konsekvensens skull, inte för effekt — Google skriver ändå om
 den. Ingen effekt bör budgeteras där.
 
-Mät på `resultatbörsen` (26 klick, pos 6.9, allt till arkivet idag) och på om
-levande `/330` börjar synas på sida 1.
+**Deployat 2026-08-02.** Live-verifierat på alla tre. Arkivtitlarna är
+oförändrade som avsett — whitelisten ligger inuti `if (!isset($is_archive))`.
+Övriga whitelist-poster (343, 551, 202) orörda.
+
+### Baseline att mäta mot
+
+`resultatbörsen`, 90 dagar 2026-05-04→08-01:
+
+| Sida | Klick | Visningar | CTR | Pos |
+| --- | --- | --- | --- | --- |
+| `/330/resultatborsen-13586101` | 14 | 2 818 | 0.50 % | 6.2 |
+| `/330/resultatborsen-14782676` | 8 | 824 | 0.97 % | 6.7 |
+| `/330/resultatborsen-16782952` | 2 | 317 | 0.63 % | 7.4 |
+| `/330/resultatborsen-13389199` | 1 | 326 | 0.31 % | 7.6 |
+| `/302` | 2 | 159 | 1.26 % | 8.0 |
+| **Levande `/330`** | **0** | **—** | **—** | **utanför sida 1** |
+| **Summa** | **26** | **4 213** | **0.62 %** | **6.9** |
+
+Sidnivå `/330` totalt (alla frågor, samma fönster): 374 klick, 39 757
+visningar, 0.94 %, pos 4.3.
+
+**Två utfall att skilja på vid mätningen:**
+
+1. Levande `/330` börjar ranka på `resultatbörsen` och **summan växer** → äkta
+   vinst.
+2. Levande `/330` tar klicken **från arkivsidorna** utan att summan växer →
+   nollsummeflytt. Fortfarande önskvärt (besökaren får aktuell data i stället
+   för en nio år gammal ögonblicksbild) men ingen trafikvinst.
+
+Skilj dem åt genom att mäta frågan `resultatbörsen` på *sidnivå*, inte bara
+totalen.
 
 ## Sidoproblem: dubbla `<h1>` på nio sidor
 

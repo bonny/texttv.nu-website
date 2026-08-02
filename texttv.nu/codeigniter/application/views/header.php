@@ -178,14 +178,26 @@ if (!isset($is_archive)) {
 		// 1 page and specific number
 		$first_page_num = $pages[0]->num;
 
+		// De tre posterna nedan skrevs före "NNN - SVT Text TV - <ämne>"-
+		// konventionen (#04 Fas 1) och saknade ämnesord. Utan whitelist-post
+		// hade automatiken ovan gett "330 Resultatbörsen - SVT Text TV" —
+		// posterna gjorde alltså titeln sämre än ingen post alls.
+		//
+		// Verifierat 2026-08-02: levande /330 fanns inte på sida 1 för
+		// "resultatbörsen", medan två av dess egna arkivsnapshots låg på
+		// plats 4 och 9 — de har ämnesordet i titeln eftersom arkivgrenen
+		// på rad 67-70 hoppar över sidnumret och använder sidans rubrik.
+		// Google skriver inte om titeln på de här sidorna. Se todos/11.
 		if (376 == $first_page_num) {
-			$meta_title = "376 - SVT Text TV";
+			$meta_title = "376 - SVT Text TV - Målserviceindex";
 			$meta_description = "Målservice från SVT Text TV 376";
 		} else if (377 == $first_page_num) {
-			$meta_title = "377 - SVT Text TV";
+			// 377 ändras för konsekvens, inte för effekt: Google skriver om
+			// titeln här och hämtar sin egen från <h1>. Se todos/09.
+			$meta_title = "377 - SVT Text TV - Målservice";
 			$meta_description = "På SVT Text TV 377 finns dagens sportresultat & målservice. ⚽️️ 377 – sportnördens bästa vän!";
 		} else if (330 == $first_page_num) {
-			$meta_title = "330 - SVT Text TV";
+			$meta_title = "330 - SVT Text TV - Resultatbörsen";
 			$meta_description = "Resultatbörsen på SVT Text TV 330";
 		} else if (551 == $first_page_num) {
 			$meta_title = "551 - SVT Text TV - Stryktipset";

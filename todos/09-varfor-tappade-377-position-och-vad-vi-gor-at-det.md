@@ -220,6 +220,36 @@ helgerån.</p>
 "dagens matcher" tillagda, interna länkar till 376/378/379/330 tillagda,
 stavfelet `helgrerån` → `helgerån` rättat.
 
+**Kört i prod 2026-08-02.** `UPDATE texttv_page_text ... WHERE id = 2` (raden
+har `pagedescription = '377'`, tom `title` — bara `text` rördes). 546 → 931
+tecken. Live-verifierat, alla sex interna länkar svarar 200, tankstreck och
+å/ä/ö rena (`--default-character-set=utf8mb4`).
+
+**Backup av föregående text:** `scratchpad/377-pagetext-BACKUP-2026-08-02.html`
+(562 byte). Tabellen saknar historik och `updated_at`, så det är den enda vägen
+tillbaka — flytta filen någonstans beständigt om den ska överleva sessionen.
+
+DB-åtkomst för framtida bruk: `ssh texttv.nu` (root), creds ligger som
+`fastcgi_param DB_USERNAME/DB_PASSWORD/DB_DATABASE` i
+`/etc/nginx/sites-enabled/texttv.nu` — `/root/.my.cnf` har ett annat lösenord
+som **inte** fungerar mot `texttv.nu`-databasen.
+
+**Baseline att mäta A mot** — 90d före ändring (2026-05-04→08-01), de frågor
+texten riktar sig mot:
+
+| Fråga | Klick | Visningar | CTR | Pos |
+| --- | --- | --- | --- | --- |
+| `text 377 målservice` | 700 | 5 139 | 13.62 % | 2.6 |
+| `text tv 377 idag` | 604 | 9 318 | 6.48 % | 2.8 |
+| `377 målservice` | 443 | 1 025 | 43.22 % | 2.3 |
+| `resultat lången 377` | 286 | 725 | 39.45 % | 2.0 |
+| `text tv 377 nu` | 114 | 265 | 43.02 % | 1.8 |
+| **Summa** | **2 147** | **16 472** | **13.0 %** | — |
+
+Det som ska växa är **visningsbasen**, inte CTR:en. Följ särskilt
+`resultat lången 377` — om den tappar är det nostalgipassagens omskrivning som
+kostade, och då är backupen vägen tillbaka.
+
 ### B. Täpp snippet-läckaget
 
 Google avslutar descriptionen med `Sidor. Hem · Nyheter 101-105 · Inrikes` —

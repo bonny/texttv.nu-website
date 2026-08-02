@@ -4,7 +4,7 @@ Index över förbättringsarbete. Varje todo har en egen fil under
 [`todos/`](todos/) med fullständig analys. Konvention och
 mappstruktur: [`todos/README.md`](todos/README.md).
 
-Senast uppdaterad: 2026-08-02 (+#09 /377-diagnos — titelhypotesen falsifierad, extern orsak fastställd; #01 stängd efter 60d-mätning — vinsten håller).
+Senast uppdaterad: 2026-08-02 (#01 stängd; #09 A+C deployade; #10 mätt och pausad; #11 ny — titeln är hävstången på sidor Google inte skriver om).
 
 ## Aktiva
 
@@ -14,6 +14,7 @@ Senast uppdaterad: 2026-08-02 (+#09 /377-diagnos — titelhypotesen falsifierad,
 | 06  | Byt facade/ignition mot spatie/laravel-ignition | ny — workaround i `AppServiceProvider` (commit 6ba0656) maskerar problemet, vill byta paket istället | [todos/06-byt-facade-ignition-mot-spatie-laravel-ignition.md](todos/06-byt-facade-ignition-mot-spatie-laravel-ignition.md) |
 | 08  | Säkerhetsgranskning 2026-08-01 | **12 av 19 fynd stängda 2026-08-01** och deployade (K1–K4, M3, L1, L3–L6, L8, L9). Kvar: M1, M2, L7 (rate limiting), M4 (EOL-ramverk), M5, M6 (serversidiga: dev-ytor + CSP/headers), L2 (escaping i importern) | [todos/08-sakerhetsgranskning-2026-08-01.md](todos/08-sakerhetsgranskning-2026-08-01.md) |
 | 10  | Retention raderar arkivsidor som rankar | **pausad — mätt 2026-08-02: 76 % av arkivsidorna med trafik raderas, men de är färska nyhetssidor vars efterfrågan ändå dör. Ingen åtgärd.** Fyndet som blev kvar: arkivsnapshots från 2016–17 rankar över de levande sidorna på ämnesfrågor (`resultatbörsen`: arkiv 25 klick, live /330 noll) | [todos/10-retention-raderar-arkivsidor-som-rankar.md](todos/10-retention-raderar-arkivsidor-som-rankar.md) |
+| 11  | Arkivsidor rankar över de levande sidorna | **utredd 2026-08-02: orsaken är `<title>`, inte "stabil text". Legacy-whitelistposten `330 - SVT Text TV` tar bort ämnesordet som automatiken hade gett — sämre än ingen post alls.** Google skriver INTE om titeln här (till skillnad från 377), så hävstången är verklig. Kvar: uppdatera de tre legacy-posterna | [todos/11-arkivsidor-rankar-over-de-levande-sidorna.md](todos/11-arkivsidor-rankar-over-de-levande-sidorna.md) |
 | 09  | Varför tappade /377 position — och vad vi gör åt det | **Diagnos klar 2026-08-02: −7 615 klick/kvartal, extern orsak (SVT tar 6/10 platser via boilerplate). Titelhypotesen falsifierad — Google skriver om både title och description.** Kvar: A (skriv om `texttv_page_text` för 377), B (snippet-läckage), C (syskonsidor 378/379), D (30d/60d-mätning) | [todos/09-varfor-tappade-377-position-och-vad-vi-gor-at-det.md](todos/09-varfor-tappade-377-position-och-vad-vi-gor-at-det.md) |
 
 ### Beroenden

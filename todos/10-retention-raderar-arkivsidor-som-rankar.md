@@ -1,4 +1,4 @@
-**Status:** aktiv
+**Status:** pausad — mätt 2026-08-02, prioritet nedgraderad
 **Senast uppdaterad:** 2026-08-02
 
 # Retention raderar arkivsidor som rankar
@@ -48,19 +48,57 @@ månader. Sökprestanda konsulteras inte. De fyra sidorna ovan hade lika gärna
 kunnat vara borta — det som räddade dem var delningar från 2017, inte att de
 tjänar klick 2026.
 
-## Att utreda
+## Mätning 2026-08-02 — oron var delvis obefogad
 
-Hur mycket detta faktiskt kostar går **inte** att mäta bakåt — raderade sidor
-finns varken i DB:n eller i GSC (som bara har 16 månader). Storleksordningen
-måste uppskattas framåt eller från proxy:
+Samtliga 37 arkivsidor med klick i topp-130 (90d) slogs upp mot prod-DB:n.
 
-1. Hur många odelade arkivrader raderas per år? (`is_shared = 0` per page_num,
-   jämför med totalen.)
-2. Hur stor andel av arkivtrafiken går till odelade sidor idag? Gå igenom
-   GSC-sidor med `/{num}/{slug}-{id}`-mönster, slå upp `is_shared` för varje.
-   Om en märkbar andel har `is_shared = 0` raderas de vid tolvmånadersstrecket.
+| | Sidor | Klick | Datumspann |
+| --- | --- | --- | --- |
+| Delade (skyddade) | 9 | 152 | 2016-02-19 → 2026-06-04 |
+| **Odelade (raderas)** | **28 (76 %)** | **296 (66 %)** | 2026-04-24 → 2026-06-08 |
 
-Steg 2 är det avgörande och går att göra direkt.
+Rå siffra: två tredjedelar av arkivtrafiken sitter på sidor som raderas. Men
+sammansättningen upphäver det mesta av oron:
+
+**De 28 odelade är utan undantag färska nyhetssidor** med
+`?utm_source=brottsplatskartan&utm_medium=newsletter` — ebola i Milano,
+rekordfartyg i Stockholm, rysk lyxyacht. Trafiken kommer från att
+brottsplatskartan länkat dit, och efterfrågan på en nyhet från juni 2026 är
+nära noll i juni 2027 när raderingen sker. Att slänga dem kostar sannolikt
+nästan ingenting.
+
+**De 9 skyddade är evergreen:** resultatbörsen 2017 (68+18+8 klick),
+målservice-index 2017 (26+5), målservice 2016/2019 (4+4), kultur/nöje 2016 (9).
+Sidor som fortfarande tjänar klick nio år senare.
+
+**Slutsats: mekanismen träffar rätt av fel skäl.** Delningar korrelerar med
+ålder, och gamla sidor är per definition de som visat sig hålla. Det finns
+alltså ingen akut blödning att stoppa.
+
+**Kvarvarande risk, oförändrad men mindre:** en evergreen-sida som aldrig delas
+raderas ändå, och vi kan inte se om det hänt — bevisen försvinner med sidorna.
+Sannolikheten är dock lägre än befarat, eftersom evergreen-sidor tenderar att
+samla delningar över tid just genom att vara långlivade.
+
+**Prioritet nedgraderad.** Inte värt en ombyggnad på nuvarande underlag.
+
+## Det verkliga fyndet: arkivet rankar över den levande sidan
+
+Mätningen sköt fram något mer intressant. På frågan `resultatbörsen` får
+**levande `/330` noll klick** medan dess egna arkivsnapshots från 2017 får 25.
+Samma mönster på målservice: `/376/malservice-11121821` (2016) och
+`/378/malservice-index-376-13301833` (2017) rankar, de levande sidorna inte.
+
+Google föredrar alltså nio år gamla ögonblicksbilder framför den sida som
+faktiskt har aktuell data. Det är rimligen för att arkivsidorna har stabil,
+oföränderlig text medan de levande sidorna byts ut var annan minut och därför
+aldrig bygger upp något ämnessignalvärde.
+
+Det är värt en egen utredning — och det är sannolikt samma underliggande orsak
+som gör att `/343` ligger på position 51 för `allsvenskan tabell` trots rätt
+innehåll (se [#09](09-varfor-tappade-377-position-och-vad-vi-gor-at-det.md)).
+Om hypotesen stämmer är den generella lärdomen att **stabil text är det som
+rankar på ämnesfrågor**, vilket är exakt vad #09 steg A bygger på.
 
 ## Möjliga åtgärder
 
@@ -85,5 +123,8 @@ raderas tillsammans med sidorna.
 
 ## Confidence
 
-Hög på mekanismen (verifierad mot prod-DB:n), **låg på storleksordningen**.
-Steg 2 ovan behövs innan något byggs om.
+Hög. Mekanismen är verifierad mot prod-DB:n och storleksordningen är nu mätt:
+76 % av arkivsidorna med trafik raderas, men de är nyhetssidor vars efterfrågan
+ändå hunnit dö. Ingen åtgärd föreslås.
+
+Det som däremot bör följas upp är arkiv-rankar-över-live-fyndet ovan.

@@ -30,7 +30,7 @@ MCP:s som `mcp-gsc`, SSH-nycklar till prod, eller mänsklig bedömning).
 Granska veckovis. När en åtgärd är gjord, flytta raden till "Avklarade" nedan
 eller markera todon som klar.
 
-_(inga öppna)_
+| 2026-09-01 | #09 steg C — 30d-mätning av H1:orna på 330/376/378/379 (deployade 2026-08-02, commit `d7b585b`). Baseline i todon. Mät **klick och position**, inte CTR. | [#09](todos/09-varfor-tappade-377-position-och-vad-vi-gor-at-det.md) |
 
 ### Avklarade uppföljningar
 

@@ -259,6 +259,27 @@ verkningslös på 377 eftersom Google skriver om den, men H1:n är just det den
 skriver om *från*. Att flytta whitelisten från `header.php` till en delad källa
 (den befintliga TODO:n) blir därmed mer värt än det såg ut.
 
+**Deployat 2026-08-02** (commit `d7b585b`, live-verifierat på alla fyra sidor).
+H1-tabellen ersatte samtidigt if-kedjan; de fem befintliga fallen är oförändrade.
+
+**Baseline före deploy** — 28 dagar, 2026-07-05→08-01, property
+`https://texttv.nu/`:
+
+| Sida | Klick | Visningar | CTR | Pos |
+| --- | --- | --- | --- | --- |
+| /330 | 27 | 3 082 | 0.88 % | 3.9 |
+| /379 | 12 | 804 | 1.49 % | 5.2 |
+| /376 | 8 | 2 214 | 0.36 % | 5.3 |
+| /378 | 67 | 3 313 | 2.02 % | 4.8 |
+| **Summa** | **114** | **9 413** | **1.21 %** | — |
+
+Uppföljning inlagd i `todo.md` till **2026-09-01**. Mät klick och position —
+inte CTR, av samma utspädningsskäl som beskrivs ovan.
+
+Förväntan att pröva mot: `/378` och `/379` har redan bättre CTR än `/377`
+(mindre varumärkeskonkurrens på de numren), så om H1-hypotesen stämmer bör de
+röra sig först. `/376` är sämst i gruppen och har mest att hämta.
+
 ### D. Mät
 
 Mätmetod som #01: 30d och 60d efter deploy, samma frågeuppsättning som

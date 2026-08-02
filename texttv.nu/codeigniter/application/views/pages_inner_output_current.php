@@ -40,6 +40,15 @@ if (isset($pagedescription) && $pagedescription === 'startpage') {
 	//
 	// Nyckeln matchas med isset(), så sammansatta $pagenum ("101-103", "100,300")
 	// faller igenom till fallbacken precis som med den tidigare if-kedjan.
+	// 336-571 flyttades hit 2026-08-02 när <h1>-taggarna i texttv_page_text
+	// sänktes till <h2> (de gav dubbla rubriker). Utan posterna hade sidorna
+	// fallit tillbaka på den generiska sr-only-rubriken, dvs blivit sämre —
+	// och H1:n är det Google skriver sina titlar från. Se todos/11.
+	//
+	// 200, 202 och 398 är medvetet utelämnade: 200 meddelar att text-tv:s
+	// ekonomisidor lagts ner (fryst sedan 2024-06) och 202 hörde till samma
+	// del, medan 398 bara är en hänvisningsrad. Där är den generiska
+	// fallbacken ärligare än ett ämnesord.
 	$arr_page_headlines = array(
 		101 => "Inrikesnyheter",
 		102 => "Inrikesnyheter",
@@ -47,10 +56,15 @@ if (isset($pagedescription) && $pagedescription === 'startpage') {
 		104 => "Utrikesnyheter",
 		105 => "Utrikesnyheter",
 		330 => "Resultatbörsen",
+		336 => "Premier League",
+		358 => "SHL tabell",
+		360 => "Ishockey Allsvenskan",
 		376 => "Målserviceindex",
 		377 => "Målservice och målresultat",
 		378 => "Målservice utländska ligor",
 		379 => "Matchfakta",
+		551 => "Stryktipset",
+		571 => "V75-resultat",
 	);
 
 	if ( isset($arr_page_headlines[$pagenum]) ) {

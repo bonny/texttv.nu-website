@@ -13,22 +13,54 @@ $out = "";
 $out .= "<main id='pages'>";
 
 // Lägg till H1-rubriker ovanför sidorna.
-// TODO: Logiken här är hardkodad för bara 5 fall (startpage, 377, 101-103, 104-105).
-// header.php har en mycket större whitelist + blockbaserad fallback för meta-taggar.
-// På sikt bör de två filerna källa samma metadata istället för att duplicera.
-// Tills dess fyller sr-only-fallbacken (slutet av blocket) ut för icke-träffade sidor.
+//
+// H1:n är inte bara en rubrik för läsaren. På högtrafikerade sidor skriver
+// Google om <title> och hämtar då sin egen titel härifrån i stället — verifierat
+// på 377 2026-08-02, där SERP:en visade "SVT Text TV 377 - Målservice" medan
+// taggen sa "377 - SVT Text TV". Se todos/09. På de sidorna är alltså den här
+// strängen den enda titel vi faktiskt styr över.
+//
+// TODO: header.php har en mycket större whitelist + blockbaserad fallback för
+// meta-taggar. På sikt bör de två filerna källa samma metadata istället för att
+// duplicera. Tills dess fyller sr-only-fallbacken (nedan) ut för de sidor som
+// inte finns i tabellen.
 $headline = null;
 
 // isset-koll: api/get_html laddar den här vyn utan $pagedescription, vilket gav
 // en PHP-varning rakt in i JSON-svaret till apparna. Se K3 i #08.
 if (isset($pagedescription) && $pagedescription === 'startpage') {
+
 	$headline = 'SVT Text TV - Nyheter och Sportresultat';
-} else if ($pagenum == 377) {
-	$headline = 'SVT Text TV 377 - Målservice och målresultat';
-} else if ($pagenum == 101 || $pagenum == 102 || $pagenum == 103) {
-	$headline = "SVT Text TV $pagenum - Inrikesnyheter";
-} else if ( in_array($pagenum, [104,105] )) {
-	$headline = "SVT Text TV $pagenum - Utrikesnyheter";
+
+} else if (isset($pagenum) && $pagenum) {
+
+	// Sidnummer => ämne. Bara sidor med stabil identitet enligt SVT:s numrering —
+	// efemära event-/tomsidor lämnas medvetet till sr-only-fallbacken, samma
+	// avgränsning som #04 Fas 1 gjorde för meta-taggarna.
+	//
+	// Nyckeln matchas med isset(), så sammansatta $pagenum ("101-103", "100,300")
+	// faller igenom till fallbacken precis som med den tidigare if-kedjan.
+	$arr_page_headlines = array(
+		101 => "Inrikesnyheter",
+		102 => "Inrikesnyheter",
+		103 => "Inrikesnyheter",
+		104 => "Utrikesnyheter",
+		105 => "Utrikesnyheter",
+		330 => "Resultatbörsen",
+		376 => "Målserviceindex",
+		377 => "Målservice och målresultat",
+		378 => "Målservice utländska ligor",
+		379 => "Matchfakta",
+	);
+
+	if ( isset($arr_page_headlines[$pagenum]) ) {
+		$headline = sprintf(
+			"SVT Text TV %d - %s",
+			(int) $pagenum,
+			$arr_page_headlines[$pagenum]
+		);
+	}
+
 }
 
 if ($headline) {

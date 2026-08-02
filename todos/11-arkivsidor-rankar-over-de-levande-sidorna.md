@@ -168,9 +168,41 @@ bara ut den ena mot en synlig.
 
 HTML5 tillåter flera `<h1>` och Google hanterar det, så det är sannolikt
 ofarligt för ranking. Men eftersom Google *väljer* rubrik att skriva titlar
-från är det ostädat att ge den två konkurrerande kandidater. Låg prioritet;
-enklast är att sänka `page_text`-rubrikerna till `<h2>` i DB:n (samma grepp som
-377-texten redan använder).
+från är det ostädat att ge den två konkurrerande kandidater.
+
+**Åtgärdat 2026-08-02.** `page_text`-rubrikerna sänktes till `<h2>` i prod-DB:n
+(11 taggar över 10 rader, alla rena `<h1>` utan attribut):
+
+```sql
+UPDATE texttv_page_text
+SET text = REPLACE(REPLACE(text, '<h1>', '<h2>'), '</h1>', '</h2>')
+WHERE text LIKE '%<h1>%';
+```
+
+Backup: fullständig `mysqldump` av tabellen i sessionens scratchpad
+(`texttv_page_text-BACKUP-2026-08-02.sql`, 10 533 byte) — **flytta den
+någonstans beständigt**, tabellen saknar historik.
+
+**Ändringen krävde en följdåtgärd.** Utan `<h1>` i `page_text` föll sidorna
+tillbaka på den generiska `sr-only`-rubriken, dvs blev sämre i precis det
+avseende den här todon handlar om. Därför flyttades rubrikerna in i
+`arr_page_headlines` i `pages_inner_output_current.php`:
+
+| Sida | Ny H1 |
+| --- | --- |
+| 336 | `SVT Text TV 336 - Premier League` |
+| 358 | `SVT Text TV 358 - SHL tabell` |
+| 360 | `SVT Text TV 360 - Ishockey Allsvenskan` |
+| 551 | `SVT Text TV 551 - Stryktipset` |
+| 571 | `SVT Text TV 571 - V75-resultat` |
+
+**200, 202 och 398 utelämnades medvetet.** `/200` visar meddelandet att
+text-tv:s ekonomisidor lagts ner (fryst sedan 2024-06-24) och `/202` hörde till
+samma del — båda är tomma idag. `/398` innehåller bara raden
+"Målserviceindex 376 * Resultat 330". Där är den generiska fallbacken ärligare
+än ett ämnesord som lovar innehåll som inte finns.
+
+Verifierat mot prod: samtliga berörda sidor har nu exakt en `<h1>`.
 
 ## Risker
 

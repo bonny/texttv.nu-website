@@ -1,4 +1,4 @@
-**Status:** aktiv — 12 av 19 fynd stängda 2026-08-01, 7 kvar
+**Status:** aktiv — 13 av 19 fynd stängda (12 st 2026-08-01, L2 st 2026-08-02), 6 kvar. M5 halvvägs: webbens dev-ytor borta, importerns kvar
 **Senast uppdaterad:** 2026-08-01
 
 # Todo #08 — Säkerhetsgranskning 2026-08-01
@@ -26,9 +26,8 @@ eller komma åt något de inte ska. Resten är missbruk och härdning.
 | **M1** | Oautentiserad skrivning till DB. `/api/page/` styr "mest lästa" (INSERT i `page_actions`, joinas mot `texttv` i `get_most_read_pages_for_period()`), `/api/share/` + `/api/get_permalink/` + `/oembed` styr "mest delade" (`is_shared + 1` via `mark_archive_ids_as_shared`) | Rate limiting per IP; helst delad hemlighet från apparna på `/api/page/` | Kod |
 | **M2** | `api.php:566` kör `exec(wkhtmltoimage …)` per `/api/screenshot/`-anrop. Filnamn = `md5($url)`, så olika id-ordning ger obegränsat antal JPG:er i `/shares/`. `l.texttv.nu/live/{n}` skrapar svt.se per anrop | Rate limiting, tak för antal id per anrop, städjobb för `/shares/` | Kod |
 | **M4** | EOL-ramverk: CodeIgniter 2.2.6 (2015), Laravel 8.83.27 (jan 2023). Inga kända CVE:er träffar koden som den används, men inga fixar kommer | Laravel 8 → 10/11 först. CI 2 → omskrivning. Plan, inte patch | Kod |
-| **M5** | Publika dev-ytor: `/dev/search`, `/dev/stats`, `/dev/updated`, `l.texttv.nu/importstatus`, `/live/{n}`, `/db/{n}`. `/pi.php` är skyddad av env-secret men bör bort | Radera `dev`-controllern (ser oanvänd ut); importerns rutter bakom basic auth eller IP-spärr | Kod + server |
+| **M5** | ~~`/dev/search`, `/dev/stats`, `/dev/updated`~~ **stängda 2026-08-02** (`f47ac46` + `5fb52fb`). Kvar: `l.texttv.nu/importstatus`, `/live/{n}`, `/db/{n}` och `/pi.php` | Importerns rutter bakom basic auth eller IP-spärr | Server |
 | **M6** | Ingen `Content-Security-Policy`, ingen `X-Frame-Options`. `Access-Control-Allow-Origin: *` på alla HTML-sidor, inte bara API:t | Nginx: CSP i `report-only` först, `X-Frame-Options: SAMEORIGIN`, `ACAO` bara på `/api/*` | Server |
-| **L2** | `importer/app/Classes/Importer.php:109-190` lägger varje tecken från SVT rått i `<span>`. Att `<` inte blir XSS beror bara på att varje tecken hamnar i egen span; `if (!$charInfo) return $char;` (rad 118) släpper igenom obehandlade tecken i följd | `htmlspecialchars($char, ENT_QUOTES)` | Kod |
 | **L7** | Ingen rate limiting någonstans i stacken | Går upp i M1 + M2 | Kod + server |
 
 **Föreslagen ordning:** M6 ger mest per insats (ren nginx-config, ingen PHP rörs, och en CSP är
@@ -58,6 +57,17 @@ Alla deployade via `main` och verifierade mot prod direkt efter deploy.
 | **L6** | `encryption_key` tom | Läses från `$_SERVER['ENCRYPTION_KEY']`, tom sträng som fallback. **Ingen nyckel committas** — repot är publikt, en nyckel i filen vore samma sak som ingen nyckel | `1d74fc0` |
 | **L8** | `log2db()`, `json_encode_pretty()`, `removeWhiteSpace()` döda efter K4 | Borttagna. `texttv_log`-tabellen är **kvar** i databasen med sin historik | `1d74fc0` |
 | **L9** | oembed matchade `!\d+!`, dvs *första* siffergruppen. `/149/vm-2026-guld-till-sverige-7336730` löste upp till id 2026 — årtal i rubriker är vanligt, så riktiga inbäddningar har visat fel sida | Matchar sista siffergruppen; query och fragment kapas först (annars blev `?fbclid=abc123` tolkat som id) | `e8a6b2d` |
+
+## Klart 2026-08-02
+
+| # | Fynd | Åtgärd | Commit |
+| --- | --- | --- | --- |
+| **L2** | `Importer.php` lade varje tecken från SVT rått i en `<span>`. Att `<` aldrig blev XSS berodde bara på att varje tecken hamnar i egen span, och early-return:en när `charsExtractor` inte känner igen tecknet släppte igenom obehandlade tecken i följd | `htmlspecialchars($char, ENT_QUOTES, 'UTF-8')` en gång högst upp i closuren, vilket täcker alla fyra vägar ut. Innehållet kommer avkodat ur `__NEXT_DATA__`, alltså riktiga tecken och inte entiteter — ingen dubbelescape. Nytt riktat test `test_colorize_escapes_html_chars` går via reflection direkt på den läckande vägen; medvetet oberoende av markup eftersom `test_colorize` har sin assertion avstängd | `3115edc` |
+| **M5** (halv) | `/dev`, `/dev/search`, `/dev/stats`, `/dev/updated` publikt nåbara utan auth. `/dev/updated` returnerade 10 kB | `dev`-controllern raderad — rena utvecklingsverktyg, inga referenser i koden. Krävde också att deployens städsteg gjordes självunderhållande: det var en handskriven `rm`-lista med bara `fb.php`, så `dev.php` låg kvar och svarade 200 efter första deployen. Nu jämförs serverns controllers mot repots | `f47ac46`, `5fb52fb` |
+
+**Verifierat mot prod:** alla fyra dev-URL:er ger 404, serverns controller-katalog
+matchar repot exakt, och `/`, `/100`, `/377`, `/330`, `/blogg`, `/sida/delat` samt
+`/api/get` svarar som förut med giltig JSON.
 
 ## Kvarstående manuella åtgärder (ej kod)
 

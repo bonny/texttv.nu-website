@@ -113,6 +113,16 @@ class Importer
 
         $lineChars = array_map(
             function ($char, $charIndex) use ($line, $lineIndex, $charsExtractor) {
+                // L2 i #08: tecknen kommer råa från SVT och bakas in i HTML nedan.
+                // Att "<" aldrig blivit XSS har bara berott på att varje tecken
+                // hamnar i en egen <span> — early-return:en strax nedan släpper
+                // dock igenom obehandlade tecken i följd. Escape:a en gång här,
+                // så gäller det samtliga vägar ut ur closuren.
+                //
+                // Innehållet kommer avkodat ur __NEXT_DATA__-JSON:en, alltså som
+                // riktiga tecken och inte entiteter — ingen risk för dubbelescape.
+                $char = htmlspecialchars($char, ENT_QUOTES, 'UTF-8');
+
                 $charInfo = $charsExtractor->getChar($lineIndex, $charIndex);
 
                 if (!$charInfo) {

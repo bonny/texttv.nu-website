@@ -128,6 +128,38 @@ class ImportTest extends TestCase
     }
 
     /**
+     * L2 i #08: tecken från SVT bakas in rått i HTML i colorizeLine().
+     *
+     * Att "<" aldrig blev XSS berodde bara på att varje tecken hamnar i en egen
+     * <span>. Early-return-vägen — när charsExtractor inte känner igen tecknet —
+     * släppte dock igenom obehandlade tecken i följd.
+     *
+     * Testet går direkt på colorizeLine() med en extractor som alltid returnerar
+     * null, alltså exakt den läckande vägen. Medvetet oberoende av markup, till
+     * skillnad från test_colorize vars fullständiga jämförelse är avstängd för
+     * att den brakar på varje markupändring.
+     */
+    public function test_colorize_escapes_html_chars()
+    {
+        $importer = new Importer(100);
+
+        $charsExtractor = new class {
+            public function getChar($lineIndex, $charIndex)
+            {
+                return null;
+            }
+        };
+
+        $method = new \ReflectionMethod(Importer::class, 'colorizeLine');
+        $method->setAccessible(true);
+
+        $this->assertSame(
+            '&lt;a&amp;&quot;b&gt;',
+            $method->invoke($importer, '<a&"b>', 0, $charsExtractor)
+        );
+    }
+
+    /**
      * Testa att sidnummer på en sida blir till länkar.
      */
     public function test_linkify()

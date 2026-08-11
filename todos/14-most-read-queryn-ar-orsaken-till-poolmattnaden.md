@@ -17,6 +17,55 @@ Verifierat efter deploy:
 | Cachar den i 60 s? | **Ja** — `x-cache: HIT` vid t=6, 12, 25 och 45 s på samma URL. Med 4s TTL hade den slagit om till MISS/STALE vid 6 s |
 | Sajten | `/100`, `/`, `/api/get/100`, `api.texttv.nu` — alla 200 |
 
+### Effektmätning 2026-08-11 kl 11:54 — TTL:en fungerar
+
+Jämförelse mellan **samma timmar** (kl 10:00–11:59) före och efter, på
+jämförbar trafik (235 477 → 255 881 requests, dvs. något *mer* idag):
+
+**Cachebeteende för `/api/most_read`** — antal svar som krävde att PHP körde:
+
+| | Igår (4s TTL) | Idag (60s TTL) |
+| --- | --- | --- |
+| HIT | 5 878 (63 %) | **9 142 (96 %)** |
+| STALE | 2 075 | 261 |
+| UPDATING | 1 340 | 132 |
+| MISS | 3 | 1 |
+| **Nådde PHP** | **3 418** | **394** |
+
+**8,7 gånger färre regenereringar.**
+
+**Responstid `/api/most_read`:**
+
+| | Igår | Idag |
+| --- | --- | --- |
+| p95 | 1,114 s | **0,000 s** |
+| p99 | 1,453 s | 0,783 s |
+| max | 3,392 s | 1,883 s |
+
+**Responstid för hela sajten** — det här är huvudresultatet, eftersom det
+visar att regenereringarna höll upp *orelaterade* requests:
+
+| | Igår | Idag |
+| --- | --- | --- |
+| p50 | 0,002 s | 0,002 s |
+| p95 | 0,008 s | 0,007 s |
+| **p99** | **0,521 s** | **0,030 s** |
+| max | 17,697 s | 9,877 s |
+
+**p99 för hela sajten är 17 gånger bättre.** Mekanismen i #12 är därmed
+bekräftad: `most_read`-regenereringarna ockuperade php-fpm-workers och lade
+sekunder på requests som inte hade med `most_read` att göra.
+
+**php-fpm-mättnad**, samma fönster (kl 06–11:54): **7 varningar igår → 1 idag.**
+
+**Slowlog:** noll träffar kl 08–11 idag. Igår samma timmar: 1–3/h, och
+kvällstopparna låg på 271 (kl 21), 361 (kl 22), 333 (kl 23).
+
+### Kvarstår att bekräfta
+
+Kvällen är det riktiga provet — problemet skalar med trafiken och toppade
+på 361 slowlog-träffar kl 22. **Mät igen kl 21–23 2026-08-11.**
+
 ### Utgångsläge för effektmätning
 
 Mätt precis före deploy (05:36) respektive efter (05:42):

@@ -1,7 +1,44 @@
 # 14 – `most_read`-queryn är orsaken till poolmättnaden
 
-**Status:** aktiv
-**Senast uppdaterad:** 2026-08-10
+**Status:** aktiv — **TTL-höjningen deployad 2026-08-11**, effekten ska mätas kvällen 2026-08-11
+**Senast uppdaterad:** 2026-08-11
+
+## Åtgärd 1 deployad 2026-08-11 (commit c8aa622)
+
+`X-Accel-Expires: 60` sätts i `api.php` för `most_read`. nginx cachar därmed
+svaret i 60 s i stället för vhostens `fastcgi_cache_valid 4s`.
+
+Verifierat efter deploy:
+
+| Kontroll | Resultat |
+| -------- | -------- |
+| Headern läcker till klienten? | **Nej** — nginx strippar `X-Accel-Expires` som avsett |
+| API-svar oförändrat? | **Ja** — byte-identiskt mot fyra baslinjer tagna före deploy (avslutade datum 2026-08-08/09, alla typer) |
+| Cachar den i 60 s? | **Ja** — `x-cache: HIT` vid t=6, 12, 25 och 45 s på samma URL. Med 4s TTL hade den slagit om till MISS/STALE vid 6 s |
+| Sajten | `/100`, `/`, `/api/get/100`, `api.texttv.nu` — alla 200 |
+
+### Utgångsläge för effektmätning
+
+Mätt precis före deploy (05:36) respektive efter (05:42):
+
+- slowlog: 16 008 rader → 16 048
+- `max_children`-varningar: 142 → 142, senaste 04:50:50
+
+**Detta säger ingenting ännu** — deployen skedde 05:38, i lågtrafik.
+Problemet toppar på kvällen: 271 slowlog-träffar kl 21, 147 kl 20.
+**Mät kvällen 2026-08-11 kl 21–22 och jämför mot de siffrorna.**
+
+Blir förbättringen liten trots 15x färre regenereringar är nästa steg att
+titta på N+1-loopen (`Texttv_page::load()` per rad) eller på att materialisera
+aggregatet i en egen tabell.
+
+### Deployen var trasig av orsaker utan samband
+
+Första försöket failade: `HETZNER_HOST` pekade på `hetzner.texttv.nu`, vars
+DNS-post rensades bort 2026-08-10. Hemligheten är uppdaterad till `texttv.nu`.
+**Ingen automatisk deploy hade fungerat sedan dess** — det upptäcktes bara för
+att vi råkade deploya. `hetzner.texttv.nu` och `api-hetzner.texttv.nu` står
+kvar som `server_name` i vhosten trots att de inte längre resolvar; städbart.
 
 ## Sammanfattning
 

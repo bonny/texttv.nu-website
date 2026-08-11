@@ -4,13 +4,16 @@ Index över förbättringsarbete. Varje todo har en egen fil under
 [`todos/`](todos/) med fullständig analys. Konvention och
 mappstruktur: [`todos/README.md`](todos/README.md).
 
-Senast uppdaterad: 2026-08-02 (#01 stängd; #09 A+C deployade; #10 mätt och pausad; #11 ny — titeln är hävstången på sidor Google inte skriver om).
+Senast uppdaterad: 2026-08-10 kväll (#14 ny och prioriterad — slowloggen efter ett dygn pekar ut `most_read`-queryn som orsak till poolmättnaden i #12: 578 av 608 långsamma requests, DB-bundna. `/live/`-hypotesen motbevisad. #13 ip-läckan stoppad).
 
 ## Aktiva
 
 | #   | Titel | Status | Fil |
 | --- | ----- | ------ | --- |
 | 04  | Perf/SEO-fixar från Lighthouse-baseline 2026-05-19 | G/E/H + **D Fas 1+2** klara (Fas 1 deployad+live-verifierad 2026-06-22, 20 sidor), A delvis, F släppt, I/B/C/J deprio:ade. Kvar: 60d-effektmätning (m. #01 2026-07-18) | [todos/04-perf-seo-fixar-fran-baseline-2026-05-19.md](todos/04-perf-seo-fixar-fran-baseline-2026-05-19.md) |
+| 14  | `most_read`-queryn är orsaken till poolmättnaden | **ny, prioriterad** — slowloggen visar att 578 av 608 långsamma requests är `get_most_read_pages_for_period()`. DB-bunden, inte CPU. 133k anrop/dygn, p95 1,76 s, max 6,4 s. Billigaste åtgärd: höj cache-TTL för `/api/most_read` från 4 s. Orsaken bakom #12 | [todos/14-most-read-queryn-ar-orsaken-till-poolmattnaden.md](todos/14-most-read-queryn-ar-orsaken-till-poolmattnaden.md) |
+| 13  | `access.log` dubbelloggar — ip-anonymiseringen är verkningslös | **läckan stoppad 2026-08-10** — `nginx.conf:40` utkommenterad, verifierat 300/300 rader anonymiserade och 0 dubbletter. Kvar: beslut om historiken (roteras ut av sig själv senast 2026-08-24) | [todos/13-access-log-dubbelloggar-ip-anonymisering-verkningslos.md](todos/13-access-log-dubbelloggar-ip-anonymisering-verkningslos.md) |
+| 12  | php-fpm-poolen slår i taket i normaldrift | **orsaken hittad — se #14.** B genomfört 2026-08-10 (`rt=` + slowlog aktiva; `pm.status_path` gick inte, återställd). Requesterna är **DB-bundna**, så alternativ A (höj `max_children`) skulle hjälpa — men #14 åtgärdar orsaken, ta den först. `/live/`-hypotesen motbevisad (1 av 608) | [todos/12-php-fpm-poolen-slar-i-taket.md](todos/12-php-fpm-poolen-slar-i-taket.md) |
 | 06  | Byt facade/ignition mot spatie/laravel-ignition | ny — workaround i `AppServiceProvider` (commit 6ba0656) maskerar problemet, vill byta paket istället | [todos/06-byt-facade-ignition-mot-spatie-laravel-ignition.md](todos/06-byt-facade-ignition-mot-spatie-laravel-ignition.md) |
 | 08  | Säkerhetsgranskning 2026-08-01 | **13 av 19 stängda** (12 st 2026-08-01, **L2 + webbens dev-ytor 2026-08-02**). Kvar: M1, M2, L7 (rate limiting), M4 (EOL-ramverk), M6 (CSP/headers) samt M5:s serversida (importerns `/importstatus`, `/live/{n}`, `/db/{n}`, `/pi.php`) | [todos/08-sakerhetsgranskning-2026-08-01.md](todos/08-sakerhetsgranskning-2026-08-01.md) |
 | 10  | Retention raderar arkivsidor som rankar | **pausad — mätt 2026-08-02: 76 % av arkivsidorna med trafik raderas, men de är färska nyhetssidor vars efterfrågan ändå dör. Ingen åtgärd.** Fyndet som blev kvar: arkivsnapshots från 2016–17 rankar över de levande sidorna på ämnesfrågor (`resultatbörsen`: arkiv 25 klick, live /330 noll) | [todos/10-retention-raderar-arkivsidor-som-rankar.md](todos/10-retention-raderar-arkivsidor-som-rankar.md) |

@@ -91,6 +91,19 @@ class Api extends CI_Controller
 
 		$arr_json["pages"] = array_splice($arr_json["pages"], 0, $count);
 
+		// 2026-08-10: Låt nginx cacha det här svaret i 60 s istället för
+		// vhostens fastcgi_cache_valid 4s. Se todo #14: endpointen stod för
+		// 578 av 608 långsamma requests under ett dygn — queryn är tung och
+		// regenererades i praktiken oavbrutet med 4s TTL, vilket band en
+		// php-fpm-worker i upp till 6 s per regenerering (poolen har 5).
+		// "Mest lästa idag" behöver inte fyra sekunders färskhet.
+		//
+		// X-Accel-Expires används med flit i stället för Cache-Control:
+		// nginx konsumerar och STRIPPAR headern, så svaret till iOS- och
+		// Android-apparna blir byte-identiskt. Cache-Control hade synts för
+		// klienten och kunnat ändra beteendet i redan utgivna appversioner.
+		$this->output->set_header("X-Accel-Expires: 60");
+
 		$this->output->set_content_type("application/json");
 		$this->output->append_output(json_encode($arr_json));
 	}

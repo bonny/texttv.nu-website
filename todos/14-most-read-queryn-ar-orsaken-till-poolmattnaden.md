@@ -157,6 +157,33 @@ Misstänkta orsaker, i fallande sannolikhet:
 3. **`GROUP BY pa.page_ids` med många icke-aggregerade `tt.*`-kolumner** —
    tvingar fram temporär tabell.
 
+## Åtgärd 2 deployad 2026-08-11 (commit 1533f41): UNCOMPRESS ut ur grupperingen
+
+### Den verkliga orsaken, hittad via EXPLAIN
+
+Den gamla queryn hade `UNCOMPRESS(tt.page_content)` i SELECT-listan på den
+grupperande queryn. Det betyder att **temptabellen innehöll en BLOB** — och
+MariaDB kan inte hålla BLOB i minnestabeller. Temptabellen tvingades därför
+till disk **vid varje anrop, oavsett `tmp_table_size`**.
+
+Servern hade 180 641 `Created_tmp_disk_tables` (~20 000/dygn) när detta
+mättes. Att höja minnesinställningar hade inte hjälpt en enda byte — det var
+datatypen, inte storleken, som tvingade fram diskskrivningen.
+
+Den nya grupperingen ger 3 610 rader per dygn utan BLOB och ryms i minnet med
+nuvarande 16 MB.
+
+### Verifierat i produktion
+
+| Kontroll | Resultat |
+| -------- | -------- |
+| API-svar oförändrat | **Ja** — byte-identiskt mot alla fyra baslinjer, körda mot live prod efter deploy |
+| Disk-temptabeller | **10 ocachade anrop → +52 temptabeller i minnet, +0 på disk** |
+| Sajten | `/100`, `/`, `/api/get/100`, `api.texttv.nu` — alla 200 |
+| Ocachad `most_read` | 0,53–0,65 s (mot p95 1,11 s och max 3,39 s före TTL-fixen) |
+
+Mekanismen är därmed bekräftad kausalt, inte bara i EXPLAIN.
+
 ## Mätt mot prod-DB 2026-08-11
 
 Den omskrivna queryn (UNCOMPRESS flyttad till ytterste SELECT, se

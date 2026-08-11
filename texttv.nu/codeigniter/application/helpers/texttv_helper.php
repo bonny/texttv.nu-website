@@ -156,26 +156,49 @@ function get_most_read_pages_for_period($time_from = null, $time_to = null, $typ
 	$ci =& get_instance();
 	$ci->load->database();
 
+	// 2026-08-10 (todo #14): Queryn är uppdelad i två steg.
+	//
+	// Tidigare låg UNCOMPRESS(tt.page_content) i SELECT-listan på den
+	// grupperande queryn. Det innebar att sidinnehållet dekomprimerades för
+	// VARJE joinad rad — även alla de som sedan kastades av LIMIT 50. På ett
+	// dygn stod den här funktionen för 578 av 608 långsamma requests (p95
+	// 1,76 s, max 6,4 s) och band php-fpm-workers så att poolen slog i taket.
+	//
+	// Nu gör den inre queryn bara aggregeringen (billig, inga blobbar), och
+	// UNCOMPRESS körs i den yttre — alltså på exakt de 50 rader som blir kvar.
+	//
+	// OBS: ORDER BY använde tidigare `pa.created_at` som är en icke-aggregerad
+	// kolumn i en GROUP BY-query; MariaDB plockade då ett godtyckligt värde ur
+	// gruppen. Här används MIN(pa.created_at), vilket är deterministiskt och
+	// matchar den uppenbara avsikten (äldsta action först vid lika antal).
+	// Rader med samma count_page_ids kan därför byta inbördes ordning.
 	$sql = "
 		## Hämta actions från n senaste timmarna
 		#EXPLAIN
-		select 
-		  count(pa.page_ids) AS count_page_ids, 
-		  pa.page_ids, 
-		  tt.id, 
-		  tt.page_num, 
-		  tt.title, 
+		select
+		  agg.count_page_ids,
+		  agg.page_ids,
+		  tt.id,
+		  tt.page_num,
+		  tt.title,
 		  tt.date_updated,
 		  UNCOMPRESS(tt.page_content) AS page_content,
-		  DATE_FORMAT(tt.date_added, '%H:%i') AS date_added_formatted, 
-		  UNIX_TIMESTAMP(tt.date_added) AS date_added_unix, 
+		  DATE_FORMAT(tt.date_added, '%H:%i') AS date_added_formatted,
+		  UNIX_TIMESTAMP(tt.date_added) AS date_added_unix,
 		  tt.date_added
-		
-		FROM 
-		  texttv_stats.page_actions AS pa 
-		  INNER JOIN `texttv.nu`.texttv AS tt ON (tt.id = pa.page_ids)
-		
-		WHERE 
+
+		FROM (
+		  ## Steg 1: aggregera fram de 50 mest lästa. Ingen page_content här.
+		  select
+		    count(pa.page_ids) AS count_page_ids,
+		    pa.page_ids,
+		    MIN(pa.created_at) AS first_created_at
+
+		  FROM
+		    texttv_stats.page_actions AS pa
+		    INNER JOIN `texttv.nu`.texttv AS tt ON (tt.id = pa.page_ids)
+
+		  WHERE
 		  # pa.created_at > DATE_SUB(NOW(), INTERVAL 1 HOUR) 
 		  pa.created_at BETWEEN '$time_from_ymd' and '$time_to_ymd'
 		  
@@ -215,12 +238,20 @@ function get_most_read_pages_for_period($time_from = null, $time_to = null, $typ
 		  # Inkludera ev. endast t.ex. nyheter eller sport
 		  $type_and
 
-		GROUP BY
-		  pa.page_ids 
+		  GROUP BY
+		    pa.page_ids
+		  ORDER BY
+		    count_page_ids DESC,
+		    first_created_at ASC
+		  LIMIT 50
+		) AS agg
+
+		## Steg 2: hämta innehållet för enbart de 50 vinnarna.
+		INNER JOIN `texttv.nu`.texttv AS tt ON (tt.id = agg.page_ids)
+
 		ORDER BY
-		  count_page_ids DESC, 
-		  pa.created_at ASC 
-		LIMIT 50
+		  agg.count_page_ids DESC,
+		  agg.first_created_at ASC
 	";
 	
 	// echo $sql; exit;

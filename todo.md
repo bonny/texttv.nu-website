@@ -4,16 +4,15 @@ Index över förbättringsarbete. Varje todo har en egen fil under
 [`todos/`](todos/) med fullständig analys. Konvention och
 mappstruktur: [`todos/README.md`](todos/README.md).
 
-Senast uppdaterad: 2026-08-11 lunch (#14: båda åtgärderna deployade. TTL 60 s gav 8,7x färre regenereringar och sänkte **hela sajtens p99 från 0,521 s till 0,030 s**. UNCOMPRESS ut ur grupperingen tog bort en tvingad disk-temptabell per anrop — BLOB kan inte ligga i minnestabeller, så `tmp_table_size` var aldrig lösningen. Kvar: bekräfta kvällstoppen kl 21–23).
+Senast uppdaterad: 2026-08-14 kväll (#14 **klar** — kvällsprovet bekräftar vinsten: sajtens p99 kl 20–23 från 0,493 s till 0,034 s, slowlog 1198→~300/dygn. Men poolmättnaden i #12 finns kvar med **ny mätt rotorsak**: importerns `everyTenMinutes()`-jobb ger 43x sämre p99 under cron-minuterna.)
 
 ## Aktiva
 
 | #   | Titel | Status | Fil |
 | --- | ----- | ------ | --- |
 | 04  | Perf/SEO-fixar från Lighthouse-baseline 2026-05-19 | G/E/H + **D Fas 1+2** klara (Fas 1 deployad+live-verifierad 2026-06-22, 20 sidor), A delvis, F släppt, I/B/C/J deprio:ade. Kvar: 60d-effektmätning (m. #01 2026-07-18) | [todos/04-perf-seo-fixar-fran-baseline-2026-05-19.md](todos/04-perf-seo-fixar-fran-baseline-2026-05-19.md) |
-| 14  | `most_read`-queryn är orsaken till poolmättnaden | **TTL-höjning deployad + mätt 2026-08-11** — 8,7x färre regenereringar, sajtens p99 från 0,521 s till 0,030 s (17x), poolmättnad 7→1 varningar samma tidsfönster. Orsaken bakom #12, mekanismen bekräftad. SQL-omskrivningen deployad 2026-08-11: BLOB i grupperingen tvingade en disk-temptabell per anrop — nu 0 av 10 anrop. **Kvar: bekräfta kvällstoppen kl 21–23** | [todos/14-most-read-queryn-ar-orsaken-till-poolmattnaden.md](todos/14-most-read-queryn-ar-orsaken-till-poolmattnaden.md) |
 | 13  | `access.log` dubbelloggar — ip-anonymiseringen är verkningslös | **läckan stoppad 2026-08-10** — `nginx.conf:40` utkommenterad, verifierat 300/300 rader anonymiserade och 0 dubbletter. Kvar: beslut om historiken (roteras ut av sig själv senast 2026-08-24) | [todos/13-access-log-dubbelloggar-ip-anonymisering-verkningslos.md](todos/13-access-log-dubbelloggar-ip-anonymisering-verkningslos.md) |
-| 12  | php-fpm-poolen slår i taket i normaldrift | **orsaken hittad — se #14.** B genomfört 2026-08-10 (`rt=` + slowlog aktiva; `pm.status_path` gick inte, återställd). Requesterna är **DB-bundna**, så alternativ A (höj `max_children`) skulle hjälpa — men #14 åtgärdar orsaken, ta den först. `/live/`-hypotesen motbevisad (1 av 608) | [todos/12-php-fpm-poolen-slar-i-taket.md](todos/12-php-fpm-poolen-slar-i-taket.md) |
+| 12  | php-fpm-poolen slår i taket i normaldrift | **ny rotorsak mätt 2026-08-14: importerns tiominutersjobb.** p99 1,176 s under cron-minuterna mot 0,027 s övrig tid (43x). Åtgärd: sprid ut jobben + flytta `cleanup-page-actions` från 10-minuterstakt. #14:s fixar klara och verifierade | [todos/12-php-fpm-poolen-slar-i-taket.md](todos/12-php-fpm-poolen-slar-i-taket.md) |
 | 06  | Byt facade/ignition mot spatie/laravel-ignition | ny — workaround i `AppServiceProvider` (commit 6ba0656) maskerar problemet, vill byta paket istället | [todos/06-byt-facade-ignition-mot-spatie-laravel-ignition.md](todos/06-byt-facade-ignition-mot-spatie-laravel-ignition.md) |
 | 08  | Säkerhetsgranskning 2026-08-01 | **13 av 19 stängda** (12 st 2026-08-01, **L2 + webbens dev-ytor 2026-08-02**). Kvar: M1, M2, L7 (rate limiting), M4 (EOL-ramverk), M6 (CSP/headers) samt M5:s serversida (importerns `/importstatus`, `/live/{n}`, `/db/{n}`, `/pi.php`) | [todos/08-sakerhetsgranskning-2026-08-01.md](todos/08-sakerhetsgranskning-2026-08-01.md) |
 | 10  | Retention raderar arkivsidor som rankar | **pausad — mätt 2026-08-02: 76 % av arkivsidorna med trafik raderas, men de är färska nyhetssidor vars efterfrågan ändå dör. Ingen åtgärd.** Fyndet som blev kvar: arkivsnapshots från 2016–17 rankar över de levande sidorna på ämnesfrågor (`resultatbörsen`: arkiv 25 klick, live /330 noll) | [todos/10-retention-raderar-arkivsidor-som-rankar.md](todos/10-retention-raderar-arkivsidor-som-rankar.md) |
@@ -51,6 +50,7 @@ eller markera todon som klar.
 
 | #   | Titel | Datum | Fil |
 | --- | ----- | ----- | --- |
+| 14  | `most_read`-queryn är orsaken till poolmättnaden | 2026-08-14 | [todos/done/14-most-read-queryn-ar-orsaken-till-poolmattnaden.md](todos/done/14-most-read-queryn-ar-orsaken-till-poolmattnaden.md) |
 | 01  | Varför har /343 och ev andra sidor så dålig CTR? | 2026-08-02 | [todos/done/01-varfor-har-343-och-ev-andra-sidor-sa-dalig-ctr.md](todos/done/01-varfor-har-343-och-ev-andra-sidor-sa-dalig-ctr.md) |
 | 07  | Docker Compose för lokal utveckling | 2026-06-24 | [todos/done/07-docker-compose-lokal-utveckling.md](todos/done/07-docker-compose-lokal-utveckling.md) |
 | 05  | Utvärdera externa SEO-skills (addyosmani + coreyhaines31) | 2026-05-19 | [todos/done/05-utvardera-seo-skills.md](todos/done/05-utvardera-seo-skills.md) |

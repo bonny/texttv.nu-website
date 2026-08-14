@@ -1,7 +1,7 @@
 # 14 – `most_read`-queryn är orsaken till poolmättnaden
 
-**Status:** aktiv — **TTL-höjningen deployad 2026-08-11**, effekten ska mätas kvällen 2026-08-11
-**Senast uppdaterad:** 2026-08-11
+**Status:** klar 2026-08-14
+**Senast uppdaterad:** 2026-08-14
 
 ## Åtgärd 1 deployad 2026-08-11 (commit c8aa622)
 
@@ -61,10 +61,34 @@ sekunder på requests som inte hade med `most_read` att göra.
 **Slowlog:** noll träffar kl 08–11 idag. Igår samma timmar: 1–3/h, och
 kvällstopparna låg på 271 (kl 21), 361 (kl 22), 333 (kl 23).
 
-### Kvarstår att bekräfta
+### Kvällsprovet bekräftat 2026-08-14 — vinsten håller
 
-Kvällen är det riktiga provet — problemet skalar med trafiken och toppade
-på 361 slowlog-träffar kl 22. **Mät igen kl 21–23 2026-08-11.**
+p99 för **hela sajten** kl 20–23, alltså i toppen:
+
+| Dygn | p99 | Requests |
+| ---- | --- | -------- |
+| 10 aug (före) | **0,493 s** | 953 365 |
+| 12 aug | 0,031 s | 719 727 |
+| 13 aug | 0,124 s | 880 566 |
+| 14 aug | **0,034 s** | 718 446 |
+
+Slowlog-träffar per dygn: **1 198 (10 aug) → 272–411** efter fixarna.
+
+**Denna todo är därmed avklarad.** `most_read` är fortfarande den enskilt
+tyngsta queryn i slowloggen (597 av 659 träffar 13–14 aug), men den anropas
+nu så sällan att den inte längre driver poolmättnaden. Vidare optimering av
+själva queryn (N+1-loopen, materialiserat aggregat) är inte motiverad förrän
+något annat pekar dit.
+
+### Men mättnaden finns kvar — av en ny orsak
+
+`max_children`-varningar per dygn: 52 (10 aug) → 27 (11 aug, deploydagen) →
+82 → 138 → 131. Alltså **uppåt**, trots att slowloggen gick ner.
+
+Mönstret har dock ändrats i grunden: från trafikstyrt till **platt 4–8 per
+timme dygnet runt**, med klustring på minut 02, 11, 21, 31, 41, 51 — var
+tionde minut. Det är importerns schema, inte besökslast. **Överlämnas till
+todo #12**, som nu har en ny och mätt rotorsak.
 
 ### Utgångsläge för effektmätning
 
@@ -251,7 +275,7 @@ Punkt 2 och 3 ändrar inte svarets form — men verifiera mot Bruno-collectionen
 
 ## Relaterat
 
-- Todo [#12](12-php-fpm-poolen-slar-i-taket.md) — poolmättnaden. Detta är
+- Todo [#12](../12-php-fpm-poolen-slar-i-taket.md) — poolmättnaden. Detta är
   orsaken; #12 är symptomet.
-- Skillen [`prod-health`](../.claude/skills/prod-health/SKILL.md) — subkommandot
+- Skillen [`prod-health`](../../.claude/skills/prod-health/SKILL.md) — subkommandot
   `fpm` beskriver hur slowloggen läses.

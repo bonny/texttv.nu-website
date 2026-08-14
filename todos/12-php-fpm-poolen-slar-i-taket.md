@@ -30,6 +30,46 @@ Upptäckt 2026-08-09 när `prod-health`-skillen byggdes.
   (TTL 4 s), men det som släpps igenom trängs om 5 platser.
 - Workers: 4 aktiva av 5 vid mätningen.
 
+> ## Uppdatering 2026-08-14: ny rotorsak mätt — importerns tiominutersjobb
+>
+> #14:s fixar är deployade och verifierade (sajtens p99 kl 20–23: 0,493 s →
+> 0,034 s). Men poolmättnaden finns kvar och har **ändrat karaktär**: från
+> trafikstyrd till platt 4–8 varningar per timme dygnet runt, klustrade på
+> minut 02, 11, 21, 31, 41 och 51.
+>
+> Det är importerns schema. `importer/app/Console/Kernel.php` har flera
+> `everyTenMinutes()`-jobb som går samtidigt:
+> - `importRange(500, 599)` — 100 sidor hämtas från svt.se, parsas och
+>   GIF-genereras
+> - `importRange(730, 750)` — 21 sidor
+> - `texttv:cleanup-page-actions` — bulk-DELETE mot samma 2,7-miljonerstabell
+>   som `most_read` läser
+> - `texttv:cleanup-old-pages`
+>
+> **Och det drabbar besökarna.** Mätt kl 18–23 den 14 aug:
+>
+> | | p99 | Requests |
+> | --- | --- | --- |
+> | Cron-minuterna (~20 % av tiden) | **1,176 s** | 213 052 |
+> | Övriga minuter | **0,027 s** | 859 318 |
+>
+> **43x sämre p99** under fönstret. Det är nu den dominerande orsaken till
+> användarupplevd långsamhet — den har tagit över efter `most_read`.
+>
+> ### Föreslagna åtgärder (alternativ C, nu med mätning bakom sig)
+>
+> 1. **Sprid ut jobben.** De ligger på samma minut idag. Ge dem olika offset
+>    med `->cron("3-59/10 * * * *")` etc. Billigast, ändrar ingen logik.
+> 2. **Flytta `texttv:cleanup-page-actions` från 10-minuterstakt** till
+>    timvis eller nattetid. Bulk-DELETE mot tabellen webben läser är trolig
+>    DB-sidig orsak.
+> 3. **`nice` importern** så php-fpm vinner CPU-konkurrensen på de 2 kärnorna.
+> 4. **Dela upp `importRange(500, 599)`** i mindre bitar spridda över de tio
+>    minuterna i stället för en skur.
+>
+> Punkt 1 och 2 är låg risk och sannolikt tillräckliga. Mät samma
+> cron-minut-vs-övriga-jämförelse efteråt.
+
 > **Uppdatering 2026-08-10 kväll:** orsaken är nu känd — se **todo #14**.
 > Requesterna är **DB-bundna** (605 av 608 fångade långsamma requests stod i
 > `mysqli_query()`), inte CPU-bundna. Det betyder att alternativ A (höj

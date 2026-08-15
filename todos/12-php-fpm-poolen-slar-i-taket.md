@@ -72,7 +72,52 @@ Upptäckt 2026-08-09 när `prod-health`-skillen byggdes.
 > 300–399, ~200 sidor) upptar alla jämna. Ingen logik ändrad, bara starttid.
 > Importern verifierad frisk efter deploy: 0 fel, import igång, cron 5/5.
 >
-> ### Vad mätningen ska visa
+> ### Mätt 2026-08-15 kl 22:32 — orsaken isolerad till `cleanup-old-pages`
+>
+> Utspridningen fungerade som mätinstrument. p99 per minut, kl 18–22:
+>
+> | Jobb | Minuter | p99 |
+> | ---- | ------- | --- |
+> | `importRange(500,599)` — 100 sidor | 1, 11, 21, 31, 41, 51 | 0,036–0,046 s |
+> | `importRange(730,750)` — 21 sidor | 5, 15, 25, 35, 45, 55 | 0,030–0,041 s |
+> | **`cleanup-old-pages`** | **7, 17, 27, 37, 47, 57** | **1,97–2,51 s** |
+>
+> **Importerna är oskyldiga. Hela spiken är DELETE-jobbet.** Den varar ~10
+> sekunder: vid :07:0x är p99 2,876 s, vid :07:1x tillbaka på 0,037 s.
+>
+> ### Och jobbet gör ingen nytta alls
+>
+> ```sql
+> WHERE date_updated < NOW() - INTERVAL 1 YEAR
+>   AND is_shared = 0
+>   AND page_num NOT IN (100, 377)
+> ```
+>
+> | | Antal |
+> | --- | --- |
+> | Rader i `texttv` totalt | 1 590 835 |
+> | Äldre än 1 år | 901 345 |
+> | ... varav `is_shared = 0` | 221 729 |
+> | ... varav sidan **377** | 146 472 (undantagen) |
+> | ... varav sidan **100** | 75 243 (undantagen) |
+> | **Kvar att faktiskt radera** | **13 rader** |
+>
+> De två sidor som står för praktiskt taget alla gamla rader är exakt de som
+> undantas. Jobbet scannar alltså ett stort indexintervall i en 1,5 GB-tabell
+> **144 gånger per dygn för att radera 13 rader** — och när de är borta, noll.
+> Det är kostnaden för scanningen, inte för raderingen, som ger spiken.
+>
+> Undantaget för 100 och 377 är sannolikt medvetet (jfr todo #09/#10/#11 om
+> att arkivsidor för 377 rankar i Google) och **bör inte ändras** utan eget
+> beslut. Men kadensen behöver inte vara var tionde minut för 13 rader.
+>
+> ### Föreslagen åtgärd
+>
+> Kör `texttv:cleanup-old-pages` **en gång per dygn** i stället, på en udda
+> minut i lågtrafik. Det tar bort 143 av 144 dagliga spikar. Nattvarianten
+> `--limit=300000` blir överflödig och kan slås ihop med dygnskörningen.
+>
+> ### Vad mätningen skulle visa (uppfyllt, se ovan)
 >
 > Jämför per minut-i-timmen, kl 18–23, mot baslinjen 2026-08-14
 > (spikar på :02 :11 :21 :31 :41 :51, p99 1,75–2,28 s, normalminuter 0,027 s):

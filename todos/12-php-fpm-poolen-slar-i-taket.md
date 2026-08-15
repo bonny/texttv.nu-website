@@ -56,7 +56,40 @@ Upptäckt 2026-08-09 när `prod-health`-skillen byggdes.
 > **43x sämre p99** under fönstret. Det är nu den dominerande orsaken till
 > användarupplevd långsamhet — den har tagit över efter `most_read`.
 >
-> ### Föreslagna åtgärder (alternativ C, nu med mätning bakom sig)
+> ### Utspridningen deployad 2026-08-15
+>
+> Verifierat med `php artisan schedule:list` på servern:
+>
+> | Jobb | Minuter |
+> | ---- | ------- |
+> | `importRange(500,599)` — 100 sidor | 1, 11, 21, 31, 41, 51 |
+> | `cleanup-page-actions --limit=1000000` (natt) | 3, 13, 23, 33, 43, 53 |
+> | `importRange(730,750)` — 21 sidor | 5, 15, 25, 35, 45, 55 |
+> | `cleanup-old-pages` | 7, 17, 27, 37, 47, 57 |
+> | `cleanup-old-pages --limit=300000` (natt) | 9, 19, 29, 39, 49, 59 |
+>
+> Alla på **udda** minuter, eftersom `everyTwoMinutes`-jobben (106–199 och
+> 300–399, ~200 sidor) upptar alla jämna. Ingen logik ändrad, bara starttid.
+> Importern verifierad frisk efter deploy: 0 fel, import igång, cron 5/5.
+>
+> ### Vad mätningen ska visa
+>
+> Jämför per minut-i-timmen, kl 18–23, mot baslinjen 2026-08-14
+> (spikar på :02 :11 :21 :31 :41 :51, p99 1,75–2,28 s, normalminuter 0,027 s):
+>
+> ```bash
+> ssh texttv.nu '\''F=/var/log/nginx/access.log.1; for m in 01 03 05 07 09 11 21 31 41 51; do
+>   printf ":%s " $m; grep -E "DD/Aug/2026:(1[89]|2[0-3]):$m:" $F | grep -oE "rt=[0-9.]+" | cut -d= -f2 \
+>   | sort -n | awk "{a[NR]=\$1} END {printf \"p99=%.3f\\n\", a[int(NR*0.99)]}"; done'\''
+> ```
+>
+> Två utfall är intressanta:
+> - **Spiken delar sig** i flera mindre → utspridningen fungerade, och vi ser
+>   dessutom vilket jobb som bär vilken del.
+> - **Spiken följer en enda minut** → det jobbet är ensam orsak, och då vet vi
+>   exakt var nästa åtgärd ska sättas in.
+>
+> ### Övriga föreslagna åtgärder (alternativ C, nu med mätning bakom sig)
 >
 > 1. **Sprid ut jobben.** De ligger på samma minut idag. Ge dem olika offset
 >    med `->cron("3-59/10 * * * *")` etc. Billigast, ändrar ingen logik.

@@ -63,9 +63,16 @@ class Kernel extends ConsoleKernel {
         ## nästan fresh, var femte minut eller så
         # Lotto osv, hästar
         #*/5 * * * * root cd /root/texttv-page-updater/ && php updater.php --pageRange 500-599 > 
+        // 2026-08-15 (todo #12): utspridd från everyTenMinutes till minut
+        // 1,11,21,... Tidigare startade det här jobbet samtidigt som
+        // importRange(730,750) och båda cleanup-jobben, ovanpå
+        // everyTwoMinutes-jobben som upptar alla JÄMNA minuter. Resultatet
+        // var en mätbar spik var tionde minut: p99 för hela sajten gick från
+        // 0,027 s till 1,18 s under de minuterna (kl 18-23, 2026-08-14).
+        // Udda minuter valda med flit så vi inte krockar med tvåminutersjobben.
         $schedule->call(function () {
             $this->importRange(500, 599);
-        })->everyTenMinutes();
+        })->cron('1-59/10 * * * *');
 
         # 670 - infosidor för tv
         #3,18,28,39,47,58 * * * * root cd /root/texttv-page-updater/ && php updater.php --pageRange 670-699 > 
@@ -106,9 +113,11 @@ class Kernel extends ConsoleKernel {
         })->daily();
 
         // 730-750 verkar ha någon form av sportresultat numera.
+        // 2026-08-15 (todo #12): utspridd till minut 5,15,25,... se kommentar
+        // vid importRange(500,599).
         $schedule->call(function () {
             $this->importRange(730, 750);
-        })->everyTenMinutes();
+        })->cron('5-59/10 * * * *');
 
         # uppdateras aldrig?
         #7 4 * * * root cd /root/texttv-page-updater/ && php updater.php --pageRange 900-999 > 
@@ -130,16 +139,23 @@ class Kernel extends ConsoleKernel {
             ->unlessBetween('01:30', '05:30');
 
         // Run cleanup with increased limit during night
+        // 2026-08-15 (todo #12): utspridd till minut 3,13,23,... Dagvarianten
+        // (var 15:e min) är mätt oskyldig — minuterna :15 och :45 hade p99
+        // 0,031 s. Nattvarianten flyttas ändå av samma anledning som övriga:
+        // den låg på tiominuterstickan tillsammans med allt annat.
         $schedule->command('texttv:cleanup-page-actions --limit=1000000')
-            ->everyTenMinutes()
+            ->cron('3-59/10 * * * *')
             ->between('01:30', '05:30');
 
-        // Cleanup old pages hourly
-        $schedule->command('texttv:cleanup-old-pages')->everyTenMinutes();
+        // Cleanup old pages. 2026-08-15 (todo #12): utspridd till minut
+        // 7,17,27,... Raderar upp till 10 000 BLOB-rader ur texttv (1,5 GB)
+        // per körning och låg tidigare på samma tick som importjobben.
+        $schedule->command('texttv:cleanup-old-pages')->cron('7-59/10 * * * *');
 
-        // Cleanup more pages at night.
+        // Cleanup more pages at night. Egen offset (9,19,29,...) så den inte
+        // krockar med dagvarianten ovan under 01-05 då båda är aktiva.
         $schedule->command('texttv:cleanup-old-pages --limit=300000')
-        ->everyTenMinutes()
+            ->cron('9-59/10 * * * *')
             ->between('01:00', '05:00');
     }
 

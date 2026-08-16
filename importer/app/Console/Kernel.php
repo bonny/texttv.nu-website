@@ -147,16 +147,26 @@ class Kernel extends ConsoleKernel {
             ->cron('3-59/10 * * * *')
             ->between('01:30', '05:30');
 
-        // Cleanup old pages. 2026-08-15 (todo #12): utspridd till minut
-        // 7,17,27,... Raderar upp till 10 000 BLOB-rader ur texttv (1,5 GB)
-        // per körning och låg tidigare på samma tick som importjobben.
-        $schedule->command('texttv:cleanup-old-pages')->cron('7-59/10 * * * *');
-
-        // Cleanup more pages at night. Egen offset (9,19,29,...) så den inte
-        // krockar med dagvarianten ovan under 01-05 då båda är aktiva.
+        // Cleanup old pages — EN gång per dygn, 04:07.
+        //
+        // 2026-08-16 (todo #12): flyttad hit från var tionde minut. Mätning
+        // 2026-08-15 visade att det här jobbet ensamt bar hela den
+        // tiominutersspik som gjorde p99 för hela sajten 43x sämre under
+        // ~20 % av tiden (1,97–2,51 s på jobbets minuter mot 0,03 s ovrigt).
+        // Spiken varade ~10 s per körning, 144 gånger per dygn.
+        //
+        // Och den gjorde ingen nytta: villkoret undantar sidorna 100 och 377,
+        // som står för 221 715 av de 221 729 gamla raderna med is_shared=0.
+        // Kvar att faktiskt radera: 13 rader. Det var kostnaden för att
+        // scanna indexintervallet i en 1,5 GB-tabell, inte för raderingen.
+        //
+        // Undantaget för 100/377 är medvetet (arkivsidorna rankar, se todo
+        // #09/#10/#11) och ska inte ändras här.
+        //
+        // Limit satt högt så att en ev. framtida backlog — t.ex. om
+        // retention-policyn ändras — kan betas av i en enda nattkörning.
         $schedule->command('texttv:cleanup-old-pages --limit=300000')
-            ->cron('9-59/10 * * * *')
-            ->between('01:00', '05:00');
+            ->dailyAt('04:07');
     }
 
     /**

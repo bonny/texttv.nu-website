@@ -125,6 +125,26 @@ Upptäckt 2026-08-09 när `prod-health`-skillen byggdes.
 >
 > Undantaget för sidorna 100 och 377 är orört.
 >
+> ### Verifierat samma dag kl 08:30 — spiken är borta
+>
+> | Minut | p99 före (samma dygn, kl 00–07) | p99 efter (kl 08) |
+> | ----- | ------------------------------- | ----------------- |
+> | :17 | 2,351 s | **0,015 s** (n=4 165) |
+> | :27 | 2,367 s | **0,018 s** (n=4 157) |
+> | :13 (normalminut) | 0,047 s | 0,019 s |
+> | :23 (normalminut) | — | 0,024 s |
+> | :11 / :21 (importminuter) | — | 0,021 / 0,016 s |
+>
+> De tidigare spikminuterna är nu omöjliga att skilja från vilken minut som
+> helst — snarast marginellt bättre. Ungefär **150x** på de minuterna.
+>
+> **php-fpm-mättnaden har upphört.** `max_children`-varningar per timme samma
+> dygn: 10, 10, 5, 1, 4, 6, 4, 6 (kl 00–07) → **0 efter kl 08**. Slowloggen:
+> 79 träffar kl 00, 78 kl 01, 2 kl 05 → **0 efter kl 08**.
+>
+> Förbehåll: bara ~30 min data efter omläggningen, och förmiddag är lättare
+> än kväll. **Bekräfta kvällen 2026-08-16** innan todon stängs.
+>
 > ### Vad mätningen skulle visa (uppfyllt, se ovan)
 >
 > Jämför per minut-i-timmen, kl 18–23, mot baslinjen 2026-08-14

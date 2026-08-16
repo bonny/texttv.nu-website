@@ -111,11 +111,19 @@ Upptäckt 2026-08-09 när `prod-health`-skillen byggdes.
 > att arkivsidor för 377 rankar i Google) och **bör inte ändras** utan eget
 > beslut. Men kadensen behöver inte vara var tionde minut för 13 rader.
 >
-> ### Föreslagen åtgärd
+> ### Åtgärd deployad 2026-08-16
 >
-> Kör `texttv:cleanup-old-pages` **en gång per dygn** i stället, på en udda
-> minut i lågtrafik. Det tar bort 143 av 144 dagliga spikar. Nattvarianten
-> `--limit=300000` blir överflödig och kan slås ihop med dygnskörningen.
+> `texttv:cleanup-old-pages --limit=300000` kör nu **en gång per dygn 04:07**
+> (`7 4 * * *`, verifierat med `schedule:list` på servern). De två tidigare
+> posterna — tiominutersvarianten och nattvarianten — är hopslagna till en.
+> Limit behålls hög så att en framtida backlog kan betas av i ett svep om
+> retention-policyn någon gång ändras.
+>
+> Spiken fanns kvar ända fram till ändringen. `:x7`-minuterna kl 00–07 samma
+> dygn: p99 1,851 / 1,940 / 2,012 / 2,315 / 2,351 / 2,367 s, mot 0,047 s på
+> en normalminut.
+>
+> Undantaget för sidorna 100 och 377 är orört.
 >
 > ### Vad mätningen skulle visa (uppfyllt, se ovan)
 >

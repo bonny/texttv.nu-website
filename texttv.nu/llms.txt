@@ -1,0 +1,102 @@
+# TextTV.nu
+
+> TextTV.nu är en modern webbversion av SVT:s Text-TV — samma sidor
+> (100, 300, 401 …) men anpassade för mobil, surfplatta och dator, med
+> färg, grafik, permalänkar och arkiv. Sajten är ett fristående
+> sidoprojekt och INTE en officiell webbplats från SVT.
+
+Innehåll på svenska. Sidorna hämtas från https://www.svt.se/text-tv/ och
+uppdateras löpande — nyhetssidor ungefär varannan minut, väder var 30:e
+minut, mer statiska sidor mer sällan.
+
+## URL-formatet — det viktigaste att förstå
+
+Sidnumret *är* URL:en. Fyra former finns:
+
+- Enskild sida: https://texttv.nu/100
+- Flera sidor: https://texttv.nu/100,300
+- Intervall: https://texttv.nu/101-103
+- Kombination: https://texttv.nu/101-103,300
+
+Startsidan https://texttv.nu/ renderar sidorna 100, 300, 401 och 101-105
+tillsammans.
+
+Arkiverade sidor (permalänkar) har formen `/{sidnummer}/{slug}-{id}`, där
+det avslutande talet är arkiv-id i databasen — inte ett sidnummer. En
+permalänk pekar alltid på *den version* av sidan som fanns vid tillfället,
+så den skrivs inte över nästa dag. Färdiga permalänkar finns i fältet
+`permalink` i API-svaren (se nedan); konstruera dem inte för hand.
+
+## Primära sidnummer
+
+- [100](https://texttv.nu/100): Toppnyheter ("löpet"), startsidan.
+- [101-105](https://texttv.nu/101-102,103-105): Nyheter — 101-103 inrikes, 104-105 utrikes.
+- [300-302](https://texttv.nu/300-302): Sport. Även 330 resultatbörsen, 376-395 målservice och resultat.
+- [400-401](https://texttv.nu/400): Väder — 401 är prognosen för i dag och i morgon (med grafik).
+- [600, 650-656](https://texttv.nu/600,650-656): TV-tablåer.
+- [700](https://texttv.nu/700): Innehållsförteckning över alla sidor.
+
+## Redaktionella sidor och sektioner
+
+- [Om TextTV.nu](https://texttv.nu/sida/om-texttv-nu): Bakgrund, teknik, kontakt.
+- [Vanliga frågor om Text TV](https://texttv.nu/sida/vanliga-fragor)
+- [Mest delat](https://texttv.nu/sida/delat): Mest delade text-tv-sidorna.
+- [Omnämnt av Polisen](https://texttv.nu/sida/polisen): Text-tv-nyheter kopplade till polishändelser (data från brottsplatskartan.se).
+- [Fakta om Text TV](https://texttv.nu/text-tv-fakta): Uppslagsverksartiklar om text-tv.
+- [SVT Text TV](https://texttv.nu/svt-text-tv): Översiktssida om SVT:s text-tv.
+- [Bloggen](https://texttv.nu/blogg): Nyheter om sajten.
+- [Integritetspolicy](https://texttv.nu/sida/integritetspolicy) · [Om cookies](https://texttv.nu/sida/cookies)
+
+## API
+
+Ett öppet JSON-API finns, samma som driver iOS- och Android-apparna. Det
+svarar på både `https://texttv.nu/api/…` och `https://api.texttv.nu/api/…`.
+
+- `GET /api/get/{sidnummer}` — hämta en eller flera sidor. Tar samma
+  intervall-syntax som webb-URL:erna: `/api/get/100`, `/api/get/100,300`,
+  `/api/get/101-103`.
+- `GET /api/getid/{arkiv-id}` — hämta en specifik arkiverad version.
+- `GET /api/most_read` — mest lästa sidorna. Även `/api/most_read/news`
+  och `/api/most_read/sport`.
+- `GET /api/last_updated` — senast uppdaterade sidorna. Även
+  `/api/last_updated/news` och `/api/last_updated/sport`.
+- `GET /api/updated/{sidnummer}/{unix-tid}` — polling: har sidorna
+  ändrats sedan angiven tidpunkt?
+
+Varje sida i svaret innehåller `num`, `title`, `content` (HTML med
+färgklasser), `content_plain`, `date_updated_unix`, `id`, `permalink`,
+`next_page` och `prev_page`.
+
+Fältet `content` är text-tv-layout i HTML — `<span>`-element med
+färgklasser (`W` vit, `Y` gul, `bgB` blå bakgrund osv.) och
+bakgrundsbilder för blockgrafiken. Vill du ha ren text, använd
+`content_plain` eller strippa taggarna.
+
+### Feeds
+
+- Atom-flöde för bloggen: https://texttv.nu/feed/blogg
+
+### Ingen sitemap
+
+`/sitemap.xml` svarar med 404 med flit — arkivet är för stort för att
+listas. Utgå från sidnumren ovan i stället.
+
+## Användning av innehåll
+
+**Texten i text-tv-sidorna är SVT:s, inte vår.** TextTV.nu äger inte
+innehållet och kan inte ge tillstånd att återpublicera det. Upphovsrätten
+och rättigheterna ligger hos Sveriges Television. Vill du använda själva
+nyhetstexten till något annat än korta citat: fråga SVT.
+
+Det vi själva står för — sajtens presentation, arkivet, API:t och de
+redaktionella sidorna — får gärna användas och citeras med länk tillbaka.
+
+Retrieval för realtidssök och svar (Perplexity, ChatGPT Search, Claude
+m.fl.) är tillåten och uppskattad — skicka länkar tillbaka så att
+användare kan klicka vidare. Använd hellre API:t än att skrapa HTML; det
+är snabbare för er och billigare för oss.
+
+## Kontakt
+
+Sajten drivs av Pär Thernström. Kontakt: kontakt@texttv.nu.
+Se även https://texttv.nu/sida/om-texttv-nu.

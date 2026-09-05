@@ -223,6 +223,7 @@ ssh texttv.nu '
   echo === DISK ===; df -h / | tail -1
   echo === TJÄNSTER ===
   for s in nginx php8.2-fpm mariadb; do printf "%-14s %s\n" "$s" "$(systemctl is-active $s)"; done
+  echo "misslyckade enheter: $(systemctl --failed --no-legend | wc -l) (ska vara 0)"; systemctl --failed --no-legend
   echo === PHP-FPM ===
   echo "workers nu: $(ps -eo comm= | grep -c "^php-fpm")/5"
   echo "max_children-varningar: $(grep -c max_children /var/log/php8.2-fpm.log 2>/dev/null)"
@@ -240,6 +241,10 @@ ssh texttv.nu '
 
 Komplettera med `importer`- och `http`-kollarna ovan (de går över HTTP utifrån,
 inte via SSH, så de kan köras parallellt med SSH-anropet).
+
+Tolka `misslyckade enheter`: allt annat än 0 är en avvikelse även om sajten mår bra —
+en oneshot-tjänst som `logrotate.service` kan misslyckas varje natt i månader utan att
+något annat märks (hände 2026-07 → 2026-09, se `server.md` under Loggar).
 
 Sammanfatta till sist: "Allt OK" eller lista avvikelserna. Kondensera — visa
 load + de 3 tyngsta processerna, inte hela `top`. Nämn bara tjänster som

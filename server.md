@@ -147,6 +147,32 @@ ssh texttv.nu 'journalctl -u cron --since "-10 min" --no-pager | grep schedule:r
 
 > ⚠️ Tidigare stod här `tail /var/log/syslog | grep CRON`. **Det fungerar inte — `/var/log/syslog` finns inte på servern** (rsyslog är inte installerat, allt går till journald). Använd `journalctl` enligt ovan.
 
+### Säkerhetsuppdateringar och automatisk omstart
+
+`unattended-upgrades` är installerat och kör Debians säkerhetsuppdateringar dagligen via
+`apt-daily-upgrade.timer` (06:00 + upp till 60 min slump, alltså ~06:00–07:00 lokal tid).
+Loggen är `/var/log/unattended-upgrades/unattended-upgrades.log`.
+
+**Automatisk omstart sedan 2026-09-05**, i `/etc/apt/apt.conf.d/51unattended-upgrades-local`:
+
+```
+Unattended-Upgrade::Automatic-Reboot "true";
+Unattended-Upgrade::Automatic-Reboot-Time "03:30";
+Unattended-Upgrade::Automatic-Reboot-WithUsers "true";
+Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";
+```
+
+- **03:30** är trafikens lågpunkt: 02–04 lokal tid ligger på 23–30 k requests/timme mot
+  ~175 k i rusningen kl 08 (mätt 2026-09-04/05). En omstart tar under en minut och nginx,
+  php-fpm, mariadb och cron är alla `enabled`.
+- Omstarten sker bara när `/var/run/reboot-required` finns efter en körning (kernel, libc
+  o.dyl.). Eftersom uppdateringen går ~06:30 schemaläggs omstarten till **nästa** 03:30,
+  alltså ca 21 timmar senare. Medvetet val — samma upplägg som eskapism-prod-hel1 (04:30).
+- Servern har **ingen mailtransport**, så `Unattended-Upgrade::Mail` är inte satt. Kolla
+  `last -x reboot -F` eller uptime om du vill se när den startat om.
+- Innan 2026-09-05 fanns ingen automatisk omstart alls: kernel 6.1.0-52 låg installerad
+  sedan augusti medan -51 kördes, och maskinen hade startat om två gånger sedan juni 2025.
+
 ## Loggar
 
 | Path                                | Innehåll                       | Storlek (2026-08-09)               |
@@ -156,10 +182,26 @@ ssh texttv.nu 'journalctl -u cron --since "-10 min" --no-pager | grep schedule:r
 | `/var/log/php8.2-fpm.log`           | php-fpm-fel + PHP `error_log`  | 6,6 KB (rotateras veckovis)        |
 | `/var/log/php8.2-fpm.log.N.gz`      | Roterade php-fpm-loggar        | ~3-12 KB / vecka                   |
 | MariaDB error log                   | _Ej i `/var/log/mysql/`_ — troligen via `journalctl -u mariadb` |                                    |
-| Laravel app-log (importer)          | `/usr/share/nginx/l.texttv.nu/importer/storage/logs/laravel.log` | 13 MB — **logrotate på plats** (`/etc/logrotate.d/laravel-texttv` + `texttv-importer`) |
+| Laravel app-log (importer)          | `/usr/share/nginx/l.texttv.nu/importer/storage/logs/laravel.log` | 13 MB — roteras dagligen via `/etc/logrotate.d/texttv-importer` (verifierat 2026-09-05, se nedan) |
 | CodeIgniter app-log (website)       | `/usr/share/nginx/texttv.nu/codeigniter/application/logs/` | Tomt (bara `index.html`) — CI-logging avstängd eller inte konfigurerad |
 
-> ✅ **8 GB-problemet med `laravel.log` är löst.** 2026-05-19 låg filen på 8,0 GB utan logrotate; 2026-08-09 är den 13 MB och roteras. Ingen åtgärd kvar.
+> ✅ **8 GB-problemet med `laravel.log` är löst** — men rotationen fungerade inte förrän 2026-09-05.
+> 2026-05-19 låg filen på 8,0 GB; `LOG_LEVEL=warning` höll den sedan på ~13 MB, vilket dolde att
+> logrotate misslyckades varje natt (`systemctl --failed` visade `logrotate.service`, felen gick
+> tillbaka till minst juli). Två orsaker, båda åtgärdade 2026-09-05:
+>
+> 1. **Dubbla regler.** `/etc/logrotate.d/laravel-texttv` (juni 2025) och `texttv-importer`
+>    (maj 2026) matchade samma glob. logrotate vägrar dubbletter och hoppade över den nyare.
+>    Den gamla är flyttad till `/root/laravel-texttv.logrotate.removed-2026-09-05`.
+> 2. **`ProtectSystem=full` i `logrotate.service`** gör `/usr` skrivskyddat för processen, och
+>    loggen ligger under `/usr/share`. Både rename och gzip föll med *Read-only file system*.
+>    Drop-in `/etc/systemd/system/logrotate.service.d/importer-log.conf` sätter
+>    `ReadWritePaths=` på loggkatalogen.
+>
+> Verifierat med en forcerad rotation under samma sandbox-inställningar (`systemd-run -p
+> ProtectSystem=full -p ReadWritePaths=… logrotate -f`): `laravel.log.1` fick dagens datum,
+> `laravel.log` trunkerades, `laravel.log.2.gz` är 2025-filen. Kolla `systemctl --failed` i
+> hälsokollen — det var den som avslöjade det här.
 
 **`access.log` har responstid sedan 2026-08-10.** `log_format anonymized` i `/etc/nginx/conf.d/general.conf` avslutas sedan dess med `rt=$request_time urt=$upstream_response_time cache=$upstream_cache_status`. Innan dess loggades ingen tid alls, så historik före 2026-08-10 saknas.
 

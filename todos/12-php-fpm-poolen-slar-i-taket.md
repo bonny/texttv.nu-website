@@ -103,6 +103,23 @@ Deployad 2026-10-14 13:23 (`aa28a2d`). Direkt efter: prod svarar 200 med rätt
 antal sidor, och `/tmp/texttv-most-read/` innehåller filer för idag och igår,
 där gårdagens skrevs om efter midnatt som avsett.
 
+### Tidig kontroll 2026-10-14 13:35 (ca 10 min efter deploy)
+
+Mitt på dagen finns nästan inga långsamma requests i slowloggen, varken före
+eller efter deployen, så den säger inget ännu. Bättre tidig signal är hur
+lång tid nginx bakgrundsregenereringar tar (`cache=STALE`-raderna i
+`access.log`, där `rt` är regenereringens tid):
+
+| `most_read`, idag | STALE-rader | snitt `rt` | rt > 0,5 s |
+| --- | ---: | ---: | ---: |
+| före deploy, 10:00–13:23 | 472 | 1,55 s | 472 (alla) |
+| efter deploy, 13:24–13:35 | 29 | 0,46 s | 8 |
+
+Antalet regenereringar per minut är oförändrat (nginx regenererar fortfarande
+varje URL för sig), men de flesta är nu en filläsning. De åtta långsamma är
+ungefär en per minut, alltså den enda riktiga omräkningen per typ och datum,
+som väntat. Kvällstoppen och `max_children` mäts 2026-10-16.
+
 ### Förslag (före implementationen)
 
 1. **Dela resultatet mellan varianterna.** Cacha topp 50 per `type` + datum i

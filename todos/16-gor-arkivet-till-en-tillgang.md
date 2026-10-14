@@ -1,4 +1,4 @@
-**Status:** aktiv — idékatalog, inget påbörjat
+**Status:** aktiv — idékatalog. Canonical deployad 2026-10-14 (`0e95a99`), resten ej påbörjat
 **Senast uppdaterad:** 2026-10-14
 
 # Todo #16 — Gör arkivet till en tillgång: idéer för användare, Google och AI
@@ -83,6 +83,11 @@ Väldigt lite, men det finns en lång svans. 90 dagar (2026-07-14 → 10-11):
   rena permalänken på arkivsidor, och till `https://texttv.nu/` på startsidan.
   Liten kodändring i `views/header.php` (raderna kring 617–626 hanterar redan
   live-sidorna). **Gör först, oavsett vad mer som väljs.**
+  **Deployad 2026-10-14 (`0e95a99`).** Verifierat i prod: `/` → `https://texttv.nu/`,
+  utm-varianten av `/117/hushallens-ekonomi-mycket-stark-37317159` → den rena
+  permalänken, `/377` oförändrad. Gamla URL-format (`/117/arkiv/slug/id/`) och
+  inaktuella slugs pekar också på permalänken. `/100,300`-kombinationer får
+  medvetet ingen canonical. Mät 2026-11-14: antal sidor med `utm_` i GSC.
 - **`/sida/vanliga-fragor` fick 84 klick** och `/blogg/texttv-api` 25 på 90
   dagar. Det finns efterfrågan på "om Text TV"-innehåll; se 7 nedan.
 

@@ -5,9 +5,16 @@
  *
  * Den gamla (avstängd 26 dec 2013, "för många anrop") listade varje rad i
  * texttv-tabellen, alltså varje version av varje sida, och laddade varje
- * sida med en egen query. Den här gör ingen databasfråga alls: sidnumren är
- * fasta och dagssidorna räknas fram ur datumet. Arkivets permalänkar är
- * medvetet inte med (miljontals, mest kortlivade nyheter).
+ * sida med en egen query. Den här gör en enda indexerad fråga (senaste
+ * versionen per sidnummer, för lastmod); dagssidorna räknas fram ur
+ * datumet. Arkivets permalänkar är medvetet inte med (miljontals, mest
+ * kortlivade nyheter).
+ *
+ * lastmod är den enda tidsuppgift Google använder (changefreq och priority
+ * ignoreras), och bara om den stämmer. Därför: levande sidor får tiden för
+ * senaste versionen, /igar-sidorna dagens midnatt (då de byter innehåll),
+ * datumsidorna midnatt efter dagen (då de blev färdiga). De redaktionella
+ * sidorna har ingen pålitlig ändringstid och får ingen lastmod.
  */
 class Sitemap extends CI_Controller {
 
@@ -39,20 +46,36 @@ class Sitemap extends CI_Controller {
 
 	public function index()
 	{
-		$urls = [];
-		$urls[] = ["loc" => "/"];
+		$tz = new DateTimeZone("Europe/Stockholm");
+		$today = new DateTime("today", $tz);
 
-		foreach (self::PAGES as $num) {
-			$urls[] = ["loc" => "/" . $num];
+		// Senaste versionen per sidnummer. date_added sparas i svensk tid.
+		$this->load->database();
+		$latest = [];
+		$rows = $this->db->query(
+			"SELECT page_num, MAX(date_added) AS latest FROM texttv WHERE page_num IN (" . implode(",", self::PAGES) . ") GROUP BY page_num"
+		)->result();
+		foreach ($rows as $row) {
+			$latest[(int) $row->page_num] = (new DateTime($row->latest, $tz))->format(DATE_W3C);
 		}
 
-		$urls[] = ["loc" => "/nyheter/igar"];
-		$urls[] = ["loc" => "/sport/igar"];
-		$urls[] = ["loc" => "/377/igar"];
+		$urls = [];
+		// Startsidan visar 100, 300, 401 och 101–105: senaste av dem.
+		$start_parts = array_intersect_key($latest, array_flip([100, 101, 102, 103, 104, 105, 300, 401]));
+		$urls[] = ["loc" => "/", "lastmod" => $start_parts ? max($start_parts) : null];
+
+		foreach (self::PAGES as $num) {
+			$urls[] = ["loc" => "/" . $num, "lastmod" => isset($latest[$num]) ? $latest[$num] : null];
+		}
+
+		$midnight = $today->format(DATE_W3C);
+		$urls[] = ["loc" => "/nyheter/igar", "lastmod" => $midnight];
+		$urls[] = ["loc" => "/sport/igar", "lastmod" => $midnight];
+		$urls[] = ["loc" => "/377/igar", "lastmod" => $midnight];
 
 		// Datumsidorna ändras inte när dagen är slut. Gårdagen finns redan
 		// som /igar, så listan börjar i förrgår.
-		$day = new DateTime("today", new DateTimeZone("Europe/Stockholm"));
+		$day = clone $today;
 		$day->modify("-1 day");
 		for ($i = 0; $i < self::DAYS_BACK; $i++) {
 			$day->modify("-1 day");
@@ -60,7 +83,7 @@ class Sitemap extends CI_Controller {
 			$next = clone $day;
 			$next->modify("+1 day");
 			foreach (["nyheter", "sport", "377"] as $section) {
-				$urls[] = ["loc" => "/{$section}/{$ymd}", "lastmod" => $next->format("Y-m-d")];
+				$urls[] = ["loc" => "/{$section}/{$ymd}", "lastmod" => $next->format(DATE_W3C)];
 			}
 		}
 
@@ -72,15 +95,15 @@ class Sitemap extends CI_Controller {
 		$out .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
 		foreach ($urls as $url) {
 			$out .= "\t<url><loc>https://texttv.nu" . htmlspecialchars($url["loc"], ENT_XML1) . "</loc>";
-			if (isset($url["lastmod"])) {
+			if (!empty($url["lastmod"])) {
 				$out .= "<lastmod>" . $url["lastmod"] . "</lastmod>";
 			}
 			$out .= "</url>\n";
 		}
 		$out .= "</urlset>\n";
 
-		// Innehållet byts en gång per dygn (datumlistan), så en timme räcker.
-		$this->output->set_header("X-Accel-Expires: 3600");
+		// lastmod för de levande sidorna ska inte bli mer än tio minuter gammal.
+		$this->output->set_header("X-Accel-Expires: 600");
 		$this->output->set_content_type("application/xml");
 		$this->output->set_output($out);
 	}

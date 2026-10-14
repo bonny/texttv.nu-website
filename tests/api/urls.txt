@@ -19,7 +19,10 @@
 
 # useUpdatePolling.js
 /api/updated/100/0
-/api/updated/100,300/1000000000
+# Välj sidor med olika date_added: queryn sorterar bara på date_added, så
+# två sidor importerade samma sekund (lokalt 100 och 300) kommer i godtycklig
+# ordning och ger falska diffar.
+/api/updated/100,377/1000000000
 /api/updated/100/4102444800
 /api/updated/
 

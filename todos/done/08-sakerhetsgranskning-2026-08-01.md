@@ -1,4 +1,4 @@
-**Status:** aktiv — 13 av 19 fynd stängda (12 st 2026-08-01, L2 st 2026-08-02), M5 och M6 avfärdade 2026-10-14. Kvar: M1, M2, L7, M4
+**Status:** klar 2026-10-14 — 13 av 19 fynd stängda, M5 och M6 avfärdade, M1/M2/L7 accepterade som risk tills missbruk syns, M4 utbruten till #15
 **Senast uppdaterad:** 2026-10-14
 
 # Todo #08 — Säkerhetsgranskning 2026-08-01
@@ -19,17 +19,20 @@ eller komma åt något de inte ska. Resten är missbruk och härdning.
 
 ---
 
-## Kvar att göra (4)
+## Accepterat 2026-10-14 (åtgärdas när missbruk syns)
 
-| # | Vad | Lösning | Var |
+Todon stängdes med de här tre öppna. Inget i loggarna tyder på missbruk, och
+inget av dem kan läcka data eller ge kodkörning. Ta upp dem igen om
+signalen i sista kolumnen dyker upp.
+
+| # | Vad | Lösning när det behövs | Signal att hålla koll på |
 | --- | --- | --- | --- |
-| **M1** | Oautentiserad skrivning till DB. `/api/page/` styr "mest lästa" (INSERT i `page_actions`, joinas mot `texttv` i `get_most_read_pages_for_period()`), `/api/share/` + `/api/get_permalink/` + `/oembed` styr "mest delade" (`is_shared + 1` via `mark_archive_ids_as_shared`) | Rate limiting per IP; helst delad hemlighet från apparna på `/api/page/` | Kod |
-| **M2** | `api.php:566` kör `exec(wkhtmltoimage …)` per `/api/screenshot/`-anrop. Filnamn = `md5($url)`, så olika id-ordning ger obegränsat antal JPG:er i `/shares/`. `l.texttv.nu/live/{n}` skrapar svt.se per anrop | Rate limiting, tak för antal id per anrop, städjobb för `/shares/` | Kod |
-| **M4** | EOL-ramverk: CodeIgniter 2.2.6 (2015), Laravel 8.83.27 (jan 2023). Inga kända CVE:er träffar koden som den används, men inga fixar kommer | Laravel 8 → 10/11 först. CI 2 → omskrivning. Plan, inte patch | Kod |
-| **L7** | Ingen rate limiting någonstans i stacken | Går upp i M1 + M2 | Kod + server |
+| **M1** | Oautentiserad skrivning till DB. `/api/page/` styr "mest lästa" (INSERT i `page_actions`), `/api/share/` + `/api/get_permalink/` + `/oembed` styr "mest delade" (`is_shared + 1`) | Rate limiting per IP. En delad hemlighet från apparna går inte, eftersom shippade appversioner inte kan uppdateras | Konstiga sidor i topp på "mest lästa" eller "mest delade" |
+| **M2** | `/api/screenshot/` kör `wkhtmltoimage` per anrop, och filnamnet är `md5($url)`, så varje id-ordning ger en ny JPG i `/shares/`. `l.texttv.nu/live/{n}` skrapar svt.se per anrop | Tak för antal id per anrop, städjobb för `/shares/`, rate limiting | `/shares/` växer snabbt, CPU-toppar från `wkhtmltoimage` |
+| **L7** | Ingen rate limiting någonstans i stacken | `limit_req` i nginx på `/api/page/`, `/api/share/`, `/api/screenshot/`, `/live/`. Försiktigt med gränserna: många appanvändare delar IP via operatörs-NAT | Samma som M1 och M2 |
 
-**Föreslagen ordning:** M1 + M2 + L7 som ett paket, men först när missbruk syns (last,
-växande `/shares/`, konstiga toppar i "mest lästa"). M4 är den strukturella skulden.
+**M4** (EOL-ramverk: CodeIgniter 2.2.6, Laravel 8.83.27) är utbruten till
+[#15](../15-uppgradera-eol-ramverken.md), med research om uppgraderingsvägar.
 
 ---
 

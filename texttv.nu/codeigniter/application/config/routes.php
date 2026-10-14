@@ -53,6 +53,10 @@ $route['([0-9,\-]+)'] = "sida/visa/$1";
 // Måste ligga före arkivrutten nedan, som annars läser 2026-10-12 som
 // slug "2026-10" och id 12.
 $route['(\d{3})/igar'] = "sida/dag/$1/igar";
+
+// Dagslistor (todo #16): alla nyheter respektive sportnyheter en dag.
+$route['(nyheter|sport)/igar'] = "dagsnyheter/visa/$1/igar";
+$route['(nyheter|sport)/(\d{4}-\d{2}-\d{2})'] = "dagsnyheter/visa/$1/$2";
 $route['(\d{3})/(\d{4}-\d{2}-\d{2})'] = "sida/dag/$1/$2";
 
 // AMP-sida för icke-arkiv-sida

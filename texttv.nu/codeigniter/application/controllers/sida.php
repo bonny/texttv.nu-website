@@ -330,13 +330,36 @@ class Sida extends CI_Controller {
 			$this->load->view("not_broadcasted_notice", $data);
 		}
 		$this->load->view("pages_inner_output_current", $data);
-		// "← 377 igår" bara om det finns något att visa där, så länken inte
-		// leder till 404 (t.ex. tipssidorna efter ett längre sändningsuppehåll).
-		if (sizeof($arr_page_objs) == 1 && isset(self::DAY_ARCHIVE[(int) $arr_page_objs[0]->num])) {
-			$yesterday = new DateTime("yesterday", new DateTimeZone("Europe/Stockholm"));
-			if (get_page_version_at_end_of_day($arr_page_objs[0]->num, $yesterday->format("Y-m-d"))) {
-				$this->load->view('day_archive_link', $data);
+		// Länkar till gårdagen (todo #16): startsidan får alla, en enskild sida
+		// får sitt eget dagsarkiv och sin avdelnings dagslista.
+		$yesterday_links = [];
+		if ($pagedescription === "startpage") {
+			$yesterday_links = [
+				["/nyheter/igar", "Gårdagens nyheter"],
+				["/sport/igar", "Gårdagens sportnyheter"],
+				["/377/igar", "Resultat igår 377"],
+				["/330/igar", "Resultatbörsen igår 330"],
+			];
+		} elseif (sizeof($arr_page_objs) == 1) {
+			$num = (int) $arr_page_objs[0]->num;
+			// "← 377 igår" bara om det finns något att visa där, så länken
+			// inte leder till 404.
+			if (isset(self::DAY_ARCHIVE[$num])) {
+				$yesterday = new DateTime("yesterday", new DateTimeZone("Europe/Stockholm"));
+				if (get_page_version_at_end_of_day($num, $yesterday->format("Y-m-d"))) {
+					$yesterday_links[] = ["/{$num}/igar", "{$num} igår"];
+				}
 			}
+			if ($num >= 100 && $num <= 199) {
+				$yesterday_links[] = ["/nyheter/igar", "Gårdagens nyheter"];
+			} elseif ($num >= 300 && $num <= 399) {
+				$yesterday_links[] = ["/sport/igar", "Gårdagens sportnyheter"];
+			}
+		}
+		if ($yesterday_links) {
+			$data["yesterday_links"] = $yesterday_links;
+			$data["yesterday_prefix"] = $pagedescription === "startpage" ? "Igår på Text TV:" : "←";
+			$this->load->view('day_archive_link', $data);
 		}
 		$this->load->view('pages-thumbs', $data);
 		$this->load->view('pages-latest-updated', $data);

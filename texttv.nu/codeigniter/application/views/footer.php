@@ -47,6 +47,7 @@ if (!$this->input->get("apiAppShare")) { ?>
 					<ul>
 						<li><a href="/101-103">Inrikes <span class="num">101-103</span></a></li>
 						<li><a href="/104-105">Utrikes <span class="num">104-105</span></a></li>
+						<li><a href="/nyheter/igar">Gårdagens nyheter</a></li>
 					</ul>
 				</li>
 				<li>
@@ -55,6 +56,7 @@ if (!$this->input->get("apiAppShare")) { ?>
 						<li><a href="/330">Resultatbörsen <span class="num">330</span></a></li>
 						<li><a href="/376">Målservice <span class="num">376</span></a></li>
 						<li><a href="/377">Målservice, resultat <span class="num">377</span></a></li>
+						<li><a href="/sport/igar">Gårdagens sportnyheter</a></li>
 						<li><a href="/377/igar">Resultat igår <span class="num">377</span></a></li>
 						<li><a href="/330/igar">Resultatbörsen igår <span class="num">330</span></a></li>
 						<li><a href="/376-395">Målservice &amp; resultat <span class="num">376-395</span></a></li>
@@ -256,6 +258,7 @@ if (!isset($disableSidebar) && !$this->input->get("apiAppShare")) {
 				<ul>
 					<li><a href="/101-103">Inrikes <span class="num">101-103</span></a></li>
 					<li><a href="/104-105">Utrikes <span class="num">104-105</span></a></li>
+					<li><a href="/nyheter/igar">Gårdagens nyheter</a></li>
 				</ul>
 			</li>
 			<li>
@@ -264,6 +267,7 @@ if (!isset($disableSidebar) && !$this->input->get("apiAppShare")) {
 					<li><a href="/330">Resultatbörsen <span class="num">330</span></a></li>
 					<li><a href="/376">Målservice <span class="num">376</span></a></li>
 					<li><a href="/377">Målservice, resultat <span class="num">377</span></a></li>
+					<li><a href="/sport/igar">Gårdagens sportnyheter</a></li>
 					<li><a href="/377/igar">Resultat igår <span class="num">377</span></a></li>
 					<li><a href="/330/igar">Resultatbörsen igår <span class="num">330</span></a></li>
 					<li><a href="/376-395">Målservice &amp; resultat <span class="num">376-395</span></a></li>

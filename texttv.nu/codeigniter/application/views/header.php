@@ -592,6 +592,12 @@ if (isset($day_archive)) {
 		// end og/twitter tags
 
 	} // if pages
+	elseif (isset($day_archive) && $meta_description) {
+		// Dagslistorna (Dagsnyheter) har inga $pages men egen beskrivning.
+	?>
+		<meta name="description" content="<?php echo @htmlspecialchars($meta_description, ENT_QUOTES, "UTF-8"); ?>">
+	<?php
+	}
 
 	?>
 	<link rel="stylesheet" href="/css/fonts.css">

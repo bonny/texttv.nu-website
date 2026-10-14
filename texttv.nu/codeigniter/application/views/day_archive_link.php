@@ -1,13 +1,16 @@
 <?php
 
 /*
-	Länk från den levande sidan till dagsarkivet. Laddas av Sida::visa() för
-	sidor i Sida::DAY_ARCHIVE. Todo #16.
+	Länkar från en levande sida till gårdagen: sidans dagsarkiv (/377/igar)
+	och avdelningens dagslista (/nyheter/igar, /sport/igar). Startsidan får
+	alla. Listan byggs av Sida::visa(). Todo #16.
 */
 
-$num = (int) $pages[0]->num;
+$links = array_map(function ($link) {
+	return sprintf('<a href="%1$s">%2$s</a>', html_escape($link[0]), html_escape($link[1]));
+}, $yesterday_links);
 
 ?>
 <p class="day-archive-link">
-	<a href="/<?php echo $num ?>/igar">← <?php echo $num ?> igår</a>
+	<?php echo html_escape($yesterday_prefix) ?> <?php echo implode(" · ", $links) ?>
 </p>

@@ -19,8 +19,13 @@ $line = function ($html, $classes = "bgBl W") {
 	);
 };
 
-$link = function ($num) {
-	return sprintf('<a href="/%1$d">%1$d</a>', (int) $num);
+// Sidnummer, och ev. sidnamn, som en länk.
+$link = function ($num, $name = "") {
+	return sprintf(
+		'<a href="/%1$d">%1$d%2$s</a>',
+		(int) $num,
+		$name === "" ? "" : " " . htmlspecialchars($name, ENT_QUOTES, "UTF-8")
+	);
 };
 
 $date = date_sv("l d M Y");
@@ -40,10 +45,10 @@ $rows = [
 	$line(""),
 	$line(" Prova någon av de här:", "bgBl Y"),
 	$line(""),
-	$line(" " . $link(100) . " Nyheter          " . $link(300) . " Sport", "bgBl G"),
-	$line(" " . $link(377) . " Målservice       " . $link(330) . " Resultat", "bgBl G"),
-	$line(" " . $link(401) . " Väder            " . $link(600) . " På TV", "bgBl G"),
-	$line(" " . $link(101) . " Inrikes          " . $link(104) . " Utrikes", "bgBl G"),
+	$line(" " . $link(100, "Nyheter") . "          " . $link(300, "Sport"), "bgBl G"),
+	$line(" " . $link(377, "Målservice") . "       " . $link(330, "Resultat"), "bgBl G"),
+	$line(" " . $link(401, "Väder") . "            " . $link(600, "På TV"), "bgBl G"),
+	$line(" " . $link(101, "Inrikes") . "          " . $link(104, "Utrikes"), "bgBl G"),
 	$line(""),
 	$line(" Eller skriv ett sidnummer i rutan", "bgBl W"),
 	$line(" Gå till sida högst upp.", "bgBl W"),

@@ -31,10 +31,29 @@ så den skrivs inte över nästa dag. Färdiga permalänkar finns i fältet
 
 - [100](https://texttv.nu/100): Toppnyheter ("löpet"), startsidan.
 - [101-105](https://texttv.nu/101-102,103-105): Nyheter — 101-103 inrikes, 104-105 utrikes.
-- [300-302](https://texttv.nu/300-302): Sport. Även 330 resultatbörsen, 376-395 målservice och resultat.
+- [300-302](https://texttv.nu/300-302): Sport. 330 är resultatbörsen (en meny över resultatsidorna), 376-395 målservice och resultat.
 - [400-401](https://texttv.nu/400): Väder — 401 är prognosen för i dag och i morgon (med grafik).
 - [600, 650-656](https://texttv.nu/600,650-656): TV-tablåer.
 - [700](https://texttv.nu/700): Innehållsförteckning över alla sidor.
+
+## Gårdagen och äldre dagar
+
+Sidorna ovan visar alltid nuläget. För en viss dag finns:
+
+- [Gårdagens nyheter](https://texttv.nu/nyheter/igar): alla nyheter som
+  sändes för första gången i går, mest lästa först, uppdelat på inrikes,
+  utrikes och kultur. Varje rubrik har klockslag och länk till nyhetens
+  permalänk.
+- [Gårdagens sportnyheter](https://texttv.nu/sport/igar): samma för sporten.
+- [Gårdagens resultat på 377](https://texttv.nu/377/igar): målservicen som
+  den såg ut när dagen var slut, med länkar till dagens alla versioner.
+- Valfri dag: `https://texttv.nu/nyheter/ÅÅÅÅ-MM-DD`,
+  `https://texttv.nu/sport/ÅÅÅÅ-MM-DD` och `https://texttv.nu/377/ÅÅÅÅ-MM-DD`,
+  till exempel https://texttv.nu/nyheter/2026-10-12. Nyheter och sport
+  finns ett år bakåt; dagens datum skickas vidare till den levande sidan.
+
+Det är det bästa underlaget för frågor som "vad hände i går" eller "vilka
+resultat kom i söndags": datum och klockslag står på varje rad.
 
 ## Redaktionella sidor och sektioner
 
@@ -79,7 +98,8 @@ bakgrundsbilder för blockgrafiken. Vill du ha ren text, använd
 ### Ingen sitemap
 
 `/sitemap.xml` svarar med 404 med flit — arkivet är för stort för att
-listas. Utgå från sidnumren ovan i stället.
+listas. Utgå från sidnumren ovan och dagssidorna under "Gårdagen och äldre
+dagar" i stället.
 
 ## Användning av innehåll
 

@@ -379,7 +379,38 @@ visningar, bakåt i tiden.
 Att CTR:en rasar vid oförändrad position kan också bero på att sökresultatsidan
 ändrats (AI-översikter, fler SVT-träffar), vilket den här datan inte kan
 utesluta. Kolla SERP:en manuellt för `resultat lången 377` och
-`text tv 377 idag` innan texten ändras igen.
+`text tv 377 idag` innan texten ändras igen. **Gjort 2026-10-14, se nedan.**
+
+### SERP-koll 2026-10-14 (google.se, Chrome, inloggad, `pws=0`)
+
+En plats, ett tillfälle, inloggad användare. Indikation, inte mätning.
+
+**`resultat lången 377`:** SVT 1, **texttv.nu 2**, sedan en **AI-översikt**
+som listar gårdagens resultat från SVT:s sida 377 (Allsvenskan, handboll,
+basket, SDHL), därefter txtv.nu och Svenska Spel. Search Console Insights i
+sökresultatet för texttv.nu, senaste 28 dagarna: **14 klick (+600 %), 106
+visningar (+112 %), position 2,1**.
+
+- Ingen träff och inte AI-översikten nämner lången eller Stryktipset. Google
+  tolkar frågan som "resultat på 377" och svarar på den direkt i
+  AI-översikten.
+- Vår snippet är första meningen i `page_text` ("Sidan 377 är SVT Text TV:s
+  målservice …"), inte lången-passagen.
+- Visningarna är låga: 106 på 28 dagar mot ~275 per 28 dagar i fjol
+  (688 på 70 dagar). Efterfrågan har mer än halverats, och de senaste 28
+  dagarna har klicken börjat komma tillbaka.
+
+**`text tv 377 idag`:** SVT 1, sedan en **AI-översikt** som sammanfattar dagens
+377 och hänvisar till "TextTV.nu 377" som källa för fullständig översikt,
+**texttv.nu 2** i de organiska, sedan SVT 300/100, Facebook, fotboll.com,
+hemmakanalen.se. Insights, senaste 7 dagarna: 3 klick, 614 visningar,
+position 3,4.
+
+**Slutsats:** tappet förklaras bättre av AI-översikten och lägre efterfrågan
+än av texten. AI-översikten svarar på båda frågorna direkt i sökresultatet,
+med SVT som huvudkälla, så den som söker behöver inte klicka. Positionerna är
+oförändrade (2 respektive 3). Att flytta lången-passagen upp ändrar inte det,
+och potten är liten (~100 visningar per 28 dagar). **Ingen textändring.**
 
 ### Ljuspunkt: `/377` har slutat tappa
 

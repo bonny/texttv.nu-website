@@ -17,3 +17,6 @@ texttv.nu/debug.txt
 # (öppna en JSON via `lighthouse --view ...report.json` eller fyll i URL på
 # https://googlechrome.github.io/lighthouse/viewer/). JSON committas.
 baselines/*/*.report.html
+
+# API-kontraktstestets utdata (tests/api/run.sh)
+/.api-test/

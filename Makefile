@@ -3,7 +3,7 @@
 
 COMPOSE := docker compose
 
-.PHONY: help up down build rebuild logs ps seed scheduler import artisan tinker mysql shell destroy
+.PHONY: help up down build rebuild logs ps seed test-api scheduler import artisan tinker mysql shell destroy
 
 help: ## Visa denna hjälp
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | \
@@ -31,6 +31,9 @@ ps: ## Lista services
 
 seed: ## Seeda om DB:n (migrera + importera startsidorna). Säkert att köra om — idempotent.
 	$(COMPOSE) run --rm init
+
+test-api: ## Jämför /api/*-svaren mot origin/main (eller BASE=<git-ref>). Kräver make up.
+	BASE=$(or $(BASE),origin/main) tests/api/run.sh
 
 scheduler: ## Starta schedulern (opt-in: auto-importerar från SVT var 2:e min)
 	$(COMPOSE) --profile scheduler up -d scheduler

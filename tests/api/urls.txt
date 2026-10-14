@@ -1,0 +1,47 @@
+# Anrop som jämförs av tests/api/run.sh. En sökväg per rad, kommentarer med #.
+# Platshållare: {TODAY} {YESTERDAY} {DAYS_AGO_20} {ID100} {ID377}
+#
+# Utgångspunkten är vad appen (texttv.nu (app)/src) faktiskt anropar, plus
+# varianter som syns i prod-loggarna och några felfall. Lägg till rader här
+# när en endpoint ändras.
+
+# useTextTVPage.js, SportScores.jsx
+/api/get/100?cb=1&app=texttvapp.ios
+/api/get/377?cb=1&app=texttvapp.android
+/api/get/100,300?app=texttvapp.ios
+/api/get/101-103?app=texttvapp.ios
+/api/get/100?jsoncallback=jQuery123_456
+/api/get/999?app=texttvapp.ios
+/api/get_html/100
+/api/getid/{ID100}/100?cb=1&app=texttvapp.ios
+/api/getid/{ID377}/377?app=texttvapp.android
+/api/getid/abc/100
+
+# useUpdatePolling.js
+/api/updated/100/0
+/api/updated/100,300/1000000000
+/api/updated/100/4102444800
+/api/updated/
+
+# SenastUppdaterat.jsx, TrendingNow.jsx
+/api/last_updated/news
+/api/last_updated/sport
+/api/last_updated/news?count=15
+/api/last_updated
+
+# most_read: MestLasta.jsx, TrendingNow.jsx, DailyDigest.jsx och varianter
+# från prod-loggarna. Varje rad körs två gånger mot den nya koden (kall och
+# varm cache).
+/api/most_read/news?count=5&date={TODAY}
+/api/most_read/news?count=10&date={TODAY}
+/api/most_read/news?count=15&date={TODAY}
+/api/most_read/news?count=5&brottsplatskartan
+/api/most_read/news?count=5&date={YESTERDAY}
+/api/most_read/news?date={YESTERDAY}
+/api/most_read/news
+/api/most_read
+/api/most_read/sport
+/api/most_read/news?date={DAYS_AGO_20}
+/api/most_read/news?date=2020-01-01
+/api/most_read/news?date=inte-ett-datum
+/api/most_read/news?count=-1

@@ -16,6 +16,12 @@ koden som den används, men inga fixar kommer heller.
   säkerhetsfixar till sitt paketerade 8.2 under bookworms livstid (Debian LTS
   till och med juni 2028). Den verkliga gränsen är alltså OS-uppgraderingen,
   och Debian 13 (trixie) har PHP 8.4.
+- **Kontrollerat på prod 2026-10-14:** `php8.2-fpm 8.2.34-1~deb12u1` kommer från
+  `bookworm-security`, och changeloggen säger "Non-maintainer upload by the LTS
+  Team" med fyra CVE-fixar (bl.a. mysqlnd), byggd 2026-10-04. Säkerhetsfixarna
+  kommer alltså. Att byta till PHP 8.4 nu (via sury.org eller Debian 13) ger
+  risk utan vinst. Gör det som en flytt till en ny Debian 13-server under 2027,
+  tillsammans med Laravel 13.
 - **Båda apparna fungerar på PHP 8.4** (prod kör 8.2), provat i Docker med
   `serversideup/php:8.4`:
   - **Webben (CI 2):** 13 sidor och API-anrop byte-identiska med 8.2. Enda

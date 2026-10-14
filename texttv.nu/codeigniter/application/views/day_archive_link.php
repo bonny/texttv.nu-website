@@ -8,7 +8,13 @@
 */
 
 ?>
-<nav class="day-archive-link" aria-label="Gårdagen">
+<?php
+// På startsidan står knapparna mellan sidorna, som är inline-block och står
+// bredvid varandra på bred skärm. En vanlig blocknav skulle bryta raden, så
+// där blir knapparna en egen ruta i raden, lika bred som en sida.
+$inline = !empty($inline);
+?>
+<nav class="day-archive-link<?php echo $inline ? " day-archive-link--inline" : "" ?>" aria-label="Gårdagen">
 	<?php if ($yesterday_prefix) { ?>
 		<span class="day-archive-link__label"><?php echo html_escape($yesterday_prefix) ?></span>
 	<?php } ?>
@@ -44,5 +50,13 @@
 	.day-archive-link__label {
 		width: 100%;
 		text-align: center;
+	}
+	.day-archive-link--inline {
+		display: inline-flex;
+		flex-direction: column;
+		vertical-align: top;
+		width: 40ch;
+		max-width: 100%;
+		margin: 1em .5em;
 	}
 </style>

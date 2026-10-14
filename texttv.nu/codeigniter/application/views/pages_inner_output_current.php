@@ -7,6 +7,7 @@
 
 $arr_pages = $pages;
 $out = "";
+$is_startpage = isset($pagedescription) && $pagedescription === 'startpage';
 
 
 // Lägg in output för sidinnehållet
@@ -28,7 +29,7 @@ $headline = null;
 
 // isset-koll: api/get_html laddar den här vyn utan $pagedescription, vilket gav
 // en PHP-varning rakt in i JSON-svaret till apparna. Se K3 i #08.
-if (isset($pagedescription) && $pagedescription === 'startpage') {
+if ($is_startpage) {
 
 	$headline = 'SVT Text TV - Nyheter och Sportresultat';
 
@@ -99,9 +100,9 @@ if (!empty($yesterday_links)) {
 	$yesterday_links_html = $this->load->view('day_archive_link', [
 		"yesterday_links" => $yesterday_links,
 		"yesterday_prefix" => $yesterday_prefix,
+		"inline" => $is_startpage,
 	], TRUE);
 }
-$is_startpage = isset($pagedescription) && $pagedescription === 'startpage';
 
 foreach ($arr_pages as $page_index => $one_page_obj) {
 	$out .= $one_page_obj->get_output();

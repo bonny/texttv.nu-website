@@ -147,7 +147,7 @@ class Dagsnyheter extends CI_Controller
 		// Äldst först, så att den första sändningen blir nyhetens tid.
 		foreach (array_reverse($rows) as $row) {
 			$title = trim(preg_replace('/\s+/u', ' ', $row->title));
-			if ($this->_is_noise($title)) {
+			if ($this->_is_noise($title, $section === "sport")) {
 				continue;
 			}
 			$key = $this->_story_key($title);
@@ -159,7 +159,7 @@ class Dagsnyheter extends CI_Controller
 			}
 			$merged = false;
 			foreach ($stories as &$story) {
-				if ($this->_same_story($key, $story["key"], (int) $row->page_num === $story["page_num"])) {
+				if ($this->_matches_story($key, (int) $row->page_num, $story)) {
 					// Behåll första tiden men senaste rubrik och version.
 					if ((int) $row->id > $story["id"]) {
 						$story["title"] = $title;
@@ -167,6 +167,7 @@ class Dagsnyheter extends CI_Controller
 						$story["page_num"] = (int) $row->page_num;
 					}
 					$story["keys"][] = $key;
+					$story["pages"][(int) $row->page_num] = true;
 					$merged = true;
 					break;
 				}
@@ -176,6 +177,7 @@ class Dagsnyheter extends CI_Controller
 				$stories[] = [
 					"key" => $key,
 					"keys" => [$key],
+					"pages" => [(int) $row->page_num => true],
 					"title" => $title,
 					"id" => (int) $row->id,
 					"page_num" => (int) $row->page_num,
@@ -234,7 +236,7 @@ class Dagsnyheter extends CI_Controller
 				$item = isset($items_by_key[$key]) ? $items_by_key[$key] : null;
 				if (!$item) {
 					foreach ($items_by_key as $other_key => $other_item) {
-						if ($this->_same_story($key, $other_key, false)) {
+						if ($this->_same_story($key, $other_key, (int) $one["page_num"] === $other_item["page_num"])) {
 							$item = $other_item;
 							break;
 						}
@@ -375,18 +377,34 @@ class Dagsnyheter extends CI_Controller
 	}
 
 	/**
-	 * Rubriker som inte är nyheter: SVT:s testsidor ("Test 12 okt 2026") och
-	 * sidrubriker på resultatsidorna ("Ishockey NHL"). Korta riktiga rubriker
-	 * som "Påven död" ska vara kvar, så bara korta rubriker som börjar med en
-	 * sport räknas som sidrubrik.
+	 * Om en rad hör till en nyhet som redan finns i listan. Jämför mot alla
+	 * rubrikvarianter nyheten haft, och räknar som "samma sida" om raden står
+	 * på något av de sidnummer nyheten stått på. Annars delas en nyhet som
+	 * uppdateras i flera steg, eller flyttar och sedan uppdateras, i flera.
 	 */
-	private function _is_noise($title)
+	private function _matches_story($key, $page_num, $story)
 	{
-		if (preg_match('/^test\b/iu', $title)) {
+		$same_page = isset($story["pages"][$page_num]);
+		foreach ($story["keys"] as $story_key) {
+			if ($this->_same_story($key, $story_key, $same_page)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Rubriker som inte är nyheter: tomma, SVT:s testsidor ("Test 12 okt
+	 * 2026"), och på sportsidorna sidrubriker som "Ishockey NHL" eller
+	 * "Premier League" (högst två ord). På nyhetssidorna får korta rubriker
+	 * som "Påven död" stå kvar.
+	 */
+	private function _is_noise($title, $is_sport)
+	{
+		$title = trim($title);
+		if ($title === "" || preg_match('/^test\b/iu', $title)) {
 			return true;
 		}
-		$words = preg_split('/\s+/u', trim($title));
-		return sizeof($words) <= 2
-			&& preg_match('/^(ishockey|fotboll|handboll|bandy|basket|innebandy|tennis|golf|motor|trav)$/iu', $words[0]);
+		return $is_sport && sizeof(preg_split('/\s+/u', $title)) <= 2;
 	}
 }

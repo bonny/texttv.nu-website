@@ -9,6 +9,11 @@
 
 $nb = $not_broadcasted;
 
+// Inte i delningsbilderna (apiAppShare), där finns varken meny eller plats.
+if ($this->input->get("apiAppShare")) {
+	return;
+}
+
 ?>
 <div class="not-broadcasted-notice">
 	<?php if (!$nb["page"]) { ?>

@@ -161,8 +161,20 @@ if ( true || $this->input->get("enable-share") ) {
 
 
 
-$out .= $text_archive;
+// En sida som inte sänts på länge visar bara "ej i sändning"; tiden den
+// "uppdaterades" säger då inget. Se not_broadcasted_notice.php.
+if (!isset($not_broadcasted) || !$not_broadcasted || $not_broadcasted["page"]) {
+	$out .= $text_archive;
+}
 
+// Länkar till gårdagen (todo #16), före annonsen. Sätts bara av Sida::visa(),
+// inte av api/get_html som också laddar den här vyn.
+if (!empty($yesterday_links)) {
+	$out .= $this->load->view('day_archive_link', [
+		"yesterday_links" => $yesterday_links,
+		"yesterday_prefix" => $yesterday_prefix,
+	], TRUE);
+}
 
 // ad after text tv page, before "nyaste sidorna"
 if ( $this->input->get("apiAppShare") ) {

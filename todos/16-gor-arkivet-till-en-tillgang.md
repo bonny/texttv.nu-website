@@ -199,6 +199,27 @@ datum-URL:er (indexering, visningar, klick), och frågor med "igår" eller
 datum. Jämför `/377`:s egna klick YoY så att arkivet inte äter av den
 levande sidan.
 
+### Gårdagens nyheter och sportnyheter — deployat 2026-10-14
+
+Commit `9efc8be`. URL:er: `/nyheter/igar`, `/sport/igar`,
+`/nyheter/YYYY-MM-DD`, `/sport/YYYY-MM-DD` (högst 365 dagar bakåt, eftersom
+nyheternas arkivsidor raderas efter ett år om ingen delat dem).
+
+- Alla unika rubriker en dag (`get_headlines_for_day()`), grupperade
+  Inrikes 106–129, Utrikes 130–149, Kultur och övrigt 150–199, Sport
+  303–329. Gränserna kontrollerade mot SVT:s indexsidor 101 och 104.
+  Notissidor 127, 128, 148, kulturindex 150 och nyhetsrullen 188 utelämnas.
+- Mest lästa överst, ur most_read-filcachen (flyttad från `Api` till
+  `texttv_helper`), dedupad per rubrik, bara för de 14 dagar cachen täcker.
+- Titel och beskrivning per dag (antal + mest lästa rubrikerna), canonical,
+  JSON-LD `CollectionPage`/`ItemList`.
+- Länkar från startsidan ("Igår på Text TV: …"), enskilda sidor 100–199 och
+  300–399, sidfot och sidomeny. Sportlistan länkar till samma dags
+  `/377/…` och `/330/…`.
+- Prod direkt efter deploy: igår 66 nyheter, mest lästa och fyra grupper.
+  Svarstid ~0,09 s okachad, ~2,5 s första gången most_read räknas för ett
+  datum (sedan filcache 1 h, nginx 1 h).
+
 ### Ny 404-sida — deployad 2026-10-14
 
 Commits `f415ff9`, `fd94325`. Inte en idé från katalogen, men upptäckt under

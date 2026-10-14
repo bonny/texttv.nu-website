@@ -9,12 +9,17 @@
 $d = $day_headlines;
 $e = 'html_escape';
 
+// Ankare för hopplänkarna: "Kultur och övrigt" → "kultur-och-ovrigt".
+$anchor = function ($name) {
+	return str_replace(["å", "ä", "ö", " "], ["a", "a", "o", "-"], mb_strtolower($name));
+};
+
 $render_list = function ($items, $ordered = false) use ($e) {
 	$tag = $ordered ? "ol" : "ul";
 	$out = "<{$tag} class=\"day-list__items\">";
 	foreach ($items as $item) {
 		$out .= sprintf(
-			'<li><span class="day-list__time">%1$s</span> <a href="%2$s">%3$s</a> <span class="day-list__num">%4$d</span></li>',
+			'<li><span class="day-list__time">%1$s</span><span><a href="%2$s">%3$s</a> <span class="day-list__num">%4$d</span></span></li>',
 			$e($item["time"]),
 			$e($item["permalink"]),
 			$e($item["title"]),
@@ -63,8 +68,16 @@ $json_ld = [
 		/* #pages centrerar texten; en lista läses lättare vänsterställd. */
 		text-align: left;
 	}
+	.day-list > h1 {
+		font-size: 1.4em;
+		line-height: 1.25;
+		margin-bottom: .2em;
+	}
 	.day-list__date {
 		margin-top: 0;
+	}
+	.day-list__jump {
+		margin: 0 0 1em;
 	}
 	.day-list__nav {
 		display: flex;
@@ -74,6 +87,7 @@ $json_ld = [
 	}
 	.day-list h2 {
 		color: #ffff00;
+		font-size: 1.15em;
 		margin: 1.5em 0 .5em;
 	}
 	.day-list__items {
@@ -84,10 +98,25 @@ $json_ld = [
 		list-style: none;
 	}
 	ol.day-list__items {
-		padding-left: 3ch;
+		padding-left: 0;
+		list-style: none;
 	}
+	/* Tid i egen kolumn och rubriken med hängande indrag, så att en rubrik
+	   som bryts på mobil fortsätter under rubriken och inte under tiden. */
 	.day-list__items li {
-		margin: .3em 0;
+		display: grid;
+		grid-template-columns: 6ch 1fr;
+		margin: .35em 0;
+	}
+	ol.day-list__items {
+		counter-reset: mest-lasta;
+	}
+	ol.day-list__items li {
+		grid-template-columns: 4ch 6ch 1fr;
+		counter-increment: mest-lasta;
+	}
+	ol.day-list__items li::before {
+		content: counter(mest-lasta) ".";
 	}
 	.day-list__time {
 		color: #00ffff;
@@ -113,10 +142,21 @@ $json_ld = [
 	</nav>
 
 	<p>
-		<?php echo $d["headline_count"] ?> rubriker sändes på SVT Text TV den här dagen.
-		Tiden är när nyheten först sändes, och varje rubrik leder till nyheten
-		som den såg ut då.
+		<?php echo $d["headline_count"] ?> nyheter sändes för första gången på
+		SVT Text TV den här dagen. Tiden är när nyheten först sändes, och varje
+		rubrik leder till nyheten som den såg ut då.
 	</p>
+
+	<?php if (sizeof($d["groups"]) > 1) { ?>
+		<p class="day-list__jump">
+			Hoppa till:
+			<?php
+			echo implode(" · ", array_map(function ($name) use ($e, $anchor) {
+				return sprintf('<a href="#%1$s">%2$s</a>', $e($anchor($name)), $e($name));
+			}, array_keys($d["groups"])));
+			?>
+		</p>
+	<?php } ?>
 
 	<?php if ($d["results_links"]) { ?>
 		<p class="day-list__results">
@@ -135,7 +175,7 @@ $json_ld = [
 	<?php } ?>
 
 	<?php foreach ($d["groups"] as $group_name => $items) { ?>
-		<h2><?php echo $e($group_name) ?></h2>
+		<h2 id="<?php echo $e($anchor($group_name)) ?>"><?php echo $e($group_name) ?></h2>
 		<?php echo $render_list($items) ?>
 	<?php } ?>
 

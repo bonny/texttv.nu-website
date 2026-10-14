@@ -15,6 +15,9 @@ $nb = $not_broadcasted;
 	<p>
 		<strong>SVT har inte sänt sidan sedan <?php echo html_escape($nb["off_air_since_human"]) ?>.</strong>
 		Den visas här igen om SVT börjar sända den.
+		<?php if ($nb["last_permalink"]) { ?>
+			<a href="<?php echo html_escape($nb["last_permalink"]) ?>">Se sidan som den såg ut senast den sändes.</a>
+		<?php } ?>
 	</p>
 	<?php } else { ?>
 	<p>

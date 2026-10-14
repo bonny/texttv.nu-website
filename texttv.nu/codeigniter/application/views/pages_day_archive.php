@@ -69,8 +69,7 @@ $final_date_human = date_sv("l j F", strtotime(substr($d["final_date_added"], 0,
 	</nav>
 
 	<p class="day-archive__intro">
-		Så här såg <a href="/<?php echo $num ?>">SVT Text TV <?php echo $num ?></a>
-		ut när dagen var slut.
+		Så här såg SVT Text TV <?php echo $num ?> ut när dagen var slut.
 		<?php if ($final_is_other_day) { ?>
 			Ingen ny version den här dagen. Senaste versionen med innehåll är från <?php echo $e($final_date_human) ?> kl <?php echo $e($final_time) ?>.
 		<?php } elseif ($version_count > 1) { ?>
@@ -103,7 +102,7 @@ $final_date_human = date_sv("l j F", strtotime(substr($d["final_date_added"], 0,
 		<h2>Alla versioner av <?php echo $num ?> <?php echo $e($d["date_human"]) ?></h2>
 		<ul>
 			<?php foreach ($d["version_links"] as $one_version) { ?>
-				<li><a href="<?php echo $e($one_version["permalink"]) ?>"><?php echo $e($one_version["time"]) ?></a></li>
+				<li><a href="<?php echo $e($one_version["permalink"]) ?>" aria-label="<?php echo $e($num . " kl " . $one_version["time"]) ?>"><?php echo $e($one_version["time"]) ?></a></li>
 			<?php } ?>
 		</ul>
 	</section>

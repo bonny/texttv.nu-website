@@ -392,22 +392,24 @@ function get_page_version_at_end_of_day($page_num, $day_ymd) {
 
 /**
  * Senaste versionen av en sida som hade innehåll, alltså inte "Sidan ej i
- * sändning" (tom titel). Högst 60 dygn bakåt. Används när sidan inte sänds,
- * så att den levande adressen visar senast sända version. Todo #16.
+ * sändning" (tom titel). Högst $max_days dygn bakåt (null = obegränsat).
+ * Används när sidan inte sänds, så att den levande adressen visar senast
+ * sända version, eller länkar dit om sidan varit borta länge. Todo #16.
  *
  * @return object|null Rad med id, title och date_added, eller null.
  */
-function get_latest_broadcast_version($page_num) {
+function get_latest_broadcast_version($page_num, $max_days = 60) {
 	$ci =& get_instance();
 	$ci->load->database();
-
-	$from = new DateTime("now", new DateTimeZone("Europe/Stockholm"));
-	$from->modify("-60 days");
 
 	$ci->db->select("id, title, date_added");
 	$ci->db->from("texttv");
 	$ci->db->where("page_num", (int) $page_num);
-	$ci->db->where("date_added >=", $from->format("Y-m-d H:i:s"));
+	if ($max_days) {
+		$from = new DateTime("now", new DateTimeZone("Europe/Stockholm"));
+		$from->modify("-" . (int) $max_days . " days");
+		$ci->db->where("date_added >=", $from->format("Y-m-d H:i:s"));
+	}
 	$ci->db->where("title <>", "");
 	$ci->db->order_by("date_added", "DESC");
 	$ci->db->limit(1);

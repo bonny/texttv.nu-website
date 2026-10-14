@@ -10,7 +10,9 @@ class Sida extends CI_Controller {
 	 * Sidor som har dagsarkiv (/NNN/igar, /NNN/YYYY-MM-DD). Bara sidor där
 	 * en dag är en enhet, alltså resultatsidor som fylls på under dagen.
 	 * Nyhetssidor byter innehåll under dagen och passar inte. Tipssidorna
-	 * (550–571) är inte med: SVT har slutat sända dem. Todo #16.
+	 * (550–571) är inte med: SVT har slutat sända dem. 330 togs bort samma
+	 * dag den lades till: den är en meny över resultatsidorna, inte
+	 * resultat, så varje dag blev en nästan identisk sida. Todo #16.
 	 *
 	 * Per sida:
 	 *  - subject: ämnet i /igar-titeln, "377 igår - SVT Text TV - <subject>"
@@ -18,7 +20,6 @@ class Sida extends CI_Controller {
 	 *  - suffix:  ev. ämnesord efter datumet i datumsidornas titel
 	 */
 	const DAY_ARCHIVE = [
-		330 => ["subject" => "Resultatbörsen", "label" => "Resultatbörsen", "suffix" => ""],
 		377 => ["subject" => "Målservice och resultat", "label" => "Resultat", "suffix" => "Målservice "],
 	];
 
@@ -92,6 +93,12 @@ class Sida extends CI_Controller {
 		$today = new DateTime("today", $tz);
 		$is_yesterday_url = ($day === "igar");
 
+		// /330/igar och 330:s datumsidor fanns några timmar 2026-10-14.
+		if ($page_num === 330) {
+			redirect("/330", "location", 301);
+			return;
+		}
+
 		if (!isset(self::DAY_ARCHIVE[$page_num])) {
 			show_texttv_404();
 			return;
@@ -153,6 +160,9 @@ class Sida extends CI_Controller {
 		$next_date = clone $date;
 		$next_date->modify("+1 day");
 
+		$yesterday_date = clone $today;
+		$yesterday_date->modify("-1 day");
+
 		// Länka bara bakåt om det finns något att visa där, så att arkivets
 		// början inte blir en kedja av länkar till 404:or.
 		$has_prev = (bool) get_page_version_at_end_of_day($page_num, $prev_date->format("Y-m-d"));
@@ -174,9 +184,17 @@ class Sida extends CI_Controller {
 
 		if ($is_yesterday_url) {
 			// /igar är alltid sitt eget original, även när innehållet är äldre.
+			// Titel och H1 börjar inte med sidnumret, så att /377/igar inte
+			// tävlar med /377 om "text tv 377" (Google skriver om titeln från H1).
 			$canonical = "https://texttv.nu/{$page_num}/igar";
-			$meta_title = "{$page_num} igår - SVT Text TV - {$subject}";
-			$headline = "SVT Text TV {$page_num} igår - {$subject}";
+			$meta_title = sprintf(
+				'%1$s igår (%2$s) – %3$sSVT Text TV %4$d',
+				$archive_conf["label"],
+				$human($date, "D j M"),
+				$archive_conf["suffix"],
+				$page_num
+			);
+			$headline = sprintf('%1$s igår, %2$s – SVT Text TV %3$d', $archive_conf["label"], $human($date, "l j F"), $page_num);
 		} else {
 			$canonical = "https://texttv.nu/{$page_num}/" . (empty($versions) ? $final_day : $date->format("Y-m-d"));
 			// Datumet först och i H1: Google skriver om titlarna på de här
@@ -212,8 +230,8 @@ class Sida extends CI_Controller {
 			"final_date_added" => $final_version->date_added,
 			"prev_url" => $has_prev ? "/{$page_num}/" . $prev_date->format("Y-m-d") : null,
 			"prev_human" => $human($prev_date, "l j F"),
-			"next_url" => $next_date == $today ? "/{$page_num}" : "/{$page_num}/" . $next_date->format("Y-m-d"),
-			"next_human" => $next_date == $today ? "idag" : $human($next_date, "l j F"),
+			"next_url" => $next_date == $today ? "/{$page_num}" : ($next_date == $yesterday_date ? "/{$page_num}/igar" : "/{$page_num}/" . $next_date->format("Y-m-d")),
+			"next_human" => $next_date == $today ? "Idag på {$page_num}" : $human($next_date, "l j F"),
 		];
 
 		// En passerad dag ändras inte, så nginx får cacha länge. Men /igar byter
@@ -305,13 +323,51 @@ class Sida extends CI_Controller {
 				$arr_page_objs[0] = $not_broadcasted["page"];
 				$page = $not_broadcasted["page"];
 			} elseif ($arr_page_objs[0]->date_added_unix < strtotime("-14 days")) {
+				$last_row = get_latest_broadcast_version($arr_page_objs[0]->num, null);
+				$last_permalink = null;
+				if ($last_row) {
+					$last_page = new texttv_page();
+					$last_page->id = $last_row->id;
+					$last_page->num = (int) $arr_page_objs[0]->num;
+					$last_page->title = $last_row->title;
+					$last_permalink = $last_page->get_permalink();
+				}
 				$not_broadcasted = [
 					"page" => null,
 					"off_air_since_human" => date_sv("j F Y", $arr_page_objs[0]->date_added_unix),
+					"last_permalink" => $last_permalink,
 				];
 			}
 		}
 
+		// Länkar till gårdagen (todo #16): startsidan får alla, en enskild sida
+		// får sitt eget dagsarkiv och sin avdelnings dagslista.
+		$yesterday_links = [];
+		if ($pagedescription === "startpage") {
+			$yesterday_links = [
+				["/nyheter/igar", "Gårdagens nyheter"],
+				["/sport/igar", "Gårdagens sportnyheter"],
+				["/377/igar", "Gårdagens resultat 377"],
+			];
+		} elseif (sizeof($arr_page_objs) == 1) {
+			$num = (int) $arr_page_objs[0]->num;
+			// "← 377 igår" bara om det finns något att visa där, så länken
+			// inte leder till 404.
+			if (isset(self::DAY_ARCHIVE[$num])) {
+				$yesterday = new DateTime("yesterday", new DateTimeZone("Europe/Stockholm"));
+				if (get_page_version_at_end_of_day($num, $yesterday->format("Y-m-d"))) {
+					$yesterday_links[] = ["/{$num}/igar", "Gårdagens resultat {$num}"];
+				}
+			}
+			if ($num >= 100 && $num <= 199) {
+				$yesterday_links[] = ["/nyheter/igar", "Gårdagens nyheter"];
+			} elseif ($num >= 300 && $num <= 399) {
+				$yesterday_links[] = ["/sport/igar", "Gårdagens sportnyheter"];
+			}
+		}
+		// Visas av pages_inner_output_current direkt under sidan, före
+		// annonsen, så att de syns utan att man scrollar förbi den.
+		$yesterday_prefix = $pagedescription === "startpage" ? "Igår på Text TV:" : "";
 		// Skapa array med data att skicka med till vyerna
 		$data = array();
 		$data["not_broadcasted"] = $not_broadcasted;
@@ -319,6 +375,8 @@ class Sida extends CI_Controller {
 		$data["pages"] = $arr_page_objs;
 		$data["pagenum"] = $pagenum;
 		$data["pagedescription"] = $pagedescription;
+		$data["yesterday_links"] = $yesterday_links;
+		$data["yesterday_prefix"] = $yesterday_prefix;
 
 		// Ladda vyer för sidhuvud och kontroller
 		$this->load->view('header', $data);
@@ -330,37 +388,6 @@ class Sida extends CI_Controller {
 			$this->load->view("not_broadcasted_notice", $data);
 		}
 		$this->load->view("pages_inner_output_current", $data);
-		// Länkar till gårdagen (todo #16): startsidan får alla, en enskild sida
-		// får sitt eget dagsarkiv och sin avdelnings dagslista.
-		$yesterday_links = [];
-		if ($pagedescription === "startpage") {
-			$yesterday_links = [
-				["/nyheter/igar", "Gårdagens nyheter"],
-				["/sport/igar", "Gårdagens sportnyheter"],
-				["/377/igar", "Resultat igår 377"],
-				["/330/igar", "Resultatbörsen igår 330"],
-			];
-		} elseif (sizeof($arr_page_objs) == 1) {
-			$num = (int) $arr_page_objs[0]->num;
-			// "← 377 igår" bara om det finns något att visa där, så länken
-			// inte leder till 404.
-			if (isset(self::DAY_ARCHIVE[$num])) {
-				$yesterday = new DateTime("yesterday", new DateTimeZone("Europe/Stockholm"));
-				if (get_page_version_at_end_of_day($num, $yesterday->format("Y-m-d"))) {
-					$yesterday_links[] = ["/{$num}/igar", "{$num} igår"];
-				}
-			}
-			if ($num >= 100 && $num <= 199) {
-				$yesterday_links[] = ["/nyheter/igar", "Gårdagens nyheter"];
-			} elseif ($num >= 300 && $num <= 399) {
-				$yesterday_links[] = ["/sport/igar", "Gårdagens sportnyheter"];
-			}
-		}
-		if ($yesterday_links) {
-			$data["yesterday_links"] = $yesterday_links;
-			$data["yesterday_prefix"] = $pagedescription === "startpage" ? "Igår på Text TV:" : "←";
-			$this->load->view('day_archive_link', $data);
-		}
 		$this->load->view('pages-thumbs', $data);
 		$this->load->view('pages-latest-updated', $data);
 		$this->load->view('controls', $data);

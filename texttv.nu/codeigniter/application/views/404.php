@@ -40,8 +40,8 @@ $rows = [
 	$toprow,
 	$line("            SIDAN FINNS INTE", "bgB W"),
 	$line(""),
-	$line(" Sidan du söker har sänts klart, eller", "bgBl W"),
-	$line(" så har adressen blivit fel.", "bgBl W"),
+	$line(" Sidan finns inte, eller så har", "bgBl W"),
+	$line(" adressen blivit fel.", "bgBl W"),
 	$line(""),
 	$line(" Prova någon av de här:", "bgBl Y"),
 	$line(""),
@@ -50,11 +50,12 @@ $rows = [
 	$line(" " . $link(401, "Väder") . "            " . $link(600, "På TV"), "bgBl G"),
 	$line(" " . $link(101, "Inrikes") . "          " . $link(104, "Utrikes"), "bgBl G"),
 	$line(""),
+	$line(" " . '<a href="/nyheter/igar">Gårdagens nyheter</a>', "bgBl G"),
+	$line(""),
 	$line(" Eller skriv ett sidnummer i rutan", "bgBl W"),
 	$line(" Gå till sida högst upp.", "bgBl W"),
 	$line(""),
-	$line(""),
-	$line(" Startsidan " . $link(100) . " * Sport " . $link(300) . " * Väder " . $link(401), "bgB W"),
+	$line(" " . '<a href="/">Startsidan</a>' . " * Sport " . $link(300) . " * Väder " . $link(401), "bgB W"),
 ];
 
 ?>

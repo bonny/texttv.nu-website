@@ -149,8 +149,12 @@ if (isset($pages) && is_array($pages)) {
 	}
 	//	print_r($pages);
 }
-if (isset($is_archive)) {
+if (isset($is_archive) || isset($day_archive)) {
+	// page-is-archive stänger av live-uppdateringen i js/scripts.js.
 	$arr_html_classes[] = "page-is-archive";
+}
+if (isset($day_archive)) {
+	$arr_html_classes[] = "page-is-day-archive";
 }
 
 // If page is retrieved with phantomjs, via the share function in the app
@@ -420,6 +424,15 @@ if ($is_start) {
 	$meta_description = "TextTV.nu – snabbare och mobilanpassad SVT Text TV. Dagens senaste rubriker från inrikes, utrikes, sport, väder och TV-tablåer. Uppdateras löpande.";
 	$generate_meta_title = false;
 }
+
+// Dagsarkiv (/377/igar, /377/2026-10-12): controllern sätter titel och
+// beskrivning. Todo #16.
+if (isset($day_archive)) {
+	$meta_title = $day_archive["meta_title"];
+	$meta_description = $day_archive["meta_description"];
+	$generate_meta_title = false;
+	$ok_to_archive = true;
+}
 ?>
 <!DOCTYPE html>
 <html lang="sv" class="<?php echo join(" ", $arr_html_classes) ?>">
@@ -621,7 +634,11 @@ if ($is_start) {
 	http://texttv.nu/330?utm_source=texttvnu&utm_medium=nav&utm_campaign=leifby&utm_term=favorit_4&utm_nooverride=1
 	http://texttv.nu/377?utm_expid=54301347-3
 	*/
-	if (!isset($is_archive) && isset($pages) && sizeof($pages) == 1) {
+	if (isset($day_archive)) {
+	?>
+		<link rel="canonical" href="<?php echo htmlspecialchars($day_archive["canonical"], ENT_QUOTES) ?>" />
+	<?php
+	} elseif (!isset($is_archive) && isset($pages) && sizeof($pages) == 1) {
 	?>
 		<link rel="canonical" href="https://texttv.nu/<?php echo $pages[0]->num  ?>" />
 	<?php
@@ -699,7 +716,7 @@ if ($is_start) {
 	// Article structured data för live (non-archive) single-page sidor.
 	// Arkivsidor får NewsArticle ovan; multi-page-vyer och appShare hoppas över.
 	// json_encode säkerställer att citat-tecken i $meta_title/$meta_description inte bryter JSON.
-	if (!isset($is_archive) && !$this->input->get("apiAppShare") && isset($pages) && sizeof($pages) == 1) {
+	if (!isset($is_archive) && !isset($day_archive) && !$this->input->get("apiAppShare") && isset($pages) && sizeof($pages) == 1) {
 		$live_canonical = "https://texttv.nu/" . (int) $pages[0]->num;
 		$article_data = [
 			"@context" => "https://schema.org",

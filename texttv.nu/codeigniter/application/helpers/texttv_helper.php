@@ -294,6 +294,37 @@ function get_shared_pages_for_period($time_from, $time_to) {
 	return $result;
 } // end get shared pages for period
 
+/**
+ * Versioner av en sida som lades till under ett dygn, nyaste först.
+ *
+ * Dygnet räknas i svensk tid, eftersom importern sparar date_added i
+ * Europe/Stockholm. Använder indexet (page_num, date_added).
+ * Todo #16: dagsarkivet /377/igar och /377/2026-10-12.
+ *
+ * @param int    $page_num Sidnummer.
+ * @param string $day_ymd  Datum, Y-m-d.
+ * @return array Rader med id, title och date_added (Y-m-d H:i:s).
+ */
+function get_page_versions_for_day($page_num, $day_ymd) {
+	$tz = new DateTimeZone("Europe/Stockholm");
+	$from = new DateTime($day_ymd . " 00:00:00", $tz);
+	$to = clone $from;
+	$to->modify("+1 day");
+
+	$ci =& get_instance();
+	$ci->load->database();
+
+	$ci->db->select("id, title, date_added");
+	$ci->db->from("texttv");
+	$ci->db->where("page_num", (int) $page_num);
+	$ci->db->where("date_added >=", $from->format("Y-m-d H:i:s"));
+	$ci->db->where("date_added <", $to->format("Y-m-d H:i:s"));
+	$ci->db->order_by("date_added", "DESC");
+	$ci->db->limit(500);
+
+	return $ci->db->get()->result();
+}
+
 function get_latest_updated_pages($from, $to, $maxcount = 20) {
 	$from = (int) $from;
 	$to = (int) $to;

@@ -1,5 +1,5 @@
-**Status:** aktiv
-**Senast uppdaterad:** 2026-08-02
+**Status:** aktiv — D mätt 2026-10-14: C utan synlig effekt (−36 % YoY mot kontrollens −4 %), A blandat med `resultat lången 377` −92 % YoY. /377 själv har slutat tappa (−4 % YoY, pos 4.4 → 3.3).
+**Senast uppdaterad:** 2026-10-14
 
 # Varför tappade /377 position — och vad vi gör åt det
 
@@ -316,6 +316,78 @@ Mätmetod som #01: 30d och 60d efter deploy, samma frågeuppsättning som
 baselinetabellen ovan. Mät **klick och position**, inte CTR (se avsnittet om
 utspädning).
 
+## Mätning 2026-10-14 (D) — A och C mätta, 70d efter deploy
+
+30d- och 60d-mätningen blev försenade och gjordes i stället som en mätning den
+2026-10-14. **Baslinjerna från 2026-08-02 duger inte som enda jämförelse.** De
+ligger i juli (VM 2026 och Allsvenskans uppehåll), och `/377` själv gick +68 %
+från sena juni–juli till september–oktober utan någon ändring. Därför jämförs
+här också mot samma fönster 2025.
+
+### C. H1:or på 330/376/378/379 — ingen effekt synlig
+
+28 dagar per fönster, sidnivå, alla frågor:
+
+| Sida | Baseline 2026-07-05→08-01 | 2025-09-14→10-11 | **2026-09-14→10-11** |
+| --- | --- | --- | --- |
+| /330 | 27, pos 3.9 | 163, pos 4.1 | 106, pos 3.0 |
+| /379 | 12, pos 5.2 | 25, pos 5.5 | 23, pos 6.8 |
+| /376 | 8, pos 5.3 | 25, pos 4.4 | 20, pos 4.4 |
+| /378 | 67, pos 4.8 | 177, pos 4.4 | 102, pos 4.4 |
+| **Summa klick** | **114** | **390** | **251** |
+| *Kontroll: /377* | — | *10 482, pos 4.4* | *10 094, pos 3.3* |
+
+Mot baslinjen ser det ut som +120 %, men det är säsongen. **Mot i fjol har
+gruppen tappat 36 % medan `/377` bara tappat 4 %.** H1-hypotesen får inget stöd:
+positionerna är oförändrade eller bättre (330: 4.1 → 3.0), men klicken har
+minskat. `/379` har fått 23 k visningar på pos 6.8 och 0.10 % CTR, alltså
+synlighet på någon bred fråga som inte ger klick.
+
+OBS: GSC visar för 2025-fönstret orimliga visningstal på /378, /376 och /343
+(~480–510 k vardera vid 0.01–0.04 % CTR). Jämför klick och position, inte
+visningar, bakåt i tiden.
+
+### A. Ny `page_text` för 377 — en fråga har rasat
+
+`/377`, frågenivå, 70 dagar (2026-08-03→10-11) mot samma 70 dagar 2025 och den
+90-dagars baseline som står ovan:
+
+| Fråga | 2025-08-03→10-11 | Baseline 2026 (90d) | **2026-08-03→10-11** |
+| --- | --- | --- | --- |
+| `text 377 målservice` | 12 / 312 vis, pos 2.0 | 700 / 5 139, pos 2.6 | 802 / 5 774, pos 2.1 |
+| `text tv 377 idag` | 279 / 4 924, pos 3.3 | 604 / 9 318, pos 2.8 | **103** / 5 245, pos 3.2 |
+| `377 målservice` | 347 / 891, pos 2.0 | 443 / 1 025, pos 2.3 | 472 / 1 855, pos 1.9 |
+| `resultat lången 377` | 250 / 688, pos 2.1 | 286 / 725, pos 2.0 | **19** / 206, pos 2.1 |
+| `text tv 377 nu` | 100 / 789, pos 2.5 | 114 / 265, pos 1.8 | **< 4** (utanför topp 60) |
+| **Summa klick** | **988** | **2 147** (23,9/dag) | **~1 396** (19,9/dag) |
+
+- **`resultat lången 377`: −92 % YoY vid oförändrad position 2.1.** Visningarna
+  föll 70 % och CTR:en från 36 % till 9 %. Det är precis den risk som flaggades
+  ovan, att nostalgipassagen skrevs om och flyttades sist. Att visningarna
+  också föll gör att efterfrågan kan ha sjunkit samtidigt, så det går inte att
+  skilja ut texten som orsak. Men det är den tydligaste signalen i mätningen.
+- **`text tv 377 idag` och `text tv 377 nu`** har också tappat kraftigt vid
+  ungefär oförändrad position. "Idag"/"nu"-familjen var den text A skulle få
+  att växa. Den har krympt.
+- Det som växte (`text 377 målservice`, `377 målservice`) hade redan vuxit
+  före ändringen.
+- **Backupen av den gamla texten finns inte längre.** Den låg i
+  sessionens scratchpad under `/private/tmp`, som är rensad, och texten finns
+  inte i några sparade transkript. En återställning får skrivas från minnet
+  (Stryktipset/lången-passagen först, som förut).
+
+Att CTR:en rasar vid oförändrad position kan också bero på att sökresultatsidan
+ändrats (AI-översikter, fler SVT-träffar), vilket den här datan inte kan
+utesluta. Kolla SERP:en manuellt för `resultat lången 377` och
+`text tv 377 idag` innan texten ändras igen.
+
+### Ljuspunkt: `/377` har slutat tappa
+
+28 dagar YoY: 10 482 → 10 094 klick (−4 %), position **4.4 → 3.3**. I maj–aug
+var tappet −29 %. `svt text 377` har gått från 1 523 till 2 541 klick
+(pos 4.8 → 3.3) och `text377` från 1 064 till 1 970. Det går inte att knyta till
+A eller C, men det externa trycket från SVT verkar ha lättat.
+
 ## Trafikstrukturen — vad #01:s vinst faktiskt var (2026-08-02)
 
 Utrett i samband med `/344`-regressionen. Slutsatsen bundar vad titel- och
@@ -371,6 +443,8 @@ tidigare bedömningen att arkivet var en återvändsgränd för SEO. Se **#10**.
 
 ## Logg
 
+- **2026-10-14** — D mätt (försenad, gjord som en 70d-mätning med YoY-jämförelse).
+  Se avsnittet "Mätning 2026-10-14".
 - **2026-08-02** — `mcp-gsc` lagad (beroendepinne `mcp[cli]<2` i `~/.claude.json`;
   `mcp` 2.0.0 tog bort `mcp.server.fastmcp`). Full GSC-utredning gjord.
   Titelhypotesen falsifierad, extern orsak fastställd, plan A–D formulerad.

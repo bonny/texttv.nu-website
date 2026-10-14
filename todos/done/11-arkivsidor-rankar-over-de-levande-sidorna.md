@@ -1,10 +1,10 @@
-**Status:** aktiv
-**Senast uppdaterad:** 2026-08-02
+**Status:** klar 2026-10-14 — titlarna för 330/376/377 fick ämnesord 2026-08-02; mätt 2026-10-14: `resultatbörsen` 35 → 105 klick YoY, levande /330 0 → 46
+**Senast uppdaterad:** 2026-10-14
 
 # Arkivsidor rankar över de levande sidorna
 
 Utrett 2026-08-02. Utgångspunkten var hypotesen från
-[#10](10-retention-raderar-arkivsidor-som-rankar.md) att arkivsidor rankar bättre
+[#10](../10-retention-raderar-arkivsidor-som-rankar.md) att arkivsidor rankar bättre
 för att de har *stabil text* medan de levande byts ut var annan minut.
 
 **Hypotesen var fel.** Orsaken är konkret och enkel: `<title>`.
@@ -47,7 +47,7 @@ det. Och konkurrenten `txtv.nu` tar plats 10 med titeln
 
 **Google skrev inte om arkivtitlarna.** De visas ordagrant som vi serverar dem.
 Det är skillnaden mot `/377`, där Google skriver om titeln (se
-[#09](09-varfor-tappade-377-position-och-vad-vi-gor-at-det.md)) och en
+[#09](../09-varfor-tappade-377-position-och-vad-vi-gor-at-det.md)) och en
 titeländring därför är verkningslös. **Här biter den.**
 
 ## Mekanismen
@@ -147,6 +147,30 @@ visningar, 0.94 %, pos 4.3.
 
 Skilj dem åt genom att mäta frågan `resultatbörsen` på *sidnivå*, inte bara
 totalen.
+
+## Mätning 2026-10-14 (70d efter deploy) — äkta vinst
+
+Fönster 2026-08-03→10-11 (70 dagar), frågan `resultatbörsen` på sidnivå.
+Jämfört både mot baseline (90d före) och samma 70 dagar 2025, eftersom
+fotbollssäsongen ger stark säsongsvariation.
+
+| Sida | 2025-08-03→10-11 | Baseline 2026-05-04→08-01 (90d) | **2026-08-03→10-11** |
+| --- | --- | --- | --- |
+| **Levande `/330`** | 0 klick, pos 7.8 | 0 klick, pos 8.1 | **46 klick, 5.17 %, pos 4.7** |
+| `/330/resultatborsen-13586101` | 34, pos 8.0 | 14, pos 6.2 | 30, pos 5.7 |
+| `/330/resultatborsen-11357432` | 0 | 0, pos 22.8 | 25, pos 5.6 |
+| Övriga arkivsnapshots | 1 | 11 | 4 |
+| `/302` | — | 2 | 0 |
+| **Summa** | **35** | **27** | **105** |
+
+**Utfall 1 av de två ovan: summan växer.** 105 klick på 70 dagar mot 35 samma
+period i fjol (3×) och 27 på 90 dagar före ändringen (~5× per dag). Levande
+`/330` gick från osynlig till pos 4.7 och tog 46 klick. Arkivsidorna tappade
+*inte* — de ökade också (55 mot 35 i fjol). Ingen nollsummeflytt.
+
+Kvar att notera: `/330` totalt (alla frågor) föll ändå YoY i
+2025-09-14→10-11-fönstret, 163 → 106 klick, medan `/377` låg still (−4 %).
+Det är frågor utanför `resultatbörsen` och hör till #09:s mätning, inte hit.
 
 ## Sidoproblem: dubbla `<h1>` på nio sidor
 

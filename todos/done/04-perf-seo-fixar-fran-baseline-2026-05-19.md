@@ -1,12 +1,12 @@
-**Status:** aktiv — **D Fas 1 deployad 2026-06-22** (commit 1e9a61b): 20 nya whitelist-entries, alla 20 sidor live-verifierade på prod (korrekt `<title>`+`<meta>`). Kvar: 60d-effektmätning (slås ihop med #01 2026-07-18). D Fas 2 klar (8b81494), J avfärdad.
-**Senast uppdaterad:** 2026-06-22
+**Status:** klar 2026-10-14 — G/E/H + D Fas 1+2 klara, övrigt släppt/deprioriterat; Fas 1 mätt 2026-10-14: 18 sidor +131 % YoY (liten volym)
+**Senast uppdaterad:** 2026-10-14
 
 # Todo #04 — Perf/SEO-fixar från Lighthouse-baseline 2026-05-19
 
 ## Sammanfattning
 
 Paraply-todo för de fix-punkter som identifierades i [Lighthouse-baseline
-2026-05-19](../baselines/2026-05-19/README.md) och som **inte** redan är
+2026-05-19](../../baselines/2026-05-19/README.md) och som **inte** redan är
 gjorda i Batch 1 (`/700` meta description) eller Batch 2 (HTTP/2 +
 säkerhetsheaders + statisk-asset cache). Varje punkt här är liten nog
 att inte motivera egen todo, men sammantaget är listan värd att hålla
@@ -15,14 +15,14 @@ synlig så den inte tappas bort.
 Mätning: efter varje större grupp av fixar, kör om
 `baselines/2026-05-19-batch2/run.sh` (kopierad till ny datum-katalog
 `baselines/YYYY-MM-DD/`) och skriv `vs <föregående>`-jämförelse i
-README:n. Se [`baselines/README.md`](../baselines/README.md) för
+README:n. Se [`baselines/README.md`](../../baselines/README.md) för
 metodik.
 
 ## Bakgrund
 
 Två baselines togs 2026-05-19:
-- [`baselines/2026-05-19/`](../baselines/2026-05-19/) — pre-fixar
-- [`baselines/2026-05-19-batch2/`](../baselines/2026-05-19-batch2/) — efter Batch 1 + 2
+- [`baselines/2026-05-19/`](../../baselines/2026-05-19/) — pre-fixar
+- [`baselines/2026-05-19-batch2/`](../../baselines/2026-05-19-batch2/) — efter Batch 1 + 2
 
 Resultat efter Batch 1+2: FCP −600 ms överallt, Speed Index −200…−400 ms,
 arkivsidan perf 96 → 99, `/700` SEO 85 → 92. Kvarstående audits nedan.
@@ -134,7 +134,7 @@ saknar `href`. Lägg `href="#"` eller byt till `<button>`.
 Android-apparna fungerar idag men dependent på lös parsing.
 **Plan:** Hitta `$this->output->set_content_type(...)` i `api.php` och
 ändra. Verifiera mot Bruno API files + båda apparna efter deploy.
-**Risk:** medel. App-impact-risk (se [`CLAUDE.md`](../CLAUDE.md) sista
+**Risk:** medel. App-impact-risk (se [`CLAUDE.md`](../../CLAUDE.md) sista
 gotcha).
 
 ### J. Refaktorera header.php-whitelist till associativ array — AVFÄRDAD 2026-05-31
@@ -214,6 +214,24 @@ välavgränsade kod-ändringar med tydliga mätbara baselines att jämföra
 mot.
 
 ## Status-logg
+
+- **2026-10-14** — **D Fas 1 effektmätt (försenad, var planerad till 2026-07-18).**
+  Klick från GSC för de 20 nya whitelist-sidorna. 378/379 räknas separat
+  eftersom de också fick nya H1:or i #09 C.
+
+  | Fönster | 18 sidor (utan 378/379) | Alla 20 |
+  | --- | --- | --- |
+  | 30d före deploy (2026-05-23→06-21) | 99 | 181 |
+  | 30d efter deploy (2026-06-23→07-22) | 131 | 271 |
+  | 2025-09-14→10-11 (28d) | 45 | 247 |
+  | **2026-09-14→10-11 (28d)** | **104** | **229** |
+
+  **De 18 sidorna: +131 % YoY**, mot kontrollerna `/377` −4 % och `/` +12 %.
+  Störst ökning: 346 (2 → 16), 600 (4 → 14), 359 (7 → 12), 380 (3 → 9),
+  381 (1 → 7), 744 (1 → 6), 732 (0 → 5). Med 378/379 (−34 % YoY, se #09)
+  blir totalen −7 %. Volymen är liten, ~100 klick i månaden, vilket stämmer
+  med slutsatsen i #09 att titlarna ger bättre snippets men ingen ny
+  trafikkanal. **Mätningen var det sista som återstod, så todon kan stängas.**
 
 - **2026-06-22** — **D Fas 1 påbörjad (gate lyft).** #01:s 30d-mätning klar
   samma dag med bekräftad vinst (kohort-CTR 0.31%→0.73%), så signal-blandnings-

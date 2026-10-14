@@ -1,6 +1,6 @@
 # 12 – php-fpm-poolen slår i taket i normaldrift
 
-**Status:** aktiv — `cleanup-old-pages`-fixen verifierad 2026-10-14 (varningarna −85–95 %). Kvar: `most_read` regenereras i bakgrunden ~3 200 gånger per dygn, var femte över 3 s, och håller workers. Förslag: dela resultatet mellan `count`-varianterna.
+**Status:** aktiv — `cleanup-old-pages`-fixen verifierad 2026-10-14 (varningarna −85–95 %). Kvar: `most_read` regenereras i bakgrunden ~3 200 gånger per dygn, var femte över 3 s, och håller workers. Fix implementerad och verifierad lokalt 2026-10-14 (delad filcache), ej deployad.
 **Senast uppdaterad:** 2026-10-14
 
 ## Uppföljning 2026-10-14 — spiken borta, men poolen slår fortfarande i taket
@@ -70,7 +70,30 @@ Alltså:
   blivit ungefär dubbelt så långsam sedan augusti. Storleken på `page_actions`
   kunde inte läsas (DB-åtkomst nekad i sessionen); kolla den manuellt.
 
-### Förslag (inget gjort)
+### Förslag 1 och 2 implementerade 2026-10-14 (ej deployade)
+
+`controllers/api.php`: `most_read()` hämtar nu topp 50 via
+`_most_read_pages_cached()`. Resultatet sparas som JSON per typ och datum i
+`sys_get_temp_dir()/texttv-most-read/`, med `flock` så att bara en worker
+räknar fram det. TTL 60 s för idag och 3600 s för passerade dagar (även
+`X-Accel-Expires`). Bara de senaste 14 dagarna cachas, och filer äldre än 15
+dagar städas bort.
+
+Verifierat lokalt i Docker mot seedad `page_actions`:
+
+- **Byte-identiska svar** före och efter för åtta varianter: `count=5/10/15`,
+  brottsplatskartan, gårdagens datum, `/api/most_read` utan typ, `sport` och
+  ett datum utanför 14-dagarsfönstret (2020).
+- **6 parallella anrop** med olika `count` → **1** körning av
+  `page_actions`-queryn (MariaDB general log). 3 anrop till inom TTL → 0.
+- Efter 61 s räknas dagens resultat om. Gamla filer städas.
+
+Förväntad effekt i prod: regenereringarna går från ~3 200 per dygn till
+ungefär en per minut för idag plus en per timme för gårdagen. Mät efter deploy
+med slowlog-räkningen per dag i `prod-health` (`fpm`) och
+`max_children`-varningarna per dygn mot tabellen ovan.
+
+### Förslag (före implementationen)
 
 1. **Dela resultatet mellan varianterna.** Cacha topp 50 per `type` + datum i
    PHP (fil eller APCu, 60 s) och skär `count` ur den. Regenereringarna går

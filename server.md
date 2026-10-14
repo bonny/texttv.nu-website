@@ -49,6 +49,8 @@ fastcgi_cache_path /var/cache/nginx levels=1:2 keys_zone=cachezone:10m max_size=
 - **Cache-key:** scheme + host + request_uri + method. `$request_uri` inkluderar query string → `?cb=$RANDOM` ger nytt cache-entry → fresh render.
 - **Stale-while-revalidate:** vid `updating | timeout | invalid_header | http_500` servas STALE från cachen medan re-render händer i bakgrunden. Första request post-deploy får ofta STALE; andra+ får fresh.
 - **`fastcgi_cache_lock on`** — single-flight: bara en request renderar åt gången per cache-key, övriga väntar/får stale.
+- **Bakgrundsregenereringen syns inte som `urt=` i `access.log`** (subrequests loggas inte). Den syns i stället som ett `cache=STALE`-svar med högt `rt=`: requesten loggas först när bakgrundskörningen är klar, trots att klienten fick svaret direkt. Ett högt `rt` på STALE betyder alltså en långsam regenerering, inte en besökare som väntade. Räkna regenereringar som antalet STALE, inte antalet med `urt`. Utrett i todo #12 (2026-10-14).
+- **Varje URL cachas för sig.** Varianter av samma endpoint (t.ex. `most_read?count=5` och `?count=10`) regenereras var för sig. `/api/most_read` delar därför sitt topp 50-resultat mellan varianterna i en egen filcache, `sys_get_temp_dir()/texttv-most-read/` (60 s för idag, 3600 s för passerade dagar). Med `PrivateTmp` i php-fpm:s systemd-enhet ligger katalogen under `/tmp/systemd-private-*-php8.2-fpm.service-*/tmp/`.
 - **Cache-storage:** `/var/cache/nginx/` (10 MB keys, max 100 MB content).
 - **OBS:** `fastcgi_cache_path` (zonen som de andra direktiven refererar till) ligger **inte** i sites-enabled-vhost:en. Den måste deklareras globalt — leta i `/etc/nginx/nginx.conf` eller `/etc/nginx/conf.d/*.conf` om du behöver verifiera/ändra storlek.
 

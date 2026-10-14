@@ -117,6 +117,21 @@ Läs stacktracen nedifrån och upp — översta raden är där den stod när
 tröskeln slog till. `imagegif()`/`TeletextCharsExtractor` = CPU-bunden
 bildgenerering. En PDO/mysqli-rad högst upp = DB-väntan.
 
+Den översta raden är nästan alltid `mysqli_query()` i CI:s drivrutin och
+säger inget om *vilken* query. Gruppera i stället på första raden i
+`application/`, och räkna per dag för att se trenden. Loggen roteras veckovis
+(gzippade generationer: räkna rader, inte filstorlek):
+
+```bash
+ssh texttv.nu '
+  awk "/script_filename/{f=0} /\/application\//{ if(!f){sub(/^\[0x[0-9a-f]+\] /,\"\"); print; f=1} }" /var/log/php8.2-fpm.slow.log | sort | uniq -c | sort -rn | head -5
+  grep -E "^\[[0-9]{2}-" /var/log/php8.2-fpm.slow.log | cut -c2-12 | sort | uniq -c'
+```
+
+`texttv_helper.php:259` = `most_read`-queryn (todo #12, #14). Den körs nästan
+alltid som nginx bakgrundsregenerering, så besökarna väntar inte på den, men
+den håller en worker.
+
 ```bash
 ssh texttv.nu '
   echo "workers nu: $(ps -eo comm= | grep -c "^php-fpm")/5"

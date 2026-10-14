@@ -105,6 +105,9 @@ Alla steg krävs — det här är hela poängen med skillen.
     ```
     Datum = `currentDate` från system-context. Sammanfattning = vad användaren just gjort, inte abstrakt.
 3. **Flytta filen:** `git mv todos/<NN>-*.md todos/done/` (Bash). Om filen inte är trackad, fall back till `mv`.
+   **Rätta sedan relativa länkar i den flyttade filen**, de pekar annars en nivå fel:
+   `](NN-...` → `](../NN-...` och `](../server.md` m.fl. → `](../../...`. Kontrollera att
+   varje mål finns. Grep också andra todos efter länkar till den gamla sökvägen.
 4. **Uppdatera `todo.md`:**
     - Ta bort raden från **Aktiva**-tabellen.
     - Lägg till **högst upp** i **Klara**-tabellen (sorterad nyast först):

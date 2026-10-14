@@ -2,7 +2,7 @@
 
 /*
 	Länk från den levande sidan till dagsarkivet. Laddas av Sida::visa() för
-	sidor i Sida::DAY_ARCHIVE_PAGES. Todo #16.
+	sidor i Sida::DAY_ARCHIVE. Todo #16.
 */
 
 $num = (int) $pages[0]->num;

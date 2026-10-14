@@ -8,18 +8,22 @@ class Sida extends CI_Controller {
 
 	/**
 	 * Sidor som har dagsarkiv (/NNN/igar, /NNN/YYYY-MM-DD). Bara sidor där
-	 * en dag är en enhet, alltså resultatsidor som fylls på under dagen.
-	 * Nyhetssidor byter innehåll under dagen och passar inte. Todo #16.
+	 * en dag är en enhet: resultatsidor som fylls på under dagen, och
+	 * tipssidorna som bara sänds kring helgerna. Nyhetssidor byter innehåll
+	 * under dagen och passar inte. Todo #16.
+	 *
+	 * Per sida:
+	 *  - subject: ämnet i /igar-titeln, "377 igår - SVT Text TV - <subject>"
+	 *  - label:   ordet före datumet på datumsidorna, "<label> 13 okt 2026"
+	 *  - suffix:  ev. ämnesord efter datumet i datumsidornas titel
 	 */
-	const DAY_ARCHIVE_PAGES = [330, 377];
-
-	/**
-	 * Rubrik per sida i dagsarkivet. Samma ämnesord som H1:orna i
-	 * pages_inner_output_current.php.
-	 */
-	const DAY_ARCHIVE_SUBJECTS = [
-		330 => "Resultatbörsen",
-		377 => "Målservice och resultat",
+	const DAY_ARCHIVE = [
+		330 => ["subject" => "Resultatbörsen", "label" => "Resultatbörsen", "suffix" => ""],
+		377 => ["subject" => "Målservice och resultat", "label" => "Resultat", "suffix" => "Målservice "],
+		551 => ["subject" => "Stryktipset", "label" => "Stryktipset", "suffix" => ""],
+		552 => ["subject" => "Stryktipset", "label" => "Stryktipset", "suffix" => ""],
+		553 => ["subject" => "Europatipset", "label" => "Europatipset", "suffix" => ""],
+		571 => ["subject" => "V75-resultat", "label" => "V75-resultat", "suffix" => ""],
 	];
 
 	// Om ingen sida anges går vi till 100
@@ -92,7 +96,7 @@ class Sida extends CI_Controller {
 		$today = new DateTime("today", $tz);
 		$is_yesterday_url = ($day === "igar");
 
-		if (!in_array($page_num, self::DAY_ARCHIVE_PAGES, TRUE)) {
+		if (!isset(self::DAY_ARCHIVE[$page_num])) {
 			show_texttv_404();
 			return;
 		}
@@ -163,17 +167,33 @@ class Sida extends CI_Controller {
 			return date_sv($format, strtotime($d->format("Y-m-d") . " 12:00"));
 		};
 
-		$subject = self::DAY_ARCHIVE_SUBJECTS[$page_num];
+		$archive_conf = self::DAY_ARCHIVE[$page_num];
+		$subject = $archive_conf["subject"];
 		$date_human = $human($date, "l j F Y");
 
+		// En dag utan egna versioner visar samma innehåll som dagen då
+		// versionen las till (t.ex. tipssidorna mitt i veckan). Den dagens
+		// datumsida är originalet, så att dubbletterna inte tävlar.
+		$final_day = substr($final_version->date_added, 0, 10);
+
 		if ($is_yesterday_url) {
+			// /igar är alltid sitt eget original, även när innehållet är äldre.
 			$canonical = "https://texttv.nu/{$page_num}/igar";
 			$meta_title = "{$page_num} igår - SVT Text TV - {$subject}";
 			$headline = "SVT Text TV {$page_num} igår - {$subject}";
 		} else {
-			$canonical = "https://texttv.nu/{$page_num}/" . $date->format("Y-m-d");
-			$meta_title = "{$page_num} - {$subject} {$date_human} - SVT Text TV";
-			$headline = "SVT Text TV {$page_num} - {$subject}";
+			$canonical = "https://texttv.nu/{$page_num}/" . (empty($versions) ? $final_day : $date->format("Y-m-d"));
+			// Datumet först och i H1: Google skriver om titlarna på de här
+			// sidorna från H1, och utan datum där ser alla datumsidor ut som
+			// den levande sidan. Titeln hålls under ~60 tecken.
+			$meta_title = sprintf(
+				'%1$s %2$s – %3$sSVT Text TV %4$d',
+				$archive_conf["label"],
+				$human($date, "l j M Y"),
+				$archive_conf["suffix"],
+				$page_num
+			);
+			$headline = sprintf('SVT Text TV %1$d – %2$s %3$s', $page_num, $archive_conf["label"], $date_human);
 		}
 
 		$data = [];
@@ -218,6 +238,35 @@ class Sida extends CI_Controller {
 		$this->load->view('footer', $data);
 	}
 
+	/**
+	 * Senast sända version av en sida som just nu är "ej i sändning", plus
+	 * underlag för texten om när den brukar sändas. Null om ingen version med
+	 * innehåll finns de senaste 60 dygnen.
+	 */
+	private function _latest_broadcast_fallback($current_page) {
+		$row = get_latest_broadcast_version($current_page->num);
+		if (!$row) {
+			return null;
+		}
+
+		$page = new texttv_page();
+		$page->id = $row->id;
+		if (!$page->load(TRUE) || empty($page->arr_contents)) {
+			return null;
+		}
+		// Pollningen ska jämföra mot "ej i sändning"-raden, inte mot den
+		// äldre versionen som visas, annars lyser "ny version" hela tiden.
+		$page->polling_added_unix = $current_page->date_added_unix;
+
+		$weekdays = get_page_broadcast_weekdays($current_page->num);
+
+		return [
+			"page" => $page,
+			"broadcast_human" => date_sv("l j F", $page->date_added_unix) . " kl " . date("H:i", $page->date_added_unix),
+			"weekdays_human" => $weekdays ? format_broadcast_weekdays($weekdays) : "",
+		];
+	}
+
 	// Tar emot $pagenum som en eller flera sidor
 	function visa($pagenum = NULL, $pagedescription = NULL) {
 
@@ -243,8 +292,22 @@ class Sida extends CI_Controller {
 			$arr_page_objs[] = $page;
 		}
 
+		// Sidor som inte sänds just nu (t.ex. tipssidorna mitt i veckan) visar
+		// annars bara "Sidan ej i sändning", och det är den tomma sidan Google
+		// oftast hämtar. Visa senast sända versionen i stället, med en
+		// förklaring. Bara för enskilda sidor. Todo #16.
+		$not_broadcasted = null;
+		if (sizeof($arr_page_objs) == 1 && $arr_page_objs[0]->is_not_broadcasted()) {
+			$not_broadcasted = $this->_latest_broadcast_fallback($arr_page_objs[0]);
+			if ($not_broadcasted) {
+				$arr_page_objs[0] = $not_broadcasted["page"];
+				$page = $not_broadcasted["page"];
+			}
+		}
+
 		// Skapa array med data att skicka med till vyerna
 		$data = array();
+		$data["not_broadcasted"] = $not_broadcasted;
 		$data["page"] = $page;
 		$data["pages"] = $arr_page_objs;
 		$data["pagenum"] = $pagenum;
@@ -256,9 +319,17 @@ class Sida extends CI_Controller {
 		$this->load->view("pages_updated_container", $data);
 		$this->load->view("breadcrumbs", $data);
 		$this->load->view("pages_current_page_top", $data);
+		if ($not_broadcasted) {
+			$this->load->view("not_broadcasted_notice", $data);
+		}
 		$this->load->view("pages_inner_output_current", $data);
-		if (sizeof($arr_page_objs) == 1 && in_array((int) $arr_page_objs[0]->num, self::DAY_ARCHIVE_PAGES, TRUE)) {
-			$this->load->view('day_archive_link', $data);
+		// "← 377 igår" bara om det finns något att visa där, så länken inte
+		// leder till 404 (t.ex. tipssidorna efter ett längre sändningsuppehåll).
+		if (sizeof($arr_page_objs) == 1 && isset(self::DAY_ARCHIVE[(int) $arr_page_objs[0]->num])) {
+			$yesterday = new DateTime("yesterday", new DateTimeZone("Europe/Stockholm"));
+			if (get_page_version_at_end_of_day($arr_page_objs[0]->num, $yesterday->format("Y-m-d"))) {
+				$this->load->view('day_archive_link', $data);
+			}
 		}
 		$this->load->view('pages-thumbs', $data);
 		$this->load->view('pages-latest-updated', $data);

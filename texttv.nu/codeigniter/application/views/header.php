@@ -615,7 +615,7 @@ if (isset($day_archive)) {
 			$bodyPagesDataAttr[] = [
 				"num" => (int) $one_page->num,
 				"id" => (int) $one_page->id,
-				"added" => (int) $one_page->date_added_unix
+				"added" => (int) ($one_page->polling_added_unix ? $one_page->polling_added_unix : $one_page->date_added_unix)
 			];
 		}
 	}

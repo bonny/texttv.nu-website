@@ -78,6 +78,10 @@ fetch() {
 	grep -iE '^(HTTP/|content-type:|access-control-|x-accel-expires:|cache-control:|location:|expires:|pragma:)' "$file.hdr.raw" \
 		| tr -d '\r' | awk -F': ' '{ $1 = tolower($1); print }' OFS=': ' | sort > "$file.hdr"
 	rm "$file.hdr.raw"
+	# CodeIgniters varningsblock ("A PHP Error was encountered") skrivs bara
+	# ut i development-läget lokalt, inte i prod, och innehåller radnummer
+	# som flyttas så fort filen ändras. Jämför utan dem.
+	perl -0pe 's{<div style="border:1px solid #990000;.*?</div>}{}gs' "$file.body" > "$file.cmp"
 }
 
 fail=0
@@ -101,7 +105,7 @@ while IFS= read -r line; do
 	status=ok
 	for variant in "$name" "$name.warm"; do
 		if ! cmp -s "$OUT/base/$name.hdr" "$OUT/head/$variant.hdr" \
-			|| ! cmp -s "$OUT/base/$name.body" "$OUT/head/$variant.body"; then
+			|| ! cmp -s "$OUT/base/$name.cmp" "$OUT/head/$variant.cmp"; then
 			status=DIFF
 		fi
 	done
@@ -124,9 +128,9 @@ while IFS= read -r line; do
 		fail=1
 		for variant in "$name" "$name.warm"; do
 			diff -u "$OUT/base/$name.hdr" "$OUT/head/$variant.hdr" || true
-			if ! cmp -s "$OUT/base/$name.body" "$OUT/head/$variant.body"; then
-				diff -u <(jq -S . "$OUT/base/$name.body" 2>/dev/null || cat "$OUT/base/$name.body") \
-					<(jq -S . "$OUT/head/$variant.body" 2>/dev/null || cat "$OUT/head/$variant.body") | head -40 || true
+			if ! cmp -s "$OUT/base/$name.cmp" "$OUT/head/$variant.cmp"; then
+				diff -u <(jq -S . "$OUT/base/$name.cmp" 2>/dev/null || cat "$OUT/base/$name.cmp") \
+					<(jq -S . "$OUT/head/$variant.cmp" 2>/dev/null || cat "$OUT/head/$variant.cmp") | head -40 || true
 			fi
 		done
 	fi

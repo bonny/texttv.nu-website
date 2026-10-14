@@ -32,7 +32,13 @@ class Texttv_page extends CI_Model {
 		// base url, where to look for remote pages
 		$url_base = "http://www.svt.se/svttext/web/pages/",
 
-		$is_shared
+		$is_shared,
+
+		// När sidan inte sänds visar den levande adressen den senast sända
+		// versionen i stället. Det här är då tiden för den aktuella "ej i
+		// sändning"-raden, så att live-pollningen i js/scripts.js bara
+		// reagerar när sidan sänds igen. Se Sida::visa().
+		$polling_added_unix = null
 
 		;
 
@@ -952,6 +958,18 @@ class Texttv_page extends CI_Model {
     /**
      * Typ prefered page title
      */
+    /**
+     * Om sidan är "Sidan ej i sändning". Importern sparar sådana med tom
+     * titel och bara den raden som innehåll (Importer::cleanup()).
+     */
+    function is_not_broadcasted() {
+		if (trim((string) $this->title) !== "") {
+			return false;
+		}
+		$content = implode(" ", (array) $this->arr_contents);
+		return mb_stripos(strip_tags($content), "ej i sändning") !== false;
+    }
+
     function get_page_title() {
 
 		$page_title = "";

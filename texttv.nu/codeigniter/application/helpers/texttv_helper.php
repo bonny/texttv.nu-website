@@ -390,6 +390,88 @@ function get_page_version_at_end_of_day($page_num, $day_ymd) {
 	return $row ? $row : null;
 }
 
+/**
+ * Senaste versionen av en sida som hade innehåll, alltså inte "Sidan ej i
+ * sändning" (tom titel). Högst 60 dygn bakåt. Används när sidan inte sänds,
+ * så att den levande adressen visar senast sända version. Todo #16.
+ *
+ * @return object|null Rad med id, title och date_added, eller null.
+ */
+function get_latest_broadcast_version($page_num) {
+	$ci =& get_instance();
+	$ci->load->database();
+
+	$from = new DateTime("now", new DateTimeZone("Europe/Stockholm"));
+	$from->modify("-60 days");
+
+	$ci->db->select("id, title, date_added");
+	$ci->db->from("texttv");
+	$ci->db->where("page_num", (int) $page_num);
+	$ci->db->where("date_added >=", $from->format("Y-m-d H:i:s"));
+	$ci->db->where("title <>", "");
+	$ci->db->order_by("date_added", "DESC");
+	$ci->db->limit(1);
+
+	$row = $ci->db->get()->row();
+
+	return $row ? $row : null;
+}
+
+/**
+ * Veckodagar då en sida brukar sändas, räknat från de senaste åtta veckornas
+ * versioner med innehåll. En veckodag räknas om sidan haft innehåll den
+ * dagen under minst två olika veckor. Todo #16.
+ *
+ * @return int[] ISO-veckodagar, 1 = måndag … 7 = söndag, sorterade.
+ */
+function get_page_broadcast_weekdays($page_num) {
+	$ci =& get_instance();
+	$ci->load->database();
+
+	$from = new DateTime("now", new DateTimeZone("Europe/Stockholm"));
+	$from->modify("-56 days");
+
+	$sql = "
+		SELECT WEEKDAY(date_added) + 1 AS weekday, COUNT(DISTINCT YEARWEEK(date_added, 3)) AS weeks
+		FROM texttv
+		WHERE page_num = ? AND date_added >= ? AND title <> ''
+		GROUP BY weekday
+		HAVING weeks >= 2
+		ORDER BY weekday
+	";
+	$rows = $ci->db->query($sql, [(int) $page_num, $from->format("Y-m-d H:i:s")])->result();
+
+	return array_map(function ($row) {
+		return (int) $row->weekday;
+	}, $rows);
+}
+
+/**
+ * "lördagar och söndagar", "måndag–fredag", "varje dag" o.s.v.
+ *
+ * @param int[] $weekdays ISO-veckodagar, sorterade.
+ */
+function format_broadcast_weekdays($weekdays) {
+	$names = [1 => "måndagar", 2 => "tisdagar", 3 => "onsdagar", 4 => "torsdagar", 5 => "fredagar", 6 => "lördagar", 7 => "söndagar"];
+
+	if (sizeof($weekdays) === 7) {
+		return "varje dag";
+	}
+	if ($weekdays === [1, 2, 3, 4, 5]) {
+		return "vardagar";
+	}
+
+	$words = array_map(function ($day) use ($names) {
+		return $names[$day];
+	}, $weekdays);
+
+	if (sizeof($words) <= 1) {
+		return implode("", $words);
+	}
+	$last = array_pop($words);
+	return implode(", ", $words) . " och " . $last;
+}
+
 function get_latest_updated_pages($from, $to, $maxcount = 20) {
 	$from = (int) $from;
 	$to = (int) $to;

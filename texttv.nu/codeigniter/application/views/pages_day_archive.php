@@ -72,7 +72,7 @@ $final_date_human = date_sv("l j F", strtotime(substr($d["final_date_added"], 0,
 		Så här såg <a href="/<?php echo $num ?>">SVT Text TV <?php echo $num ?></a>
 		ut när dagen var slut.
 		<?php if ($final_is_other_day) { ?>
-			Sidan ändrades inte under dagen, senast <?php echo $e($final_date_human) ?> kl <?php echo $e($final_time) ?>.
+			Ingen ny version den här dagen. Senaste versionen med innehåll är från <?php echo $e($final_date_human) ?> kl <?php echo $e($final_time) ?>.
 		<?php } elseif ($version_count > 1) { ?>
 			Senast uppdaterad kl <?php echo $e($final_time) ?>, och sidan uppdaterades <?php echo $version_count ?> gånger under dagen.
 		<?php } else { ?>

@@ -39,7 +39,8 @@
 */
 
 $route['default_controller'] = "sida";
-$route['404_override'] = '';
+// Okända adresser får sajtens egen 404-sida i stället för CodeIgniters.
+$route['404_override'] = 'fel/sida_saknas';
 #$route['404_override'] = 'sida/visa/404';
 
 $route['sitemap.xml'] = "sitemap";

@@ -101,9 +101,9 @@ class Textsida extends CI_Controller {
 				break;		
 				
 			default:
-				$this->load->view("header", $data);
-				$this->load->view("404");
-				break;			
+				// Gav tidigare 404-texten med status 200.
+				show_texttv_404();
+				return;
 		}
 
 		$this->load->view('controls', $data);

@@ -37,7 +37,8 @@ class Sida extends CI_Controller {
 		// Om bara page_num = visa översikt över alla arkiv som finns
 		if (empty($db_id) && empty($title)) {
 			// 28 juni (år?): inaktiverar denna, känns inte som bidrar till något
-			show_404();
+			show_texttv_404();
+			return;
 		} else { //if (is_numeric($db_id) && isset($title)) {
 			// En eller flera sidor från arkivet ska visas
 			$arr_db_ids = explode(",", $db_id);
@@ -71,17 +72,8 @@ class Sida extends CI_Controller {
 				$this->load->view('footer', $data);
 			} else {
 
-				// not load ok
-				$this->output->set_status_header('404');
-
-				$data = [];
-				$data["custom_page_title"] = "Sidan hittades inte (felkod 404)";
-
-				$this->load->view('header', $data);
-				$this->load->view('404', $data);
-				$this->load->view('pages-latest-updated', $data);
-				$this->load->view('controls', $data);
-				$this->load->view('footer', $data);
+				show_texttv_404();
+				return;
 			}
 		}
 	}
@@ -101,7 +93,7 @@ class Sida extends CI_Controller {
 		$is_yesterday_url = ($day === "igar");
 
 		if (!in_array($page_num, self::DAY_ARCHIVE_PAGES, TRUE)) {
-			$this->_day_archive_404();
+			show_texttv_404();
 			return;
 		}
 
@@ -111,7 +103,7 @@ class Sida extends CI_Controller {
 		} else {
 			$date = DateTime::createFromFormat("!Y-m-d", (string) $day, $tz);
 			if (!$date || $date->format("Y-m-d") !== $day) {
-				$this->_day_archive_404();
+				show_texttv_404();
 				return;
 			}
 		}
@@ -122,13 +114,13 @@ class Sida extends CI_Controller {
 			return;
 		}
 		if ($date > $today) {
-			$this->_day_archive_404();
+			show_texttv_404();
 			return;
 		}
 
 		$versions = get_page_versions_for_day($page_num, $date->format("Y-m-d"));
 		if (empty($versions)) {
-			$this->_day_archive_404();
+			show_texttv_404();
 			return;
 		}
 
@@ -203,19 +195,6 @@ class Sida extends CI_Controller {
 
 		$this->load->view('header', $data);
 		$this->load->view('pages_day_archive', $data);
-		$this->load->view('pages-latest-updated', $data);
-		$this->load->view('controls', $data);
-		$this->load->view('footer', $data);
-	}
-
-	private function _day_archive_404() {
-		$this->output->set_status_header('404');
-
-		$data = [];
-		$data["custom_page_title"] = "Sidan hittades inte (felkod 404)";
-
-		$this->load->view('header', $data);
-		$this->load->view('404', $data);
 		$this->load->view('pages-latest-updated', $data);
 		$this->load->view('controls', $data);
 		$this->load->view('footer', $data);
@@ -300,11 +279,7 @@ class Sida extends CI_Controller {
 			$this->load->view('amp', $data);
 		} else {
 			// page not loaded ok
-			$this->output->set_status_header('404');
-			$data = [];
-			$data["custom_page_title"] = "Sidan hittades inte (felkod 404)";
-
-			$this->load->view('404', $data);
+			show_texttv_404();
 		}
 	}
 

@@ -295,6 +295,28 @@ function get_shared_pages_for_period($time_from, $time_to) {
 } // end get shared pages for period
 
 /**
+ * Sajtens 404-sida: status 404 med sidhuvud, meny och senaste nyheterna.
+ *
+ * Används av 404_override i routes.php (okända adresser, som annars fick
+ * CodeIgniters engelska standardsida) och av controllers som inte hittar
+ * det som efterfrågas. Anroparen ska göra return direkt efteråt.
+ */
+function show_texttv_404() {
+	$ci =& get_instance();
+	$ci->output->set_status_header(404);
+
+	$data = [
+		"custom_page_title" => "Sidan finns inte (felkod 404) - TextTV.nu",
+	];
+
+	$ci->load->view('header', $data);
+	$ci->load->view('404', $data);
+	$ci->load->view('pages-latest-updated', $data);
+	$ci->load->view('controls', $data);
+	$ci->load->view('footer', $data);
+}
+
+/**
  * Versioner av en sida som lades till under ett dygn, nyaste först.
  *
  * Dygnet räknas i svensk tid, eftersom importern sparar date_added i

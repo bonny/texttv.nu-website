@@ -38,7 +38,8 @@ class Blogg extends CI_Controller {
 		$result = $this->db->query($query);
 
 		if ($result->num_rows() == 0) {
-			die("Doh! Kunde inte hitta något blogginlägg med denna adress.");
+			show_texttv_404();
+			return;
 		}
 
 		// Hämta senaste bloggposterna.

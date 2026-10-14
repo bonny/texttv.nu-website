@@ -1,22 +1,65 @@
-<div class="textcontent">
+<?php
 
-	<h1>Sidan du söker finns inte</h1>
+/*
+	404-sidan, ritad som en Text-TV-sida med samma CSS-klasser som riktiga
+	sidor (.root, .line, färgklasserna). Laddas av show_texttv_404() i
+	helpers/texttv_helper.php.
+*/
 
-	<p>
-		Tyvärr kan vi inte hitta text-tv-sidan du söker.
-		Kanske har det tagit bort eller så har du följt en felaktig eller gammal länk.
-	</p>
-	
-	<h2>Våra populäraste sidor...</h2>
-	<p>Även om sidan du sökte inte hittades så har vi många bra sidor här. 
-		Vi rekommenderar någon av dessa, som är våra mest populära:
+// En Text-TV-rad är 40 tecken. Fyller ut med mellanslag utifrån den synliga
+// texten, så att länkarna inte räknas med. (mb_str_pad finns först i PHP 8.3.)
+$line = function ($html, $classes = "bgBl W") {
+	$visible = mb_strlen(html_entity_decode(strip_tags($html), ENT_QUOTES, "UTF-8"));
+	$padding = str_repeat(" ", max(0, 40 - $visible));
+	return sprintf(
+		'<span class="line"><span class="%1$s">%2$s%3$s</span></span>' . "\n",
+		$classes,
+		$html,
+		$padding
+	);
+};
 
-	<ul>
-		<li>Vår egna <a href="/">SVT Text TV Startsida</a> - med både text tv 100 och text tv 377 på samma sida!</li>
-		<li><a href="/377">Text TV 100</a> - löpsedeln med mest viktiga inrikes- och utrikesnyheterna</li>
-		<li><a href="/377">Text TV 377</a> - sportresultat</li>
-		<li><a href="/330">Text TV 330</a> - resultatbörsen</li>
-		<li><a href="/551">Text TV 551</a> - stryktipset</li>	
-	</p>
+$link = function ($num) {
+	return sprintf('<a href="/%1$d">%1$d</a>', (int) $num);
+};
 
-</div>
+$date = date_sv("l d M Y");
+$toprow = sprintf(
+	'<span class="line toprow"><span class="bgBl">   </span><span class="bgBl W">404 </span><span class="bgBl Y">SVT Text </span><span class="bgBl W">%s</span></span>' . "\n",
+	str_pad($date, 23)
+);
+
+$rows = [
+	$toprow,
+	$line("            SIDAN FINNS INTE", "bgB W"),
+	$line(""),
+	$line(" Sidan du söker har sänts klart, eller", "bgBl W"),
+	$line(" så har adressen blivit fel.", "bgBl W"),
+	$line(""),
+	$line(" Prova någon av de här:", "bgBl Y"),
+	$line(""),
+	$line(" " . $link(100) . " Nyheter          " . $link(300) . " Sport", "bgBl G"),
+	$line(" " . $link(377) . " Målservice       " . $link(330) . " Resultat", "bgBl G"),
+	$line(" " . $link(401) . " Väder            " . $link(600) . " På TV", "bgBl G"),
+	$line(" " . $link(101) . " Inrikes          " . $link(104) . " Utrikes", "bgBl G"),
+	$line(""),
+	$line(" Eller skriv ett sidnummer i rutan", "bgBl W"),
+	$line(" Gå till sida högst upp.", "bgBl W"),
+	$line(""),
+	$line(""),
+	$line(" Startsidan " . $link(100) . " * Sport " . $link(300) . " * Väder " . $link(401), "bgB W"),
+];
+
+?>
+<main id="pages" class="page-404">
+	<h1 class="sr-only">Sidan finns inte (felkod 404)</h1>
+	<div>
+		<div class="one-page TextTVPage li">
+			<div class="inpage-pages ul subpage-count-1">
+				<div class="li">
+					<div class="root"><?php echo implode("", $rows) ?></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</main>

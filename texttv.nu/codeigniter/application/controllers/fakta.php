@@ -16,18 +16,7 @@ class fakta extends CI_Controller {
 		// En okänd slug gav förut fatalt fel på $row->title. Se L3 i
 		// todos/08-sakerhetsgranskning-2026-08-01.md.
 		if ( ! $row ) {
-			$this->output->set_status_header('404');
-
-			$data = array(
-				"custom_page_title" => "Sidan hittades inte (felkod 404)",
-				"slug" => $slug
-			);
-
-			$this->load->view("header", $data);
-			$this->load->view("404", $data);
-			$this->load->view('controls', $data);
-			$this->load->view("footer");
-
+			show_texttv_404();
 			return;
 		}
 

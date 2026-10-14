@@ -1,5 +1,5 @@
-**Status:** aktiv
-**Senast uppdaterad:** 2026-05-27
+**Status:** klar 2026-10-14
+**Senast uppdaterad:** 2026-10-14
 
 # Todo #06 — Byt facade/ignition mot spatie/laravel-ignition
 
@@ -36,3 +36,33 @@ Korrekt fix: byt till `spatie/laravel-ignition` (efterföljaren), ta bort `error
 ## Confidence
 
 Medel — själva paketbytet är rakt, men risken ligger i att Laravel-versionen är gammal nog att `spatie/laravel-ignition` v1 inte plug-and-playas. Behöver verifieras med ett dry-run `composer update` innan vi vet.
+
+## Genomfört 2026-10-14
+
+- `facade/ignition` ersatt med `spatie/laravel-ignition` 1.7.2. Laravel var
+  redan 8.83.27, så ingen ramverksuppgradering behövdes. Inget annat paket
+  berodde på `facade/ignition`.
+- Lock-ändringen hölls minimal (`--minimal-changes -w`, inte `-W`): tre paket
+  bort (`facade/ignition`, `facade/flare-client-php`, `symfony/polyfill-php72`),
+  sex nya för spatie, och patch-uppdateringar av `symfony/{process,mime,
+  http-foundation,polyfill-intl-idn}` 5.4 och `nesbot/carbon` 2.65 → 2.73.
+  Ett första försök med `-W` uppgraderade allt och kastades.
+- `"php"` höjd till `^8.1`, eftersom `carbonphp/carbon-doctrine-types` 3.x
+  kräver det. Prod kör 8.2. CI:s PHP 7.4 påverkas inte: workflowen kör ingen
+  PHP, `composer install` sker på servern.
+- `error_reporting`-workarounden i `AppServiceProvider` borttagen.
+- Verifierat i Docker (PHP 8.2): ett undantag via artisans riktiga
+  error-handler renderas rent utan deprecation eller fatal, `strlen(null)` i
+  en artisan-körning loggas och körningen fortsätter (Laravel 8.83 loggar
+  deprecations i stället för att kasta), `texttv:import 100,129` fungerar,
+  och importerns webbsidor svarar 200/404 som förut.
+- PHPUnit: samma resultat före och efter (9 tester, 2 fel i
+  `ImportTest::test_cleanup` och `test_linkify`, 1 risky). Felen fanns redan
+  och har inget med bytet att göra.
+
+Punkt 5 i förslaget (`composer install --no-dev` i deployen) är inte gjord.
+Den skulle ta bort Ignition helt från prod, men är en egen ändring.
+
+Efter deploy: kontrollera att `composer install` gick igenom i
+workflow-loggen och att nästa schemalagda import i `importer`-loggen på prod
+inte visar några nya fel.

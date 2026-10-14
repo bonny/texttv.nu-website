@@ -8,7 +8,7 @@ Detaljer om hur prod-servern är uppsatt. Läs när du jobbar med deploy, cache-
 - **SSH:** `ssh texttv.nu` loggar in som `root` (alias i `~/.ssh/config`). För löpande hälsokoll finns skillen [`prod-health`](.claude/skills/prod-health/SKILL.md) — den har verifierade kommandon och tröskelvärden för load, minne, php-fpm och importer-färskhet.
 - **PHP 8.2.31** runtime (NTS, med Zend OPcache 8.2.31).
   - OBS: `.github/workflows/deploy-website.yml` använder PHP 7.4 — det är **bara** för CI-build-stegen (composer/phpunit), inte runtime.
-  - `composer.json` tillåter `^7.3|^8.0`; lokalt rekommenderas 8.1 (Valet).
+  - Importerns `composer.json` kräver `^8.1` sedan 2026-10-14 (todo #06).
 - **MariaDB 10.11.18** (inte MySQL — service-alias `mysql` finns men det är MariaDB som körs). Verifierad version 2026-08-09.
 - **nginx + php-fpm + MariaDB** (LEMP). Systemd-enheterna heter exakt `nginx`, `php8.2-fpm`, `mariadb`.
 - **Server paths:**

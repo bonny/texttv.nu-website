@@ -625,6 +625,20 @@ if ($is_start) {
 	?>
 		<link rel="canonical" href="https://texttv.nu/<?php echo $pages[0]->num  ?>" />
 	<?php
+	} elseif (isset($is_archive) && isset($pages) && sizeof($pages) == 1) {
+		// 2026-10-14 (todo #16): Arkivsidor saknade canonical, så Google
+		// indexerade t.ex. /117/hushallens-ekonomi-mycket-stark-37317159
+		// ?utm_source=brottsplatskartan&utm_medium=newslist som en egen sida.
+		// Pekar även gamla URL-format och inaktuella slugs till permalänken.
+	?>
+		<link rel="canonical" href="<?php echo htmlspecialchars("https://texttv.nu" . $archive_permalink, ENT_QUOTES) ?>" />
+	<?php
+	} elseif ($is_start && $this->uri->uri_string() === "") {
+		// Bara själva startsidan, inte /100,300-kombinationer som också får
+		// $is_start.
+	?>
+		<link rel="canonical" href="https://texttv.nu/" />
+	<?php
 	}
 
 	/*

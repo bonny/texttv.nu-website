@@ -381,6 +381,13 @@ Att CTR:en rasar vid oförändrad position kan också bero på att sökresultats
 utesluta. Kolla SERP:en manuellt för `resultat lången 377` och
 `text tv 377 idag` innan texten ändras igen. **Gjort 2026-10-14, se nedan.**
 
+### Rättelse 2026-10-14: lången-tappet började före textändringen
+
+Dagsserien i GSC visar att `resultat lången 377` föll från ~8 klick per dag
+till nästan noll **2026-06-10**, vid oförändrad position 2,0. A deployades i
+början av augusti. Textändringen kan alltså inte ha orsakat tappet. Se #16,
+avsnittet "SEO-analys".
+
 ### SERP-koll 2026-10-14 (google.se, Chrome, inloggad, `pws=0`)
 
 En plats, ett tillfälle, inloggad användare. Indikation, inte mätning.

@@ -208,6 +208,54 @@ och sajtens meny. Mjuka 404:or på `/sida/<okänd>` (status 200) och
 `/blogg/<okänd>` ("Doh!") rättade. 404:an cachas 60 s i nginx; verifierat
 i prod att andra anropet blir `cache=HIT`.
 
+## SEO-analys av det som byggts (2026-10-14)
+
+GSC 2025-10-01 → 2026-10-11.
+
+**Efterfrågan på "igår" är nästan noll.** Alla frågor med "igår" på ett år:
+`lången resultat igår` 83 visningar (pos 13,8), `fotbollsresultat igår` 8,
+resten 1–10. Ingen fråga med "377 igår". `/377/igar` och `/330/igar` ska
+därför inte väntas ge mycket söktrafik i sig; värdet är användarnytta,
+citerbarhet och datumfrågornas långa svans. Mät, men budgetera inte.
+
+**Titlar och H1 på datumsidorna behöver justeras:**
+- Datumsidornas H1 saknar datum ("SVT Text TV 377 - Målservice och
+  resultat"). Google skriver om titlarna på 377-sidorna från H1 (#09), så
+  datumsidorna riskerar att visas med samma rubrik som `/377` och tävla med
+  den levande sidan. Datumet ska in i H1.
+- Datumsidornas titel är ~66 tecken med datumet sist
+  ("377 - Målservice och resultat tisdag 13 oktober 2026 - SVT Text TV") och
+  kapas i sökresultatet just där datumet står. Datumet först, kortare.
+- Förslag: titel `Resultat tisdag 13 okt 2026 – Målservice SVT Text TV 377`,
+  H1 `SVT Text TV 377 – Resultat tisdag 13 oktober 2026`. 330 motsvarande med
+  "Resultatbörsen".
+
+**`/igar` och gårdagens datumsida är samma innehåll med olika canonical.**
+Google väljer själv en av dem. Eftersom `/igar` byter innehåll varje dygn kan
+den inte samla rankning för ett visst innehåll; datumsidan är permanent.
+Förslag: canonical från `/igar` till gårdagens datumsida, men behåll `/igar`
+som bekväm adress för användare.
+
+**Lången: tappet började 2026-06-10, inte med textändringen i #09.**
+`resultat lången 377` gav ~8 klick per dag (~15 visningar, pos 2,0) från
+oktober 2025 till 2026-06-09, och föll till nästan noll från 2026-06-10, vid
+oförändrad position. #09 A (ny `page_text`) deployades först i början av
+augusti. Inget ändrades på sajten runt 10 juni (git log). VM 2026 började
+11 juni. Lången-frågor totalt höll ~20 visningar per dag efter 10 juni men
+klicken gick till noll. Orsaken är extern och okänd; slutsatsen i #09 om att
+texten "kan ha" orsakat tappet stöds inte av tidslinjen.
+
+**Ny idé med belägg: visa senaste sända versionen när en sida inte sänds.**
+Tipssidorna (551 Stryktipset, 553 Europatipset, 554, 571 V75) sänds bara
+kring helgerna och visar "Sidan ej i sändning" resten av veckan. Google
+crawlar alltså ofta en tom sida. Efterfrågan finns: `europatipset resultat
+text tv` 518 visningar pos 9, `text tv europatipset` 710 pos 13,
+`text tv topptipset` 504 pos 19, `stryktipset text tv` 459 pos 14,
+`v75 resultat text tv` 275 pos 15 — tusentals visningar på position 9–19.
+Att visa senaste versionen med innehåll ("Senaste resultat, lördag 10 okt")
+när sidan inte sänds, plus dagsarkiv för de sidorna, är troligen värt mer än
+dagsarkivet för 377. Samma mekanik som `get_page_version_at_end_of_day()`.
+
 ## Mätning
 
 Som tidigare: GSC, samma period året innan, `/377` som kontroll (se

@@ -95,11 +95,11 @@ bakgrundsbilder för blockgrafiken. Vill du ha ren text, använd
 
 - Atom-flöde för bloggen: https://texttv.nu/feed/blogg
 
-### Ingen sitemap
+### Sitemap
 
-`/sitemap.xml` svarar med 404 med flit — arkivet är för stort för att
-listas. Utgå från sidnumren ovan och dagssidorna under "Gårdagen och äldre
-dagar" i stället.
+https://texttv.nu/sitemap.xml listar de viktigaste sidnumren, de
+redaktionella sidorna och dagssidorna för de senaste 30 dagarna. Arkivets
+permalänkar är medvetet inte med — de är för många.
 
 ## Användning av innehåll
 

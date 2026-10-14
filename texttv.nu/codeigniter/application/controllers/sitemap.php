@@ -1,66 +1,87 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+/**
+ * Liten sitemap med bara det som är värt att indexera. Todo #16.
+ *
+ * Den gamla (avstängd 26 dec 2013, "för många anrop") listade varje rad i
+ * texttv-tabellen, alltså varje version av varje sida, och laddade varje
+ * sida med en egen query. Den här gör ingen databasfråga alls: sidnumren är
+ * fasta och dagssidorna räknas fram ur datumet. Arkivets permalänkar är
+ * medvetet inte med (miljontals, mest kortlivade nyheter).
+ */
 class Sitemap extends CI_Controller {
+
+	/**
+	 * De viktigaste levande sidorna. Urval efter sidfotens meny och de
+	 * sidnummer som får mest söktrafik (GSC). Inte tipssidorna 550–571,
+	 * som SVT slutat sända.
+	 */
+	const PAGES = [
+		100, 101, 102, 103, 104, 105,
+		300, 301, 302, 330, 336, 343, 344, 345, 346, 358, 359, 360,
+		376, 377, 378, 379, 383,
+		400, 401, 600, 700,
+	];
+
+	/** Redaktionella sidor. */
+	const TEXT_PAGES = [
+		"/sida/vanliga-fragor",
+		"/sida/om-texttv-nu",
+		"/sida/delat",
+		"/sida/polisen",
+		"/text-tv-fakta",
+		"/svt-text-tv",
+		"/blogg",
+	];
+
+	/** Hur många dagar bakåt datumsidorna listas. */
+	const DAYS_BACK = 30;
 
 	public function index()
 	{
-		
-		// 26 dec 2013: inaktiverade denna, ge 404 istället
-		// blev helt enkelt för många anrop
-		$this->output->set_status_header('404');
-		exit;
+		$urls = [];
+		$urls[] = ["loc" => "/"];
 
-
-		// @todo: must be in a controller to work...
-		$this->output->cache(10);
-		
-		header("Content-Type:text/xml");
-		
-		$rs = $this->db->select("id")->from("texttv")->order_by("date_updated", "DESC")->get();
-		
-		$out = '<?xml version="1.0" encoding="UTF-8"?>';
-		$out .= "\n";
-		$out .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
-		//$out .= $rs->num_rows();
-		foreach ($rs->result() as $row) {
-			$page = new texttv_page();
-			$page->id = $row->id;
-			$page->load(TRUE);
-			$out .= sprintf("\n<url>\n\t<loc>%s</loc>\n</url>", "http://texttv.nu".$page->get_permalink());
+		foreach (self::PAGES as $num) {
+			$urls[] = ["loc" => "/" . $num];
 		}
-		
-		$out .= '</urlset>';
-		/*
-<?xml version="1.0" encoding="UTF-8"?>
 
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+		$urls[] = ["loc" => "/nyheter/igar"];
+		$urls[] = ["loc" => "/sport/igar"];
+		$urls[] = ["loc" => "/377/igar"];
 
-   <url>
+		// Datumsidorna ändras inte när dagen är slut. Gårdagen finns redan
+		// som /igar, så listan börjar i förrgår.
+		$day = new DateTime("today", new DateTimeZone("Europe/Stockholm"));
+		$day->modify("-1 day");
+		for ($i = 0; $i < self::DAYS_BACK; $i++) {
+			$day->modify("-1 day");
+			$ymd = $day->format("Y-m-d");
+			$next = clone $day;
+			$next->modify("+1 day");
+			foreach (["nyheter", "sport", "377"] as $section) {
+				$urls[] = ["loc" => "/{$section}/{$ymd}", "lastmod" => $next->format("Y-m-d")];
+			}
+		}
 
-      <loc>http://www.example.com/</loc>
+		foreach (self::TEXT_PAGES as $path) {
+			$urls[] = ["loc" => $path];
+		}
 
-      <lastmod>2005-01-01</lastmod>
+		$out = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+		$out .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
+		foreach ($urls as $url) {
+			$out .= "\t<url><loc>https://texttv.nu" . htmlspecialchars($url["loc"], ENT_XML1) . "</loc>";
+			if (isset($url["lastmod"])) {
+				$out .= "<lastmod>" . $url["lastmod"] . "</lastmod>";
+			}
+			$out .= "</url>\n";
+		}
+		$out .= "</urlset>\n";
 
-      <changefreq>monthly</changefreq>
-
-      <priority>0.8</priority>
-
-   </url>
-
-</urlset> 
-		*/
-		
-	$this->output->append_output($out);
-	$this->output->append_output(sprintf("<!-- 
-			Elapsed time: %s
-			<br>Memory usage: %s 
-			-->",
-			$this->benchmark->elapsed_time(),
-			$this->benchmark->memory_usage()
-		));
-
-
-
+		// Innehållet byts en gång per dygn (datumlistan), så en timme räcker.
+		$this->output->set_header("X-Accel-Expires: 3600");
+		$this->output->set_content_type("application/xml");
+		$this->output->set_output($out);
 	}
 }
-
-

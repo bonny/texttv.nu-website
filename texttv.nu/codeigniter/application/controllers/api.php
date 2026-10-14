@@ -20,7 +20,7 @@ class Api extends CI_Controller
 	 */
 	public function index()
 	{
-		show_texttv_404();
+		$this->load->view('404');
 	}
 
 	/**

@@ -7,12 +7,14 @@
 */
 
 $d = $day_archive;
-$e = function ($str) {
-	return htmlspecialchars($str, ENT_QUOTES, "UTF-8");
-};
+$e = 'html_escape';
 $num = (int) $page->num;
 $version_count = sizeof($d["version_links"]);
-$last_time = $d["version_links"][0]["time"];
+
+// Sista versionen kan vara från en tidigare dag om sidan inte ändrades.
+$final_time = substr($d["final_date_added"], 11, 5);
+$final_is_other_day = $version_count === 0;
+$final_date_human = date_sv("l j F", strtotime(substr($d["final_date_added"], 0, 10) . " 12:00"));
 
 ?>
 <style>
@@ -58,15 +60,23 @@ $last_time = $d["version_links"][0]["time"];
 	<p class="day-archive__date"><?php echo $e(ucfirst($d["date_human"])) ?></p>
 
 	<nav class="day-archive__nav" aria-label="Bläddra mellan dagar">
-		<a href="<?php echo $e($d["prev_url"]) ?>">← <?php echo $e($d["prev_human"]) ?></a>
+		<?php if ($d["prev_url"]) { ?>
+			<a href="<?php echo $e($d["prev_url"]) ?>">← <?php echo $e($d["prev_human"]) ?></a>
+		<?php } else { ?>
+			<span></span>
+		<?php } ?>
 		<a href="<?php echo $e($d["next_url"]) ?>"><?php echo $e($d["next_human"]) ?> →</a>
 	</nav>
 
 	<p class="day-archive__intro">
 		Så här såg <a href="/<?php echo $num ?>">SVT Text TV <?php echo $num ?></a>
-		ut när dagen var slut, senast uppdaterad kl <?php echo $e($last_time) ?>.
-		<?php if ($version_count > 1) { ?>
-			Sidan uppdaterades <?php echo $version_count ?> gånger under dagen.
+		ut när dagen var slut.
+		<?php if ($final_is_other_day) { ?>
+			Sidan ändrades inte under dagen, senast <?php echo $e($final_date_human) ?> kl <?php echo $e($final_time) ?>.
+		<?php } elseif ($version_count > 1) { ?>
+			Senast uppdaterad kl <?php echo $e($final_time) ?>, och sidan uppdaterades <?php echo $version_count ?> gånger under dagen.
+		<?php } else { ?>
+			Senast uppdaterad kl <?php echo $e($final_time) ?>.
 		<?php } ?>
 	</p>
 

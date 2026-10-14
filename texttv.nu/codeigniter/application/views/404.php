@@ -26,7 +26,9 @@ $link = function ($num) {
 $date = date_sv("l d M Y");
 $toprow = sprintf(
 	'<span class="line toprow"><span class="bgBl">   </span><span class="bgBl W">404 </span><span class="bgBl Y">SVT Text </span><span class="bgBl W">%s</span></span>' . "\n",
-	str_pad($date, 23)
+	// 3 + 4 + 9 tecken före datumet, så datumet fylls till 24. Räknas med
+	// mb_strlen: str_pad räknar byte, och "lördag" och "söndag" har ett ö.
+	$date . str_repeat(" ", max(0, 24 - mb_strlen($date)))
 );
 
 $rows = [

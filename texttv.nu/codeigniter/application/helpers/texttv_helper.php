@@ -304,6 +304,10 @@ function get_shared_pages_for_period($time_from, $time_to) {
 function show_texttv_404() {
 	$ci =& get_instance();
 	$ci->output->set_status_header(404);
+	// fastcgi_cache_valid i vhosten gäller bara 200/301/302, men
+	// X-Accel-Expires gör att nginx cachar även 404:an en kort stund. Annars
+	// renderas hela sidan, med DB-fråga, för varje /wp-login.php från skannrar.
+	$ci->output->set_header("X-Accel-Expires: 60");
 
 	$data = [
 		"custom_page_title" => "Sidan finns inte (felkod 404) - TextTV.nu",
@@ -341,10 +345,49 @@ function get_page_versions_for_day($page_num, $day_ymd) {
 	$ci->db->where("page_num", (int) $page_num);
 	$ci->db->where("date_added >=", $from->format("Y-m-d H:i:s"));
 	$ci->db->where("date_added <", $to->format("Y-m-d H:i:s"));
+	// Tom titel = "Sidan ej i sändning", som importern också sparar.
+	$ci->db->where("title <>", "");
 	$ci->db->order_by("date_added", "DESC");
 	$ci->db->limit(500);
 
 	return $ci->db->get()->result();
+}
+
+/**
+ * Sidans version när ett dygn var slut: den senaste som lagts till före
+ * midnatt, oavsett vilken dag. Importern sparar bara en ny rad när innehållet
+ * ändras, så en dag utan ändringar (t.ex. 330 en söndag) har inga egna rader.
+ *
+ * Söker högst sju dygn bakåt, så att ett datum före arkivets början inte visar
+ * en version från långt tidigare. Hoppar över "Sidan ej i sändning" (tom
+ * titel). Todo #16.
+ *
+ * @param int    $page_num Sidnummer.
+ * @param string $day_ymd  Datum, Y-m-d.
+ * @return object|null Rad med id, title och date_added, eller null.
+ */
+function get_page_version_at_end_of_day($page_num, $day_ymd) {
+	$tz = new DateTimeZone("Europe/Stockholm");
+	$to = new DateTime($day_ymd . " 00:00:00", $tz);
+	$to->modify("+1 day");
+	$from = clone $to;
+	$from->modify("-7 days");
+
+	$ci =& get_instance();
+	$ci->load->database();
+
+	$ci->db->select("id, title, date_added");
+	$ci->db->from("texttv");
+	$ci->db->where("page_num", (int) $page_num);
+	$ci->db->where("date_added >=", $from->format("Y-m-d H:i:s"));
+	$ci->db->where("date_added <", $to->format("Y-m-d H:i:s"));
+	$ci->db->where("title <>", "");
+	$ci->db->order_by("date_added", "DESC");
+	$ci->db->limit(1);
+
+	$row = $ci->db->get()->row();
+
+	return $row ? $row : null;
 }
 
 function get_latest_updated_pages($from, $to, $maxcount = 20) {

@@ -118,23 +118,29 @@ class Sida extends CI_Controller {
 			return;
 		}
 
-		$versions = get_page_versions_for_day($page_num, $date->format("Y-m-d"));
-		if (empty($versions)) {
+		// Sidan när dagen var slut. Kan vara från en tidigare dag om sidan inte
+		// ändrades, eftersom importern bara sparar ändringar.
+		$final_version = get_page_version_at_end_of_day($page_num, $date->format("Y-m-d"));
+		if (!$final_version) {
 			show_texttv_404();
 			return;
 		}
 
 		$page = new texttv_page();
-		$page->id = $versions[0]->id;
-		$page->load(TRUE);
+		$page->id = $final_version->id;
+		if (!$page->load(TRUE) || empty($page->arr_contents)) {
+			show_texttv_404();
+			return;
+		}
 
-		// Lätta objekt för länkarna till dagens tidigare versioner. Permalänken
-		// byggs av sidnummer, titel och id, så innehållet behöver inte laddas.
+		// Länkar till dagens versioner. Ett och samma lätta objekt räcker:
+		// permalänken byggs av sidnummer, titel och id, inte av innehållet.
+		$versions = get_page_versions_for_day($page_num, $date->format("Y-m-d"));
+		$version_page = new texttv_page();
+		$version_page->num = $page_num;
 		$version_links = [];
 		foreach ($versions as $one_version) {
-			$version_page = new texttv_page();
 			$version_page->id = $one_version->id;
-			$version_page->num = $page_num;
 			$version_page->title = $one_version->title;
 			$version_links[] = [
 				"time" => substr($one_version->date_added, 11, 5),
@@ -146,6 +152,10 @@ class Sida extends CI_Controller {
 		$prev_date->modify("-1 day");
 		$next_date = clone $date;
 		$next_date->modify("+1 day");
+
+		// Länka bara bakåt om det finns något att visa där, så att arkivets
+		// början inte blir en kedja av länkar till 404:or.
+		$has_prev = (bool) get_page_version_at_end_of_day($page_num, $prev_date->format("Y-m-d"));
 
 		// date_sv() går på PHP:s standardtidszon. Mitt på dagen ger samma
 		// datum oavsett om den är UTC (lokal Docker) eller Europe/Stockholm.
@@ -183,15 +193,23 @@ class Sida extends CI_Controller {
 			"date_human" => $date_human,
 			"is_yesterday_url" => $is_yesterday_url,
 			"version_links" => $version_links,
-			"prev_url" => "/{$page_num}/" . $prev_date->format("Y-m-d"),
+			"final_date_added" => $final_version->date_added,
+			"prev_url" => $has_prev ? "/{$page_num}/" . $prev_date->format("Y-m-d") : null,
 			"prev_human" => $human($prev_date, "l j F"),
 			"next_url" => $next_date == $today ? "/{$page_num}" : "/{$page_num}/" . $next_date->format("Y-m-d"),
 			"next_human" => $next_date == $today ? "idag" : $human($next_date, "l j F"),
 		];
 
-		// En passerad dag ändras inte, så nginx får cacha länge. /igar byter
-		// innehåll vid midnatt och cachas kortare.
-		$this->output->set_header("X-Accel-Expires: " . ($is_yesterday_url ? 600 : 3600));
+		// En passerad dag ändras inte, så nginx får cacha länge. Men /igar byter
+		// innehåll vid midnatt, och gårdagens datumsida länkar "idag →" till den
+		// levande sidan. De får aldrig cachas förbi midnatt.
+		$cache_seconds = $is_yesterday_url ? 600 : 3600;
+		if ($is_yesterday_url || $next_date == $today) {
+			$tomorrow = clone $today;
+			$tomorrow->modify("+1 day");
+			$cache_seconds = max(1, min($cache_seconds, $tomorrow->getTimestamp() - time()));
+		}
+		$this->output->set_header("X-Accel-Expires: " . $cache_seconds);
 
 		$this->load->view('header', $data);
 		$this->load->view('pages_day_archive', $data);

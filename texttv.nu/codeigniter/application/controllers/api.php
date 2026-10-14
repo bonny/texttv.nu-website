@@ -574,12 +574,26 @@ class Api extends CI_Controller
 			// no existing screenshot, create new
 			#echo $saveFileName;exit;
 
+			// Bara en skärmdump skapas åt gången. wkhtmltoimage hämtar arkivsidan
+			// från den här servern, och den requesten behöver en egen php-fpm-worker.
+			// 2026-10-14 hämtade PerplexityBot tusentals og:image-skärmdumpar samtidigt:
+			// alla fem workers höll var sin wkhtmltoimage som väntade på en sjätte
+			// worker, och hela sajten svarade 502 i över en timme.
+			$lock = fopen(sys_get_temp_dir() . "/texttv-screenshot.lock", "c");
+			if (!$lock || !flock($lock, LOCK_EX | LOCK_NB)) {
+				$this->output->set_status_header(503);
+				$this->output->set_header("Retry-After: 120");
+				$this->output->set_header("X-texttv-image: busy");
+				return;
+			}
+
 			// new since 27 aug 2016
 			// 15 var saveFileName = md5(url) + ".jpg";
 			$destImageName = "/usr/share/nginx/texttv.nu/shares/" . md5($screenshotURL) . ".jpg";
 
 			#$cmd_wkhtml = "/root/wkhtmltopdf/wkhtmltox/bin/wkhtmltoimage --width 650 {$screenshotURL} {$destImageName}";
-			$cmd_wkhtml = "/usr/bin/wkhtmltoimage --width 650 {$screenshotURL} {$destImageName}";
+			// timeout: en hängande wkhtmltoimage ska inte hålla låset och en worker i minuter.
+			$cmd_wkhtml = "/usr/bin/timeout 20 /usr/bin/wkhtmltoimage --width 650 {$screenshotURL} {$destImageName}";
 
 			$this->output->set_header("X-texttv-cmd_wkhtml: $cmd_wkhtml");
 			$this->output->set_header("X-texttv-saveFileName: $saveFileName");
@@ -590,6 +604,7 @@ class Api extends CI_Controller
 			$this->output->set_header("X-texttv-before_exec_memory_get_usage: " . memory_get_usage());
 			$this->output->set_header("X-texttv-before_exec_memory_get_peak_usage: " . memory_get_peak_usage());
 			exec($cmd_wkhtml, $output, $return_val);
+			flock($lock, LOCK_UN);
 			$this->output->set_header("X-texttv-after_exec: 1");
 
 			// Bail if $destImageName was not created, ie does not exist in filesystem.

@@ -245,7 +245,24 @@ augusti. Inget ändrades på sajten runt 10 juni (git log). VM 2026 började
 klicken gick till noll. Orsaken är extern och okänd; slutsatsen i #09 om att
 texten "kan ha" orsakat tappet stöds inte av tidslinjen.
 
-**Ny idé med belägg: visa senaste sända versionen när en sida inte sänds.**
+**Rättelse samma dag, efter deploy: tipssidorna sänds inte alls längre.**
+Kontrollerat i prod: "ej i sändning"-raden (som läggs till när sidan
+försvinner) är från 2024-10-13 för 551, 2026-01-28 för 552–554, 2026-02-04
+för 560, 2024-07-02 för 570–571 och **2026-06-09 för 550** (tipsindexet).
+SVT har alltså tagit bort tipsavdelningen, och sista resten försvann dagen
+före lången-klippan 2026-06-10. Det är den troliga förklaringen till
+lången-tappet. Premissen nedan, att sidorna "sänds kring helgerna", var fel
+och kontrollerades inte före bygget. Konsekvens:
+- Fallbacken till senast sända version gör inget för tipssidorna (ingen
+  version de senaste 60 dygnen). Den finns kvar för sidor som är borta
+  tillfälligt.
+- Sidor som inte sänts på över 14 dygn visar i stället "SVT har inte sänt
+  sidan sedan 9 juni 2026", vilket är ärligare än "ej i sändning".
+- Tipssidorna togs bort ur dagsarkivet.
+- Efterfrågan (`stryktipset text tv` m.fl.) finns kvar men går inte att
+  möta med SVT:s innehåll. Lämnas.
+
+**Ursprunglig idé (premissen visade sig fel, se ovan): visa senaste sända versionen när en sida inte sänds.**
 Tipssidorna (551 Stryktipset, 553 Europatipset, 554, 571 V75) sänds bara
 kring helgerna och visar "Sidan ej i sändning" resten av veckan. Google
 crawlar alltså ofta en tom sida. Efterfrågan finns: `europatipset resultat

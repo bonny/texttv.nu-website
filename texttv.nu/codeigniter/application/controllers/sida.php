@@ -8,9 +8,9 @@ class Sida extends CI_Controller {
 
 	/**
 	 * Sidor som har dagsarkiv (/NNN/igar, /NNN/YYYY-MM-DD). Bara sidor där
-	 * en dag är en enhet: resultatsidor som fylls på under dagen, och
-	 * tipssidorna som bara sänds kring helgerna. Nyhetssidor byter innehåll
-	 * under dagen och passar inte. Todo #16.
+	 * en dag är en enhet, alltså resultatsidor som fylls på under dagen.
+	 * Nyhetssidor byter innehåll under dagen och passar inte. Tipssidorna
+	 * (550–571) är inte med: SVT har slutat sända dem. Todo #16.
 	 *
 	 * Per sida:
 	 *  - subject: ämnet i /igar-titeln, "377 igår - SVT Text TV - <subject>"
@@ -20,10 +20,6 @@ class Sida extends CI_Controller {
 	const DAY_ARCHIVE = [
 		330 => ["subject" => "Resultatbörsen", "label" => "Resultatbörsen", "suffix" => ""],
 		377 => ["subject" => "Målservice och resultat", "label" => "Resultat", "suffix" => "Målservice "],
-		551 => ["subject" => "Stryktipset", "label" => "Stryktipset", "suffix" => ""],
-		552 => ["subject" => "Stryktipset", "label" => "Stryktipset", "suffix" => ""],
-		553 => ["subject" => "Europatipset", "label" => "Europatipset", "suffix" => ""],
-		571 => ["subject" => "V75-resultat", "label" => "V75-resultat", "suffix" => ""],
 	];
 
 	// Om ingen sida anges går vi till 100
@@ -296,12 +292,23 @@ class Sida extends CI_Controller {
 		// annars bara "Sidan ej i sändning", och det är den tomma sidan Google
 		// oftast hämtar. Visa senast sända versionen i stället, med en
 		// förklaring. Bara för enskilda sidor. Todo #16.
+		//
+		// Har sidan inte sänts på länge (tipssidorna 550–571 togs bort av SVT
+		// 2024–2026) finns ingen färsk version att visa. Då står det i stället
+		// sedan när sidan inte sänts. "Ej i sändning"-raden läggs till när
+		// sidan försvinner och ersätts inte förrän den kommer tillbaka, så
+		// dess date_added är tidpunkten då den slutade sändas.
 		$not_broadcasted = null;
 		if (sizeof($arr_page_objs) == 1 && $arr_page_objs[0]->is_not_broadcasted()) {
 			$not_broadcasted = $this->_latest_broadcast_fallback($arr_page_objs[0]);
 			if ($not_broadcasted) {
 				$arr_page_objs[0] = $not_broadcasted["page"];
 				$page = $not_broadcasted["page"];
+			} elseif ($arr_page_objs[0]->date_added_unix < strtotime("-14 days")) {
+				$not_broadcasted = [
+					"page" => null,
+					"off_air_since_human" => date_sv("j F Y", $arr_page_objs[0]->date_added_unix),
+				];
 			}
 		}
 

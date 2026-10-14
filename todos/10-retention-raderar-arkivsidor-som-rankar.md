@@ -4,7 +4,7 @@
 # Retention raderar arkivsidor som rankar
 
 Upptäckt 2026-08-02 när `/344`-regressionen i #01 utreddes. Se
-[#09](09-varfor-tappade-377-position-och-vad-vi-gor-at-det.md) för
+[#09](done/09-varfor-tappade-377-position-och-vad-vi-gor-at-det.md) för
 trafikstrukturen som ledde hit.
 
 ## Problemet
@@ -96,7 +96,7 @@ aldrig bygger upp något ämnessignalvärde.
 
 Det är värt en egen utredning — och det är sannolikt samma underliggande orsak
 som gör att `/343` ligger på position 51 för `allsvenskan tabell` trots rätt
-innehåll (se [#09](09-varfor-tappade-377-position-och-vad-vi-gor-at-det.md)).
+innehåll (se [#09](done/09-varfor-tappade-377-position-och-vad-vi-gor-at-det.md)).
 Om hypotesen stämmer är den generella lärdomen att **stabil text är det som
 rankar på ämnesfrågor**, vilket är exakt vad #09 steg A bygger på.
 

@@ -1,4 +1,4 @@
-**Status:** aktiv — D mätt 2026-10-14: C utan synlig effekt (−36 % YoY mot kontrollens −4 %), A blandat med `resultat lången 377` −92 % YoY. /377 själv har slutat tappa (−4 % YoY, pos 4.4 → 3.3).
+**Status:** klar 2026-10-14 — orsaken extern (SVT tar platserna, AI-översikter svarar direkt i sökresultatet). A och C mätta utan åtgärd, B behövde ingen egen åtgärd. /377 har slutat tappa (−4 % YoY, pos 4.4 → 3.3). Ingen textändring.
 **Senast uppdaterad:** 2026-10-14
 
 # Varför tappade /377 position — och vad vi gör åt det

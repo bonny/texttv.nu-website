@@ -1,4 +1,4 @@
-**Status:** aktiv — idékatalog. Canonical deployad 2026-10-14 (`0e95a99`), resten ej påbörjat
+**Status:** aktiv — canonical och dagsarkiv för 377/330 deployade 2026-10-14. Mät 2026-11-14
 **Senast uppdaterad:** 2026-10-14
 
 # Todo #16 — Gör arkivet till en tillgång: idéer för användare, Google och AI
@@ -170,6 +170,43 @@ SVT inte skriver.
 4. **Prod-frågan ovan om versioner och titlar per dag**, och sedan beslut om
    retention (#10) för nyheter.
 5. Resten utvärderas efter att 1–3 har mätts.
+
+## Genomfört
+
+### Dagsarkiv för 377 och 330 — deployat 2026-10-14
+
+Commits `b4a7729`, `fd94325`. URL:er: `/377/igar`, `/330/igar`,
+`/377/YYYY-MM-DD`, `/330/YYYY-MM-DD`.
+
+- Visar sidan som den såg ut vid dagens slut: senaste versionen före
+  midnatt, högst sju dygn bakåt (importern sparar bara ändringar, så en dag
+  utan ändringar har inga egna rader). "Sidan ej i sändning" (tom titel)
+  hoppas över.
+- Länkar till dagens alla versioner, navigering mellan dagar ("← föregående"
+  bara om det finns data där), länk "← 377 igår" på de levande sidorna.
+- Egen titel, beskrivning och canonical per URL. `/igar` har canonical till
+  sig själv för att kunna ranka på "igår"-frågor.
+- Idag → 302 till levande sidan. Framtid, dagar utan data och andra sidor
+  → 404. Sidlistan styrs av `Sida::DAY_ARCHIVE_PAGES`.
+- Cache: 3600 s för passerade dagar, 600 s för `/igar`, aldrig förbi
+  midnatt för `/igar` och gårdagens datumsida.
+- Verifierat i prod direkt efter deploy: `/377/igar` visar 69 versioner,
+  senast 22:43, med canonical och bakåtlänk. Datumsidor 2 och 7 dagar
+  bakåt fungerar.
+
+**Mät 2026-11-14:** GSC sida-dimension för `/377/igar`, `/330/igar` och
+datum-URL:er (indexering, visningar, klick), och frågor med "igår" eller
+datum. Jämför `/377`:s egna klick YoY så att arkivet inte äter av den
+levande sidan.
+
+### Ny 404-sida — deployad 2026-10-14
+
+Commits `f415ff9`, `fd94325`. Inte en idé från katalogen, men upptäckt under
+arbetet: okända adresser fick CodeIgniters engelska standardsida. Nu går
+alla 404:or genom `show_texttv_404()`, med en 404 ritad som en Text-TV-sida
+och sajtens meny. Mjuka 404:or på `/sida/<okänd>` (status 200) och
+`/blogg/<okänd>` ("Doh!") rättade. 404:an cachas 60 s i nginx; verifierat
+i prod att andra anropet blir `cache=HIT`.
 
 ## Mätning
 

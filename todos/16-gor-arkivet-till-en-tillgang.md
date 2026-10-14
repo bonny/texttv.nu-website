@@ -1,0 +1,183 @@
+**Status:** aktiv — idékatalog, inget påbörjat
+**Senast uppdaterad:** 2026-10-14
+
+# Todo #16 — Gör arkivet till en tillgång: idéer för användare, Google och AI
+
+Brainstorm 2026-10-14 efter att #09 stängts. Frågan: hur gör vi sidorna mer
+intressanta för användare, Google och AI-motorer, så att de rankar högre och
+citeras oftare? Det här är en idékatalog med grova bedömningar, inte en plan.
+Varje idé som väljs ska brytas ut till en egen todo med mätning.
+
+## Det vi vet (från #01, #04, #09, #10, #11)
+
+- **Söktrafiken är nästan bara sidnummer och varumärke.** 90 dagar
+  (2026-07-14 → 10-11): `text tv 377` 5 023 klick, `text tv` 3 122,
+  `svt text 377` 2 903, `377` 2 763. Där konkurrerar vi med SVT, som tar sex av
+  tio platser, och med AI-översikter som svarar direkt i sökresultatet (#09).
+  Titlar och H1:or har gett bättre snippets men ingen ny trafik.
+- **AI-översikten citerar oss redan.** För `text tv 377 idag` hänvisar Googles
+  AI-översikt till "TextTV.nu 377" för fullständig översikt (SERP-koll
+  2026-10-14).
+- **Vår unika tillgång är historiken.** SVT:s sidor visar bara "nu". Vi har
+  varje version av varje sida, ett år bakåt för allt och längre för det som
+  delats (se #10). Ingen annan kan svara på "vad stod på 377 i söndags".
+- **Efterfrågan på tid finns redan:** `text tv 377 idag` 208 klick på 90
+  dagar, `text tv 100 idag` 5, `text tv 100 nu` 92, `resultat lången 377`.
+
+## Svar på Pärs två frågor
+
+### "Ändras inte en nyhetssida mycket under en dag?"
+
+Jo. En nyhetssida (106–199) kan få en helt ny nyhet senare samma dag, medan
+sportens resultatsidor (330, 343, 377 m.fl.) är samma "sak" hela dagen och bara
+fylls på. Därför bör arkivet byggas olika för de två typerna:
+
+| Sidtyp | Vad en "enhet" är | Vad som ska sparas och visas |
+| --- | --- | --- |
+| **Nyheter** (100–199) | En **nyhet**, alltså en titel | Sista versionen per sida **och titel** och dag. Det är redan så permalänkarna fungerar (`/117/hushallens-ekonomi-mycket-stark-37317159`: slug från titeln). |
+| **Resultat och tabeller** (330, 343–349, 376–379 m.fl.) | **Dagen** | Sista versionen per sida och dag = dagens slutresultat. |
+| **Översikter** (100, 300, 101–105) | Ögonblicksbild | Lite värde i arkivet; låt dem rotera som idag. |
+
+Det här behöver verifieras mot prod-DB:n innan något byggs. Förslag på fråga
+att köra (Pär kör, se minnesanteckningen om prod-DB i auto mode):
+
+```sql
+-- Hur många versioner och hur många olika titlar per sida och dag, senaste veckan
+SELECT page_num,
+       ROUND(COUNT(*) / 7)           AS versioner_per_dag,
+       ROUND(COUNT(DISTINCT title, DATE(date_added)) / 7) AS titlar_per_dag
+FROM `texttv.nu`.texttv
+WHERE date_added > NOW() - INTERVAL 7 DAY
+GROUP BY page_num
+ORDER BY page_num;
+```
+
+Hypotes att bekräfta: nyhetssidor har flera titlar per dag, resultatsidor
+har en titel men tiotals versioner.
+
+### "Får vi någon trafik på ämnesord idag?"
+
+Väldigt lite, men det finns en lång svans. 90 dagar (2026-07-14 → 10-11):
+
+- **Bland de 400 största frågorna** är bara en handfull ämnesfrågor:
+  `resultatbörsen` 97 klick, sedan `tågstrejk norge` 3, `jonas oredsson` 2,
+  `mord mariestad` 2, `mc olycka vänersborg` 2, `partiuppgörelse` 2,
+  `trollfjäril` 2, `två svenskar gripna i thailand` 2.
+- **Arkivsidorna** (URL med slug och id) får en svans av hundratals sidor med
+  1–3 klick vardera, plus `/330/resultatborsen-13586101` med 135. Grovt
+  uppskattat några hundra klick per kvartal totalt, mot ~5 000 för
+  `text tv 377` ensamt. Sökfrågorna är nyhetshändelser (olyckor, brott,
+  politik) som dör inom dagar.
+- **Slutsats:** ämnes- och entitetssidor (`/amne/ebola`, `/lag/hammarby`)
+  skulle bygga på en efterfrågan vi knappt ser idag. Undantaget är sport:
+  `resultatbörsen` och resultatfrågor är verklig efterfrågan. Ämnessidor för
+  nyheter flyttas därför ner i prioritet. Datum- och resultatsidor flyttas upp.
+
+## Snabba vinster som upptäcktes under brainstormen
+
+- **Arkivsidorna saknar `<link rel="canonical">`.** Live-sidorna har det
+  (`/377?app=x` → `https://texttv.nu/377`), men arkivsidor och startsidan har
+  inget. Följden syns i GSC: dussintals arkivsidor är indexerade **med**
+  `?utm_source=brottsplatskartan&utm_medium=newslist` i URL:en, alltså som
+  dubbletter av sig själva, och delar på länkkraften. Fix: canonical till den
+  rena permalänken på arkivsidor, och till `https://texttv.nu/` på startsidan.
+  Liten kodändring i `views/header.php` (raderna kring 617–626 hanterar redan
+  live-sidorna). **Gör först, oavsett vad mer som väljs.**
+- **`/sida/vanliga-fragor` fick 84 klick** och `/blogg/texttv-api` 25 på 90
+  dagar. Det finns efterfrågan på "om Text TV"-innehåll; se 7 nedan.
+
+## Idékatalog
+
+Bedömning: **värde** (hur mycket trafik eller citeringar det troligen ger) och
+**insats**. Grov känsla, inte mätt.
+
+### 1. Arkivet som sökbar historik — störst potential
+
+| Idé | Värde | Insats |
+| --- | --- | --- |
+| **Dagsarkiv per resultatsida**: `/377/2026-10-12` med dagens slutversion överst och tidigare versioner under. Fångar `377 igår`, `allsvenskan resultat igår`, `text tv 377 12 oktober`, `målservice söndag`. | Högt | Medel |
+| **Fasta URL:er för "igår" och "i helgen"**: `/377/igar`, `/330/helgen`. Korta, stabila, länkbara, och samlar länkkraft över tid till skillnad från arkiv-id:n. | Medel–högt | Låg |
+| **Dagsnavigering på sidorna**: "← igår · i morgon →" på live- och arkivsidor, så Google hittar och värderar arkivet via interna länkar. | Medel | Låg |
+| **Nyhetsarkiv per dag**: `/nyheter/2026-10-12`, alla nyheter (titlar) som sändes den dagen, med länk till varje permalänk. | Medel | Medel |
+| **Retention som passar (#10)**: behåll sista versionen per sida och dag (resultat) respektive per titel och dag (nyheter) för alltid, radera mellanversionerna. Litet lagringsbehov, och historiken blir permanent. Förutsättning för allt ovan bortom ett år. | Möjliggörande | Medel |
+
+### 2. Startsidan och dagssammanfattningar
+
+| Idé | Värde | Insats |
+| --- | --- | --- |
+| **"Igår på Text TV" på startsidan**: gårdagens mest lästa nyheter. Data finns redan (`/api/most_read/news?date=<igår>`, cachad sedan #12). Interna länkar in i arkivet. | Medel | Låg |
+| **Dagssida per datum**: `/dag/2026-10-13`, dagens mest lästa nyheter, slutresultat och väder på en sida. Unikt, citerbart innehåll ("vad hände 13 oktober"). | Medel | Medel |
+| **"Det här hände för ett år / tio år sedan"**: nostalgi, delbart. Kräver arkiv längre bak än ett år (retention). | Låg–medel | Låg |
+
+### 3. Sportens historik
+
+| Idé | Värde | Insats |
+| --- | --- | --- |
+| **Resultatbörsen per datum**: `/330/2026-10-12`. `resultatbörsen` är vår största ämnesfråga och serveras idag av slumpvisa arkivsidor från 2017 (#10, #11). | Högt | Låg (samma mekanik som dagsarkivet) |
+| **Allsvenskans tabell över tid**: 343 per omgång som en serie. Nisch, men ingen annan har det. | Låg–medel | Medel |
+| **Lagsidor ur målservicen**: tolka 377/330/343 och visa "Hammarbys senaste resultat enligt Text TV". Stor yta för långa frågor, men tolkningen av Text-TV-text är bräcklig. | Medel | Hög |
+
+### 4. Maskinläsbart, för AI och Google
+
+| Idé | Värde | Insats |
+| --- | --- | --- |
+| **Canonical på arkivsidor och startsidan** (se snabba vinster). | Medel | Låg |
+| **Tydliga, maskinläsbara tidsstämplar**: `<time datetime>` och "uppdaterad 14 okt 21:47" synligt. AI-översikter prioriterar färskhet. | Medel | Låg |
+| **Strukturerad data**: `SportsEvent`/resultat på 377 och 330, `CollectionPage` på dagsarkiv. `NewsArticle` finns på arkivsidor sedan tidigare; kontrollera att `datePublished` stämmer. | Låg–medel | Medel |
+| **Ren textversion** per sida, t.ex. `/377.txt`, utan Text-TV-grafik, och länkad från `llms.txt`. Ger AI-crawlers exakt det som ska citeras. | Okänt, billigt att prova | Låg |
+| **RSS/Atom per sida eller sidgrupp** ("377-flödet", "nyheter 100–199"). `rssfeed` finns för bloggen. | Låg | Låg |
+
+### 5. Engagemang (signaler till Google, och nöjdare användare)
+
+| Idé | Värde | Insats |
+| --- | --- | --- |
+| **"Vad har ändrats?"**: markera rader som är nya sedan förra versionen, t.ex. nytt mål på 377. Unikt för oss eftersom vi har alla versioner. | Medel | Medel |
+| **Bevaka en sida**: notis när 377 ändras eller när ett lag nämns. Appen har push via Firebase; webben kan få webbnotiser. | Medel (appen) | Hög |
+| **Inbäddning som funktion**: `oembed`/`appembed` finns. En "bädda in 377 på din sajt"-sida ger länkar tillbaka. | Låg–medel | Låg |
+
+### 6. Vilda idéer
+
+| Idé | Värde | Insats |
+| --- | --- | --- |
+| **Text-TV-tidsmaskin**: valfri sida som den såg ut ett visst datum och klockslag, med en tidslinje att dra i. Viralt material ("så här såg 100 ut när …"). | Okänt, potentiellt högt | Medel |
+| **Månads- och årskrönikor ur arkivet**: "Text-TV 2026: årets mest lästa sidor". Årlig artikel som andra länkar till. | Medel | Medel |
+| **Öppet arkiv-API eller datadump** för forskare och journalister. Länkar och omnämnanden från universitet och media. Licensfråga mot SVT, kräver eftertanke. | Medel | Medel + juridik |
+| **MCP-server / verktyg för AI-agenter**: "läs Text-TV sida X, nu eller på datum Y". Positionerar texttv.nu som källan för AI-assistenter. Tidigt. | Okänt | Medel |
+
+### 7. "Om Text TV"-innehåll
+
+`/sida/vanliga-fragor` (84 klick på 90 dagar) och frågor som
+`finns text tv kvar` (12), `text tv samsung fjärrkontroll` (6),
+`text tv på samsung smart tv` (2), `text tv app` (21) visar att folk söker
+efter hjälp kring Text TV. Ett par riktiga guider ("Text-TV på din smart-TV",
+"Finns Text-TV kvar?", "Vilka sidor finns?") är billigt evergreen-innehåll som
+SVT inte skriver.
+
+## Rekommenderad ordning
+
+1. **Canonical på arkivsidor och startsidan.** Liten, säker, rättar en
+   faktisk indexeringsbrist. Verifiera med `make test-api` att `/api/*` inte
+   påverkas.
+2. **"Igår" och dagsarkiv för 377 och 330**, med dagsnavigering. Börja med
+   resultatsidorna, där en dag är en enhet och efterfrågan finns
+   (`377 idag`, `resultatbörsen`).
+3. **"Igår på Text TV" på startsidan.** Nästan gratis, data finns.
+4. **Prod-frågan ovan om versioner och titlar per dag**, och sedan beslut om
+   retention (#10) för nyheter.
+5. Resten utvärderas efter att 1–3 har mätts.
+
+## Mätning
+
+Som tidigare: GSC, samma period året innan, `/377` som kontroll (se
+minnesanteckningen om YoY). För nya URL:er: indexering (URL-inspektion) efter
+en vecka, klick och visningar efter 30 och 90 dagar. För canonical: antalet
+indexerade URL:er med `utm_` i GSC ska gå mot noll.
+
+## Relaterat
+
+- [#10](10-retention-raderar-arkivsidor-som-rankar.md): retentionen, pausad.
+  Blir aktuell igen med idé 1.
+- [#09](done/09-varfor-tappade-377-position-och-vad-vi-gor-at-det.md):
+  trafikstrukturen och SERP-kollen.
+- [#11](done/11-arkivsidor-rankar-over-de-levande-sidorna.md): arkivsidor som
+  rankade över de levande sidorna på `resultatbörsen`.

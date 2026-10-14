@@ -220,6 +220,56 @@ nyheternas arkivsidor raderas efter ett år om ingen delat dem).
   Svarstid ~0,09 s okachad, ~2,5 s första gången most_read räknas för ett
   datum (sedan filcache 1 h, nginx 1 h).
 
+### SEO- och UX-granskning, runda 1 (2026-10-14)
+
+Två oberoende granskningar mot prod. Åtgärdat samma dag (`27794b6`):
+
+- **Datakvalitet** (UX, störst): kvarliggare från kvällen innan stod som
+  00:08 (varje sida får en ny version vid midnatt när datumraden ändras),
+  snarlika rubriker flera gånger, brus från 170/190–199 och sidrubriker.
+  Nu: titlar som fanns dagen innan räknas inte, rubriker slås ihop vid
+  ≥ 85 % likhet efter normalisering (testat på 14 riktiga par: 13 rätt,
+  missen är en dubblett hellre än en försvunnen nyhet), rubriker under tre
+  ord och "Test" bort, 190–199 utanför. Mest lästa matchas mot listan.
+  Igår i prod: 66 rader → 31 nyheter, sport 31 → 8.
+- **330 bort ur dagsarkivet** (SEO + UX): 330 är en meny över
+  resultatsidorna, inte resultat. 365 nästan identiska sidor. 301 → /330.
+- **/377/igar** titel och H1 börjar inte med "377" (kannibalisering).
+- **/nyheter, /sport** → 302 till /igar i stället för 404.
+- **Ingångarna** var ~2 700–3 500 px ner. Nu knappar direkt under sidan,
+  före annonsen. Samma namn överallt ("Gårdagens resultat 377").
+- **Listorna**: tidskolumn med hängande indrag, större rubriker,
+  hopplänkar, "Dagens nyheter →" i stället för "idag".
+- **Länge borta sidor**: länk till senast sända versionen, ingen
+  "Sidan uppdaterad"-rad.
+- **404-texten** och dagsarkivets intro/aria-labels.
+
+Medvetet inte åtgärdat: `/igar` och datumsidan med samma innehåll har var
+sin canonical (Pärs beslut; följ "Sidindexering" i GSC), ordningen i
+JSON-LD, sitemap (`/sitemap.xml` avstängd sedan 2013 av lastskäl), 410
+efter 365 dagar, Open Graph.
+
+### SEO- och UX-granskning, runda 2 (2026-10-14)
+
+Sju av nio rättningar från runda 1 verifierade i prod. Nya fynd, åtgärdade:
+
+- **Sammanslagningen var för lös.** 85 % likhet slog ihop olika nyheter
+  ("Riksbanken sänker/höjer räntan", "Sverige till final/semifinal"), och
+  kvarliggarfiltret jämförde ungefärligt mot alla gårdagens rubriker, så en
+  ny nyhet kunde försvinna. Nu: kvarliggare kräver exakt samma rubrik;
+  ungefärlig sammanslagning 85 % bara på samma sidnummer, 94 % mellan
+  sidor. 13 testpar rätt.
+- **Brusfiltret** tog bort alla rubriker under tre ord, även "Påven död".
+  Nu bara korta rubriker som börjar med en sport ("Ishockey NHL").
+- **Introtexten** lovade fel version; nu "nyhetens sista version den dagen".
+- **Startsidans knappar** låg efter alla sju sidorna (~3 400 px ner på
+  mobil). Nu direkt efter sida 100.
+- **Knapparna** 44 px höga (var 33 px).
+- **550-meddelandet** hamnade under den fasta menyn på sidor utan
+  brödsmulor.
+
+Kvar medvetet: `/igar` och gårdagens datumsida har var sin canonical.
+
 ### Ny 404-sida — deployad 2026-10-14
 
 Commits `f415ff9`, `fd94325`. Inte en idé från katalogen, men upptäckt under

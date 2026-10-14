@@ -94,8 +94,22 @@ $out .= "<div>";
 
 // Här skrivs själva sidorna ut, 
 // en per li
-foreach ($arr_pages as $one_page_obj) {
+$yesterday_links_html = "";
+if (!empty($yesterday_links)) {
+	$yesterday_links_html = $this->load->view('day_archive_link', [
+		"yesterday_links" => $yesterday_links,
+		"yesterday_prefix" => $yesterday_prefix,
+	], TRUE);
+}
+$is_startpage = isset($pagedescription) && $pagedescription === 'startpage';
+
+foreach ($arr_pages as $page_index => $one_page_obj) {
 	$out .= $one_page_obj->get_output();
+	// Startsidan visar sju sidor efter varandra. Gårdagens länkar direkt
+	// efter den första (100), annars hamnar de fyra skärmar ner på mobil.
+	if ($is_startpage && $page_index === 0 && $yesterday_links_html) {
+		$out .= $yesterday_links_html;
+	}
 }
 
 $out .= "</div>";
@@ -169,11 +183,8 @@ if (!isset($not_broadcasted) || !$not_broadcasted || $not_broadcasted["page"]) {
 
 // Länkar till gårdagen (todo #16), före annonsen. Sätts bara av Sida::visa(),
 // inte av api/get_html som också laddar den här vyn.
-if (!empty($yesterday_links)) {
-	$out .= $this->load->view('day_archive_link', [
-		"yesterday_links" => $yesterday_links,
-		"yesterday_prefix" => $yesterday_prefix,
-	], TRUE);
+if ($yesterday_links_html && !$is_startpage) {
+	$out .= $yesterday_links_html;
 }
 
 // ad after text tv page, before "nyaste sidorna"

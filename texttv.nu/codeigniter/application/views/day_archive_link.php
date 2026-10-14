@@ -27,8 +27,11 @@
 		max-width: 60ch;
 	}
 	.day-archive-link a {
-		display: inline-block;
-		padding: .35em .7em;
+		display: inline-flex;
+		align-items: center;
+		min-height: 44px;
+		box-sizing: border-box;
+		padding: .5em 1em;
 		border: 1px solid #ffff00;
 		color: #ffff00;
 		text-decoration: none;

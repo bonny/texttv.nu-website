@@ -33,11 +33,16 @@ $nb = $not_broadcasted;
 	<?php } ?>
 </div>
 <style>
+	/* Sidor utan brödsmulor (t.ex. 550) har inget som trycker ner innehållet
+	   under den fasta menyn; samma avstånd som arkivsidornas .introtext. */
 	.not-broadcasted-notice {
 		max-width: 40ex;
-		margin: 1em auto;
+		margin: 95px auto 1em;
 		padding: .5em .75em;
 		border: 1px solid #ffff00;
+	}
+	.breadcrumbs ~ .not-broadcasted-notice {
+		margin-top: 1em;
 	}
 	.not-broadcasted-notice p {
 		margin: 0;

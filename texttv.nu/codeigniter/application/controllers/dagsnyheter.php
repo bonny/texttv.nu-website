@@ -140,7 +140,7 @@ class Dagsnyheter extends CI_Controller
 		$prev_day->modify("-1 day");
 		$prev_keys = [];
 		foreach (get_headlines_for_day($first_num, $last_num, $conf["exclude"], $prev_day->format("Y-m-d")) as $row) {
-			$prev_keys[] = $this->_story_key($row->title);
+			$prev_keys[$this->_story_key($row->title)] = true;
 		}
 
 		$stories = [];
@@ -151,12 +151,15 @@ class Dagsnyheter extends CI_Controller
 				continue;
 			}
 			$key = $this->_story_key($title);
-			if ($this->_matches_any($key, $prev_keys)) {
+			// Exakt samma rubrik som dagen innan = kvarliggare. Inte ungefärlig
+			// likhet här: "Sverige till final" dagen efter "… semifinal" är en
+			// ny nyhet och får inte försvinna.
+			if (isset($prev_keys[$key])) {
 				continue;
 			}
 			$merged = false;
 			foreach ($stories as &$story) {
-				if ($this->_same_story($key, $story["key"])) {
+				if ($this->_same_story($key, $story["key"], (int) $row->page_num === $story["page_num"])) {
 					// Behåll första tiden men senaste rubrik och version.
 					if ((int) $row->id > $story["id"]) {
 						$story["title"] = $title;
@@ -231,7 +234,7 @@ class Dagsnyheter extends CI_Controller
 				$item = isset($items_by_key[$key]) ? $items_by_key[$key] : null;
 				if (!$item) {
 					foreach ($items_by_key as $other_key => $other_item) {
-						if ($this->_same_story($key, $other_key)) {
+						if ($this->_same_story($key, $other_key, false)) {
 							$item = $other_item;
 							break;
 						}
@@ -349,10 +352,17 @@ class Dagsnyheter extends CI_Controller
 	}
 
 	/**
-	 * Om två nycklar är samma nyhet: lika, eller minst 85 % lika (rättade
-	 * stavfel, "Fyra"/"Fem brottsoffer på Sigtunaskolan", "-"/"och").
+	 * Om två nycklar är samma nyhet.
+	 *
+	 * På samma sidnummer samma dag är en snarlik rubrik nästan alltid samma
+	 * nyhet som uppdaterats ("Två/Tre döda i …", rättade stavfel), så där
+	 * räcker 85 % likhet. Mellan olika sidor krävs 94 %: där finns olika
+	 * nyheter som skiljer sig med ett ord ("Riksbanken sänker/höjer räntan"
+	 * 85 %, "Tre/Två döda i rysk attack" 92 %), medan samma nyhet på två
+	 * sidor ligger högre ("Bergand vann - /och sedan …" 95 %). Testat på
+	 * riktiga och konstruerade par 2026-10-14.
 	 */
-	private function _same_story($a, $b)
+	private function _same_story($a, $b, $same_page)
 	{
 		if ($a === $b) {
 			return true;
@@ -361,31 +371,22 @@ class Dagsnyheter extends CI_Controller
 			return false;
 		}
 		similar_text($a, $b, $percent);
-		return $percent >= 85;
-	}
-
-	private function _matches_any($key, $keys)
-	{
-		if (in_array($key, $keys, true)) {
-			return true;
-		}
-		foreach ($keys as $other) {
-			if ($this->_same_story($key, $other)) {
-				return true;
-			}
-		}
-		return false;
+		return $percent >= ($same_page ? 85 : 94);
 	}
 
 	/**
-	 * Rubriker som inte är nyheter: sidrubriker som "Ishockey NHL" (färre än
-	 * tre ord) och SVT:s testsidor ("Test 12 okt 2026").
+	 * Rubriker som inte är nyheter: SVT:s testsidor ("Test 12 okt 2026") och
+	 * sidrubriker på resultatsidorna ("Ishockey NHL"). Korta riktiga rubriker
+	 * som "Påven död" ska vara kvar, så bara korta rubriker som börjar med en
+	 * sport räknas som sidrubrik.
 	 */
 	private function _is_noise($title)
 	{
 		if (preg_match('/^test\b/iu', $title)) {
 			return true;
 		}
-		return sizeof(preg_split('/\s+/u', trim($title))) < 3;
+		$words = preg_split('/\s+/u', trim($title));
+		return sizeof($words) <= 2
+			&& preg_match('/^(ishockey|fotboll|handboll|bandy|basket|innebandy|tennis|golf|motor|trav)$/iu', $words[0]);
 	}
 }

@@ -144,7 +144,7 @@ $json_ld = [
 	<p>
 		<?php echo $d["headline_count"] ?> nyheter sändes för första gången på
 		SVT Text TV den här dagen. Tiden är när nyheten först sändes, och varje
-		rubrik leder till nyheten som den såg ut då.
+		rubrik leder till nyhetens sista version den dagen.
 	</p>
 
 	<?php if (sizeof($d["groups"]) > 1) { ?>

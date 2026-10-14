@@ -270,6 +270,17 @@ Sju av nio rättningar från runda 1 verifierade i prod. Nya fynd, åtgärdade:
 
 Kvar medvetet: `/igar` och gårdagens datumsida har var sin canonical.
 
+### Liten sitemap och llms.txt — deployat 2026-10-14
+
+`/sitemap.xml` (avstängd sedan 2013, då den listade varje rad i
+`texttv` med en query per sida) ersatt av en liten: 27 viktiga sidnummer,
+startsidan, de tre `/igar`-sidorna, datumsidorna för nyheter, sport och 377
+de senaste 30 dagarna och sju redaktionella sidor, 128 adresser. `lastmod`
+som W3C-tidsstämpel där den är pålitlig (senaste versionen för levande
+sidor, midnatt för `/igar` och datumsidorna). En indexerad fråga, ~0,06 s,
+nginx-cache 10 min. `robots.txt` pekar på den. `llms.txt` har ett nytt
+avsnitt om gårdagen och datumsidorna. Inte inskickad i Search Console än.
+
 ### Ny 404-sida — deployad 2026-10-14
 
 Commits `f415ff9`, `fd94325`. Inte en idé från katalogen, men upptäckt under

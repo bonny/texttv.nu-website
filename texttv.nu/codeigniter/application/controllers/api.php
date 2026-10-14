@@ -57,7 +57,7 @@ class Api extends CI_Controller
 			$type = '';
 		}
 
-		$arr_json["pages"] = $this->_most_read_pages_cached($type, $dateUnix);
+		list($arr_json["pages"], $cache_seconds) = $this->_most_read_pages_cached($type, $dateUnix);
 
 		$arr_json["pages"] = array_splice($arr_json["pages"], 0, $count);
 
@@ -74,9 +74,10 @@ class Api extends CI_Controller
 		// klienten och kunnat ändra beteendet i redan utgivna appversioner.
 		//
 		// 2026-10-14 (todo #12): En dag som redan är slut ändras inte längre,
-		// så den cachas en timme i stället för en minut.
-		$is_past_day = date("Y-m-d", $dateUnix) < date("Y-m-d");
-		$this->output->set_header("X-Accel-Expires: " . ($is_past_day ? 3600 : 60));
+		// så den cachas en timme i stället för en minut. Tiden kommer från
+		// filcachen nedan och är det som återstår av filens livslängd, så att
+		// nginx-cachen och filcachen inte staplas på varandra.
+		$this->output->set_header("X-Accel-Expires: " . $cache_seconds);
 
 		$this->output->set_content_type("application/json");
 		$this->output->append_output(json_encode($arr_json));
@@ -95,48 +96,76 @@ class Api extends CI_Controller
 	 *
 	 * Bara de senaste 14 dagarna cachas, så att godtyckliga date-värden inte
 	 * kan fylla disken.
+	 *
+	 * @return array [sidor, sekunder som nginx får cacha svaret]
 	 */
 	private function _most_read_pages_cached($type, $dateUnix)
 	{
 		$date_ymd = date("Y-m-d", $dateUnix);
 		$today_ymd = date("Y-m-d");
+		$is_past_day = $date_ymd < $today_ymd;
+		$ttl = $is_past_day ? 3600 : 60;
 		$is_cacheable = $date_ymd <= $today_ymd && $date_ymd >= date("Y-m-d", strtotime("-14 days"));
 
 		if (!$is_cacheable) {
-			return $this->_most_read_pages($type, $dateUnix);
+			return [$this->_most_read_pages($type, $dateUnix), $ttl];
 		}
 
-		$ttl = $date_ymd < $today_ymd ? 3600 : 60;
+		// En fil för en passerad dag gäller bara om den skrevs efter dagens
+		// slut. Annars är det en ögonblicksbild från när dagen pågick, som
+		// skulle serveras i en timme till trots att den saknar dagens sista
+		// visningar.
+		$valid_from = $is_past_day ? strtotime("tomorrow", $dateUnix) : 0;
+
 		$dir = sys_get_temp_dir() . "/texttv-most-read";
-		if (!is_dir($dir)) {
-			@mkdir($dir, 0700, true);
+		if (!is_dir($dir) && !@mkdir($dir, 0700, true) && !is_dir($dir)) {
+			error_log("texttv most_read: kan inte skapa cachekatalogen $dir, kör utan cache");
 		}
 		$file = $dir . "/" . ($type ? $type : "all") . "-" . $date_ymd . ".json";
 
-		$pages = $this->_most_read_read_cache($file, $ttl);
-		if ($pages !== null) {
-			return $pages;
+		$cached = $this->_most_read_read_cache($file, $ttl, $valid_from);
+		if ($cached !== null) {
+			return $cached;
 		}
 
-		// Lås så att bara en worker räknar fram resultatet. De som väntar
-		// läser sedan vad den första skrev i stället för att köra queryn igen.
+		// Lås så att bara en worker räknar fram resultatet. Övriga väntar inte
+		// på den (då hade de hållit php-fpm-workers medan queryn kör) utan
+		// serverar den föregående filen och låter nginx cacha det svaret bara
+		// en kort stund. Finns ingen fil alls, första anropet för en dag,
+		// väntar de på låset och läser sedan vad den första skrev.
 		$lock = @fopen($file . ".lock", "c");
-		if ($lock) {
+		if (!$lock) {
+			error_log("texttv most_read: kan inte öppna låsfilen $file.lock, kör utan cache");
+		} elseif (!flock($lock, LOCK_EX | LOCK_NB)) {
+			$stale = $this->_most_read_read_cache($file, PHP_INT_MAX, 0);
+			if ($stale !== null) {
+				fclose($lock);
+				return [$stale[0], 5];
+			}
 			flock($lock, LOCK_EX);
-			$pages = $this->_most_read_read_cache($file, $ttl);
+			$cached = $this->_most_read_read_cache($file, $ttl, $valid_from);
 		}
 
-		if ($pages === null) {
+		if ($cached === null) {
 			$pages = $this->_most_read_pages($type, $dateUnix);
+			$cached = [$pages, $ttl];
+			$is_new_file = !file_exists($file);
+
+			$json = json_encode($pages);
 			$tmp = $file . "." . getmypid() . ".tmp";
-			if (@file_put_contents($tmp, json_encode($pages)) !== false) {
+			if ($json === false) {
+				error_log("texttv most_read: json_encode misslyckades för $file: " . json_last_error_msg());
+			} elseif (@file_put_contents($tmp, $json) !== false) {
 				@rename($tmp, $file);
 			}
 
-			// Städa bort filer för dagar som inte längre cachas.
-			foreach (glob($dir . "/*") ?: [] as $old_file) {
-				if (time() - @filemtime($old_file) > 15 * 86400) {
-					@unlink($old_file);
+			// Städa bort filer för dagar som inte längre cachas. Räcker att
+			// göra när en ny dags fil skapas, inte vid varje omräkning.
+			if ($is_new_file) {
+				foreach (glob($dir . "/*") ?: [] as $old_file) {
+					if (time() - @filemtime($old_file) > 15 * 86400) {
+						@unlink($old_file);
+					}
 				}
 			}
 		}
@@ -146,20 +175,27 @@ class Api extends CI_Controller
 			fclose($lock);
 		}
 
-		return $pages;
+		return $cached;
 	}
 
-	private function _most_read_read_cache($file, $ttl)
+	/**
+	 * @return array|null [sidor, sekunder kvar av filens livslängd], eller
+	 *                    null om filen saknas, är för gammal eller trasig.
+	 */
+	private function _most_read_read_cache($file, $ttl, $valid_from)
 	{
 		clearstatcache(true, $file);
 		$mtime = @filemtime($file);
-		if (!$mtime || time() - $mtime >= $ttl) {
+		if (!$mtime || $mtime < $valid_from || time() - $mtime >= $ttl) {
 			return null;
 		}
 
 		$pages = json_decode((string) @file_get_contents($file), true);
+		if (!is_array($pages)) {
+			return null;
+		}
 
-		return is_array($pages) ? $pages : null;
+		return [$pages, max(5, min($ttl - (time() - $mtime), 3600))];
 	}
 
 	private function _most_read_pages($type, $dateUnix)

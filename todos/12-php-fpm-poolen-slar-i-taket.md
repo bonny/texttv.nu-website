@@ -1,6 +1,6 @@
 # 12 – php-fpm-poolen slår i taket i normaldrift
 
-**Status:** aktiv — `cleanup-old-pages`-fixen verifierad 2026-10-14 (varningarna −85–95 %). Kvar: `most_read` över 3 s 400–1 100 gånger per dygn.
+**Status:** aktiv — `cleanup-old-pages`-fixen verifierad 2026-10-14 (varningarna −85–95 %). Kvar: `most_read` regenereras i bakgrunden ~3 200 gånger per dygn, var femte över 3 s, och håller workers. Förslag: dela resultatet mellan `count`-varianterna.
 **Senast uppdaterad:** 2026-10-14
 
 ## Uppföljning 2026-10-14 — spiken borta, men poolen slår fortfarande i taket
@@ -32,7 +32,56 @@ queryn som #14 optimerade och cachade (`X-Accel-Expires: 60`). Antalet har
 september–oktober, i takt med fotbollssäsongen. Fördelningen per timme
 följer trafiken: 6 kl 18, 74 kl 21, 112 kl 22.
 
-Ingen åtgärd vidtagen. Möjliga nästa steg, inget utrett än:
+### Utrett samma dag: inte cache-bust, utan bakgrundsregenerering per variant
+
+**Hypotesen att appens `cb=` kringgår cachen stämmer inte.** Appen (3.7.1)
+anropar `most_read` från `TrendingNow.jsx` och `DailyDigest.jsx` utan `cb=`,
+bara med `count` och `date=<idag>`. `access.log.1` (2026-10-13):
+
+| `cache=` | Anrop |
+| --- | --- |
+| HIT | 132 036 (94 %) |
+| UPDATING | 5 023 |
+| STALE | 3 235 |
+| MISS | 33 |
+
+Varianter: `count=5` 69 704, `count=10` 69 687, `count=15` 545,
+`count=5&brottsplatskartan` 390, plus gårdagens `date` (2 119 anrop).
+
+**Mekanismen:** vhosten har `fastcgi_cache_background_update on` och
+`use_stale updating`. Besökaren får det gamla svaret direkt (STALE), och nginx
+regenererar i bakgrunden. Det är de bakgrundskörningarna slowloggen fångar.
+De loggas inte med `urt=` (subrequests loggas inte), men syns som **`rt` > 3 s
+på 653 av 3 235 STALE-svar**: requesten loggas först när bakgrundskörningen är
+klar.
+
+Alltså:
+
+- **Besökarna väntar inte** på `most_read`. Det förklarar varför p99 är 0,02 s.
+- **Men varje regenerering håller en av fem php-fpm-workers** i 3–7 s, ungefär
+  3 200 gånger per dygn. Var femte tar över 3 s. Det är vad som fyller poolen
+  på kvällar och lördagar, och då köar de requests som *inte* är cachade.
+- **Samma tunga aggregering körs separat för varje variant.** Queryn tar
+  alltid fram topp 50; `count` skär bara av resultatet. Ändå regenereras
+  `count=5`, `count=10`, `count=15`, brottsplatskartan-varianten och
+  gårdagens datum var för sig, var 60:e sekund.
+- De 33 MISS som körde PHP i förgrunden hade `urt` p50 1,12 s, p90 4,58 s,
+  max 7,22 s. #14 mätte ocachad `most_read` till 0,53–0,65 s, så queryn har
+  blivit ungefär dubbelt så långsam sedan augusti. Storleken på `page_actions`
+  kunde inte läsas (DB-åtkomst nekad i sessionen); kolla den manuellt.
+
+### Förslag (inget gjort)
+
+1. **Dela resultatet mellan varianterna.** Cacha topp 50 per `type` + datum i
+   PHP (fil eller APCu, 60 s) och skär `count` ur den. Regenereringarna går
+   från ~4–5 per minut till 1. Ingen ändring av svaret, så appen påverkas inte.
+2. **Cacha gårdagar länge.** När `date` är före idag ändras resultatet aldrig.
+   Sätt `X-Accel-Expires` till t.ex. 86400 i det fallet.
+3. Mät `page_actions` och queryplanen. Om tabellen har vuxit är retention
+   (10 dagar) eller ett index nästa hävstång.
+4. Alternativ A (höj `max_children`) är fortfarande symptomlindring.
+
+Äldre förslag från samma dag, före utredningen:
 
 1. Ta reda på varför `most_read` fortfarande regenereras så ofta, trots
    cachen på 60 s. Kontrollera `cache=`-fältet i `access.log` för

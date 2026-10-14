@@ -1,5 +1,5 @@
-**Status:** aktiv — 13 av 19 fynd stängda (12 st 2026-08-01, L2 st 2026-08-02), 6 kvar. M5 halvvägs: webbens dev-ytor borta, importerns kvar
-**Senast uppdaterad:** 2026-08-01
+**Status:** aktiv — 13 av 19 fynd stängda (12 st 2026-08-01, L2 st 2026-08-02), M5 och M6 avfärdade 2026-10-14. Kvar: M1, M2, L7, M4
+**Senast uppdaterad:** 2026-10-14
 
 # Todo #08 — Säkerhetsgranskning 2026-08-01
 
@@ -19,22 +19,17 @@ eller komma åt något de inte ska. Resten är missbruk och härdning.
 
 ---
 
-## Kvar att göra (7)
+## Kvar att göra (4)
 
 | # | Vad | Lösning | Var |
 | --- | --- | --- | --- |
 | **M1** | Oautentiserad skrivning till DB. `/api/page/` styr "mest lästa" (INSERT i `page_actions`, joinas mot `texttv` i `get_most_read_pages_for_period()`), `/api/share/` + `/api/get_permalink/` + `/oembed` styr "mest delade" (`is_shared + 1` via `mark_archive_ids_as_shared`) | Rate limiting per IP; helst delad hemlighet från apparna på `/api/page/` | Kod |
 | **M2** | `api.php:566` kör `exec(wkhtmltoimage …)` per `/api/screenshot/`-anrop. Filnamn = `md5($url)`, så olika id-ordning ger obegränsat antal JPG:er i `/shares/`. `l.texttv.nu/live/{n}` skrapar svt.se per anrop | Rate limiting, tak för antal id per anrop, städjobb för `/shares/` | Kod |
 | **M4** | EOL-ramverk: CodeIgniter 2.2.6 (2015), Laravel 8.83.27 (jan 2023). Inga kända CVE:er träffar koden som den används, men inga fixar kommer | Laravel 8 → 10/11 först. CI 2 → omskrivning. Plan, inte patch | Kod |
-| **M5** | ~~`/dev/search`, `/dev/stats`, `/dev/updated`~~ **stängda 2026-08-02** (`f47ac46` + `5fb52fb`). Kvar: `l.texttv.nu/importstatus`, `/live/{n}`, `/db/{n}` och `/pi.php` | Importerns rutter bakom basic auth eller IP-spärr | Server |
-| **M6** | Ingen `Content-Security-Policy`, ingen `X-Frame-Options`. `Access-Control-Allow-Origin: *` på alla HTML-sidor, inte bara API:t | Nginx: CSP i `report-only` först, `X-Frame-Options: SAMEORIGIN`, `ACAO` bara på `/api/*` | Server |
 | **L7** | Ingen rate limiting någonstans i stacken | Går upp i M1 + M2 | Kod + server |
 
-**Föreslagen ordning:** M6 ger mest per insats (ren nginx-config, ingen PHP rörs, och en CSP är
-djupförsvar mot hela XSS-klassen). Sedan M1 + M2 + L7 som ett paket. M4 är den strukturella skulden.
-
-**M5 och M6 bor på servern** — prod-nginx är inte versionshanterat i repot, så de kan inte deployas
-via `main` som allt annat i den här todon.
+**Föreslagen ordning:** M1 + M2 + L7 som ett paket, men först när missbruk syns (last,
+växande `/shares/`, konstiga toppar i "mest lästa"). M4 är den strukturella skulden.
 
 ---
 
@@ -68,6 +63,13 @@ Alla deployade via `main` och verifierade mot prod direkt efter deploy.
 **Verifierat mot prod:** alla fyra dev-URL:er ger 404, serverns controller-katalog
 matchar repot exakt, och `/`, `/100`, `/377`, `/330`, `/blogg`, `/sida/delat` samt
 `/api/get` svarar som förut med giltig JSON.
+
+## Avfärdat 2026-10-14
+
+| # | Fynd | Varför avfärdat | Ta upp igen om |
+| --- | --- | --- | --- |
+| **M5** (resten) | Importerns `l.texttv.nu/importstatus`, `/live/{n}`, `/db/{n}` publikt nåbara | Visar inget som inte redan är publikt (Text-TV-sidor, sidnummer och importresultat). Inga credentials, inga personuppgifter, ingen skrivning. Statussidan används för att verifiera deployer, och basic auth gör den krångligare. `/live/` används knappt: ~45 anrop på två dygn. `/pi.php` var redan stängd (`texttv.nu/pi.php` 401, `l.texttv.nu/pi.php` 404). | `/live/` belastar servern eller SVT. Då är rate limiting (M2/L7) rätt åtgärd, inte inloggning |
+| **M6** | Ingen CSP, ingen `X-Frame-Options`, `Access-Control-Allow-Origin: *` även på HTML | Sajten har inga inloggningar, sessioner eller formulär, så en XSS eller clickjacking har inget att komma åt, och den kända XSS:en (K1) är stängd. `ACAO: *` utan credentials är ofarligt. En CSP med AdSense kräver löpande underhåll och kan slå ut annonserna. HSTS, `nosniff` och `Referrer-Policy` finns redan. | Sajten får inloggning eller användarkonton |
 
 ## Kvarstående manuella åtgärder (ej kod)
 

@@ -57,6 +57,114 @@ class Api extends CI_Controller
 			$type = '';
 		}
 
+		$arr_json["pages"] = $this->_most_read_pages_cached($type, $dateUnix);
+
+		$arr_json["pages"] = array_splice($arr_json["pages"], 0, $count);
+
+		// 2026-08-10: Låt nginx cacha det här svaret i 60 s istället för
+		// vhostens fastcgi_cache_valid 4s. Se todo #14: endpointen stod för
+		// 578 av 608 långsamma requests under ett dygn — queryn är tung och
+		// regenererades i praktiken oavbrutet med 4s TTL, vilket band en
+		// php-fpm-worker i upp till 6 s per regenerering (poolen har 5).
+		// "Mest lästa idag" behöver inte fyra sekunders färskhet.
+		//
+		// X-Accel-Expires används med flit i stället för Cache-Control:
+		// nginx konsumerar och STRIPPAR headern, så svaret till iOS- och
+		// Android-apparna blir byte-identiskt. Cache-Control hade synts för
+		// klienten och kunnat ändra beteendet i redan utgivna appversioner.
+		//
+		// 2026-10-14 (todo #12): En dag som redan är slut ändras inte längre,
+		// så den cachas en timme i stället för en minut.
+		$is_past_day = date("Y-m-d", $dateUnix) < date("Y-m-d");
+		$this->output->set_header("X-Accel-Expires: " . ($is_past_day ? 3600 : 60));
+
+		$this->output->set_content_type("application/json");
+		$this->output->append_output(json_encode($arr_json));
+	}
+
+	/**
+	 * Topp 50 mest lästa för en typ och ett datum, delat mellan alla
+	 * count-varianter av anropet.
+	 *
+	 * 2026-10-14 (todo #12): nginx cachar varje URL för sig, så count=5,
+	 * count=10, count=15 och brottsplatskartan-varianten regenererades var
+	 * för sig varje minut — samma tunga query fyra–fem gånger per minut, var
+	 * femte körning över 3 s. Queryn tar alltid fram topp 50 och count skär
+	 * bara av listan, så resultatet cachas här en gång per typ och datum och
+	 * delas av alla varianter. Svaret är byte-identiskt med tidigare.
+	 *
+	 * Bara de senaste 14 dagarna cachas, så att godtyckliga date-värden inte
+	 * kan fylla disken.
+	 */
+	private function _most_read_pages_cached($type, $dateUnix)
+	{
+		$date_ymd = date("Y-m-d", $dateUnix);
+		$today_ymd = date("Y-m-d");
+		$is_cacheable = $date_ymd <= $today_ymd && $date_ymd >= date("Y-m-d", strtotime("-14 days"));
+
+		if (!$is_cacheable) {
+			return $this->_most_read_pages($type, $dateUnix);
+		}
+
+		$ttl = $date_ymd < $today_ymd ? 3600 : 60;
+		$dir = sys_get_temp_dir() . "/texttv-most-read";
+		if (!is_dir($dir)) {
+			@mkdir($dir, 0700, true);
+		}
+		$file = $dir . "/" . ($type ? $type : "all") . "-" . $date_ymd . ".json";
+
+		$pages = $this->_most_read_read_cache($file, $ttl);
+		if ($pages !== null) {
+			return $pages;
+		}
+
+		// Lås så att bara en worker räknar fram resultatet. De som väntar
+		// läser sedan vad den första skrev i stället för att köra queryn igen.
+		$lock = @fopen($file . ".lock", "c");
+		if ($lock) {
+			flock($lock, LOCK_EX);
+			$pages = $this->_most_read_read_cache($file, $ttl);
+		}
+
+		if ($pages === null) {
+			$pages = $this->_most_read_pages($type, $dateUnix);
+			$tmp = $file . "." . getmypid() . ".tmp";
+			if (@file_put_contents($tmp, json_encode($pages)) !== false) {
+				@rename($tmp, $file);
+			}
+
+			// Städa bort filer för dagar som inte längre cachas.
+			foreach (glob($dir . "/*") ?: [] as $old_file) {
+				if (time() - @filemtime($old_file) > 15 * 86400) {
+					@unlink($old_file);
+				}
+			}
+		}
+
+		if ($lock) {
+			flock($lock, LOCK_UN);
+			fclose($lock);
+		}
+
+		return $pages;
+	}
+
+	private function _most_read_read_cache($file, $ttl)
+	{
+		clearstatcache(true, $file);
+		$mtime = @filemtime($file);
+		if (!$mtime || time() - $mtime >= $ttl) {
+			return null;
+		}
+
+		$pages = json_decode((string) @file_get_contents($file), true);
+
+		return is_array($pages) ? $pages : null;
+	}
+
+	private function _most_read_pages($type, $dateUnix)
+	{
+		$pages = [];
 		$result = get_most_read_pages_for_period(strtotime("today 00:00", $dateUnix), strtotime("today 24:00", $dateUnix), $type);
 
 		// row = en text tv-sida
@@ -72,7 +180,7 @@ class Api extends CI_Controller
 			$archive_page->load(true);
 			$permalink = $archive_page->get_permalink(true);
 
-			$arr_json["pages"][] = [
+			$pages[] = [
 				"id" => $row->id,
 				"title" => $row->title,
 				"page_num" => $row->page_num,
@@ -85,27 +193,9 @@ class Api extends CI_Controller
 				"query_date" => date("Y-m-d", $dateUnix),
 				"count_page_ids" => $row->count_page_ids,
 			];
-
-			$arr_outputed_page_nums[] = $row->page_num;
 		}
 
-		$arr_json["pages"] = array_splice($arr_json["pages"], 0, $count);
-
-		// 2026-08-10: Låt nginx cacha det här svaret i 60 s istället för
-		// vhostens fastcgi_cache_valid 4s. Se todo #14: endpointen stod för
-		// 578 av 608 långsamma requests under ett dygn — queryn är tung och
-		// regenererades i praktiken oavbrutet med 4s TTL, vilket band en
-		// php-fpm-worker i upp till 6 s per regenerering (poolen har 5).
-		// "Mest lästa idag" behöver inte fyra sekunders färskhet.
-		//
-		// X-Accel-Expires används med flit i stället för Cache-Control:
-		// nginx konsumerar och STRIPPAR headern, så svaret till iOS- och
-		// Android-apparna blir byte-identiskt. Cache-Control hade synts för
-		// klienten och kunnat ändra beteendet i redan utgivna appversioner.
-		$this->output->set_header("X-Accel-Expires: 60");
-
-		$this->output->set_content_type("application/json");
-		$this->output->append_output(json_encode($arr_json));
+		return $pages;
 	}
 
 	/**

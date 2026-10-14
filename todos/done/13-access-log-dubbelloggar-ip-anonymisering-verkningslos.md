@@ -1,7 +1,7 @@
 # 13 – `access.log` dubbelloggar, ip-anonymiseringen är verkningslös
 
-**Status:** aktiv — **läckan är stoppad 2026-08-10**, kvar är bara frågan om historiken (se "Kvar att besluta")
-**Senast uppdaterad:** 2026-08-10
+**Status:** klar 2026-10-14 — dubbelloggningen stoppad 2026-08-10. Loggarna med råa ip:n roterades ut automatiskt senast 2026-08-24, så det fanns inget beslut kvar.
+**Senast uppdaterad:** 2026-10-14
 
 ## Sammanfattning
 
@@ -97,7 +97,7 @@ komprimerade. Efter fixen bör den dagliga volymen ungefär halveras.
 
 ## Relaterat
 
-- Todo [#12](12-php-fpm-poolen-slar-i-taket.md) — upptäckten gjordes under
+- Todo [#12](../12-php-fpm-poolen-slar-i-taket.md) — upptäckten gjordes under
   dess alternativ B.
-- Todo [#08](08-sakerhetsgranskning-2026-08-01.md) — säkerhetsgranskningen.
-- [`server.md`](../server.md) — avsnittet "Loggar".
+- Todo [#08](../08-sakerhetsgranskning-2026-08-01.md) — säkerhetsgranskningen.
+- [`server.md`](../../server.md) — avsnittet "Loggar".

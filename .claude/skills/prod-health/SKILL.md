@@ -16,8 +16,11 @@ Allt i denna skill är read-only. Djupare bakgrund om stacken (cache-lager,
 deploy-flöde, nginx-config) finns i [`server.md`](../../../server.md), synkad
 mot samma mätning 2026-08-09.
 
-**Känt normaltillstånd:** php-fpm-poolen slår i `pm.max_children = 5` ungefär
-var tionde minut. Det är dokumenterat i todo
+**Känt normaltillstånd (mätt 2026-10-14):** php-fpm-poolen slår i
+`pm.max_children = 5` ungefär 2–15 gånger per dygn, upp till ~40 på
+lördagar med mycket sport. Före 2026-08-16 var det 30–140 per dygn. Slowloggen
+har 400–1 100 requests per dygn över 3 s, nästan alla `most_read`. Det är
+dokumenterat i todo
 [#12](../../../todos/12-php-fpm-poolen-slar-i-taket.md) — rapportera det som
 stående kapacitetsbrist, inte som en färsk incident.
 
@@ -126,9 +129,10 @@ ssh texttv.nu '
 Tolka:
 
 - **`pm.max_children = 5`, `pm = dynamic`.** Taket är lågt — och poolen slår
-  i det regelbundet. Verifierat 2026-08-09: 62 varningar i den då aktuella
-  loggen, senast var 7 minuter tidigare. **Detta är normaltillståndet idag,
-  inte en incident.** Rapportera det som en kapacitetsbrist, inte som ett larm.
+  i det regelbundet. 2026-08-09 var det ungefär var tionde minut. Efter
+  fixarna i #14 och #12 är det 2–15 varningar per dygn, med toppar på
+  lördagskvällar (mätt 2026-10-14). **Det är normaltillståndet, inte en
+  incident.** Rapportera det som en kapacitetsbrist, inte som ett larm.
 - `workers nu` nära 5 = poolen jobbar för fullt just nu.
 - **Varje varning betyder att requests köade.** Slår den i taket flera gånger
   i timmen under en incident är det förklaringen till trögheten.

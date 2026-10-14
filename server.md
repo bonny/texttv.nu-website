@@ -89,7 +89,8 @@ pm.max_spare_servers = 3
 ```
 
 - **`pm.max_children = 5` är taket för samtidiga PHP-requests** — och poolen slår
-  i det regelbundet i normaldrift (~var tionde minut 2026-08-09). Varje träff
+  i det regelbundet i normaldrift (~var tionde minut 2026-08-09, 2–15 gånger per
+  dygn efter fixarna, mätt 2026-10-14). Varje träff
   betyder att requests köade. Se todo **#12**.
 - **Ingen status-sida — och den går inte att sätta upp.** `pm.status_path`
   provades 2026-08-10 och gav `File not found.` även med korrekt inläst config.

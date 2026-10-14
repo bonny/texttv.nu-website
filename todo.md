@@ -4,14 +4,13 @@ Index över förbättringsarbete. Varje todo har en egen fil under
 [`todos/`](todos/) med fullständig analys. Konvention och
 mappstruktur: [`todos/README.md`](todos/README.md).
 
-Senast uppdaterad: 2026-10-14 (+#11 och #04 klara efter mätning. #11 äkta vinst, #04 liten vinst. #09 C utan effekt och `resultat lången 377` −92 % YoY.)
+Senast uppdaterad: 2026-10-14 (+#13 klar. #12: cron-spiken verifierat borta, men `most_read` är långsam igen. Tidigare samma dag: #11 och #04 klara efter GSC-mätning.)
 
 ## Aktiva
 
 | #   | Titel | Status | Fil |
 | --- | ----- | ------ | --- |
-| 13  | `access.log` dubbelloggar — ip-anonymiseringen är verkningslös | **läckan stoppad 2026-08-10** — `nginx.conf:40` utkommenterad, verifierat 300/300 rader anonymiserade och 0 dubbletter. Kvar: beslut om historiken (roteras ut av sig själv senast 2026-08-24) | [todos/13-access-log-dubbelloggar-ip-anonymisering-verkningslos.md](todos/13-access-log-dubbelloggar-ip-anonymisering-verkningslos.md) |
-| 12  | php-fpm-poolen slår i taket i normaldrift | **ny rotorsak mätt 2026-08-14: importerns tiominutersjobb.** p99 1,176 s under cron-minuterna mot 0,027 s övrig tid (43x). **Utspridning deployad 2026-08-15** (fem jobb på olika udda minuter, verifierat med `schedule:list`). `cleanup-page-actions` visade sig oskyldig — dess minuter :15/:45 hade p99 0,031 s. **Orsaken isolerad 2026-08-15: `cleanup-old-pages` bar hela spiken** (1,97–2,51 s på sina minuter mot 0,03 s för importerna). Jobbet raderade 13 rader men scannade en 1,5 GB-tabell 144 ggr/dygn. **Omlagd till dygnskörning 04:07 den 2026-08-16 — verifierat: p99 på de minuterna 2,35 s → 0,015 s, och 0 mättnadsvarningar efter omläggningen mot 4–10/timme före. Kvar: bekräfta i kvällstrafik.** #14:s fixar klara och verifierade | [todos/12-php-fpm-poolen-slar-i-taket.md](todos/12-php-fpm-poolen-slar-i-taket.md) |
+| 12  | php-fpm-poolen slår i taket i normaldrift | **`cleanup-old-pages`-fixen verifierad 2026-10-14:** p99 kväll 0,02 s, varningarna nere från 27–141 till 2–15 per dygn (toppar på lördagar). **Kvar: `most_read` tar över 3 s 400–1 100 gånger per dygn** (`texttv_helper.php:259`), samma query som i #14. Nästa: ta reda på varför cachen inte tar dem | [todos/12-php-fpm-poolen-slar-i-taket.md](todos/12-php-fpm-poolen-slar-i-taket.md) |
 | 06  | Byt facade/ignition mot spatie/laravel-ignition | ny — workaround i `AppServiceProvider` (commit 6ba0656) maskerar problemet, vill byta paket istället | [todos/06-byt-facade-ignition-mot-spatie-laravel-ignition.md](todos/06-byt-facade-ignition-mot-spatie-laravel-ignition.md) |
 | 08  | Säkerhetsgranskning 2026-08-01 | **13 av 19 stängda** (12 st 2026-08-01, **L2 + webbens dev-ytor 2026-08-02**). Kvar: M1, M2, L7 (rate limiting), M4 (EOL-ramverk), M6 (CSP/headers) samt M5:s serversida (importerns `/importstatus`, `/live/{n}`, `/db/{n}`, `/pi.php`) | [todos/08-sakerhetsgranskning-2026-08-01.md](todos/08-sakerhetsgranskning-2026-08-01.md) |
 | 10  | Retention raderar arkivsidor som rankar | **pausad — mätt 2026-08-02: 76 % av arkivsidorna med trafik raderas, men de är färska nyhetssidor vars efterfrågan ändå dör. Ingen åtgärd.** Fyndet som blev kvar: arkivsnapshots från 2016–17 rankar över de levande sidorna på ämnesfrågor (`resultatbörsen`: arkiv 25 klick, live /330 noll) | [todos/10-retention-raderar-arkivsidor-som-rankar.md](todos/10-retention-raderar-arkivsidor-som-rankar.md) |
@@ -48,6 +47,7 @@ eller markera todon som klar.
 
 | #   | Titel | Datum | Fil |
 | --- | ----- | ----- | --- |
+| 13  | `access.log` dubbelloggar — ip-anonymiseringen är verkningslös | 2026-10-14 | [todos/done/13-access-log-dubbelloggar-ip-anonymisering-verkningslos.md](todos/done/13-access-log-dubbelloggar-ip-anonymisering-verkningslos.md) |
 | 11  | Arkivsidor rankar över de levande sidorna | 2026-10-14 | [todos/done/11-arkivsidor-rankar-over-de-levande-sidorna.md](todos/done/11-arkivsidor-rankar-over-de-levande-sidorna.md) |
 | 04  | Perf/SEO-fixar från Lighthouse-baseline 2026-05-19 | 2026-10-14 | [todos/done/04-perf-seo-fixar-fran-baseline-2026-05-19.md](todos/done/04-perf-seo-fixar-fran-baseline-2026-05-19.md) |
 | 14  | `most_read`-queryn är orsaken till poolmättnaden | 2026-08-14 | [todos/done/14-most-read-queryn-ar-orsaken-till-poolmattnaden.md](todos/done/14-most-read-queryn-ar-orsaken-till-poolmattnaden.md) |

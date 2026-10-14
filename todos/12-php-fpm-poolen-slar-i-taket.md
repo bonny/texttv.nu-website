@@ -1,7 +1,46 @@
 # 12 – php-fpm-poolen slår i taket i normaldrift
 
-**Status:** aktiv
-**Senast uppdaterad:** 2026-08-09
+**Status:** aktiv — `cleanup-old-pages`-fixen verifierad 2026-10-14 (varningarna −85–95 %). Kvar: `most_read` över 3 s 400–1 100 gånger per dygn.
+**Senast uppdaterad:** 2026-10-14
+
+## Uppföljning 2026-10-14 — spiken borta, men poolen slår fortfarande i taket
+
+Kvällskontrollen från 2026-08-16 gjordes aldrig. I stället kontrollerades två
+månaders loggar i efterhand (bara läsning).
+
+**Omläggningen av `cleanup-old-pages` höll.** Jobbet går fortfarande en gång
+per dygn 04:07 (`schedule:list`). p99 kväll 2026-10-13 är 0,021–0,024 s varje
+timme kl 18–22, vid 230–460 k requests per timme.
+
+**Mättnaden har minskat men inte upphört.** `max_children`-varningar per dygn:
+
+| Period | Varningar per dygn |
+| --- | --- |
+| 2026-08-01 → 08-16 | 27–141 |
+| 2026-08-17 → 08-31 | 2–9 |
+| September | 1–39, oftast 5–15 |
+| 2026-10-01 → 10-13 | 2–29 |
+
+Topparna kommer på lördagar (19 sep: 39, 10–11 okt: 23 och 29), alltså
+trafikdrivet, inte schemadrivet.
+
+**Det som återstår är `most_read` igen.** Slowloggen (tröskel 3 s) har
+400–1 100 requests per dygn, och 2 181 av 2 216 sedan 11 okt står i samma
+query: `get_most_read_pages_for_period()`, `texttv_helper.php:259`. Det är
+queryn som #14 optimerade och cachade (`X-Accel-Expires: 60`). Antalet har
+ökat från ~2 600 per vecka i slutet av augusti till ~4 800 per vecka i
+september–oktober, i takt med fotbollssäsongen. Fördelningen per timme
+följer trafiken: 6 kl 18, 74 kl 21, 112 kl 22.
+
+Ingen åtgärd vidtagen. Möjliga nästa steg, inget utrett än:
+
+1. Ta reda på varför `most_read` fortfarande regenereras så ofta, trots
+   cachen på 60 s. Kontrollera `cache=`-fältet i `access.log` för
+   `/api/most_read` och om cache-bustern `cb=` från appen kringgår cachen.
+2. Kontrollera storleken på `texttv_stats.page_actions`. Queryns kostnad
+   växer med tabellen, och trafiken har ökat sedan augusti.
+3. Alternativ A, höj `max_children` 5 → 15. Requesterna är DB-bundna, så det
+   hjälper, men det är symptomlindring.
 
 ## Sammanfattning
 

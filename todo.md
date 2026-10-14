@@ -10,7 +10,7 @@ Senast uppdaterad: 2026-10-14 (+#13 klar. #12: cron-spiken verifierat borta, men
 
 | #   | Titel | Status | Fil |
 | --- | ----- | ------ | --- |
-| 12  | php-fpm-poolen slår i taket i normaldrift | **`cleanup-old-pages`-fixen verifierad 2026-10-14:** p99 kväll 0,02 s, varningarna nere från 27–141 till 2–15 per dygn (toppar på lördagar). **Kvar: `most_read` tar över 3 s 400–1 100 gånger per dygn** (`texttv_helper.php:259`), samma query som i #14. Utrett: inte cache-bust (94 % HIT), utan bakgrundsregenerering, separat för varje `count`-variant. **Fix implementerad och verifierad lokalt 2026-10-14** (delad filcache per typ+datum, byte-identiska svar, 6 parallella anrop → 1 query). Nästa: deploy och mät slowlog/varningar per dygn | [todos/12-php-fpm-poolen-slar-i-taket.md](todos/12-php-fpm-poolen-slar-i-taket.md) |
+| 12  | php-fpm-poolen slår i taket i normaldrift | **`cleanup-old-pages`-fixen verifierad 2026-10-14:** p99 kväll 0,02 s, varningarna nere från 27–141 till 2–15 per dygn (toppar på lördagar). **Kvar: `most_read` tar över 3 s 400–1 100 gånger per dygn** (`texttv_helper.php:259`), samma query som i #14. Utrett: inte cache-bust (94 % HIT), utan bakgrundsregenerering, separat för varje `count`-variant. **Fix deployad 2026-10-14** (delad filcache per typ+datum, byte-identiska svar enligt `make test-api`, 6 parallella anrop → 1 query). Nästa: mät 2026-10-16 | [todos/12-php-fpm-poolen-slar-i-taket.md](todos/12-php-fpm-poolen-slar-i-taket.md) |
 | 06  | Byt facade/ignition mot spatie/laravel-ignition | ny — workaround i `AppServiceProvider` (commit 6ba0656) maskerar problemet, vill byta paket istället | [todos/06-byt-facade-ignition-mot-spatie-laravel-ignition.md](todos/06-byt-facade-ignition-mot-spatie-laravel-ignition.md) |
 | 08  | Säkerhetsgranskning 2026-08-01 | **13 av 19 stängda** (12 st 2026-08-01, **L2 + webbens dev-ytor 2026-08-02**). Kvar: M1, M2, L7 (rate limiting), M4 (EOL-ramverk), M6 (CSP/headers) samt M5:s serversida (importerns `/importstatus`, `/live/{n}`, `/db/{n}`, `/pi.php`) | [todos/08-sakerhetsgranskning-2026-08-01.md](todos/08-sakerhetsgranskning-2026-08-01.md) |
 | 10  | Retention raderar arkivsidor som rankar | **pausad — mätt 2026-08-02: 76 % av arkivsidorna med trafik raderas, men de är färska nyhetssidor vars efterfrågan ändå dör. Ingen åtgärd.** Fyndet som blev kvar: arkivsnapshots från 2016–17 rankar över de levande sidorna på ämnesfrågor (`resultatbörsen`: arkiv 25 klick, live /330 noll) | [todos/10-retention-raderar-arkivsidor-som-rankar.md](todos/10-retention-raderar-arkivsidor-som-rankar.md) |
@@ -31,6 +31,9 @@ MCP:s som `mcp-gsc`, SSH-nycklar till prod, eller mänsklig bedömning).
 Granska veckovis. När en åtgärd är gjord, flytta raden till "Avklarade" nedan
 eller markera todon som klar.
 
+| Datum | Åtgärd | Todo |
+| ----- | ------ | ---- |
+| 2026-10-16 | #12: mät slowlog per dag och `max_children`-varningar per dygn efter most_read-filcachen (deployad 2026-10-14 13:23). Stäng om båda fallit tydligt. | [#12](todos/12-php-fpm-poolen-slar-i-taket.md) |
 
 ### Avklarade uppföljningar
 

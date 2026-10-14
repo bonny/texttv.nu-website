@@ -1,6 +1,6 @@
 # 12 – php-fpm-poolen slår i taket i normaldrift
 
-**Status:** aktiv — `cleanup-old-pages`-fixen verifierad 2026-10-14 (varningarna −85–95 %). Kvar: `most_read` regenereras i bakgrunden ~3 200 gånger per dygn, var femte över 3 s, och håller workers. Fix implementerad och verifierad lokalt 2026-10-14 (delad filcache), ej deployad.
+**Status:** aktiv — `cleanup-old-pages`-fixen verifierad 2026-10-14 (varningarna −85–95 %). Kvar: `most_read` regenereras i bakgrunden ~3 200 gånger per dygn, var femte över 3 s, och håller workers. Fix (delad filcache) deployad 2026-10-14 13:23. **Mät 2026-10-16** (två hela dygn): slowlog per dag och `max_children`-varningar per dygn mot tabellerna nedan. Stäng om båda har fallit tydligt.
 **Senast uppdaterad:** 2026-10-14
 
 ## Uppföljning 2026-10-14 — spiken borta, men poolen slår fortfarande i taket
@@ -70,7 +70,7 @@ Alltså:
   blivit ungefär dubbelt så långsam sedan augusti. Storleken på `page_actions`
   kunde inte läsas (DB-åtkomst nekad i sessionen); kolla den manuellt.
 
-### Förslag 1 och 2 implementerade 2026-10-14 (ej deployade)
+### Förslag 1 och 2 implementerade och deployade 2026-10-14
 
 `controllers/api.php`: `most_read()` hämtar nu topp 50 via
 `_most_read_pages_cached()`. Resultatet sparas som JSON per typ och datum i
@@ -92,6 +92,16 @@ Förväntad effekt i prod: regenereringarna går från ~3 200 per dygn till
 ungefär en per minut för idag plus en per timme för gårdagen. Mät efter deploy
 med slowlog-räkningen per dag i `prod-health` (`fpm`) och
 `max_children`-varningarna per dygn mot tabellen ovan.
+
+Efter kodgranskning (`aa28a2d`): låset tas utan att vänta, och övriga
+workers serverar föregående fil med `X-Accel-Expires: 5` under omräkningen.
+`X-Accel-Expires` är filens återstående livslängd. En gårdagsfil skriven före
+midnatt räknas om. Alla svar är identiska med prod enligt `make test-api`
+(nytt kontraktstest, se `CLAUDE.md`).
+
+Deployad 2026-10-14 13:23 (`aa28a2d`). Direkt efter: prod svarar 200 med rätt
+antal sidor, och `/tmp/texttv-most-read/` innehåller filer för idag och igår,
+där gårdagens skrevs om efter midnatt som avsett.
 
 ### Förslag (före implementationen)
 

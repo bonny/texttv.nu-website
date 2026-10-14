@@ -16,7 +16,7 @@ koden som den används, men inga fixar kommer heller.
   säkerhetsfixar till sitt paketerade 8.2 under bookworms livstid (Debian LTS
   till och med juni 2028). Den verkliga gränsen är alltså OS-uppgraderingen,
   och Debian 13 (trixie) har PHP 8.4.
-- **Båda apparna kör redan på PHP 8.4**, provat i Docker med
+- **Båda apparna fungerar på PHP 8.4** (prod kör 8.2), provat i Docker med
   `serversideup/php:8.4`:
   - **Webben (CI 2):** 13 sidor och API-anrop byte-identiska med 8.2. Enda
     skillnaden är deprecation-notiser (`E_STRICT is deprecated` i
@@ -58,7 +58,7 @@ koden som den används, men inga fixar kommer heller.
 
 Fyra vägar:
 
-1. **Stå kvar på CI 2.** Kör på 8.4 redan idag. Ingen säkerhetsfix kommer,
+1. **Stå kvar på CI 2.** Fungerar på 8.4 (provat i Docker). Ingen säkerhetsfix kommer,
    men angreppsytan är liten: inga inloggningar, inga sessioner, ingen
    uppladdning, all SQL-input går genom `is_numeric`/`intval`/`escape` (#08).
 2. **CI 3.1.13.** Uppgraderingen är mest mekanisk (versala filnamn på

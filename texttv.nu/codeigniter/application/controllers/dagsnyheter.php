@@ -12,52 +12,6 @@
 class Dagsnyheter extends CI_Controller
 {
 	/**
-	 * Per avdelning:
-	 *  - name:     ordet i titeln på datumsidorna
-	 *  - yesterday: titeln på /igar-sidan
-	 *  - live_url: dit dagens datum skickas
-	 *  - most_read: typ för most_read-cachen
-	 *  - groups:   [rubrik, första sida, sista sida], kontrollerat mot SVT:s
-	 *              indexsidor 101 och 104 2026-10-14
-	 *  - exclude:  notissidor (stympade rubriker), kulturindex, nyhetsrullen
-	 *  - results:  resultatsidor med dagsarkiv att länka till
-	 *  - other:    den andra avdelningen, för korslänkar
-	 */
-	const SECTIONS = [
-		"nyheter" => [
-			"name" => "Nyheter",
-			"yesterday" => "Gårdagens nyheter",
-			"live_url" => "/",
-			"live_label" => "Dagens nyheter",
-			"most_read" => "news",
-			"groups" => [
-				["Inrikes", 106, 129],
-				["Utrikes", 130, 149],
-				// 190–199 är SVT:s servicesidor (bemanning, sidindex m.m.).
-				["Kultur och övrigt", 150, 189],
-			],
-			"exclude" => [127, 128, 148, 150, 188],
-			"results" => [],
-			"other" => "sport",
-		],
-		"sport" => [
-			"name" => "Sportnyheter",
-			"yesterday" => "Gårdagens sportnyheter",
-			"live_url" => "/300",
-			"live_label" => "Dagens sport 300",
-			"most_read" => "sport",
-			"groups" => [
-				["Sport", 303, 329],
-			],
-			"exclude" => [],
-			"results" => [
-				377 => "Målservice",
-			],
-			"other" => "nyheter",
-		],
-	];
-
-	/**
 	 * Nyheternas arkivsidor raderas efter ett år om ingen delat dem
 	 * (texttv:cleanup-old-pages), så äldre listor blir ofullständiga.
 	 */
@@ -75,7 +29,7 @@ class Dagsnyheter extends CI_Controller
 	 */
 	public function avdelning($section = "")
 	{
-		if (!isset(self::SECTIONS[$section])) {
+		if (!isset(day_sections()[$section])) {
 			show_texttv_404();
 			return;
 		}
@@ -84,11 +38,11 @@ class Dagsnyheter extends CI_Controller
 
 	public function visa($section = "", $day = "")
 	{
-		if (!isset(self::SECTIONS[$section])) {
+		if (!isset(day_sections()[$section])) {
 			show_texttv_404();
 			return;
 		}
-		$conf = self::SECTIONS[$section];
+		$conf = day_sections()[$section];
 
 		$tz = new DateTimeZone("Europe/Stockholm");
 		$today = new DateTime("today", $tz);
@@ -119,98 +73,17 @@ class Dagsnyheter extends CI_Controller
 
 		$day_ymd = $date->format("Y-m-d");
 
-		// Hämta hela avdelningens intervall en gång och sortera in i grupper.
-		$first_num = $conf["groups"][0][1];
-		$last_num = $conf["groups"][sizeof($conf["groups"]) - 1][2];
-		$rows = get_headlines_for_day($first_num, $last_num, $conf["exclude"], $day_ymd);
-
-		if (empty($rows)) {
+		list($items, $items_by_key) = get_day_stories($conf, $day_ymd, $section === "sport");
+		if (empty($items)) {
 			show_texttv_404();
 			return;
 		}
 
-		// Sätt ihop dagens nyheter. Rådatan är en rad per exakt rubrik, men
-		// samma nyhet förekommer i flera varianter (rättat stavfel, ändrad
-		// siffra, flyttad till annan sida), och vid midnatt får varje sida en
-		// ny version eftersom datumraden ändras. Därför:
-		//  - brus bort (för korta rubriker, testsidor)
-		//  - nyheter som sändes redan dagen innan räknas inte (kvarliggare)
-		//  - snarlika rubriker slås ihop till en nyhet
-		$prev_day = clone $date;
-		$prev_day->modify("-1 day");
-		$prev_keys = [];
-		foreach (get_headlines_for_day($first_num, $last_num, $conf["exclude"], $prev_day->format("Y-m-d")) as $row) {
-			$prev_keys[$this->_story_key($row->title)] = true;
-		}
-
-		$stories = [];
-		// Äldst först, så att den första sändningen blir nyhetens tid.
-		foreach (array_reverse($rows) as $row) {
-			$title = trim(preg_replace('/\s+/u', ' ', $row->title));
-			if ($this->_is_noise($title, $section === "sport")) {
-				continue;
-			}
-			$key = $this->_story_key($title);
-			// Exakt samma rubrik som dagen innan = kvarliggare. Inte ungefärlig
-			// likhet här: "Sverige till final" dagen efter "… semifinal" är en
-			// ny nyhet och får inte försvinna.
-			if (isset($prev_keys[$key])) {
-				continue;
-			}
-			$merged = false;
-			foreach ($stories as &$story) {
-				if ($this->_matches_story($key, (int) $row->page_num, $story)) {
-					// Behåll första tiden men senaste rubrik och version.
-					if ((int) $row->id > $story["id"]) {
-						$story["title"] = $title;
-						$story["id"] = (int) $row->id;
-						$story["page_num"] = (int) $row->page_num;
-					}
-					$story["keys"][] = $key;
-					$story["pages"][(int) $row->page_num] = true;
-					$merged = true;
-					break;
-				}
-			}
-			unset($story);
-			if (!$merged) {
-				$stories[] = [
-					"key" => $key,
-					"keys" => [$key],
-					"pages" => [(int) $row->page_num => true],
-					"title" => $title,
-					"id" => (int) $row->id,
-					"page_num" => (int) $row->page_num,
-					"time" => substr($row->first_added, 11, 5),
-				];
-			}
-		}
-
-		if (empty($stories)) {
-			show_texttv_404();
-			return;
-		}
-
-		// Ett återanvänt objekt räcker för permalänkarna.
-		$link_page = new texttv_page();
 		$groups = [];
 		foreach ($conf["groups"] as $group) {
 			$groups[$group[0]] = [];
 		}
-		$items_by_key = [];
-		foreach (array_reverse($stories) as $story) {
-			$link_page->id = $story["id"];
-			$link_page->num = $story["page_num"];
-			$link_page->title = $story["title"];
-			$item = [
-				"title" => $story["title"],
-				"time" => $story["time"],
-				"page_num" => $story["page_num"],
-				"permalink" => $link_page->get_permalink(),
-			];
-			foreach ($story["keys"] as $one_key) {
-				$items_by_key[$one_key] = $item;
-			}
+		foreach ($items as $item) {
 			foreach ($conf["groups"] as $group) {
 				if ($item["page_num"] >= $group[1] && $item["page_num"] <= $group[2]) {
 					$groups[$group[0]][] = $item;
@@ -219,7 +92,7 @@ class Dagsnyheter extends CI_Controller
 			}
 		}
 		$groups = array_filter($groups);
-		$headline_count = sizeof($stories);
+		$headline_count = sizeof($items);
 
 		// Mest lästa, bara där cachen finns (se MOST_READ_DAYS_BACK). Varje
 		// post matchas mot dagens lista, så att tid, sidnummer och länk är
@@ -230,27 +103,7 @@ class Dagsnyheter extends CI_Controller
 		$most_read_oldest->modify("-" . self::MOST_READ_DAYS_BACK . " days");
 		if ($date >= $most_read_oldest) {
 			list($most_read_pages) = most_read_pages_cached($conf["most_read"], strtotime($day_ymd . " 12:00"));
-			$seen = [];
-			foreach ($most_read_pages as $one) {
-				$key = $this->_story_key($one["title"]);
-				$item = isset($items_by_key[$key]) ? $items_by_key[$key] : null;
-				if (!$item) {
-					foreach ($items_by_key as $other_key => $other_item) {
-						if ($this->_same_story($key, $other_key, (int) $one["page_num"] === $other_item["page_num"])) {
-							$item = $other_item;
-							break;
-						}
-					}
-				}
-				if (!$item || isset($seen[$item["permalink"]])) {
-					continue;
-				}
-				$seen[$item["permalink"]] = true;
-				$most_read[] = $item;
-				if (sizeof($most_read) >= 10) {
-					break;
-				}
-			}
+			$most_read = get_day_most_read($most_read_pages, $items_by_key, 10);
 		}
 
 		// date_sv() går på PHP:s standardtidszon. Mitt på dagen ger samma
@@ -320,7 +173,7 @@ class Dagsnyheter extends CI_Controller
 			"most_read" => $most_read,
 			"results_links" => $results_links,
 			"other_url" => $is_yesterday_url ? "/{$other}/igar" : "/{$other}/{$day_ymd}",
-			"other_label" => $is_yesterday_url ? self::SECTIONS[$other]["yesterday"] : self::SECTIONS[$other]["name"] . " samma dag",
+			"other_label" => $is_yesterday_url ? day_sections()[$other]["yesterday"] : day_sections()[$other]["name"] . " samma dag",
 			"canonical" => $canonical,
 			"prev_url" => $prev_date >= $oldest ? "/{$section}/" . $prev_date->format("Y-m-d") : null,
 			"prev_human" => $human($prev_date, "l j F"),
@@ -344,67 +197,4 @@ class Dagsnyheter extends CI_Controller
 		$this->load->view('footer', $data);
 	}
 
-	/**
-	 * Jämförelsenyckel för en rubrik: gemener, bara bokstäver och siffror.
-	 * "S: Saknas möjlighet" och "S:Saknas möjlighet" blir samma nyckel.
-	 */
-	private function _story_key($title)
-	{
-		return preg_replace('/[^\p{L}\p{N}]+/u', '', mb_strtolower((string) $title));
-	}
-
-	/**
-	 * Om två nycklar är samma nyhet.
-	 *
-	 * På samma sidnummer samma dag är en snarlik rubrik nästan alltid samma
-	 * nyhet som uppdaterats ("Två/Tre döda i …", rättade stavfel), så där
-	 * räcker 85 % likhet. Mellan olika sidor krävs 94 %: där finns olika
-	 * nyheter som skiljer sig med ett ord ("Riksbanken sänker/höjer räntan"
-	 * 85 %, "Tre/Två döda i rysk attack" 92 %), medan samma nyhet på två
-	 * sidor ligger högre ("Bergand vann - /och sedan …" 95 %). Testat på
-	 * riktiga och konstruerade par 2026-10-14.
-	 */
-	private function _same_story($a, $b, $same_page)
-	{
-		if ($a === $b) {
-			return true;
-		}
-		if (abs(strlen($a) - strlen($b)) > 12) {
-			return false;
-		}
-		similar_text($a, $b, $percent);
-		return $percent >= ($same_page ? 85 : 94);
-	}
-
-	/**
-	 * Om en rad hör till en nyhet som redan finns i listan. Jämför mot alla
-	 * rubrikvarianter nyheten haft, och räknar som "samma sida" om raden står
-	 * på något av de sidnummer nyheten stått på. Annars delas en nyhet som
-	 * uppdateras i flera steg, eller flyttar och sedan uppdateras, i flera.
-	 */
-	private function _matches_story($key, $page_num, $story)
-	{
-		$same_page = isset($story["pages"][$page_num]);
-		foreach ($story["keys"] as $story_key) {
-			if ($this->_same_story($key, $story_key, $same_page)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * Rubriker som inte är nyheter: tomma, SVT:s testsidor ("Test 12 okt
-	 * 2026"), och på sportsidorna sidrubriker som "Ishockey NHL" eller
-	 * "Premier League" (högst två ord). På nyhetssidorna får korta rubriker
-	 * som "Påven död" stå kvar.
-	 */
-	private function _is_noise($title, $is_sport)
-	{
-		$title = trim($title);
-		if ($title === "" || preg_match('/^test\b/iu', $title)) {
-			return true;
-		}
-		return $is_sport && sizeof(preg_split('/\s+/u', $title)) <= 2;
-	}
 }

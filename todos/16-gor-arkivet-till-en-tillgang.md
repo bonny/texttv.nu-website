@@ -1,5 +1,5 @@
-**Status:** aktiv — canonical och dagsarkiv för 377/330 deployade 2026-10-14. Mät 2026-11-14
-**Senast uppdaterad:** 2026-10-14
+**Status:** aktiv — canonical och dagsarkiv för 377/330 deployade 2026-10-14. Gårdagens mest lästa på startsidan 2026-10-16. Mät 2026-11-14
+**Senast uppdaterad:** 2026-10-16
 
 # Todo #16 — Gör arkivet till en tillgång: idéer för användare, Google och AI
 
@@ -280,6 +280,34 @@ som W3C-tidsstämpel där den är pålitlig (senaste versionen för levande
 sidor, midnatt för `/igar` och datumsidorna). En indexerad fråga, ~0,06 s,
 nginx-cache 10 min. `robots.txt` pekar på den. `llms.txt` har ett nytt
 avsnitt om gårdagen och datumsidorna. Inte inskickad i Search Console än.
+
+### Gårdagens mest lästa på startsidan — 2026-10-16
+
+Startsidans "Igår på Text TV" hade bara tre knappar. Den 15 oktober gav de
+3 klick till `/nyheter/igar` på 8 568 visningar av startsidan. Rutan visar
+nu också gårdagens tre mest lästa nyheter, med tid och länk till nyhetens
+arkivsida. Pärs beslut: funktionen är ny och unik (vi har data bakåt i
+tiden), så den ska få tid att få genomslag.
+
+- **Samma lista som `/nyheter/igar`.** Sammanställningen (brus,
+  kvarliggare, sammanslagning, matchning mot most_read) är flyttad från
+  `Dagsnyheter` till `texttv_helper.php` (`day_sections()`,
+  `get_day_stories()`, `get_day_most_read()`). Dagslistorna är
+  byte-identiska före och efter, kontrollerat lokalt på fem adresser.
+- **En gång per dygn.** Startsidan renderas om var fjärde sekund, så
+  `yesterday_top_news()` sparar resultatet i
+  `/tmp/texttv-most-read/startpage-news-YYYY-MM-DD.json` (tio nyheter, så
+  att antalet kan ändras utan omräkning) och städas med most_read-filerna.
+  Låset väntar inte: räknar en annan worker redan visas bara knapparna.
+  En ögonblicksbild av gårdagen från före midnatt sparas inte.
+- **Antalet** är `Sida::STARTPAGE_YESTERDAY_COUNT` (3), så att sidorna under
+  inte trycks ner för mycket på mobil (+~150 px). På bred skärm står rutan
+  bredvid sida 100.
+- Saknas data visas bara knapparna, som tidigare.
+- `make test-api`: 31 av 31 identiska. API:t och appen berörs inte.
+
+**Mät** en vecka efter deploy: klick från startsidan till arkivsidor och
+`/nyheter/igar` (referer `https://texttv.nu/`) per dygn, mot 3 före.
 
 ### Ny 404-sida — deployad 2026-10-14
 

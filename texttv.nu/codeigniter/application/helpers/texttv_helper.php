@@ -681,6 +681,335 @@ function get_headlines_for_day($from_num, $to_num, $exclude, $day_ymd) {
 	])->result();
 }
 
+/**
+ * Avdelningarna för dagslistorna (/nyheter/…, /sport/…) och startsidans
+ * "Igår på Text TV". Flyttade från Dagsnyheter-controllern 2026-10-16
+ * (todo #16) så att startsidan räknar på samma sidor.
+ *
+ * Per avdelning:
+ *  - name:     ordet i titeln på datumsidorna
+ *  - yesterday: titeln på /igar-sidan
+ *  - live_url: dit dagens datum skickas
+ *  - most_read: typ för most_read-cachen
+ *  - groups:   [rubrik, första sida, sista sida], kontrollerat mot SVT:s
+ *              indexsidor 101 och 104 2026-10-14
+ *  - exclude:  notissidor (stympade rubriker), kulturindex, nyhetsrullen
+ *  - results:  resultatsidor med dagsarkiv att länka till
+ *  - other:    den andra avdelningen, för korslänkar
+ */
+function day_sections()
+{
+	return [
+		"nyheter" => [
+			"name" => "Nyheter",
+			"yesterday" => "Gårdagens nyheter",
+			"live_url" => "/",
+			"live_label" => "Dagens nyheter",
+			"most_read" => "news",
+			"groups" => [
+				["Inrikes", 106, 129],
+				["Utrikes", 130, 149],
+				// 190–199 är SVT:s servicesidor (bemanning, sidindex m.m.).
+				["Kultur och övrigt", 150, 189],
+			],
+			"exclude" => [127, 128, 148, 150, 188],
+			"results" => [],
+			"other" => "sport",
+		],
+		"sport" => [
+			"name" => "Sportnyheter",
+			"yesterday" => "Gårdagens sportnyheter",
+			"live_url" => "/300",
+			"live_label" => "Dagens sport 300",
+			"most_read" => "sport",
+			"groups" => [
+				["Sport", 303, 329],
+			],
+			"exclude" => [],
+			"results" => [
+				377 => "Målservice",
+			],
+			"other" => "nyheter",
+		],
+	];
+}
+
+/**
+ * Alla nyheter en dag för en avdelning ur day_sections(), som de visas på
+ * dagslistorna. Flyttad från Dagsnyheter-controllern 2026-10-16 (todo #16)
+ * så att startsidans "Igår på Text TV" visar samma nyheter som /nyheter/igar.
+ *
+ * Rådatan är en rad per exakt rubrik, men samma nyhet förekommer i flera
+ * varianter (rättat stavfel, ändrad siffra, flyttad till annan sida), och
+ * vid midnatt får varje sida en ny version eftersom datumraden ändras.
+ * Därför:
+ *  - brus bort (för korta rubriker, testsidor)
+ *  - nyheter som sändes redan dagen innan räknas inte (kvarliggare)
+ *  - snarlika rubriker slås ihop till en nyhet
+ *
+ * @param array  $conf     En avdelning ur day_sections().
+ * @param string $day_ymd  Datum, Y-m-d.
+ * @param bool   $is_sport Sportavdelningen (strängare brusfilter).
+ * @return array [nyheter nyast först, samma nyheter per rubriknyckel].
+ *               Varje nyhet har title, time, page_num och permalink.
+ */
+function get_day_stories($conf, $day_ymd, $is_sport)
+{
+	// Hämta hela avdelningens intervall en gång; grupperna sorteras av anroparen.
+	$first_num = $conf["groups"][0][1];
+	$last_num = $conf["groups"][sizeof($conf["groups"]) - 1][2];
+	$rows = get_headlines_for_day($first_num, $last_num, $conf["exclude"], $day_ymd);
+
+	if (empty($rows)) {
+		return [[], []];
+	}
+
+	$prev_day = new DateTime($day_ymd, new DateTimeZone("Europe/Stockholm"));
+	$prev_day->modify("-1 day");
+	$prev_keys = [];
+	foreach (get_headlines_for_day($first_num, $last_num, $conf["exclude"], $prev_day->format("Y-m-d")) as $row) {
+		$prev_keys[day_story_key($row->title)] = true;
+	}
+
+	$stories = [];
+	// Äldst först, så att den första sändningen blir nyhetens tid.
+	foreach (array_reverse($rows) as $row) {
+		$title = trim(preg_replace('/\s+/u', ' ', $row->title));
+		if (day_story_is_noise($title, $is_sport)) {
+			continue;
+		}
+		$key = day_story_key($title);
+		// Exakt samma rubrik som dagen innan = kvarliggare. Inte ungefärlig
+		// likhet här: "Sverige till final" dagen efter "… semifinal" är en
+		// ny nyhet och får inte försvinna.
+		if (isset($prev_keys[$key])) {
+			continue;
+		}
+		$merged = false;
+		foreach ($stories as &$story) {
+			if (day_story_matches($key, (int) $row->page_num, $story)) {
+				// Behåll första tiden men senaste rubrik och version.
+				if ((int) $row->id > $story["id"]) {
+					$story["title"] = $title;
+					$story["id"] = (int) $row->id;
+					$story["page_num"] = (int) $row->page_num;
+				}
+				$story["keys"][] = $key;
+				$story["pages"][(int) $row->page_num] = true;
+				$merged = true;
+				break;
+			}
+		}
+		unset($story);
+		if (!$merged) {
+			$stories[] = [
+				"key" => $key,
+				"keys" => [$key],
+				"pages" => [(int) $row->page_num => true],
+				"title" => $title,
+				"id" => (int) $row->id,
+				"page_num" => (int) $row->page_num,
+				"time" => substr($row->first_added, 11, 5),
+			];
+		}
+	}
+
+	// Ett återanvänt objekt räcker för permalänkarna.
+	$link_page = new texttv_page();
+	$items = [];
+	$items_by_key = [];
+	foreach (array_reverse($stories) as $story) {
+		$link_page->id = $story["id"];
+		$link_page->num = $story["page_num"];
+		$link_page->title = $story["title"];
+		$item = [
+			"title" => $story["title"],
+			"time" => $story["time"],
+			"page_num" => $story["page_num"],
+			"permalink" => $link_page->get_permalink(),
+		];
+		foreach ($story["keys"] as $one_key) {
+			$items_by_key[$one_key] = $item;
+		}
+		$items[] = $item;
+	}
+
+	return [$items, $items_by_key];
+}
+
+/**
+ * Dagens mest lästa, matchade mot get_day_stories(), så att tid, sidnummer
+ * och länk är desamma i båda listorna. Mest lästa nyheter från dagen innan
+ * (kvarliggare) finns inte bland nyheterna och hoppas därför över.
+ *
+ * @param array $most_read_pages Sidor ur most_read_pages_cached().
+ * @param array $items_by_key    Andra värdet från get_day_stories().
+ * @param int   $limit           Max antal.
+ * @return array Nyheter i samma form som get_day_stories().
+ */
+function get_day_most_read($most_read_pages, $items_by_key, $limit)
+{
+	$most_read = [];
+	$seen = [];
+	foreach ($most_read_pages as $one) {
+		$key = day_story_key($one["title"]);
+		$item = isset($items_by_key[$key]) ? $items_by_key[$key] : null;
+		if (!$item) {
+			foreach ($items_by_key as $other_key => $other_item) {
+				if (day_same_story($key, $other_key, (int) $one["page_num"] === $other_item["page_num"])) {
+					$item = $other_item;
+					break;
+				}
+			}
+		}
+		if (!$item || isset($seen[$item["permalink"]])) {
+			continue;
+		}
+		$seen[$item["permalink"]] = true;
+		$most_read[] = $item;
+		if (sizeof($most_read) >= $limit) {
+			break;
+		}
+	}
+	return $most_read;
+}
+
+/**
+ * Gårdagens mest lästa nyheter för startsidans "Igår på Text TV" (todo #16).
+ *
+ * Startsidan renderas om var fjärde sekund (nginx-cachens TTL), och
+ * sammanställningen kör två rubrikqueries plus most_read. Gårdagen ändras
+ * inte efter midnatt, så resultatet räknas fram en gång per dygn och sparas
+ * bredvid most_read-cachen (som också städar bort gamla filer).
+ *
+ * Räknar en annan worker redan fram listan väntar vi inte på den, utan
+ * startsidan visas utan rubriker. Det gäller bara de första sekunderna
+ * efter midnatt.
+ *
+ * @param int $count Antal nyheter.
+ * @return array Nyheter i samma form som get_day_stories(), eller tom.
+ */
+function yesterday_top_news($count)
+{
+	$yesterday = new DateTime("yesterday", new DateTimeZone("Europe/Stockholm"));
+	$day_ymd = $yesterday->format("Y-m-d");
+
+	$dir = sys_get_temp_dir() . "/texttv-most-read";
+	$file = $dir . "/startpage-news-" . $day_ymd . ".json";
+
+	$read = function () use ($file) {
+		$json = @file_get_contents($file);
+		$items = $json === false ? null : json_decode($json, true);
+		return is_array($items) ? $items : null;
+	};
+
+	$items = $read();
+	if ($items !== null) {
+		return array_slice($items, 0, $count);
+	}
+
+	if (!is_dir($dir) && !@mkdir($dir, 0700, true) && !is_dir($dir)) {
+		error_log("texttv igår på startsidan: kan inte skapa cachekatalogen $dir");
+		return [];
+	}
+	$lock = @fopen($file . ".lock", "c");
+	if (!$lock || !flock($lock, LOCK_EX | LOCK_NB)) {
+		if ($lock) {
+			fclose($lock);
+		}
+		return [];
+	}
+
+	// En annan worker kan ha skrivit filen mellan läsningen och låset.
+	$items = $read();
+	if ($items === null) {
+		$conf = day_sections()["nyheter"];
+		list($stories, $stories_by_key) = get_day_stories($conf, $day_ymd, false);
+		list($most_read_pages, $most_read_ttl) = most_read_pages_cached($conf["most_read"], strtotime($day_ymd . " 12:00"));
+		// Spara tio, så att antalet på startsidan kan ändras utan omräkning.
+		$items = $stories ? get_day_most_read($most_read_pages, $stories_by_key, 10) : [];
+
+		// most_read svarar med en kort ttl när en annan worker räknar om och
+		// den bara har gårdagens ögonblicksbild från före midnatt. Spara inte
+		// den, utan räkna igen vid nästa visning.
+		if ($most_read_ttl > 5) {
+			$tmp = $file . "." . getmypid() . ".tmp";
+			if (@file_put_contents($tmp, json_encode($items)) !== false) {
+				@rename($tmp, $file);
+			}
+		}
+	}
+
+	flock($lock, LOCK_UN);
+	fclose($lock);
+
+	return array_slice($items, 0, $count);
+}
+
+/**
+ * Jämförelsenyckel för en rubrik: gemener, bara bokstäver och siffror.
+ * "S: Saknas möjlighet" och "S:Saknas möjlighet" blir samma nyckel.
+ */
+function day_story_key($title)
+{
+	return preg_replace('/[^\p{L}\p{N}]+/u', '', mb_strtolower((string) $title));
+}
+
+/**
+ * Om två nycklar är samma nyhet.
+ *
+ * På samma sidnummer samma dag är en snarlik rubrik nästan alltid samma
+ * nyhet som uppdaterats ("Två/Tre döda i …", rättade stavfel), så där
+ * räcker 85 % likhet. Mellan olika sidor krävs 94 %: där finns olika
+ * nyheter som skiljer sig med ett ord ("Riksbanken sänker/höjer räntan"
+ * 85 %, "Tre/Två döda i rysk attack" 92 %), medan samma nyhet på två
+ * sidor ligger högre ("Bergand vann - /och sedan …" 95 %). Testat på
+ * riktiga och konstruerade par 2026-10-14.
+ */
+function day_same_story($a, $b, $same_page)
+{
+	if ($a === $b) {
+		return true;
+	}
+	if (abs(strlen($a) - strlen($b)) > 12) {
+		return false;
+	}
+	similar_text($a, $b, $percent);
+	return $percent >= ($same_page ? 85 : 94);
+}
+
+/**
+ * Om en rad hör till en nyhet som redan finns i listan. Jämför mot alla
+ * rubrikvarianter nyheten haft, och räknar som "samma sida" om raden står
+ * på något av de sidnummer nyheten stått på. Annars delas en nyhet som
+ * uppdateras i flera steg, eller flyttar och sedan uppdateras, i flera.
+ */
+function day_story_matches($key, $page_num, $story)
+{
+	$same_page = isset($story["pages"][$page_num]);
+	foreach ($story["keys"] as $story_key) {
+		if (day_same_story($key, $story_key, $same_page)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+/**
+ * Rubriker som inte är nyheter: tomma, SVT:s testsidor ("Test 12 okt
+ * 2026"), och på sportsidorna sidrubriker som "Ishockey NHL" eller
+ * "Premier League" (högst två ord). På nyhetssidorna får korta rubriker
+ * som "Påven död" stå kvar.
+ */
+function day_story_is_noise($title, $is_sport)
+{
+	$title = trim($title);
+	if ($title === "" || preg_match('/^test\b/iu', $title)) {
+		return true;
+	}
+	return $is_sport && sizeof(preg_split('/\s+/u', $title)) <= 2;
+}
+
 function get_latest_updated_pages($from, $to, $maxcount = 20) {
 	$from = (int) $from;
 	$to = (int) $to;

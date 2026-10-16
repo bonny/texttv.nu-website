@@ -23,6 +23,12 @@ class Sida extends CI_Controller {
 		377 => ["subject" => "Målservice och resultat", "label" => "Resultat", "suffix" => "Målservice "],
 	];
 
+	/**
+	 * Antal av gårdagens mest lästa nyheter i startsidans "Igår på Text TV".
+	 * Få, så att sidorna under inte trycks ner på mobil. Todo #16.
+	 */
+	const STARTPAGE_YESTERDAY_COUNT = 3;
+
 	// Om ingen sida anges går vi till 100
 	// Update 3 april 2015: vi visar över sporten, 300, pga. det är säkert bra
 	public function index() {
@@ -368,6 +374,9 @@ class Sida extends CI_Controller {
 		// Visas av pages_inner_output_current direkt under sidan, före
 		// annonsen, så att de syns utan att man scrollar förbi den.
 		$yesterday_prefix = $pagedescription === "startpage" ? "Igår på Text TV:" : "";
+		// Startsidan visar dessutom gårdagens mest lästa nyheter, med länk
+		// till varje nyhets arkivsida. Räknas fram en gång per dygn.
+		$yesterday_top = $pagedescription === "startpage" ? yesterday_top_news(self::STARTPAGE_YESTERDAY_COUNT) : [];
 		// Skapa array med data att skicka med till vyerna
 		$data = array();
 		$data["not_broadcasted"] = $not_broadcasted;
@@ -377,6 +386,7 @@ class Sida extends CI_Controller {
 		$data["pagedescription"] = $pagedescription;
 		$data["yesterday_links"] = $yesterday_links;
 		$data["yesterday_prefix"] = $yesterday_prefix;
+		$data["yesterday_top"] = $yesterday_top;
 
 		// Ladda vyer för sidhuvud och kontroller
 		$this->load->view('header', $data);

@@ -100,6 +100,7 @@ if (!empty($yesterday_links)) {
 	$yesterday_links_html = $this->load->view('day_archive_link', [
 		"yesterday_links" => $yesterday_links,
 		"yesterday_prefix" => $yesterday_prefix,
+		"yesterday_top" => isset($yesterday_top) ? $yesterday_top : [],
 		"inline" => $is_startpage,
 	], TRUE);
 }

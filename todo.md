@@ -4,14 +4,14 @@ Index över förbättringsarbete. Varje todo har en egen fil under
 [`todos/`](todos/) med fullständig analys. Konvention och
 mappstruktur: [`todos/README.md`](todos/README.md).
 
-Senast uppdaterad: 2026-10-16 (#12: most_read-filcachen mätt, slowloggen −60–80 %; `max_children` höjd 5 → 10 20:15, mät 2026-10-23. Tidigare: MariaDB blacklistad i unattended-upgrades efter 502 på morgonen.)
+Senast uppdaterad: 2026-10-16 (#16: gårdagens mest lästa på startsidan. Tidigare samma dag: #12 most_read-filcachen mätt, `max_children` höjd 5 → 10.)
 
 ## Aktiva
 
 | #   | Titel | Status | Fil |
 | --- | ----- | ------ | --- |
 | 12  | php-fpm-poolen slår i taket i normaldrift | **`most_read`-filcachen mätt 2026-10-16:** slowloggen 400–1 100 → 184 per dygn (15 okt), varningarna 5. **`pm.max_children` höjd 5 → 10 2026-10-16 20:15** (backup i `/root/config-backups-2026-10-16/`). Väntar på mätning till 2026-10-23, sedan stäng. Kvar: omräkningen av `most_read` tar fortfarande över 3 s på kvällar (`page_actions`-storlek/queryplan) | [todos/12-php-fpm-poolen-slar-i-taket.md](todos/12-php-fpm-poolen-slar-i-taket.md) |
-| 16  | Gör arkivet till en tillgång: idéer för användare, Google och AI | ny 2026-10-14, idékatalog. **Deployat 2026-10-14:** canonical på arkivsidor och startsidan, dagsarkiv `/377/igar` med datumsidor (330 borttagen, den är en meny), gårdagens nyheter/sportnyheter `/nyheter/igar` och `/sport/igar`, ny 404-sida i Text-TV-stil. Mät 2026-11-14. Nästa: "Igår på Text TV" på startsidan, sedan retention (#10). Ämnessidor nedprioriterade (nästan ingen ämnestrafik idag) | [todos/16-gor-arkivet-till-en-tillgang.md](todos/16-gor-arkivet-till-en-tillgang.md) |
+| 16  | Gör arkivet till en tillgång: idéer för användare, Google och AI | ny 2026-10-14, idékatalog. **Deployat 2026-10-14:** canonical på arkivsidor och startsidan, dagsarkiv `/377/igar` med datumsidor (330 borttagen, den är en meny), gårdagens nyheter/sportnyheter `/nyheter/igar` och `/sport/igar`, ny 404-sida i Text-TV-stil. **2026-10-16:** gårdagens tre mest lästa nyheter i startsidans "Igår på Text TV". Mät 2026-11-14. Nästa: retention (#10). Ämnessidor nedprioriterade (nästan ingen ämnestrafik idag) | [todos/16-gor-arkivet-till-en-tillgang.md](todos/16-gor-arkivet-till-en-tillgang.md) |
 | 15  | Uppgradera EOL-ramverken (CodeIgniter 2, Laravel 8) | ny 2026-10-14, utbruten ur #08 M4. Research klar: **båda apparna fungerar på PHP 8.4** (provat i Docker, prod kör 8.2), så OS/PHP-uppgraderingen blockeras inte. Förslag: Laravel 8 → 13 i samband med Debian 13, CI 2 står kvar tills behov | [todos/15-uppgradera-eol-ramverken.md](todos/15-uppgradera-eol-ramverken.md) |
 | 10  | Retention raderar arkivsidor som rankar | **pausad — mätt 2026-08-02: 76 % av arkivsidorna med trafik raderas, men de är färska nyhetssidor vars efterfrågan ändå dör. Ingen åtgärd.** Fyndet som blev kvar: arkivsnapshots från 2016–17 rankar över de levande sidorna på ämnesfrågor (`resultatbörsen`: arkiv 25 klick, live /330 noll) | [todos/10-retention-raderar-arkivsidor-som-rankar.md](todos/10-retention-raderar-arkivsidor-som-rankar.md) |
 
@@ -33,6 +33,7 @@ eller markera todon som klar.
 | Datum | Åtgärd | Todo |
 | ----- | ------ | ---- |
 | 2026-10-23 | #12: en vecka efter höjningen till `max_children = 10` (2026-10-16 20:15). Räkna `max_children`-varningar per dygn (ska vara nära 0), slowlog per dygn, p99 kl 21–22 och load på kvällen. Stiger load märkbart: överväg att gå tillbaka. Annars stäng #12. | [#12](todos/12-php-fpm-poolen-slar-i-taket.md) |
+| 2026-10-24 | #16: en vecka efter "Igår på Text TV"-rubrikerna på startsidan (2026-10-16). Räkna klick per dygn från startsidan (referer `https://texttv.nu/`) till arkivsidor och `/nyheter/igar` i `access.log`, mot 3 per dygn före. | [#16](todos/16-gor-arkivet-till-en-tillgang.md) |
 | 2026-11-14 | #16: kolla i GSC att arkiv-URL:er med `utm_` försvinner ur indexet efter canonical-deployen, och hur `/377/igar`, `/330/igar` och datumsidorna indexeras och får klick (deployade 2026-10-14). | [#16](todos/16-gor-arkivet-till-en-tillgang.md) |
 | 2026-11-16 | MariaDB uppgraderas för hand sedan 2026-10-16 (blacklistad i `/etc/apt/apt.conf.d/51unattended-upgrades-local` efter att auto-uppgraderingen 10.11.18 → .19 hängde och gav 502 06:54–08:36). Månadsvis: `apt list --upgradable 2>/dev/null \| grep -i mariadb`, finns något → uppgradera i lågtrafik (kräver ok), verifiera `dpkg --audit` tomt och att appens `api/get?cb=` svarar 200. Lägg sedan in nästa månad här. | – |
 

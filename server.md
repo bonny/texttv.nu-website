@@ -78,28 +78,29 @@ opcache.revalidate_path = Off
 
 ## php-fpm-poolen
 
-Faktisk config i `/etc/php/8.2/fpm/pool.d/www.conf` (verifierad 2026-08-09):
+Faktisk config i `/etc/php/8.2/fpm/pool.d/www.conf` (verifierad 2026-08-09, `max_children` höjd 2026-10-16):
 
 ```ini
 user = www-data
 listen = /run/php/php8.2-fpm.sock   ; unix-socket, backlog 4096
 pm = dynamic
-pm.max_children = 5
+pm.max_children = 10
 pm.start_servers = 2
 pm.min_spare_servers = 1
 pm.max_spare_servers = 3
 ```
 
-- **`pm.max_children = 5` är taket för samtidiga PHP-requests** — och poolen slår
-  i det regelbundet i normaldrift (~var tionde minut 2026-08-09, 2–15 gånger per
-  dygn efter fixarna, mätt 2026-10-14). Varje träff
-  betyder att requests köade. Se todo **#12**.
+- **`pm.max_children = 10` är taket för samtidiga PHP-requests** (5 fram till
+  2026-10-16 20:15). Med 5 slog poolen i taket regelbundet i normaldrift (~var
+  tionde minut 2026-08-09, 2–15 gånger per dygn efter fixarna, mätt
+  2026-10-14). Varje träff betyder att requests köade. Inte högre än 10: 2 vCPU,
+  och importern tar 50–70 % CPU per körning. Se todo **#12**.
 - **Ingen status-sida — och den går inte att sätta upp.** `pm.status_path`
   provades 2026-08-10 och gav `File not found.` även med korrekt inläst config.
   Enda kända lösningen är att tömma `security.limit_extensions` (idag
   `.php .phar`), vilket inte är acceptabelt på en pool som servar publik PHP.
   Återställt. Mättnad syns istället som
-  `WARNING: [pool www] server reached pm.max_children setting (5)` i
+  `WARNING: [pool www] server reached pm.max_children setting (10)` i
   `/var/log/php8.2-fpm.log` — tidsstämplat, vilket är mer användbart än
   statussidans kumulativa räknare.
 - **Slowlog aktiv sedan 2026-08-10:** `/var/log/php8.2-fpm.slow.log`, tröskel

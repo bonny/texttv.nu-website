@@ -16,10 +16,12 @@ Allt i denna skill är read-only. Djupare bakgrund om stacken (cache-lager,
 deploy-flöde, nginx-config) finns i [`server.md`](../../../server.md), synkad
 mot samma mätning 2026-08-09.
 
-**Känt normaltillstånd (mätt 2026-10-14):** php-fpm-poolen slår i
-`pm.max_children = 5` ungefär 2–15 gånger per dygn, upp till ~40 på
-lördagar med mycket sport. Före 2026-08-16 var det 30–140 per dygn. Slowloggen
-har 400–1 100 requests per dygn över 3 s, nästan alla `most_read`. Det är
+**Känt normaltillstånd:** `pm.max_children` höjdes 5 → 10 2026-10-16 20:15;
+nytt normalläge mäts 2026-10-23. Med 5 slog poolen i taket 2–15 gånger per
+dygn, upp till ~40 på lördagar med mycket sport (mätt 2026-10-14), och 5 per
+dygn efter `most_read`-filcachen (15 okt). Slowloggen gick från 400–1 100 till
+~180 requests per dygn över 3 s efter filcachen, nästan alla `most_read` på
+kvällen. Det är
 dokumenterat i todo
 [#12](../../../todos/12-php-fpm-poolen-slar-i-taket.md) — rapportera det som
 stående kapacitetsbrist, inte som en färsk incident.
@@ -134,7 +136,7 @@ den håller en worker.
 
 ```bash
 ssh texttv.nu '
-  echo "workers nu: $(ps -eo comm= | grep -c "^php-fpm")/5"
+  echo "workers nu: $(ps -eo comm= | grep -c "^php-fpm")/10 (+1 master)"
   echo "mättnadsvarningar i denna logg: $(grep -c max_children /var/log/php8.2-fpm.log)"
   grep max_children /var/log/php8.2-fpm.log | tail -5
   ss -lx | grep php8.2-fpm.sock
@@ -143,12 +145,13 @@ ssh texttv.nu '
 
 Tolka:
 
-- **`pm.max_children = 5`, `pm = dynamic`.** Taket är lågt — och poolen slår
-  i det regelbundet. 2026-08-09 var det ungefär var tionde minut. Efter
-  fixarna i #14 och #12 är det 2–15 varningar per dygn, med toppar på
-  lördagskvällar (mätt 2026-10-14). **Det är normaltillståndet, inte en
-  incident.** Rapportera det som en kapacitetsbrist, inte som ett larm.
-- `workers nu` nära 5 = poolen jobbar för fullt just nu.
+- **`pm.max_children = 10`, `pm = dynamic`** (5 fram till 2026-10-16). Med 5
+  slog poolen i taket regelbundet: 2026-08-09 ungefär var tionde minut, efter
+  fixarna i #14 och #12 2–15 varningar per dygn med toppar på lördagskvällar
+  (mätt 2026-10-14). Normalläget med 10 mäts 2026-10-23. Enstaka varningar
+  per dygn är en kapacitetsbrist, inte ett larm.
+- `workers nu` nära 10 = poolen jobbar för fullt just nu. Siffran räknar
+  även master-processen.
 - **Varje varning betyder att requests köade.** Slår den i taket flera gånger
   i timmen under en incident är det förklaringen till trögheten.
 - **`/var/log/php8.2-fpm.log` roteras veckovis** (`/etc/logrotate.d/php8.2-fpm`),
@@ -244,7 +247,7 @@ ssh texttv.nu '
   for s in nginx php8.2-fpm mariadb; do printf "%-14s %s\n" "$s" "$(systemctl is-active $s)"; done
   echo "misslyckade enheter: $(systemctl --failed --no-legend | wc -l) (ska vara 0)"; systemctl --failed --no-legend
   echo === PHP-FPM ===
-  echo "workers nu: $(ps -eo comm= | grep -c "^php-fpm")/5"
+  echo "workers nu: $(ps -eo comm= | grep -c "^php-fpm")/10 (+1 master)"
   echo "max_children-varningar: $(grep -c max_children /var/log/php8.2-fpm.log 2>/dev/null)"
   echo "senaste: $(grep max_children /var/log/php8.2-fpm.log 2>/dev/null | tail -1 | cut -d] -f1 | tr -d [)"
   echo === LOGGAR ===

@@ -1,7 +1,59 @@
 # 12 – php-fpm-poolen slår i taket i normaldrift
 
-**Status:** aktiv — `cleanup-old-pages`-fixen verifierad 2026-10-14 (varningarna −85–95 %). Kvar: `most_read` regenereras i bakgrunden ~3 200 gånger per dygn, var femte över 3 s, och håller workers. Fix (delad filcache) deployad 2026-10-14 13:23. **Mät 2026-10-16** (två hela dygn): slowlog per dag och `max_children`-varningar per dygn mot tabellerna nedan. Därefter, oavsett utfall: **höj `pm.max_children` 5 → 10** (beslutat 2026-10-15, se nedan). Mät igen en vecka efter höjningen, sedan stäng.
-**Senast uppdaterad:** 2026-10-15
+**Status:** aktiv — `most_read`-filcachen mätt 2026-10-16: slowloggen 400–1 100 → 184 per dygn (15 okt), `max_children`-varningar 2 utanför MariaDB-incidenten. **`pm.max_children` höjd 5 → 10 2026-10-16 20:15.** Nästa: mät 2026-10-23, sedan stäng. Kvar efter det: den enda omräkningen per minut av `most_read` tar fortfarande över 3 s på kvällar.
+**Senast uppdaterad:** 2026-10-16
+
+## Höjt 2026-10-16 20:15: `pm.max_children` 5 → 10
+
+Enligt planen under "Beslut 2026-10-15" nedan, med Pärs ok.
+
+1. Backup: `/root/config-backups-2026-10-16/www.conf`.
+2. `www.conf` rad 127: `pm.max_children = 5` → `10`. Övriga `pm.*` orörda.
+3. `php-fpm8.2 -t` ok, `systemctl reload php8.2-fpm` 20:15:12, tjänsten `active`.
+4. `/100`, `/` och `/api/get/100` svarar 200 på 0,06–0,09 s med cache-buster.
+5. `server.md` och `/prod-health` uppdaterade.
+
+**Ångra:** `cp -p /root/config-backups-2026-10-16/www.conf /etc/php/8.2/fpm/pool.d/www.conf && php-fpm8.2 -t && systemctl reload php8.2-fpm`.
+
+**Mät 2026-10-23** (en vecka, med en lördag): `max_children`-varningar per
+dygn (ska vara nära 0), slowlog per dygn mot tabellen ovan, p99 kl 21–22,
+load och minne. Slowloggen väntas inte falla av höjningen, eftersom den mäter
+hur länge queryn tar, inte köande. Stiger load märkbart på kvällarna flyttas
+kön till CPU:n, och då är 10 för mycket.
+
+## Mätning 2026-10-16: filcachen tog bort det mesta av slowloggen
+
+Bara läsning, kl 19:58. Den 16 oktober är inte komplett: kvällstoppen kl 21–23
+saknas, och MariaDB hängde 06:54–08:36 efter en automatisk uppgradering (se
+`todo.md`, Uppföljningar). Den 15 oktober är därför det enda hela dygnet efter
+deployen.
+
+| Dygn | Slowlog totalt | varav `most_read` | `max_children`-varningar |
+| --- | ---: | ---: | ---: |
+| 04–13 okt (före) | 394–1 112 | 371–1 070 | 2–29 |
+| 14 okt (deploy 13:23) | 477 | 293 | 11 |
+| 15 okt | **184** | **168** | **5** |
+| 16 okt t.o.m. 19:58 | 98 | 60 | 12 |
+
+- **Den 16 oktober utan MariaDB-incidenten:** 34 i slowloggen (64 av 98 kom kl
+  06 och 08) och 2 varningar (01:48 och 04:07). Övriga tio varningar ligger
+  06:53:57 och 08:37–08:56, alltså när databasen hängde och när poolen
+  hämtade sig efteråt.
+- **Den 14 oktober** hade 180 slowlog-rader i `api.php:592` (`wkhtmltoimage`,
+  PerplexityBot-låsningen kl 19–20, åtgärdad i `080b5a6`). Det förklarar
+  varför den dagen inte föll mer.
+- **Slowloggen har minskat med 60–80 %** mot vardagarna före (450–500 per
+  dygn), trots att 15 oktober hade rekordtrafik. Varningarna är för få för
+  att säga mer än att de inte ökat.
+- **Besökarna märker ingenting:** p99 0,019–0,022 s kl 17–19 den 16 oktober,
+  vid 177–310 k requests per timme. `most_read` kl 18–19: 16 176 HIT, 413
+  STALE, varav 7 över 3 s.
+
+**Det som återstår:** de `most_read`-rader som finns kvar (168 den 15
+oktober, nästan alla kl 19–23) är den enda omräkningen per minut, som går
+genom `most_read_pages_cached()` (`api.php:60`). På kvällen tar själva queryn
+alltså fortfarande över 3 s. Nästa hävstång efter höjningen är punkt 3 under
+"Förslag" nedan: storleken på `page_actions` och queryplanen.
 
 ## Beslut 2026-10-15: höj `max_children` 5 → 10 efter mätningen
 

@@ -4,13 +4,13 @@ Index över förbättringsarbete. Varje todo har en egen fil under
 [`todos/`](todos/) med fullständig analys. Konvention och
 mappstruktur: [`todos/README.md`](todos/README.md).
 
-Senast uppdaterad: 2026-10-15 (#12: beslut att höja `max_children` 5 → 10 efter mätningen 2026-10-16. Tidigare: #13 klar. #12: cron-spiken verifierat borta, men `most_read` är långsam igen. Tidigare samma dag: #11 och #04 klara efter GSC-mätning.)
+Senast uppdaterad: 2026-10-16 (#12: most_read-filcachen mätt, slowloggen −60–80 %; `max_children` höjd 5 → 10 20:15, mät 2026-10-23. Tidigare: MariaDB blacklistad i unattended-upgrades efter 502 på morgonen.)
 
 ## Aktiva
 
 | #   | Titel | Status | Fil |
 | --- | ----- | ------ | --- |
-| 12  | php-fpm-poolen slår i taket i normaldrift | **`cleanup-old-pages`-fixen verifierad 2026-10-14:** p99 kväll 0,02 s, varningarna nere från 27–141 till 2–15 per dygn (toppar på lördagar). **Kvar: `most_read` tar över 3 s 400–1 100 gånger per dygn** (`texttv_helper.php:259`), samma query som i #14. Utrett: inte cache-bust (94 % HIT), utan bakgrundsregenerering, separat för varje `count`-variant. **Fix deployad 2026-10-14** (delad filcache per typ+datum, byte-identiska svar enligt `make test-api`, 6 parallella anrop → 1 query). Nästa: mät 2026-10-16, höj sedan `max_children` 5 → 10 (beslutat 2026-10-15) | [todos/12-php-fpm-poolen-slar-i-taket.md](todos/12-php-fpm-poolen-slar-i-taket.md) |
+| 12  | php-fpm-poolen slår i taket i normaldrift | **`most_read`-filcachen mätt 2026-10-16:** slowloggen 400–1 100 → 184 per dygn (15 okt), varningarna 5. **`pm.max_children` höjd 5 → 10 2026-10-16 20:15** (backup i `/root/config-backups-2026-10-16/`). Väntar på mätning till 2026-10-23, sedan stäng. Kvar: omräkningen av `most_read` tar fortfarande över 3 s på kvällar (`page_actions`-storlek/queryplan) | [todos/12-php-fpm-poolen-slar-i-taket.md](todos/12-php-fpm-poolen-slar-i-taket.md) |
 | 16  | Gör arkivet till en tillgång: idéer för användare, Google och AI | ny 2026-10-14, idékatalog. **Deployat 2026-10-14:** canonical på arkivsidor och startsidan, dagsarkiv `/377/igar` med datumsidor (330 borttagen, den är en meny), gårdagens nyheter/sportnyheter `/nyheter/igar` och `/sport/igar`, ny 404-sida i Text-TV-stil. Mät 2026-11-14. Nästa: "Igår på Text TV" på startsidan, sedan retention (#10). Ämnessidor nedprioriterade (nästan ingen ämnestrafik idag) | [todos/16-gor-arkivet-till-en-tillgang.md](todos/16-gor-arkivet-till-en-tillgang.md) |
 | 15  | Uppgradera EOL-ramverken (CodeIgniter 2, Laravel 8) | ny 2026-10-14, utbruten ur #08 M4. Research klar: **båda apparna fungerar på PHP 8.4** (provat i Docker, prod kör 8.2), så OS/PHP-uppgraderingen blockeras inte. Förslag: Laravel 8 → 13 i samband med Debian 13, CI 2 står kvar tills behov | [todos/15-uppgradera-eol-ramverken.md](todos/15-uppgradera-eol-ramverken.md) |
 | 10  | Retention raderar arkivsidor som rankar | **pausad — mätt 2026-08-02: 76 % av arkivsidorna med trafik raderas, men de är färska nyhetssidor vars efterfrågan ändå dör. Ingen åtgärd.** Fyndet som blev kvar: arkivsnapshots från 2016–17 rankar över de levande sidorna på ämnesfrågor (`resultatbörsen`: arkiv 25 klick, live /330 noll) | [todos/10-retention-raderar-arkivsidor-som-rankar.md](todos/10-retention-raderar-arkivsidor-som-rankar.md) |
@@ -32,7 +32,7 @@ eller markera todon som klar.
 
 | Datum | Åtgärd | Todo |
 | ----- | ------ | ---- |
-| 2026-10-16 | #12: mät slowlog per dag och `max_children`-varningar per dygn efter most_read-filcachen (deployad 2026-10-14 13:23). Höj sedan `max_children` 5 → 10 (backup, `php-fpm8.2 -t`, reload; kräver ok) och mät igen en vecka senare. | [#12](todos/12-php-fpm-poolen-slar-i-taket.md) |
+| 2026-10-23 | #12: en vecka efter höjningen till `max_children = 10` (2026-10-16 20:15). Räkna `max_children`-varningar per dygn (ska vara nära 0), slowlog per dygn, p99 kl 21–22 och load på kvällen. Stiger load märkbart: överväg att gå tillbaka. Annars stäng #12. | [#12](todos/12-php-fpm-poolen-slar-i-taket.md) |
 | 2026-11-14 | #16: kolla i GSC att arkiv-URL:er med `utm_` försvinner ur indexet efter canonical-deployen, och hur `/377/igar`, `/330/igar` och datumsidorna indexeras och får klick (deployade 2026-10-14). | [#16](todos/16-gor-arkivet-till-en-tillgang.md) |
 | 2026-11-16 | MariaDB uppgraderas för hand sedan 2026-10-16 (blacklistad i `/etc/apt/apt.conf.d/51unattended-upgrades-local` efter att auto-uppgraderingen 10.11.18 → .19 hängde och gav 502 06:54–08:36). Månadsvis: `apt list --upgradable 2>/dev/null \| grep -i mariadb`, finns något → uppgradera i lågtrafik (kräver ok), verifiera `dpkg --audit` tomt och att appens `api/get?cb=` svarar 200. Lägg sedan in nästa månad här. | – |
 
@@ -40,6 +40,7 @@ eller markera todon som klar.
 
 | Planerat | Utfört | Åtgärd | Todo |
 | -------- | ------ | ------ | ---- |
+| 2026-10-16 | 2026-10-16 | #12 mätning efter `most_read`-filcachen. Slowloggen 400–1 100 → 184 per dygn (15 okt), varningar 5 (16 okt: 2 utanför MariaDB-incidenten), p99 0,02 s. `max_children` höjd 5 → 10 samma kväll. | [#12](todos/12-php-fpm-poolen-slar-i-taket.md) |
 | 2026-09-01 | 2026-10-14 | #11 30d-mätning (gjord som 70d + YoY). **Äkta vinst:** `resultatbörsen` 35 → 105 klick, levande /330 0 → 46 (pos 7.8 → 4.7), arkivsidorna tappade inte. | [#11](todos/done/11-arkivsidor-rankar-over-de-levande-sidorna.md) |
 | 2026-09-01 | 2026-10-14 | #09 A+C 30d-mätning (gjord som 70d/28d + YoY, eftersom juli-baslinjen störs av VM-uppehållet). **C:** ingen effekt, 390 → 251 klick YoY. **A:** `resultat lången 377` 250 → 19 klick YoY vid pos 2.1, `text tv 377 idag` 279 → 103. | [#09](todos/done/09-varfor-tappade-377-position-och-vad-vi-gor-at-det.md) |
 | 2026-07-18 | 2026-08-02 | #01 GSC-mätning 60d (fönster 06-19→07-18). **Vinsten håller:** kohort-CTR stilla på **0.73%**, klick/dag **8.4 → 17.8 → 19.3** (+129% mot baseline), 10 av 12 sidor över baseline. /343 0.69% (pos 4.7→3.3), /101 1.26%, /104 3.26%. Restpopulationen behöver ingen egen fix-todo → **#01 stängd**. Undantag: **/344 regresserade under baseline** (0.13→0.07%, pos 4.7→6.2) — egen titt. /336 föll men jun–jul är PL-uppehåll. | [#01](todos/done/01-varfor-har-343-och-ev-andra-sidor-sa-dalig-ctr.md) |

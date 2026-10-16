@@ -1,7 +1,44 @@
 # 12 – php-fpm-poolen slår i taket i normaldrift
 
-**Status:** aktiv — `cleanup-old-pages`-fixen verifierad 2026-10-14 (varningarna −85–95 %). Kvar: `most_read` regenereras i bakgrunden ~3 200 gånger per dygn, var femte över 3 s, och håller workers. Fix (delad filcache) deployad 2026-10-14 13:23. **Mät 2026-10-16** (två hela dygn): slowlog per dag och `max_children`-varningar per dygn mot tabellerna nedan. Stäng om båda har fallit tydligt.
-**Senast uppdaterad:** 2026-10-14
+**Status:** aktiv — `cleanup-old-pages`-fixen verifierad 2026-10-14 (varningarna −85–95 %). Kvar: `most_read` regenereras i bakgrunden ~3 200 gånger per dygn, var femte över 3 s, och håller workers. Fix (delad filcache) deployad 2026-10-14 13:23. **Mät 2026-10-16** (två hela dygn): slowlog per dag och `max_children`-varningar per dygn mot tabellerna nedan. Därefter, oavsett utfall: **höj `pm.max_children` 5 → 10** (beslutat 2026-10-15, se nedan). Mät igen en vecka efter höjningen, sedan stäng.
+**Senast uppdaterad:** 2026-10-15
+
+## Beslut 2026-10-15: höj `max_children` 5 → 10 efter mätningen
+
+**Varför höja:** billigt och ger marginal.
+
+- Workers tar 26–53 MB RSS (mätt 2026-10-15). 10 workers är högst ~0,5 GB av
+  6,4 GB tillgängligt.
+- De långsamma requesterna väntar mest på MariaDB: 112 av 117 i slowloggen
+  2026-10-15 är `most_read` (`texttv_helper.php:259`). Fler workers ger då mer
+  kapacitet direkt, se "Varför det ändå inte räcker att bara höja siffran" nedan.
+- Marginal mot självlås: 2026-10-14 räckte fem samtidiga `/api/screenshot`-
+  requests (PerplexityBot) för att låsa hela poolen i 35 min, eftersom
+  `wkhtmltoimage` hämtar arkivsidan från samma pool. Det är åtgärdat i
+  `080b5a6` (en skärmdump i taget), men fem workers är fortfarande lite.
+
+**Varför 10 och inte 15:** 2 vCPU, och importern tar 50–70 % CPU per körning.
+För många workers flyttar kön från php-fpm till CPU:n.
+
+**Varför vänta till efter 2026-10-16:** en ändring i taget. Höjs taket före
+mätningen av `most_read`-filcachen faller varningarna ändå, och det går inte
+att avgöra vilken ändring som gjorde det. Inget brådskar: 2026-10-15 kom 4
+varningar trots rekordtrafik (394 k requests kl 21), p95 0,007 s, slowloggen
+117 (mot ~480/dygn dagarna före).
+
+**Genomförande** (kräver Pärs ok vid tillfället):
+
+1. Backup: `cp -p /etc/php/8.2/fpm/pool.d/www.conf /root/config-backups-YYYY-MM-DD/`.
+2. Ändra `pm.max_children = 5` → `10` (`pm.start_servers 2`,
+   `min_spare 1`, `max_spare 3` kan stå kvar).
+3. `php-fpm8.2 -t`, sedan `systemctl reload php8.2-fpm` (inte restart).
+4. Verifiera: curl mot `/100`, `/` och `/api/get/100`; `workers nu` i
+   `/prod-health fpm`.
+5. Uppdatera `pm.max_children` i `server.md` och `/prod-health`-skillen.
+
+- **Nertid:** ingen; reload låter pågående requests köra klart.
+- **Kraschrisk:** låg; minnet räcker med god marginal, syntaxfel fångas av `-t`.
+- **Ångra:** kopiera tillbaka backupen och reload.
 
 ## Uppföljning 2026-10-14 — spiken borta, men poolen slår fortfarande i taket
 

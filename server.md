@@ -16,7 +16,7 @@ Detaljer om hur prod-servern är uppsatt. Läs när du jobbar med deploy, cache-
   - **Importer:** `/usr/share/nginx/l.texttv.nu/importer/` — annan path än website, körs som separat Laravel-app på samma server.
 - **Ingen CDN framför** (inga `cf-cache-status` eller `via`-headers i responsen).
 - **DB-namn i prod:** `texttv.nu` (med punkt!) för sid-innehåll, `texttv_stats` för pageviews/share-counts. Lokalt heter motsvarande DB:s `texttv_nu` resp. `texttv_stats` — namn-skillnaden är dolt under `application/config/database.php`-logiken.
-- **nginx-vhost för website:** `/etc/nginx/sites-enabled/texttv.nu`. Servar **fyra hostnames från samma server-block:** `texttv.nu`, `api.texttv.nu`, `hetzner.texttv.nu`, `api-hetzner.texttv.nu`. Alla träffar samma codeigniter-app.
+- **nginx-vhost för website:** `/etc/nginx/sites-enabled/texttv.nu`. Servar **två hostnames från samma server-block:** `texttv.nu` och `api.texttv.nu`. Båda träffar samma codeigniter-app. (Migreringsaliasen `*-hetzner.texttv.nu` saknade DNS och togs bort ur vhostarna 2026-10-15, tillsammans med deras certbot-cert.)
 - **TLS hanteras av Certbot** (`# managed by Certbot`-kommentarer i vhost). `listen 443 ssl`, `ssl_certificate*` och redirect-blocket för :80 är auto-genererade — undvik manuell redigering av just de raderna utan att förstå Certbot-renewal-effekten. Cert-paths: `/etc/letsencrypt/live/texttv.nu/`.
 - **`fastcgi_hide_header "X-Powered-By"`** är aktivt i vhost — PHP-versionen läcker inte via response-header (men finns i `errors-in-console` om något PHP-fel slungar ut paths).
 

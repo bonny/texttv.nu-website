@@ -253,6 +253,12 @@ ssh texttv.nu '
      | awk "{printf \"%-8s %s\n\", \$5, \$9}"
   echo === CRON ===
   echo "schedule:run senaste 10 min: $(journalctl -u cron --since "-10 min" --no-pager | grep -c schedule:run) (ska vara ~10)"
+  echo === MARIADB-I/O ===
+  P=$(pidof mariadbd)
+  ps -o etimes= -p $P | awk "{printf \"uptime %.1f dygn\n\", \$1/86400}"
+  awk "/read_bytes/ {printf \"läst från disk sedan start: %.2f GB\n\", \$2/1e9}" /proc/$P/io
+  awk "\$3==\"sda\" {printf \"hela disken läst sedan boot: %.1f GB\n\", \$6*512/1e9}" /proc/diskstats
+  top -bn1 | grep "%Cpu" | grep -oE "[0-9.]+ wa"
   echo === IMPORTER-FEL IDAG ===
   grep -c "^\[$(date +%Y-%m-%d)" /usr/share/nginx/l.texttv.nu/importer/storage/logs/laravel.log 2>/dev/null
 '
@@ -264,6 +270,18 @@ inte via SSH, så de kan köras parallellt med SSH-anropet).
 Tolka `misslyckade enheter`: allt annat än 0 är en avvikelse även om sajten mår bra —
 en oneshot-tjänst som `logrotate.service` kan misslyckas varje natt i månader utan att
 något annat märks (hände 2026-07 → 2026-09, se `server.md` under Loggar).
+
+Tolka `MARIADB-I/O`: MariaDB kör på Debian-default, alltså 128 MB buffer pool
+mot ~2 GB data (verifierat 2026-10-16). Det fungerar här eftersom
+`innodb_flush_method` är default (`fsync`, inte `O_DIRECT`): det som inte ryms
+i poolen läses ur Linux page cache (~4,4 GB buff/cache), inte från disk.
+Normalläge 2026-10-16: hela disken ~33 GB läst på 36 dygn (~1 GB/dygn),
+MariaDB ~0,8 GB på ett halvt dygn efter omstart (uppvärmning), 0 % iowait.
+**Flagga om diskläsningen når tiotals GB per dygn eller `wa` ligger över
+några procent** — då har page cachen börjat tränga ut databasen och buffer
+poolen behöver höjas i `/etc/mysql/mariadb.conf.d/50-server.cnf`. (Samma
+grundorsak fanns på Brottsplatskartan, men där kör MariaDB i Docker med
+`O_DIRECT`, så varje miss gick till disk: 51 TB på 15 dygn.)
 
 Sammanfatta till sist: "Allt OK" eller lista avvikelserna. Kondensera — visa
 load + de 3 tyngsta processerna, inte hela `top`. Nämn bara tjänster som

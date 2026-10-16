@@ -305,6 +305,7 @@ tiden), så den ska få tid att få genomslag.
   bredvid sida 100.
 - Saknas data visas bara knapparna, som tidigare.
 - `make test-api`: 31 av 31 identiska. API:t och appen berörs inte.
+- **Deployad 2026-10-16 20:33** (`045dce2`). Prod direkt efter: startsidan 200 på 0,10–0,15 s, samma topp tre som "Mest lästa" på `/nyheter/igar`, filen skriven en gång 20:33:52. `/sport/igar` tog 5,8 s en gång, när most_read-filen för gårdagen räknades om (sker en gång i timmen, fanns före ändringen), sedan 0,12 s.
 
 **Mät** en vecka efter deploy: klick från startsidan till arkivsidor och
 `/nyheter/igar` (referer `https://texttv.nu/`) per dygn, mot 3 före.

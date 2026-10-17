@@ -600,10 +600,18 @@ if (isset($day_archive)) {
 	}
 
 	?>
-	<link rel="stylesheet" href="/css/fonts.css">
-	<link rel="stylesheet" href="/css/styles.css">
-	<link rel="stylesheet" href="/css/texttvpage.css">
-	<link rel="stylesheet" href="/css/tt.css">
+	<?php
+	// CSS cachas i en vecka (max-age=604800). Ändringstiden i adressen gör
+	// att en ny version laddas direkt efter en deploy. Todo #18.
+	$asset_url = function ($path) {
+		$file = dirname(__DIR__, 3) . $path;
+		return is_file($file) ? $path . '?v=' . filemtime($file) : $path;
+	};
+	?>
+	<link rel="stylesheet" href="<?php echo $asset_url('/css/fonts.css') ?>">
+	<link rel="stylesheet" href="<?php echo $asset_url('/css/styles.css') ?>">
+	<link rel="stylesheet" href="<?php echo $asset_url('/css/texttvpage.css') ?>">
+	<link rel="stylesheet" href="<?php echo $asset_url('/css/tt.css') ?>">
 	<?php if ($this->input->get("skipScriptsHeader")) {
 		// no scripts
 	} else {

@@ -285,7 +285,7 @@ if ($this->input->get("skipScriptsFooter") || $this->input->get("apiAppShare")) 
 ?>
 	<script src="/js/jquery.min.js"></script>
 	<script src="/js/js.cookie.js"></script>
-	<script src="/js/scripts.js"></script>
+	<script src="/js/scripts.js?v=<?php echo @filemtime(dirname(__DIR__, 3) . '/js/scripts.js') ?>"></script>
 	<?php
 	// Kod för annonser på sidnivå
 	?>

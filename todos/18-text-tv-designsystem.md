@@ -36,6 +36,36 @@ Reglerna, så att de kan återanvändas:
    aldrig tvärtom. Krav från Pär 2026-10-17.
 6. **Kort text.** Rubriken bär sammanhanget, så länkarna behöver inte upprepa
    det ("Nyheter →" i stället för "Gårdagens nyheter →").
+7. **Innehållet före navigeringen.** Rubrikerna (värdet) ska synas mer än
+   länkarna vidare. Förut drog tre gula knappar med ram blicken från de tre
+   nyheterna.
+8. **Rubriken säger vad listan är.** "Igår på Text TV:" över en lista sorterad
+   på läsning såg ut som en kronologisk lista (22:54, 12:12, 06:16 föll av en
+   slump). Nu "Mest läst igår" med placering 1–3. Finns ingen lista faller
+   rubriken tillbaka till "Igår på Text TV", så att den inte lovar något som
+   inte visas.
+9. **Luft grupperar.** Mer avstånd mellan grupper än inom dem.
+10. **Rubriklistor utan understrykning.** Vit text, gul vid hover och fokus.
+    Grå, halvgenomskinliga understrykningar blev dubbla när rubriken bröts.
+
+### Gjort hittills
+
+- **da92064 (2026-10-17), startsidans "Mest läst igår"**, efter en UX- och
+  art director-granskning av "Igår på Text TV:" (grå centrerad etikett, tider,
+  tre olika breda gula knappar med ram på olika axlar):
+  - `views/day_archive_link.php`: blått band, placering i cyan, länkarna som
+    en rad gula understrukna textlänkar, allt vänsterställt, 44 px
+    klickyta. Blocket gick från 314 till 180 px höjd på mobil.
+  - `controllers/sida.php`: kortare länktexter på startsidan ("Nyheter",
+    "Sport", "Resultat 377"), rubriken beror på om listan finns.
+  - Samma vy används under enskilda sidor (`/101` med flera). Där står
+    fortfarande "Gårdagens nyheter →", nu som gul textlänk i stället för
+    knapp.
+  - Kvar: komponentens CSS ligger fortfarande i vyn, och bandet går inte
+    kant i kant med sidan bredvid (se inventeringen).
+- **5abfe23 (2026-10-17), AMP borttagen.** `amp.php` och AMP-metoderna är
+  borta; gamla `/amp`-adresser får 301 via `Sida::amp_redirect()`. AMP behöver
+  inte tas hänsyn till i designen.
 
 ### Inventering 2026-10-17 (snabb, lokalt på 390 px bredd)
 
@@ -142,6 +172,26 @@ inline-CSS till komponenterna och ta bort CSS som blir oanvänd.
   `:is()` räcker i de webbläsare som besöker sajten idag (kolla GA4).
 - Inga `<style>`-block i vyerna när det är klart.
 
+## Arbetssätt och lokal testning
+
+- **Per yta:** UX- och art director-granskning, ändra lokalt, skärmdumpar
+  före och efter på mobil (390 px, och 320 px för bredden) och desktop
+  (1280 px), visa Pär innan push. Så gjordes "Mest läst igår".
+- **Lokal sajt:** `http://texttv.test:8380` (`make up`). Skärmdumpar med
+  Playwright MCP måste sparas under `TextTV.nu/` (t.ex.
+  `TextTV.nu/.playwright-mcp/`), inte i scratchpad.
+- **Lokal data är tunn.** Schedulern är opt-in och importerar inget av sig
+  själv, så `/nyheter/igar`, `/sport/igar` och `/377/igar` ger 404 lokalt.
+  Använd datum som finns i den lokala databasen, t.ex.
+  `/nyheter/2026-10-15` och `/377/2026-10-14`, eller importera med
+  `make import`. Schedulern kraschade 2026-10-17 med
+  `Class "Spatie\LaravelIgnition\IgnitionServiceProvider" not found`, så
+  imagen behöver `make build` innan `make scheduler`.
+- **"Mest läst igår" lokalt** kräver statistik som saknas. Lägg testdata i
+  webbcontainerns cache och ta bort den efteråt:
+  `docker compose exec website sh -c 'mkdir -p /tmp/texttv-most-read && cat > /tmp/texttv-most-read/startpage-news-<igår>.json'`
+  med `[{"time":"22:54","title":"…","permalink":"/104/…"}, …]`.
+
 ## Risker
 
 - **Annonserna (AdSense).** Annonsplatser och "efter annonsen"-texten styrs av
@@ -161,5 +211,5 @@ inline-CSS till komponenterna och ta bort CSS som blir oanvänd.
 ## Confidence
 
 medel — Riktningen är tydlig och "Mest läst igår" visar att den fungerar.
-Inventeringen ovan bygger dock på fyra skärmdumpar och en grep, och appramen
+Inventeringen ovan bygger dock på sex skärmdumpar på mobil och en grep, och appramen
 och footern kan ha beroenden (JS för sidomenyn, AdSense) som inte är kartlagda.

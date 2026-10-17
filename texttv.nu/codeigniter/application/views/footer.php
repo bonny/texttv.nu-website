@@ -190,8 +190,6 @@ if ($this->input->get("skipScriptsFooter") || $this->input->get("apiAppShare")) 
 	// no load script yo
 } else {
 ?>
-	<script src="/js/jquery.min.js"></script>
-	<script src="/js/js.cookie.js"></script>
 	<script src="/js/scripts.js?v=<?php echo @filemtime(dirname(__DIR__, 3) . '/js/scripts.js') ?>"></script>
 	<script src="/js/tt-sok.js?v=<?php echo @filemtime(dirname(__DIR__, 3) . '/js/tt-sok.js') ?>"></script>
 	<?php

@@ -564,3 +564,46 @@ button.tt-link {
 .tt-sok__rad[aria-selected="true"] > span {
 	color: var(--tt-black);
 }
+
+/* Delningsrutan (js/scripts.js) när telefonen saknar egen delning. */
+.pageshare__sheet {
+	box-sizing: border-box;
+	width: min(calc(40ch + 10px), calc(100vw - 16px));
+	max-width: none;
+	margin: auto;
+	padding: 0 0 1em;
+	border: 2px solid var(--tt-blue-bg);
+	background: var(--tt-black);
+	color: var(--tt-white);
+	font-family: var(--tt-font);
+	text-align: left;
+}
+
+.pageshare__sheet::backdrop {
+	background: rgba(0, 0, 0, .8);
+}
+
+.pageshare__sheet > * {
+	margin-inline: 1ch;
+}
+
+.pageshare__sheet > .tt-band {
+	margin: 0 0 .5em;
+}
+
+.pageshare__sheet__label {
+	display: block;
+	margin-top: .5em;
+	color: var(--tt-cyan);
+}
+
+.pageshare__sheet__text_input {
+	box-sizing: border-box;
+	width: calc(100% - 2ch);
+	margin-block: .25em .5em;
+	padding: .25em .5ch;
+	border: 0;
+	background: var(--tt-blue-bg);
+	color: var(--tt-white);
+	font: inherit;
+}

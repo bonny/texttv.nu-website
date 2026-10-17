@@ -9,13 +9,14 @@ $out_latest = "";
 
 $result = get_latest_updated_pages(100, 200);
 
-$tmpl_latest = '<li><small class="latest-pages-time">%2$s</small> <a class="latest-pages-title" href="/%1$d">%3$s</a></li>';
+// Tid i cyan och rubrik som vit länk, som tt-list i css/tt.css (todo #18).
+$tmpl_latest = '<li><span class="tt-list__meta">%2$s</span> <a href="/%1$d">%3$s</a></li>';
 
 $arr_outputed_page_nums = array();
 $out_latest .= "<div class='latest-pages'>";
-$out_latest .= "<section class='latest-pages-list latest-pages-list--news'>";
-$out_latest .= "<h2>Senaste nyheterna</h2>";
-$out_latest .= "<ul>";
+$out_latest .= "<section class='latest-pages-list latest-pages-list--news tt-sidbredd'>";
+$out_latest .= "<h2 class='tt-h2'><span>Senaste nyheterna</span></h2>";
+$out_latest .= "<ul class='tt-list'>";
 
 foreach ( $result->result() as $row ) {
 
@@ -37,9 +38,9 @@ $out_latest .= "</section>"; // .latest-pages--news
 
 $result = get_latest_updated_pages(300, 400);
 
-$out_latest .= "<section class='latest-pages-list latest-pages-list--sport'>";
-$out_latest .= "<h2>Senaste sportnyheterna</h2>";
-$out_latest .= "<ul>";
+$out_latest .= "<section class='latest-pages-list latest-pages-list--sport tt-sidbredd'>";
+$out_latest .= "<h2 class='tt-h2'><span>Senaste sportnyheterna</span></h2>";
+$out_latest .= "<ul class='tt-list'>";
 foreach ( $result->result() as $row ) {
 
 	if ( in_array($row->page_num, $arr_outputed_page_nums)) {

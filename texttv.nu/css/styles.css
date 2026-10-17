@@ -748,40 +748,12 @@ body {
   display: block;
   margin-bottom: 0.5em;
 }
-.latest-pages li {
-  margin: 0;
-  font-size: 0.9em;
-  clear: both;
-}
-.latest-pages-time {
-  float: left;
-  padding: 0;
-  line-height: 48px;
-}
-.latest-pages-title {
-  display: block;
-  margin-left: 3em;
-  padding: 0;
-  line-height: 48px;
-  white-space: pre;
-  text-overflow: ellipsis;
-  max-width: 100%;
-  overflow: hidden;
-}
 
 /* ipad liggande */
 @media only screen and (min-device-width: 768px) and (max-device-width: 1024px) and (orientation: landscape) {
   .latest-pages-list {
     float: left;
     width: calc(50% - 20px);
-  }
-
-  .latest-pages-time {
-    float: none;
-  }
-
-  .latest-pages-title {
-    margin-left: 0;
   }
 }
 
@@ -834,54 +806,7 @@ body {
 /**
  * Page share
  */
-.pageshare {
-  width: 40ex;
-  margin: 20px auto 20px auto;
-  overflow: auto;
-}
 
-.pageshare__inner {
-  font-size: 0.8em;
-}
-
-.pageshare__sharebutton {
-  margin: 0;
-  padding: 10px;
-  background: transparent;
-  color: rgb(221, 221, 221);
-  border: none;
-  font-size: 1em;
-  font-family: "Ubuntu Mono", Courier, monospace;
-  border-radius: 5px;
-  border: 1px solid #999;
-}
-
-.pageshare__sharebutton:hover {
-  border-color: #ccc;
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.pageshare__col {
-  display: inline-block;
-  width: 48%;
-  vertical-align: middle;
-}
-
-.pageshare__col--1 {
-  text-align: left;
-}
-
-.pageshare__col--2 {
-  text-align: right;
-}
-
-.pageshare .icon-share {
-  background-size: 100%;
-  width: 24px;
-  height: 24px;
-  display: inline-block;
-  vertical-align: middle;
-}
 
 .pageshare__sheet_bg {
   position: fixed;

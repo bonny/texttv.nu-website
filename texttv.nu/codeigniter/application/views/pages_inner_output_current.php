@@ -123,8 +123,7 @@ $text_archive = "";
 
 if ( true || $this->input->get("enable-share") ) {
 
-	$text_archive .= "<div class='pageshare'>";
-	$text_archive .= "<div class='pageshare__inner'>";
+	$text_archive .= "<div class='pageshare tt-sidbredd'>";
 	
 	// Om flera sidor, kunna länka till kombination
 	if (sizeof($arr_pages)>1) {
@@ -158,20 +157,17 @@ if ( true || $this->input->get("enable-share") ) {
 	}
 	
 
-	$dateUpdatedHuman = date("H:i", $one_page_obj->date_added_unix);
-	
+	// Tid i cyan som metadata, "Dela" som gul textlänk (todo #18). Klassen
+	// pageshare__sharebutton används av js/scripts.js.
 	$text_archive .= sprintf('
-		<p class="pageshare__col pageshare__col--1">Sidan uppdaterad %1$s</p>
-		<p class="pageshare__col pageshare__col--2">
-			<button class="pageshare__sharebutton"><i class="icon-share"></i> Dela</button>
-		</p>
-		', 
-		$dateUpdatedHuman
+		<p class="pageshare__updated">Uppdaterad <time datetime="%2$s">%1$s</time></p>
+		<button type="button" class="pageshare__sharebutton tt-link">Dela →</button>
+		',
+		date("H:i", $one_page_obj->date_added_unix),
+		date("c", $one_page_obj->date_added_unix)
 	);
-	
 
-	$text_archive .= "</div>"; // inner
-	$text_archive .= "</div>"; // outer
+	$text_archive .= "</div>"; // .pageshare
 	
 }
 

@@ -67,6 +67,17 @@ html:not(.appShare) .tt-sidbredd {
 	text-underline-offset: .2em;
 }
 
+/* En knapp som ser ut som en länk ("Dela →"). */
+button.tt-link {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	border-radius: 0;
+	background: none;
+	font: inherit;
+	cursor: pointer;
+}
+
 .tt-link:hover,
 .tt-linkrow a:hover,
 .tt-list a:hover,
@@ -111,6 +122,12 @@ html:not(.appShare) .tt-sidbredd {
 	display: contents;
 }
 
+/* Lite luft runt varje rad, så att rubrikerna blir lättare att träffa. */
+.tt-list__meta,
+.tt-list a {
+	padding-block: .2em;
+}
+
 .tt-list__meta {
 	color: var(--tt-cyan);
 }
@@ -118,6 +135,22 @@ html:not(.appShare) .tt-sidbredd {
 .tt-list a {
 	color: var(--tt-white);
 	text-decoration: none;
+}
+
+/* Rubriknivå 2: dubbelhög text som på Text TV, i gult. */
+.tt-h2 {
+	display: block;
+	height: 2.5em;
+	margin: 1em 0 .25em;
+	font: inherit;
+	line-height: 1.25;
+	color: var(--tt-yellow);
+}
+
+.tt-h2 > span {
+	display: inline-block;
+	transform: scaleY(2);
+	transform-origin: top left;
 }
 
 /* Rad med länkar som bryts snyggt. */
@@ -136,4 +169,47 @@ html:not(.appShare) .tt-sidbredd {
 .day-archive-link--inline {
 	display: inline-block;
 	vertical-align: top;
+}
+
+/* Raden under sidan: tid i cyan till vänster, "Dela →" till höger. */
+.pageshare {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-block: .5em;
+}
+
+.pageshare__updated {
+	margin: 0;
+	color: var(--tt-cyan);
+}
+
+/* Annonsetiketten. Annonsens egen bredd lämnas orörd (intäkterna). */
+.ad-header {
+	font-family: var(--tt-font);
+	font-size: .875rem;
+	text-transform: none;
+	color: var(--tt-neutral);
+}
+
+/* Senaste nyheterna och sportnyheterna: en kolumn i sidans bredd på mobil,
+   två bredvid varandra när de får plats. */
+.latest-pages {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	column-gap: 2ch;
+	padding: 0;
+	font-family: var(--tt-font);
+}
+
+.latest-pages .latest-pages-list {
+	float: none;
+	margin: 0 0 1.5em;
+	--tt-list-meta: 6ch;
+}
+
+.latest-pages h2 {
+	display: block;
+	margin-bottom: .25em;
 }

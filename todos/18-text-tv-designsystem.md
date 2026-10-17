@@ -143,6 +143,19 @@ Frågorna som de var:
   ändå den gamla HTML:en i några sekunder (STALE), så en skärmdump direkt
   efter deploy kan se trasig ut; ta om den.
 - **Egna cookiebannern borttagen (3c66139).**
+- **Steg 4 (47bd2be): appramen** i svart i sidans bredd (loggan, "Sidor ≡",
+  "← 100", blått "Gå till sida" med sifferknappsats, "102 →"), sidans h1 som
+  blått band med oförändrad text, band och ram över båda kolumnerna med
+  flera sidor i bredd. Alla brytpunkter per enhet och iPad-hacket med
+  `letter-spacing` ersatta av en regel för brödtexten.
+- **Steg 5 (bbca36a): sidomenyn och footern** delar `views/sidlista.php`
+  (namn, prickar, sidnummer i cyan). Listan syns i footern på mobil och
+  bara i sidomenyn från 700 px; länkarna finns i HTML:en på båda.
+  `styles.css` är nere på 773 rader (1 322 när #18 började).
+- **PHPStan (9d91ac0, b7b8076):** `make phpstan`, och deployen av
+  webbsajten väntar på PHPStan-jobbet i `deploy-website.yml`.
+- **Kvar på servern:** scp raderar inget, så `views/cookie_banner.php` ligger
+  kvar på prod som död fil. Ofarlig, men kan tas bort för hand.
 
 ### Inventering 2026-10-17 (snabb, lokalt på 390 px bredd)
 

@@ -60,11 +60,9 @@ $route['(nyheter|sport)'] = "dagsnyheter/avdelning/$1";
 $route['(nyheter|sport)/(\d{4}-\d{2}-\d{2})'] = "dagsnyheter/visa/$1/$2";
 $route['(\d{3})/(\d{4}-\d{2}-\d{2})'] = "sida/dag/$1/$2";
 
-// AMP-sida för icke-arkiv-sida
-$route['([0-9,\-]+)/amp'] = "sida/amp/$1";
-
-// AMP-sida för arkiverad sida
-$route['([0-9,\-]+)/(:any)-(:num)/amp'] = "sida/amp_arkiv/$1/$2/$3";
+// Gamla AMP-adresser, för sida och arkivsida. Skickas vidare med 301.
+$route['([0-9,\-]+)/amp'] = "sida/amp_redirect";
+$route['([0-9,\-]+)/(:any)-(:num)/amp'] = "sida/amp_redirect/$1/$2/$3";
 
 // Nytt arkiv-format sept 2015
 // gammalt: http://texttv.nu/137/arkiv/hardare-straff-for-stenkastare/8466679/

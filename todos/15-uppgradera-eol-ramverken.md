@@ -143,6 +143,11 @@ Från granskningen 2026-10-17:
     länkas nu även när raden har ett annat sidnummer. Förlorad: `24.199` på
     701 (går inte att skilja från ett decimaltal). Övriga 676 rader ger
     byte-identisk HTML.
+  - Fjärde code review (före push): `%` och versala enheter (`527 KR`)
+    fångades inte, fler substantiv som enheter (`människor`, `fall` …),
+    kommalistor (`101,102`) länkas, och mellanslag binder bara ihop riktiga
+    tusental och telefonnummer, så `19.30 101` och `covid-19 101` länkar 101.
+    Korpusen oförändrad. Känd lucka: `962 nya fall` länkar 962.
   - Död kod bort: `linkifySingleLineWithSpanSupport()` och parametern
     `$numberReplacements`, som aldrig sattes. Testsidan `100.html` har fått
     de gamla tabbarna borttagna i stället för att `cleanup()` ändras.

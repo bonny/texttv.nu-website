@@ -61,6 +61,13 @@ class LinkifyTest extends TestCase
             ['Matchfakta NHL................... 328f', ['328f']],
             ['Lokala femdygnsprognoser.....405f-412f', ['405f-412f']],
             ['328/363 * Klipp i SVT Sport-appen', ['328', '363']],
+            ['Se 101,102', ['101', '102']],
+            ['Sid 100-109f', ['100-109f']],
+            ['Se 101 m.fl.', ['101']],
+            // Tid eller tal före ett sidnummer tar inte med sig sidnumret.
+            ['Rapport 19.30 101', ['101']],
+            ['Kl 18:00 101', ['101']],
+            ['covid-19 101', ['101']],
             ['SVT1 i morgon..607f Radiohjälpen...676', ['607f', '676']],
 
             // Tusental: inget länkas, oavsett antal grupper.
@@ -95,6 +102,13 @@ class LinkifyTest extends TestCase
             ['över 100 personer gripits.', []],
             ['100 meter', []],
             ['400 meter häck', []],
+            ['TOTALT 527 KR', []],
+            ['Ökning 120%', []],
+            ['Se 100 %', []],
+            ['över 100 människor dog', []],
+            ['Cypern har 962 fall', []],
+            // Känd lucka: ord mellan talet och enheten, "962 nya fall", länkas.
+            ['Cypern landar i 962 nya fall', ['962']],
 
             // Decimaltal och börskurser.
             ['  en 90 procents skydd mot covid-19 men ', []],
@@ -108,6 +122,7 @@ class LinkifyTest extends TestCase
             ['Tel:  08-525 08 107', []],
             ['Ring 031-123 45 67', []],
             ['Ring 0771-123 456', []],
+            ['Tel: 0771-91 00 85', []],
             ['Resultat 1999-120', []],
             ['1. Smederna     14 11  0  3 698-565 28', []],
             ['6. Vargarna     14  4  0 10 599-624 10', []],
@@ -140,9 +155,11 @@ class LinkifyTest extends TestCase
         $corpus = json_decode(file_get_contents(self::CORPUS_FILE), true);
 
         $diffs = [];
+        $importers = [];
         foreach ($corpus as &$row) {
-            $links = $this->links($this->importer($row['page'])->linkifySingleLine($row['line']));
-            if ($links !== $row['links']) {
+            $importers[$row['page']] ??= $this->importer($row['page']);
+            $links = $this->links($importers[$row['page']]->linkifySingleLine($row['line']));
+            if ($links !== ($row['links'] ?? null)) {
                 $diffs[] = sprintf(
                     "%d | %s\n      förut: [%s]  nu: [%s]",
                     $row['page'],

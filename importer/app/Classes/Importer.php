@@ -675,11 +675,11 @@ class Importer
      * som en sammanhängande sträng, så att "Minst 2 " och "300" i olika spans
      * ändå ses som ett tal.
      *
-     * Varje talsekvens bedöms som helhet. Siffror som hänger ihop med ett
-     * mellanslag, punkt, komma, kolon eller bindestreck är en
-     * sekvens: "2 300", "12 485 725", "908.88", "08-784 00 00", "3 698-565".
+     * Varje talsekvens bedöms som helhet: tusental ("2 300", "12 485 725"),
+     * telefonnummer ("08-784 00 00") och tal ihopbundna av punkt, komma,
+     * kolon eller bindestreck ("908.88", "18:00", "125-95").
      * Bara sekvenser som enbart består av sidnummer blir länkar: "123",
-     * "110-114", "123f" och "405f-412f". Sidnummer följda av en enhet
+     * "110-114", "101,102", "123f" och "405f-412f". Sidnummer följda av en enhet
      * ("100 meter", "527 kr") och placeringar ("132. Jesper Svensson")
      * länkas inte.
      *
@@ -740,13 +740,29 @@ class Importer
      */
     protected function pageNumberSequences(string $text): array
     {
-        // En sekvens börjar inte direkt efter en bokstav eller siffra
-        // ("Kanal5 620" är "620", inte "5 620"). "f" efter ett tal betyder
-        // flersida ("328f"). Snedstreck binder inte ihop, "328/363" är två sidor.
-        $regexSequence = '/(?<![\p{L}\d])\d+(?:f(?!\p{L}))?(?:(?: |[.,:-])\d+(?:f(?!\p{L}))?)*/u';
+        // Tre sorters talsekvenser, i den här ordningen. En sekvens börjar inte
+        // direkt efter en bokstav eller siffra ("Kanal5 620" är "620"), och
+        // inte efter bokstav och bindestreck ("covid-19 101" är "19" och "101").
+        // "f" efter ett tal betyder flersida ("328f").
+        $regexStart = '(?<![\p{L}\d])(?<!\p{L}-)';
+        $regexNumber = '\d+(?:f(?!\p{L}))?';
+        $regexSequence = '/' . $regexStart . '(?:'
+            // Telefonnummer med riktnummer, med talgrupperna efter: "08-784 00 00".
+            . '0\d{1,3}-\d+(?: \d+)*'
+            // Tusental, ev. med decimaler eller resultat efter: "2 300",
+            // "12 485 725", "3 698-565".
+            . '|\d{1,3}(?: \d{3})+(?:[.,:-]\d+)*'
+            // Övrigt, ihopbundet av skiljetecken men inte mellanslag: "123",
+            // "110-114", "101,102", "908.88", "1:42:00,785", "18:00".
+            // Snedstreck binder inte ihop, "328/363" är två sidor.
+            . '|' . $regexNumber . '(?:[.,:-]' . $regexNumber . ')*'
+            . ')/u';
 
         // Ord efter ett tal som visar att det är ett antal, inte ett sidnummer.
-        $regexUnit = '/^ ?(?:kr|kronor|mkr|st|meter|m|km|mil|cm|mm|personer|gånger|procent|%|miljoner|miljarder|år|dagar|timmar|minuter|sekunder|grader)\b/u';
+        $regexUnit = '/^ ?(?:kr|kronor|mkr|tusen|miljoner|miljarder|st|stycken'
+            . '|meter|km|mil|cm|mm|%|procent|procentenheter|grader|poäng'
+            . '|personer|människor|invånare|döda|skadade|fall|dödsfall|gånger'
+            . '|år|dagar|dygn|veckor|månader|timmar|minuter|sekunder)(?![\p{L}\d])/iu';
 
         preg_match_all($regexSequence, $text, $matches, PREG_OFFSET_CAPTURE);
 
@@ -764,22 +780,26 @@ class Importer
                 continue;
             }
 
-            // Bara bindestreck får skilja sidnummer åt: "123", "110-114", "101-102-103".
-            $pageNumbers = explode('-', $sequence);
-            foreach ($pageNumbers as $pageNumber) {
-                if (!preg_match('/^[1-9]\d{2}f?$/', $pageNumber)) {
-                    continue 2;
-                }
-            }
-
-            // Två och två blir intervall: "101-102-103" blir "101-102" och "103".
+            // Komma skiljer sidor i en lista ("101,102"), bindestreck skiljer
+            // början och slut i ett intervall ("110-114"). Allt annat, och
+            // varje tal som inte är ett sidnummer, gör att inget länkas.
             $links = [];
             $offset = 0;
-            foreach (array_chunk($pageNumbers, 2) as $pair) {
-                $linkText = implode('-', $pair);
-                $href = str_replace('f', '', $linkText);
-                $links[] = [$offset, strlen($linkText), $href, $linkText];
-                $offset += strlen($linkText) + 1;
+            foreach (explode(',', $sequence) as $item) {
+                $pageNumbers = explode('-', $item);
+                foreach ($pageNumbers as $pageNumber) {
+                    if (!preg_match('/^[1-9]\d{2}f?$/', $pageNumber)) {
+                        continue 3;
+                    }
+                }
+
+                // Två och två blir intervall: "101-102-103" blir "101-102" och "103".
+                foreach (array_chunk($pageNumbers, 2) as $pair) {
+                    $linkText = implode('-', $pair);
+                    $href = str_replace('f', '', $linkText);
+                    $links[] = [$offset, strlen($linkText), $href, $linkText];
+                    $offset += strlen($linkText) + 1;
+                }
             }
 
             $sequences[] = [$start, strlen($sequence), $links];

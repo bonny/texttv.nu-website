@@ -698,3 +698,88 @@ button.tt-link {
 	padding-top: 1.5em;
 	border-top: 2px solid var(--tt-blue-bg);
 }
+
+/*
+	Dagslistorna (/nyheter/<datum>, views/day_headlines.php) och
+	dagsarkiven (/377/<datum>, views/pages_day_archive.php). Samma rubrik:
+	band med avdelning och datum en gång, föregående och nästa dag som
+	länkrad. Todo #16 och #18.
+*/
+.page-is-day-archive #pages.day-list,
+.page-is-day-archive #pages.day-archive {
+	margin-top: 100px;
+}
+
+.tt-dag .tt-band {
+	padding-inline: .5ch;
+}
+
+/* 1ch mellanrum: "← onsdag 14 oktober" och "fredag 16 oktober →" är 19
+   tecken var och ryms då på en rad. */
+.tt-dag__nav {
+	justify-content: space-between;
+	column-gap: 1ch;
+	margin-bottom: .5em;
+}
+
+.tt-dag__intro,
+.tt-dag__hopp {
+	margin: 0 0 1em;
+	line-height: 1.4;
+}
+
+.tt-dag__hopp a {
+	color: var(--tt-yellow);
+	text-underline-offset: .2em;
+}
+
+.tt-dag__h2 {
+	display: block;
+	margin: 1.5em 0 .25em;
+	color: var(--tt-yellow);
+	font-size: 1em;
+	font-weight: normal;
+}
+
+.day-list__items {
+	--tt-list-meta: 6ch;
+}
+
+/* Mest lästa: placering, tid och rubrik. */
+ol.day-list__items {
+	grid-template-columns: 3ch 6ch 1fr;
+	counter-reset: mest-lasta;
+}
+
+ol.day-list__items > li {
+	counter-increment: mest-lasta;
+}
+
+ol.day-list__items > li::before {
+	content: counter(mest-lasta);
+	padding-block: .2em;
+	color: var(--tt-cyan);
+}
+
+.day-list__num {
+	color: var(--tt-cyan);
+}
+
+.tt-dag__vidare {
+	margin-top: 1.5em;
+}
+
+/* Dagsarkivet: alla versioner under dagen som en länkrad. */
+.tt-dag__versioner {
+	margin-block: 1.5em;
+}
+
+.tt-dag__versioner .tt-band {
+	margin-bottom: .25em;
+}
+
+.tt-dag__versioner ul {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}

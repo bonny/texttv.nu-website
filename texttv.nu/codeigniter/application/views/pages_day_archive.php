@@ -17,49 +17,12 @@ $final_is_other_day = $version_count === 0;
 $final_date_human = date_sv("l j F", strtotime(substr($d["final_date_added"], 0, 10) . " 12:00"));
 
 ?>
-<style>
-	/* .page-is-archive nollar #pages marginal, och vanliga arkivsidor lägger
-	   tillbaka den på .introtext. Samma avstånd under den fasta menyraden. */
-	.page-is-day-archive #pages.day-archive {
-		margin-top: 95px;
-	}
-	.day-archive > h1,
-	.day-archive__date,
-	.day-archive__nav,
-	.day-archive__intro,
-	.day-archive__versions {
-		max-width: 40ex;
-		margin-left: auto;
-		margin-right: auto;
-	}
-	.day-archive > h1,
-	.day-archive__date {
-		text-align: center;
-	}
-	.day-archive__date {
-		margin-top: 0;
-		margin-bottom: .5em;
-	}
-	.day-archive__nav {
-		display: flex;
-		justify-content: space-between;
-		gap: 1em;
-		margin-top: .5em;
-		margin-bottom: 1em;
-	}
-	.day-archive__versions ul {
-		list-style: none;
-		padding: 0;
-		display: flex;
-		flex-wrap: wrap;
-		gap: .25em .75em;
-	}
-</style>
 <main id="pages" class="day-archive">
-	<h1><?php echo $e($d["headline"]) ?></h1>
-	<p class="day-archive__date"><?php echo $e(ucfirst($d["date_human"])) ?></p>
+	<div class="tt-sidbredd tt-dag">
+	<?php // Datumet står i rubriken, så det står inte en gång till under. Todo #18. ?>
+	<h1 class="tt-band"><?php echo $e($d["headline"]) ?></h1>
 
-	<nav class="day-archive__nav" aria-label="Bläddra mellan dagar">
+	<nav class="tt-linkrow tt-dag__nav" aria-label="Bläddra mellan dagar">
 		<?php if ($d["prev_url"]) { ?>
 			<a href="<?php echo $e($d["prev_url"]) ?>">← <?php echo $e($d["prev_human"]) ?></a>
 		<?php } else { ?>
@@ -68,7 +31,7 @@ $final_date_human = date_sv("l j F", strtotime(substr($d["final_date_added"], 0,
 		<a href="<?php echo $e($d["next_url"]) ?>"><?php echo $e($d["next_human"]) ?> →</a>
 	</nav>
 
-	<p class="day-archive__intro">
+	<p class="tt-dag__intro">
 		Så här såg SVT Text TV <?php echo $num ?> ut när dagen var slut.
 		<?php if ($final_is_other_day) { ?>
 			Ingen ny version den här dagen. Senaste versionen med innehåll är från <?php echo $e($final_date_human) ?> kl <?php echo $e($final_time) ?>.
@@ -78,6 +41,7 @@ $final_date_human = date_sv("l j F", strtotime(substr($d["final_date_added"], 0,
 			Senast uppdaterad kl <?php echo $e($final_time) ?>.
 		<?php } ?>
 	</p>
+	</div>
 
 	<div><?php echo $page->get_output() ?></div>
 </main>
@@ -98,9 +62,9 @@ $final_date_human = date_sv("l j F", strtotime(substr($d["final_date_added"], 0,
 <?php } ?>
 
 <?php if ($version_count > 1) { ?>
-	<section class="day-archive__versions">
-		<h2>Alla versioner av <?php echo $num ?> <?php echo $e($d["date_human"]) ?></h2>
-		<ul>
+	<section class="tt-sidbredd tt-dag__versioner">
+		<h2 class="tt-band">Alla versioner av <?php echo $num ?> <?php echo $e($d["date_human"]) ?></h2>
+		<ul class="tt-linkrow">
 			<?php foreach ($d["version_links"] as $one_version) { ?>
 				<li><a href="<?php echo $e($one_version["permalink"]) ?>" aria-label="<?php echo $e($num . " kl " . $one_version["time"]) ?>"><?php echo $e($one_version["time"]) ?></a></li>
 			<?php } ?>

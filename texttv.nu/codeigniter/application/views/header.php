@@ -630,7 +630,9 @@ if (isset($day_archive)) {
 			$bodyPagesDataAttr[] = [
 				"num" => (int) $one_page->num,
 				"id" => (int) $one_page->id,
-				"added" => (int) ($one_page->polling_added_unix ? $one_page->polling_added_unix : $one_page->date_added_unix)
+				"added" => (int) ($one_page->polling_added_unix ? $one_page->polling_added_unix : $one_page->date_added_unix),
+				// Rubriken till "Senast besökta" i förslagen (js/tt-sok.js).
+				"title" => $one_page->get_page_title(),
 			];
 		}
 	}
@@ -799,5 +801,5 @@ if (isset($day_archive)) {
 	?>
 </head>
 
-<body data-pages='<?php echo json_encode($bodyPagesDataAttr) ?>'>
+<body data-pages='<?php echo json_encode($bodyPagesDataAttr, JSON_UNESCAPED_UNICODE | JSON_HEX_APOS | JSON_HEX_TAG | JSON_HEX_AMP) ?>'>
 	<div class="wrap <?php echo implode(" ", $wrapclasses) ?>" id="wrap">

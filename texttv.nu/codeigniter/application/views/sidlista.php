@@ -7,30 +7,10 @@
 	Ser ut som Text-TV:s innehållssidor: namn, prickar och sidnummer i cyan.
 	Todo #18.
 
-	Varje rad: [adress, namn, sidnummer eller null, underrader].
+	Sidorna ligger i views/sidlista_data.php.
 */
 
-$sidlista = [
-	["/", "Hem", null, []],
-	["/101-102,103-105", "Nyheter", "101-105", [
-		["/101-103", "Inrikes", "101-103"],
-		["/104-105", "Utrikes", "104-105"],
-		["/nyheter/igar", "Gårdagens nyheter", null],
-	]],
-	["/300-302", "Sport", "300-302", [
-		["/330", "Resultatbörsen", "330"],
-		["/376", "Målservice", "376"],
-		["/377", "Målservice, resultat", "377"],
-		["/376-395", "Målservice & resultat", "376-395"],
-		["/sport/igar", "Gårdagens sportnyheter", null],
-		["/377/igar", "Gårdagens resultat", "377"],
-	]],
-	["/400", "Väder", "400", [
-		["/401", "Vädret i dag/i morgon", "401"],
-	]],
-	["/600,650-656", "TV-tablåer", "600", []],
-	["/700", "Innehåll", "700", []],
-];
+$sidlista = (include __DIR__ . "/sidlista_data.php")["lista"];
 
 $sidlista_rad = function ($url, $name, $num) {
 	return sprintf(

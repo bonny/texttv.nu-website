@@ -7,13 +7,33 @@
  * rad 2 föregående sida, "Gå till sida" och nästa sida.
  * JS-krokar i js/scripts.js: nav.controls, li.nav-menu a (sidomenyn) och
  * .controls-topnav-search-input/.controls-topnav-form (går till sidan
- * när tre siffror är skrivna).
+ * när tre siffror är skrivna). Förslagen under fältet: js/tt-sok.js.
  */
 
  // no controls on share pages
  if ( $this->input->get("apiAppShare") ) {
 	 return;
  }
+
+// Sidorna som förslagen under "Gå till sida" söker bland (js/tt-sok.js).
+$sok_data = include __DIR__ . "/sidlista_data.php";
+$sok_sidor = [];
+foreach ($sok_data["lista"] as $item) {
+	$sok_sidor[] = [$item[0], $item[1], $item[2]];
+	foreach ($item[3] as $sub) {
+		$sok_sidor[] = $sub;
+	}
+}
+foreach ($sok_data["fler"] as $item) {
+	$sok_sidor[] = $item;
+}
+$sok_json = [
+	"sidor" => array_map(function ($s) {
+		// num: första sidan, för sökning på siffror. visa: som i sidlistan.
+		return ["url" => $s[0], "namn" => $s[1], "num" => $s[2] ? substr($s[2], 0, 3) : null, "visa" => $s[2]];
+	}, $sok_sidor),
+	"populara" => $sok_data["populara"],
+];
 
 $gotoNextPageNum = null;
 $gotoPrevPageNum = null;
@@ -27,6 +47,7 @@ if ( "/" == current_url()) {
 ?>
 <nav class="controls" aria-label="Sidnavigering">
 	<div class="controls__inner tt-sidbredd">
+		<script type="application/json" id="tt-sok-data"><?php echo json_encode($sok_json, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) ?></script>
 		<div class="controls__row">
 			<a href="/" class="controls__home">
 				<svg viewBox="0 0 350 350" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><path fill="#00f" d="M76 75h50v50H76z"/><path fill="#00c8ee" d="M151 75h50v50h-50z"/><path fill="#fcfe01" d="M151 150h50v50h-50z"/><path fill="#fc0304" d="M151 225h50v50h-50z"/><path fill="#0f0" d="M226 75h50v50h-50z"/></g></svg>
@@ -52,11 +73,16 @@ if ( "/" == current_url()) {
 					pattern="[0-9]*"
 					maxlength="3"
 					autocomplete="off"
+					role="combobox"
+					aria-autocomplete="list"
+					aria-expanded="false"
+					aria-controls="tt-sok-forslag"
 					name="number"
 					value=""
 					placeholder="Gå till sida"
 					>
 			</form>
+			<div id="tt-sok-forslag" class="tt-sok" role="listbox" aria-label="Förslag" hidden></div>
 			<?php if ( ! empty( $gotoNextPageNum ) ) { ?>
 				<a class="tt-link controls__next" href="/<?php echo (int) $gotoNextPageNum ?>" aria-label="Nästa sida, <?php echo (int) $gotoNextPageNum ?>"><?php echo (int) $gotoNextPageNum ?> →</a>
 			<?php } else { ?>

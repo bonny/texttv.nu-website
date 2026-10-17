@@ -492,3 +492,75 @@ button.tt-link {
 .site-footer__meta a {
 	color: var(--tt-neutral);
 }
+
+/*
+	Förslagen under "Gå till sida" (js/tt-sok.js). En svart lista under
+	ramen i sidans bredd: rubriker i cyan, sidnummer i cyan, namn i vitt,
+	markerad rad inverterad som en hover.
+*/
+.controls__inner {
+	position: relative;
+}
+
+.tt-sok {
+	position: absolute;
+	top: 100%;
+	left: 0;
+	right: 0;
+	z-index: 2;
+	max-height: min(70vh, 32em);
+	overflow-y: auto;
+	margin-top: 4px;
+	padding: .5em 0 .75em;
+	background: var(--tt-black);
+	border: 2px solid var(--tt-blue-bg);
+	text-align: left;
+}
+
+.tt-sok[hidden] {
+	display: none;
+}
+
+.tt-sok__grupp + .tt-sok__grupp {
+	margin-top: .75em;
+}
+
+.tt-sok__rubrik,
+.tt-sok__tom {
+	padding: 0 1ch;
+	color: var(--tt-cyan);
+}
+
+.tt-sok__tom {
+	color: var(--tt-white);
+}
+
+.tt-sok__rad {
+	display: grid;
+	grid-template-columns: 8ch 1fr;
+	align-items: center;
+	min-height: 36px;
+	padding: 0 1ch;
+	cursor: pointer;
+}
+
+.tt-sok__num {
+	color: var(--tt-cyan);
+}
+
+.tt-sok__namn {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	color: var(--tt-white);
+}
+
+.tt-sok__rad:hover,
+.tt-sok__rad[aria-selected="true"] {
+	background: var(--tt-yellow);
+}
+
+.tt-sok__rad:hover > span,
+.tt-sok__rad[aria-selected="true"] > span {
+	color: var(--tt-black);
+}

@@ -1,0 +1,48 @@
+<?php
+
+/*
+	Sidorna i sidlistan (views/sidlista.php: sidomenyn och footern) och i
+	förslagen under "Gå till sida" (views/controls.php, js/tt-sok.js).
+	Todo #18.
+
+	lista:     [adress, namn, sidnummer eller null, underrader]
+	fler:      sidor som bara finns med i sökningen (rubrikerna i
+	           pages_inner_output_current.php)
+	populara:  "Populära sidor" när sökfältet är tomt, efter klicken i
+	           Search Console 2026-09-17–10-14 (377, startsidan, 358, 300)
+*/
+
+return [
+	"lista" => [
+		["/", "Hem", null, []],
+		["/101-102,103-105", "Nyheter", "101-105", [
+			["/101-103", "Inrikes", "101-103"],
+			["/104-105", "Utrikes", "104-105"],
+			["/nyheter/igar", "Gårdagens nyheter", null],
+		]],
+		["/300-302", "Sport", "300-302", [
+			["/330", "Resultatbörsen", "330"],
+			["/376", "Målservice", "376"],
+			["/377", "Målservice, resultat", "377"],
+			["/376-395", "Målservice & resultat", "376-395"],
+			["/sport/igar", "Gårdagens sportnyheter", null],
+			["/377/igar", "Gårdagens resultat", "377"],
+		]],
+		["/400", "Väder", "400", [
+			["/401", "Vädret i dag/i morgon", "401"],
+		]],
+		["/600,650-656", "TV-tablåer", "600", []],
+		["/700", "Innehåll", "700", []],
+	],
+	"fler" => [
+		["/100", "Startsidan", "100"],
+		["/336", "Premier League", "336"],
+		["/358", "SHL tabell", "358"],
+		["/360", "Ishockey Allsvenskan", "360"],
+		["/378", "Målservice utländska ligor", "378"],
+		["/379", "Matchfakta", "379"],
+		["/551", "Stryktipset", "551"],
+		["/571", "V75-resultat", "571"],
+	],
+	"populara" => ["377", "100", "358", "300", "330", "101"],
+];

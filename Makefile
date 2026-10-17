@@ -1,5 +1,5 @@
 # Onboarding-targets för den lokala Docker-stacken. `make` finns överallt.
-# Sajten: http://localhost:8380/100 · importer-API: http://localhost:8381
+# Sajten: http://texttv.test:8380/100 · importer-API: http://localhost:8381
 
 COMPOSE := docker compose
 
@@ -11,7 +11,7 @@ help: ## Visa denna hjälp
 
 up: ## Starta stacken (bygger images automatiskt första gången). Snabb vid dagligt bruk.
 	$(COMPOSE) up -d
-	@echo "Klar. Sajten: http://localhost:8380/100  (vänta nån sekund på init-importen)"
+	@echo "Klar. Sajten: http://texttv.test:8380/100  (vänta nån sekund på init-importen)"
 	@echo "Schedulern (auto-import från SVT) är AV — starta vid behov med 'make scheduler'."
 
 down: ## Stoppa stacken (behåller data)

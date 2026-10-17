@@ -49,7 +49,7 @@ Two supported setups: **Docker Compose** (rekommenderas — portabelt, prod-pari
 ```bash
 make up        # starta allt (bygger images auto första gången; init seedar DB:n)
 make build     # bygg om images efter ändrad Dockerfile (make rebuild = utan cache)
-# Sajt:        http://localhost:8380/100   ·  startsida: http://localhost:8380/
+# Sajt:        http://texttv.test:8380/100   ·  startsida: http://texttv.test:8380/
 # Importer:    http://localhost:8381  (debug-rutter /db/{n}, /live/{n}, /importstatus)
 make import RANGE=100-110   # importera fler sidor
 make artisan CMD="schedule:list"

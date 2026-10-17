@@ -44,9 +44,11 @@ make up
 
 Det bygger allt och startar fyra saker: webben (CodeIgniter), importern (Laravel), databasen (MariaDB) och ett engångsjobb som hämtar några startsidor direkt från SVT. Efter ~10 sekunder:
 
-- **Sajten:** http://localhost:8380/100
-- **Startsidan:** http://localhost:8380/
-- **Sport med färg/grafik:** http://localhost:8380/377
+- **Sajten:** http://texttv.test:8380/100
+- **Startsidan:** http://texttv.test:8380/
+- **Sport med färg/grafik:** http://texttv.test:8380/377
+
+`texttv.test` kräver att `*.test` pekar på 127.0.0.1 (dnsmasq via `/etc/resolver/test`). Utan det fungerar `localhost:8380` likadant.
 
 #### Varje dag
 

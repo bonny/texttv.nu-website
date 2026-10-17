@@ -8,7 +8,7 @@
 #   * Dev-vänlig env: ingen opcache (snabbare iteration), mer loggning
 #
 # Portar:  website 8380 · importer 8381 · mariadb 33013
-# Sajten:  http://localhost:8380/100
+# Sajten:  http://texttv.test:8380/100
 
 services:
   mariadb:

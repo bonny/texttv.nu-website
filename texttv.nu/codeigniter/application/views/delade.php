@@ -131,25 +131,7 @@ function output_shared_pages_nav_form() {
 }
 
 ?>
-<style>
-	
-	.most-shared-section-wrap {
-		
-	}
-	
-	.most-shared-section {
-/* 		width: 50%; */
-		float: left;
-		margin-right: 50px;
-	}
-	
-	.most-shared-dates-ul-list {
-		height: 20em;
-		overflow: hidden;
-		overflow-y: auto;
-	}
-	
-</style>
+
 
 <div class="textcontent">
 	

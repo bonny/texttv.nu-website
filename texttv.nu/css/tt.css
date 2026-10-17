@@ -1001,7 +1001,7 @@ ol.day-list__items > li::before {
    utan brödsmulor (t.ex. 550) har inget annat som trycker ner den under
    ramen. */
 .not-broadcasted-notice {
-	margin: 100px auto 1em;
+	margin: 110px auto 1em; /* som .breadcrumbs */
 	line-height: 1.4;
 }
 
@@ -1022,4 +1022,32 @@ ol.day-list__items > li::before {
 .not-broadcasted-notice a {
 	color: var(--tt-yellow);
 	text-underline-offset: .2em;
+}
+
+/* /sida/delat (views/delade.php): datumlistan och dagens mest delade. */
+.most-shared-section {
+	margin-bottom: 2em;
+}
+
+.most-shared-dates-ul-list {
+	max-height: 20em;
+	overflow-y: auto;
+}
+
+/* Tabeller i informationstexterna (t.ex. /text-tv-fakta/statistik). */
+.textcontent table {
+	border-collapse: collapse;
+	margin: 0 0 1em;
+}
+
+.textcontent th {
+	color: var(--tt-cyan);
+	font-weight: normal;
+	text-align: left;
+	vertical-align: bottom;
+}
+
+.textcontent th,
+.textcontent td {
+	padding: .2em 1ch .2em 0;
 }

@@ -357,3 +357,138 @@ button.tt-link {
 		width: calc(2 * (40ch + 10px));
 	}
 }
+
+/*
+	Sidlistan (views/sidlista.php), i sidomenyn och footern. Som Text-TV:s
+	innehållssidor: namn, prickar och sidnummer i cyan. Underrader med
+	indrag. Sidlistan syns bara på ett ställe åt gången: i footern på mobil,
+	i sidomenyn från 700 px där den alltid står framme.
+*/
+.sidlista,
+.sidlista ul {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.sidlista ul {
+	padding-left: 2ch;
+}
+
+.sidlista > li + li {
+	margin-top: .5em;
+}
+
+.sidlista a {
+	display: flex;
+	align-items: center;
+	min-height: 32px;
+	color: var(--tt-white);
+	text-decoration: none;
+}
+
+.sidlista > li > a {
+	color: var(--tt-yellow);
+}
+
+.sidlista__fyll {
+	flex: 1;
+	min-width: 1ch;
+	margin-inline: .5ch;
+	overflow: hidden;
+	white-space: nowrap;
+	color: var(--tt-blue-fg);
+}
+
+.sidlista__fyll::after {
+	content: "........................................";
+}
+
+.sidlista__num {
+	color: var(--tt-cyan);
+}
+
+.sidlista a:hover,
+.sidlista a:focus-visible {
+	background: var(--tt-yellow);
+	color: var(--tt-black);
+}
+
+.sidlista a:hover .sidlista__num,
+.sidlista a:focus-visible .sidlista__num,
+.sidlista a:hover .sidlista__fyll,
+.sidlista a:focus-visible .sidlista__fyll {
+	color: var(--tt-black);
+}
+
+.sidlista a:focus-visible {
+	outline: 2px solid var(--tt-white);
+	outline-offset: 2px;
+}
+
+/* Sidomenyn: svart spalt till vänster. På mobil glider den fram med
+   "Sidor ≡" (body.menu-active, js/scripts.js), från 700 px står den kvar. */
+.sidebar {
+	position: fixed;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	width: 250px;
+	box-sizing: border-box;
+	overflow: auto;
+	padding: 1em 1ch 6em; /* 6em: en annons i nederkant får inte täcka länkarna */
+	background: var(--tt-black);
+	border-right: 2px solid var(--tt-blue-bg);
+	font-family: var(--tt-font);
+	font-size: 14px; /* 33 tecken, "  Målservice & resultat . 376-395" behöver 32 */
+	line-height: 1.25;
+	text-align: left;
+	visibility: hidden;
+	opacity: 0;
+	transition: opacity 300ms ease-in-out, visibility 300ms;
+}
+
+.menu-active .sidebar {
+	visibility: visible;
+	opacity: 1;
+}
+
+@media only screen and (min-width: 700px) {
+	.sidebar {
+		visibility: visible;
+		opacity: 1;
+	}
+
+	.site-footer__sidor {
+		display: none;
+	}
+}
+
+/* Footern: samma spalt som sidan, svart. */
+.wrap {
+	background-color: var(--tt-black);
+}
+
+.site-footer {
+	margin-top: 2em;
+	padding: 1em 0 3em;
+	border-top: 2px solid var(--tt-blue-bg);
+	color: var(--tt-white);
+}
+
+.site-footer__inner > * + * {
+	margin-top: 1.5em;
+}
+
+.site-footer__sidor .tt-band {
+	margin-bottom: .5em;
+}
+
+.site-footer__om {
+	margin-bottom: 0;
+	color: var(--tt-neutral);
+}
+
+.site-footer__meta a {
+	color: var(--tt-neutral);
+}

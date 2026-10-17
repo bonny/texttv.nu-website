@@ -331,65 +331,6 @@ body {
   min-height: 100%;
   background-color: #141c2a;
 }
-.sidebar {
-  background: #31394a;
-  width: 271px;
-  width: 250px;
-  position: fixed;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  overflow: auto;
-  background: rgb(49, 57, 74);
-
-  visibility: hidden;
-  opacity: 0;
-  -webkit-transition: all 300ms ease-in-out;
-  -moz-transition: all 300ms ease-in-out;
-  -ms-transition: all 300ms ease-in-out;
-  -o-transition: all 300ms ease-in-out;
-  transition: all 300ms ease-in-out;
-
-  /* Se till att ev. annons inte täcker sista länkarna */
-  padding-bottom: 6em;
-}
-
-.sidebar,
-.sidebar span.num {
-  font: 15px/1em "Helvetica Neue", Helvetica, arial, sans-serif;
-  float: right;
-  margin: 0 24px 0 0;
-}
-
-.sidebar span.num {
-  color: #a3a3a3;
-}
-
-.sidebar ul {
-  border-bottom: 1px solid #404857;
-}
-.sidebar li {
-  border-top: 1px solid #404857;
-  border-bottom: 1px solid #242a37;
-}
-.sidebar a,
-.search-sidebar {
-  display: block;
-  padding: 0.7em;
-  text-decoration: none;
-}
-.sidebar a + a {
-  padding-left: 0;
-}
-
-.sidebar a .icon {
-  color: #888;
-  height: 16px;
-}
-
-.sidebar-pages a {
-  display: inline-block;
-}
 
 #pages {
   position: relative;
@@ -433,11 +374,6 @@ body {
 
 /* for a bit bigger screens: show sidebar always*/
 @media only screen and (min-width: 700px) {
-  .sidebar {
-    visibility: visible;
-    opacity: 1;
-    -webkit-overflow-scrolling: touch;
-  }
 
   .wrap {
     margin-left: 250px;
@@ -455,27 +391,6 @@ body {
 
 .is-domready .nav-menu {
   visibility: visible;
-}
-
-.leifby ul {
-  font-size: 0.8em;
-  border: 0;
-}
-.leifby span.num {
-  font-size: 0.8em;
-  margin-right: 28px;
-}
-.leifby ul li {
-  margin-left: 0.8em;
-  border: none;
-}
-.leifby > a {
-  padding-bottom: 0.5em;
-  color: #ffe3e6;
-  font-weight: bold;
-}
-.leifby ul a {
-  padding: 0.5em;
 }
 
 /*
@@ -603,7 +518,6 @@ body {
   font-size: 12px;
   text-align: center;
 }
-
 
 /**
  * Breadcrumbs
@@ -772,8 +686,7 @@ body {
   }
 }
 
-/* site footer */
-.site-footer,
+/* Textblocket under sidan (views/page_text.php) */
 .page-text {
   font-family: sans-serif;
   font-size: 1.2rem;
@@ -785,48 +698,10 @@ body {
   background-color: rgb(17, 22, 35);
 }
 
-.site-footer p,
 .page-text p {
   margin-top: 0.5em;
   margin-bottom: 0.5em;
   line-height: 1.2;
-}
-
-.site-footer-pages {
-  > ul > li {
-    margin-top: 1rem;
-  }
-
-  a {
-    display: block;
-    padding: 0.25rem;
-  }
-}
-
-.site-footer-pages-nav {
-  border-top: 1px solid #666;
-  border-bottom: 1px solid #666;
-  margin: 2rem 0;
-  padding: 2rem 0;
-
-  a {
-    display: inline-block;
-    padding: 0.25em;
-    color: #888;
-    text-decoration: none;
-  }
-}
-
-.site-footer-col-metalinkslist {
-  list-style-type: none;
-  margin-top: 0.25em;
-
-  a {
-    display: block;
-    padding: 0.25em;
-    color: #888;
-    text-decoration: none;
-  }
 }
 
 /**
@@ -843,10 +718,6 @@ body {
 
 .breadcrumbs {
   margin-top: 110px;
-}
-
-.sidebar-fb-like [fb-xfbml-state="rendered"] {
-  padding: 10px;
 }
 
 .pages-updated {

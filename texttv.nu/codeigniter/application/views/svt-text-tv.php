@@ -1,10 +1,12 @@
 
-<br><br><br><br>
-<h1>SVT Text TV</h1>
+<?php
+// Landningssida med de viktigaste sidorna efter varandra. En h1 som band,
+// en h2 per sida (todo #18; förut var varje sidrubrik en h1).
+?>
+<main id="pages" class="svt-text-tv-sidor">
+<h1 class="tt-sidbredd tt-band pages-headline">SVT Text TV</h1>
 
-<p>Nyheter och sport är bäst på text-tv!</p>
-
-<hr>
+<p class="tt-sidbredd tt-dag__intro">Nyheter och sport är bäst på Text TV.</p>
 
 <?php
 
@@ -29,24 +31,19 @@ $arr_pages = [
 
 foreach ( $arr_pages as $vals ) {
 
-	$teaser = empty( $vals["teaser"] ) ? "" : "<div class='teaser'>{$vals["teaser"]}</div>";
+	$teaser = empty( $vals["teaser"] ) ? "" : "<p class='tt-sidbredd teaser'>{$vals["teaser"]}</p>";
 
 	printf('
-		
-		<section>
-		
-			<h1>%1$s</h1>
-			
+		<section class="svt-text-tv-sida">
+			<h2 class="tt-sidbredd tt-band">%1$s</h2>
 			%3$s
-		
-			<ul>%2$s</ul>
-		
+			<div>%2$s</div>
 		</section>
-		
-		', $vals["page"]->get_page_title(),
+		', html_escape($vals["page"]->get_page_title()),
 		$vals["page"]->get_output(),
 		$teaser // 3
 	);
 
-}	
-
+}
+?>
+</main>

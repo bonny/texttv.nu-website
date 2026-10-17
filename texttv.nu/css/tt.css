@@ -910,3 +910,22 @@ ol.day-list__items > li::before {
 	background: var(--tt-yellow);
 	color: var(--tt-black);
 }
+
+/* /svt-text-tv: de viktigaste sidorna efter varandra, var och en med ett
+   band och en kort ingress. */
+.svt-text-tv-sida {
+	margin-top: 2em;
+}
+
+.svt-text-tv-sida .tt-band {
+	padding-inline: .5ch;
+}
+
+.svt-text-tv-sida .teaser {
+	margin: .5em auto 0;
+	line-height: 1.4;
+}
+
+.svt-text-tv-sidor > .tt-dag__intro {
+	margin: .5em auto 0;
+}

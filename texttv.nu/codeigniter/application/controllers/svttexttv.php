@@ -4,9 +4,9 @@ class svttexttv extends CI_Controller {
 
 	public function index() {
 
+		// Ram och sidomeny som på resten av sajten (todo #18).
 		$data = array(
 			"wrapclasses" => array("svt-text-tv"),
-			"disableSidebar" => true
 		);
 
 		$data["custom_page_title"] = "SVT Text TV";
@@ -15,7 +15,7 @@ class svttexttv extends CI_Controller {
 
 		$this->load->view("header", $data);
 		$this->load->view("svt-text-tv", $data);
-		// $this->load->view('controls', $data);
+		$this->load->view('controls', $data);
 		$this->load->view("footer");	
 
 	}

@@ -676,10 +676,6 @@ class Importer
      */
     public function linkifySingleLine($line)
     {
-        $regexSingleNumber0 = '(0)';
-        $regexSingleNumber1to9 = '([1-9])';
-        $regexSingleNumber0to9 = '([0-9])';
-        $regexPageNumber = $regexSingleNumber1to9 . $regexSingleNumber0to9 . $regexSingleNumber0to9;
         $linkprefix = $this->linkprefix;
         $replacement = '<a href="' . $linkprefix . '\1">\1</a>';
 
@@ -732,11 +728,15 @@ class Importer
         // t.ex på sidan 330.
         // Hoppa över tusental som "Totalt har 14 151 personer" och "Minst 2 300
         // strokefall", men länka andra sidnummer på samma rad. Hoppa också över
-        // tal direkt efter "siffra-", så att "3 698-565" inte länkar 565, och
-        // belopp och antal som "394 kr" och "(170 st)" på t.ex. 763.
-        $regexNotThousands = '(?<!\b\d )(?<!\b\d\d )(?<!\d-)';
+        // tredje gruppen i "12 485 725", tal efter ett tusental och bindestreck
+        // ("3 698-565" i poängtabellen på 746), och belopp och antal som
+        // "394 kr" och "(170 st)" på t.ex. 763. Intervallet matchas atomiskt så
+        // att "100-200 kr" inte backar och länkar bara 100.
+        $regexNotThousands = '(?<!\b\d )(?<!\b\d\d )'
+            . '(?<!\b\d \d{3} )(?<!\b\d\d \d{3} )'
+            . '(?<!\b\d \d{3}-)(?<!\b\d\d \d{3}-)';
         $regexNotAmount = '(?! kr\b)(?! st\b)';
-        $regexNumberRange = $regexNotThousands . '(\b[1-9][0-9]{2}(?:-[1-9][0-9]{2})?\b)' . $regexNotAmount;
+        $regexNumberRange = $regexNotThousands . '(\b[1-9][0-9]{2}(?>(?:-[1-9][0-9]{2})?)\b)' . $regexNotAmount;
         $line = preg_replace('|' . $regexNumberRange . '|', $replacement, $line, -1, $count);
         if ($count) {
             return $line;

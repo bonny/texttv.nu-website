@@ -124,6 +124,12 @@ Från granskningen 2026-10-17:
     prod-sidor ändrades 5 rader på 763 och 778, alla belopp som slutade
     länkas. "Del 2 302" går inte att skilja från tusentalet "2 302" och
     länkas inte.
+  - Andra code review samma dag: lookbehinds även för tredje gruppen
+    (`12 485 725`), smalare spärr efter bindestreck så att `101-102-103`
+    länkar alla tre, och atomiskt intervall så att `100-200 kr` inte länkar
+    100. Samma resultat som förut på alla 16 971 rader i 421 prod-sidor.
+    Kvar medvetet: `126 450` länkar båda (går inte att skilja från listan
+    `101 104`), lookarounds ser inte över spangränser i HTML:en.
   - Död kod bort: `linkifySingleLineWithSpanSupport()` och parametern
     `$numberReplacements`, som aldrig sattes. Testsidan `100.html` har fått
     de gamla tabbarna borttagna i stället för att `cleanup()` ändras.

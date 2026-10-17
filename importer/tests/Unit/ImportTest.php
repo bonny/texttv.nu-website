@@ -192,10 +192,17 @@ class ImportTest extends TestCase
             // Tusental hoppas över, men andra sidnummer på raden länkas.
             ['Minst 2 300 drabbade, se 104', 1],
             ['Totalt har 14 151 personer, se 104', 1],
+            ['Hela 12 485 725 doser', 0],
+            ['Totalt 1 234 567', 0],
+            ['101-102-103', 2],
+            ['Inrikes 101 104 700', 3],
+            ['TV3,TV4,Kanal5 620-', 1],
             // Poängtabell på 746 och belopp på 763.
             ['1. Smederna     14 11  0  3 698-565 28', 0],
             ['Topptipset        527 kr       (2 st)', 0],
             ['   12 rätt         8 419 kr     (170 st)', 0],
+            ['Vinst 100-200 kr', 0],
+            ['6. Vargarna     14  4  0 10 599-624 10', 0],
         ];
 
         foreach ($arrLines as [$text, $expected]) {

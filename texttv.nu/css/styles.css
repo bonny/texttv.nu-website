@@ -70,10 +70,6 @@ ul {
 
 /* .ic-home-white-24px { file size: 0.2ko | optimized file size: 0.2ko | base64 size: 0.3ko */
 
-.icon-reload {
-  background-image: url('data:image/svg+xml;utf8,<svg fill="%23FFFFFF" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M19 8l-4 4h3c0 3.31-2.69 6-6 6-1.01 0-1.97-.25-2.8-.7l-1.46 1.46C8.97 19.54 10.43 20 12 20c4.42 0 8-3.58 8-8h3l-4-4zM6 12c0-3.31 2.69-6 6-6 1.01 0 1.97.25 2.8.7l1.46-1.46C15.03 4.46 13.57 4 12 4c-4.42 0-8 3.58-8 8H1l4 4 4-4H6z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
-}
-
 .wrap {
   text-align: center;
 }
@@ -425,24 +421,6 @@ body {
 /**
  * Breadcrumbs
  */
-.breadcrumbs {
-  width: 40ex;
-  text-align: left;
-  margin: 70px auto 0 auto;
-  padding: 0;
-  list-style-type: none;
-}
-.breadcrumbs__item {
-  display: inline-block;
-  font-size: 0.9em;
-}
-.breadcrumbs__link {
-  text-decoration: none;
-  border-bottom: 1px solid #888;
-}
-.breadcrumbs__link:hover {
-  border-bottom-color: #ccc;
-}
 
 .breadcrumbs + #pages,
 .breadcrumbs + .ad--beforeMainText + #pages {
@@ -462,50 +440,6 @@ body {
  */
 
 /* page-updated-box */
-.pages-updated {
-  display: none;
-  position: fixed;
-  z-index: 5;
-  width: 100%;
-  margin-top: 50px;
-}
-
-.pages-updated.is-updated {
-  display: block;
-}
-
-.pages-updated-reload {
-  border: 0;
-  display: block;
-  width: 100%;
-  text-align: center;
-  color: white;
-  padding: 10px;
-  background-color: rgb(62, 148, 13);
-  font-size: 1rem;
-  cursor: pointer;
-}
-
-.pages-updated-reload-textlink {
-  font-family: inherit;
-  font-size: 1rem;
-  text-decoration: underline;
-}
-
-.pages-updated .icon-reload {
-  display: inline-block;
-  background-size: 100%;
-  width: 16px;
-  height: 16px;
-  vertical-align: middle;
-}
-
-/* if sidebar is open */
-@media only screen and (min-width: 700px) {
-  .pages-updated {
-    width: calc(100% - 250px);
-  }
-}
 
 /**
  Nav at bottom because thumbs
@@ -517,14 +451,6 @@ body {
 
 #pages {
   margin-top: 100px;
-}
-
-.breadcrumbs {
-  margin-top: 110px;
-}
-
-.pages-updated {
-  margin-top: 93px;
 }
 
 /* end new blue nav header 2016 */

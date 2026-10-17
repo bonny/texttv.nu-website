@@ -15,7 +15,7 @@ if ($this->input->get("apiAppShare")) {
 }
 
 ?>
-<div class="not-broadcasted-notice">
+<div class="not-broadcasted-notice tt-sidbredd">
 	<?php if (!$nb["page"]) { ?>
 	<p>
 		<strong>SVT har inte sänt sidan sedan <?php echo html_escape($nb["off_air_since_human"]) ?>.</strong>
@@ -37,19 +37,3 @@ if ($this->input->get("apiAppShare")) {
 	</p>
 	<?php } ?>
 </div>
-<style>
-	/* Sidor utan brödsmulor (t.ex. 550) har inget som trycker ner innehållet
-	   under den fasta menyn; samma avstånd som arkivsidornas .introtext. */
-	.not-broadcasted-notice {
-		max-width: 40ex;
-		margin: 95px auto 1em;
-		padding: .5em .75em;
-		border: 1px solid #ffff00;
-	}
-	.breadcrumbs ~ .not-broadcasted-notice {
-		margin-top: 1em;
-	}
-	.not-broadcasted-notice p {
-		margin: 0;
-	}
-</style>

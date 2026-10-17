@@ -929,3 +929,97 @@ ol.day-list__items > li::before {
 .svt-text-tv-sidor > .tt-dag__intro {
 	margin: .5em auto 0;
 }
+
+/* Ny version av sidan (views/pages_updated_container.php, js/scripts.js):
+   en gul rad under ramen. */
+.pages-updated {
+	display: none;
+	position: fixed;
+	z-index: 5;
+	top: 100px;
+	left: 0;
+	right: 0;
+}
+
+.pages-updated.is-updated {
+	display: block;
+}
+
+@media only screen and (min-width: 700px) {
+	.pages-updated {
+		left: 250px;
+	}
+}
+
+.pages-updated-reload {
+	display: block;
+	width: 100%;
+	min-height: 44px;
+	padding: .5em 1ch;
+	border: 0;
+	background: var(--tt-yellow);
+	color: var(--tt-black);
+	font: inherit;
+	cursor: pointer;
+}
+
+.pages-updated-reload-textlink {
+	text-decoration: underline;
+	text-underline-offset: .2em;
+}
+
+/* Brödsmulorna ovanför sidan (views/breadcrumbs.php). */
+.breadcrumbs {
+	box-sizing: border-box;
+	width: calc(40ch + 10px);
+	max-width: 100%;
+	margin: 110px auto 0;
+	padding: 0 5px;
+	list-style: none;
+	text-align: left;
+	color: var(--tt-cyan);
+}
+
+.breadcrumbs__item {
+	display: inline-block;
+}
+
+.breadcrumbs__link {
+	color: var(--tt-yellow);
+	text-decoration: underline;
+	text-underline-offset: .2em;
+}
+
+.breadcrumbs__link:hover,
+.breadcrumbs__link:focus-visible {
+	background: var(--tt-yellow);
+	color: var(--tt-black);
+	text-decoration: none;
+}
+
+/* "Sidan sänds inte just nu" (views/not_broadcasted_notice.php). Sidor
+   utan brödsmulor (t.ex. 550) har inget annat som trycker ner den under
+   ramen. */
+.not-broadcasted-notice {
+	margin: 100px auto 1em;
+	line-height: 1.4;
+}
+
+.breadcrumbs ~ .not-broadcasted-notice {
+	margin-top: 1em;
+}
+
+.not-broadcasted-notice p {
+	margin: 0;
+}
+
+.not-broadcasted-notice strong {
+	display: block;
+	color: var(--tt-yellow);
+	font-weight: normal;
+}
+
+.not-broadcasted-notice a {
+	color: var(--tt-yellow);
+	text-underline-offset: .2em;
+}

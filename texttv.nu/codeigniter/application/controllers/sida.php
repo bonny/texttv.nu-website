@@ -350,10 +350,11 @@ class Sida extends CI_Controller {
 		// får sitt eget dagsarkiv och sin avdelnings dagslista.
 		$yesterday_links = [];
 		if ($pagedescription === "startpage") {
+			// Rubriken ovanför säger redan "igår", så inget "Gårdagens" här.
 			$yesterday_links = [
-				["/nyheter/igar", "Gårdagens nyheter"],
-				["/sport/igar", "Gårdagens sportnyheter"],
-				["/377/igar", "Gårdagens resultat 377"],
+				["/nyheter/igar", "Nyheter"],
+				["/sport/igar", "Sport"],
+				["/377/igar", "Resultat 377"],
 			];
 		} elseif (sizeof($arr_page_objs) == 1) {
 			$num = (int) $arr_page_objs[0]->num;
@@ -373,10 +374,15 @@ class Sida extends CI_Controller {
 		}
 		// Visas av pages_inner_output_current direkt under sidan, före
 		// annonsen, så att de syns utan att man scrollar förbi den.
-		$yesterday_prefix = $pagedescription === "startpage" ? "Igår på Text TV:" : "";
 		// Startsidan visar dessutom gårdagens mest lästa nyheter, med länk
 		// till varje nyhets arkivsida. Räknas fram en gång per dygn.
 		$yesterday_top = $pagedescription === "startpage" ? yesterday_top_news(self::STARTPAGE_YESTERDAY_COUNT) : [];
+		// Rubriken säger vad listan är; utan lista (t.ex. tidigt på dygnet
+		// innan statistiken finns) gäller den bara länkarna.
+		$yesterday_prefix = "";
+		if ($pagedescription === "startpage") {
+			$yesterday_prefix = $yesterday_top ? "Mest läst igår" : "Igår på Text TV";
+		}
 		// Skapa array med data att skicka med till vyerna
 		$data = array();
 		$data["not_broadcasted"] = $not_broadcasted;

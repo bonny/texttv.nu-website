@@ -30,7 +30,11 @@ Reglerna, så att de kan återanvändas:
    knappar med ram. Klickytan hålls på 44 px med padding.
 4. **Ett rutnät i tecken.** Monospace, `ch`-mått, 40 tecken bred kolumn,
    allt vänsterställt på samma axel.
-5. **Kort text.** Rubriken bär sammanhanget, så länkarna behöver inte upprepa
+5. **Text-TV-sidan får alltid plats i bredd.** De 40 tecknen ska rymmas på
+   alla mobiler, från 320 px och uppåt, utan radbrytning eller horisontell
+   scroll. Allt runt sidan (band, listor, länkrader) följer sidans bredd och
+   aldrig tvärtom. Krav från Pär 2026-10-17.
+6. **Kort text.** Rubriken bär sammanhanget, så länkarna behöver inte upprepa
    det ("Nyheter →" i stället för "Gårdagens nyheter →").
 
 ### Inventering 2026-10-17 (snabb, lokalt på 390 px bredd)
@@ -80,6 +84,14 @@ Samla allt i en ny fil, eller överst i `styles.css`, som CSS custom properties:
   sådant som Text TV inte har, till exempel annonsetiketter. Inget annat.
 - **Typografi:** Ubuntu Mono överallt. En storlek för brödtext och en för
   dubbelhöga rubriker, som på Text TV. Ingen sans-serif.
+- **Sidans storlek:** idag sätts teckenstorleken med fasta brytpunkter från
+  iPhone 5/6-tiden (`styles.css` cirka rad 1080–1110: 22, 16 och 14 px, delvis
+  på `device-width`). Därför bryts sida 377 på 375 px. Ersätt med en
+  storlek som räknas fram ur skärmbredden, ungefär
+  `font-size: clamp(10px, (100vw - 2 * marginal) / 20, 22px)`
+  (Ubuntu Mono är cirka 0,5 em per tecken, så 40 tecken blir 20 em). Prova på
+  320, 360, 375, 390, 414 och 430 px och med sidomenyn öppen. Gör det här
+  först: allt annat ska anpassas efter sidans bredd.
 - **Mått:** `ch` och radhöjd som rutnät. Kolumn `40ch`. Avstånd i hela rader
   (`1lh` eller `1.25em`).
 - **Interaktion:** hover och fokus = gul bakgrund med svart text, samma på alla

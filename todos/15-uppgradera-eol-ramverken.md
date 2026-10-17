@@ -1,5 +1,6 @@
-**Status:** aktiv
-**Senast uppdaterad:** 2026-10-14
+**Status:** blockerad
+**Senast uppdaterad:** 2026-10-17
+**Blockerad av:** #17 (Debian 13 och PHP 8.4)
 
 # Todo #15 — Uppgradera EOL-ramverken (CodeIgniter 2, Laravel 8)
 
@@ -20,8 +21,9 @@ koden som den används, men inga fixar kommer heller.
   `bookworm-security`, och changeloggen säger "Non-maintainer upload by the LTS
   Team" med fyra CVE-fixar (bl.a. mysqlnd), byggd 2026-10-04. Säkerhetsfixarna
   kommer alltså. Att byta till PHP 8.4 nu (via sury.org eller Debian 13) ger
-  risk utan vinst. Gör det som en flytt till en ny Debian 13-server under 2027,
-  tillsammans med Laravel 13.
+  risk utan vinst. Gör det som en uppgradering till Debian 13 under 2027,
+  tillsammans med Laravel 13. Plan i
+  [#17](17-uppgradera-prod-till-debian-13.md) (på plats, inte ny server).
 - **Båda apparna fungerar på PHP 8.4** (prod kör 8.2), provat i Docker med
   `serversideup/php:8.4`:
   - **Webben (CI 2):** 13 sidor och API-anrop byte-identiska med 8.2. Enda
@@ -51,11 +53,14 @@ koden som den används, men inga fixar kommer heller.
   inga köer. Har PHPUnit-tester.
 - **Paket som försvinner eller måste bytas på vägen:**
   - `fideloper/proxy` och `fruitcake/laravel-cors`: inbyggda i Laravel 9+.
-  - `spatie/laravel-short-schedule`: Laravel har inbyggd schemaläggning under
-    minuten (`everyTenSeconds()` m.fl.) sedan 10.x, så paketet kan troligen
-    tas bort.
-  - `dgoring/dom-query`: okänt underhåll, kontrollera först. Det är den enda
-    egentliga risken.
+  - `spatie/laravel-short-schedule`: **används inte** (granskat 2026-10-17).
+    `Kernel.php` har ingen `shortSchedule()` och prod-cron kör bara
+    `schedule:run`. Kan tas bort redan nu, oberoende av uppgraderingen.
+  - `dgoring/dom-query`: v1.0.0 från 2022-10-27 är enda releasen, i praktiken
+    övergivet. Används bara på två ställen (`Importer.php:81` och `:512`).
+    Ersätt med PHP 8.4:s inbyggda `Dom\HTMLDocument` (har `querySelector()`)
+    eller `symfony/dom-crawler` i samma veva. Litet byte, inte längre den
+    stora risken.
 - **Väg:** stegvis 8 → 9 → 10 → 11 → 12 → 13 enligt Laravels upgrade-guider,
   eller betald automatisering via Laravel Shift. Uppskattning: en till två
   dagar, mest konfig-flytt (Laravel 11 slimmade skelettet).
@@ -78,8 +83,9 @@ Fyra vägar:
    praktiken en omskrivning.
 4. **Flytta webben in i Laravel-appen.** Ett ramverk och en kodbas i stället
    för två som delar en databas. Ungefär lika mycket arbete som CI 4:
-   13 controllers (~1 800 rader), en modell (~1 050), en helper (~750), en
-   library (~290) och 30 vyer (~3 400). 33 routes som måste behålla exakt
+   15 controllers (2 238 rader, varav `test.php` och `welcome.php` är död
+   kod), en modell (1 069), en helper (1 465), en library (287) och 34 vyer
+   (3 978). Räknat 2026-10-17. 33 routes som måste behålla exakt
    samma URL:er, och `/api/*` måste vara byte-identiskt för apparna.
    `make test-api` är byggt för just den kontrollen. Det behöver då jämföra
    två körande appar i stället för två git-refs.
@@ -93,13 +99,34 @@ Fyra vägar:
   Blir det aktuellt är alternativ 4 bättre än 2 och 3, eftersom det ger ett
   ramverk i stället för två.
 
-## Nästa steg (när det blir aktuellt)
+## Kan göras nu, oberoende av uppgraderingen
 
-1. Kontrollera underhållsläget för `dgoring/dom-query`.
-2. Planera OS-uppgraderingen av prod till Debian 13 (egen todo; påverkar
-   nginx, MariaDB och php-fpm-konfigen i `server.md`).
-3. Laravel 8 → 13 på en branch, verifiera med PHPUnit och en import i Docker
-   på PHP 8.4.
+Från granskningen 2026-10-17:
+
+- [x] Ta bort `spatie/laravel-short-schedule` ur importern. Gjort 2026-10-17
+  (branch `stadning-15`); bara paketet och `spatie/temporary-directory`
+  försvann ur låsfilen.
+- [x] Ta bort `controllers/test.php` och `controllers/welcome.php` och routen
+  `$route['dev']` (pekar på en controller som inte finns). `/test` och
+  `/welcome` svarar 200 i prod; `/test` skriver ut `<br>start` och sida 100
+  rått. Gjort 2026-10-17, även vyn `welcome_message.php`.
+- [x] Fixa de två PHPUnit-tester som redan fallerar, så att testsviten duger
+  som verifiering inför Laravel-hoppet. Gjort 2026-10-17: båda var inaktuell
+  testdata från 2021. `test_linkify` testar nu `linkifySingleLine()`, den
+  metod prod använder (`linkifySingleLineWithSpanSupport()` anropas inte
+  längre, död kod). Det avslöjade en bugg: "Minst 2 300 strokefall" länkade
+  300. Regeln för tusental gäller nu även ensiffrigt (`\d{1,2}`); mot
+  prod-sidorna påverkar det bara poängtabeller på 746 och "1 507 kr" på 763,
+  som felaktigt länkades. `test_colorize` saknar fortfarande assertions.
+
+## Nästa steg (när #17 är på gång)
+
+1. Laravel 8 → 13 på en branch. Byt `dgoring/dom-query` på vägen.
+2. Verifiera med PHPUnit (gröna efter fixen ovan), en import i Docker på
+   PHP 8.4, och **diffa `php artisan schedule:list` före och efter**.
+   Laravel 11 flyttar schemat från `app/Console/Kernel.php` till
+   `routes/console.php`, och där ligger de handjusterade cron-tiderna från
+   #12 (t.ex. `1-59/10` för 500–599). De får inte tappas.
 
 ## Källor
 

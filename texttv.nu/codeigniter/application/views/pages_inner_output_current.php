@@ -79,8 +79,9 @@ if ($is_startpage) {
 }
 
 if ($headline) {
+	// Blått band i sidans bredd (tt-band, todo #18). Texten är oförändrad.
 	$out .= sprintf(
-		'<h1>%1$s</h1>',
+		'<h1 class="tt-sidbredd tt-band pages-headline">%1$s</h1>',
 		$headline
 	);
 } else if (isset($pagenum) && $pagenum) {

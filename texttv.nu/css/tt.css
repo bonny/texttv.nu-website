@@ -40,6 +40,24 @@ html:not(.appShare) .tt-sidbredd {
 	font-size: clamp(10px, (100cqi - 2 * var(--tt-gutter) - 10px) / 20, 1.375rem);
 }
 
+/* styles.css trycker ihop tecknen på iPad i liggande läge (letter-spacing
+   -1px) för att två sidor ska rymmas. Det sköter storleken ovan nu, och
+   utan nollställningen blir sidan smalare än 40ch och banden runt den. */
+html:not(.appShare) #pages .one-page,
+html:not(.appShare) .tt-sidbredd {
+	letter-spacing: 0;
+}
+
+/*
+	Brödtexten utanför sidorna. Samma räkning som sidan men mot skärmen,
+	14–22 px. Ersätter de gamla brytpunkterna per enhet (iPhone 5/6, iPad).
+	Delningsbilderna har egna storlekar i styles.css (.appShare body).
+*/
+body,
+pre {
+	font-size: clamp(14px, (100vw - 2 * var(--tt-gutter) - 10px) / 20, 1.375rem);
+}
+
 /*
 	Ett block som följer Text-TV-sidans bredd: samma teckenstorlek och 40
 	tecken, vänsterställt på sidans axel. 10px = sidans padding, så att
@@ -100,11 +118,12 @@ button.tt-link {
 /* Rubrikband i full bredd. */
 .tt-band {
 	display: block;
-	margin: 0;
+	margin-block: 0;
 	padding: .15em 1ch;
 	background: var(--tt-blue-bg);
 	color: var(--tt-white);
-	font: inherit;
+	font-family: inherit;
+	font-weight: normal;
 }
 
 /* Lista med en kolumn för metadata (placering, tid, sidnummer) i cyan och
@@ -212,4 +231,129 @@ button.tt-link {
 .latest-pages h2 {
 	display: block;
 	margin-bottom: .25em;
+}
+
+/*
+	Appramen (views/controls.php). Svart och i sidans bredd, två rader på
+	44 px. Höjden (cirka 100 px) är densamma som förut, så #pages och
+	.breadcrumbs behåller sin margin-top i styles.css.
+*/
+.controls {
+	position: fixed;
+	z-index: 1;
+	top: 0;
+	left: 0;
+	right: 0;
+	padding: 4px 0;
+	background: var(--tt-black);
+	border-bottom: 2px solid var(--tt-blue-bg);
+	color: var(--tt-white);
+	line-height: 1.25;
+}
+
+/* Sidomenyn står alltid framme från 700 px, och ramen börjar efter den. */
+@media only screen and (min-width: 700px) {
+	.controls {
+		left: 250px;
+	}
+}
+
+.controls__row {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	min-height: 44px;
+}
+
+/* Föregående, sökfältet och nästa: fältet i mitten även när en pil saknas. */
+.controls__row--pages {
+	display: grid;
+	grid-template-columns: 1fr auto 1fr;
+	column-gap: 1ch;
+}
+
+.controls__next {
+	justify-self: end;
+}
+
+.controls__home {
+	display: inline-flex;
+	align-items: center;
+	gap: 1ch;
+	min-height: 44px;
+	color: var(--tt-white);
+	text-decoration: none;
+}
+
+.controls__home svg {
+	width: 1.5em;
+	height: 1.5em;
+}
+
+.controls__home:hover,
+.controls__home:focus-visible {
+	background: var(--tt-yellow);
+	color: var(--tt-black);
+}
+
+.controls__menu {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+/* "Gå till sida": blått fält med vit text, som ett rubrikband. */
+.controls-topnav-form {
+	margin: 0;
+}
+
+.controls-topnav-search-input {
+	box-sizing: border-box;
+	width: 14ch;
+	height: 36px;
+	margin: 0;
+	padding: 0 1ch;
+	border: 0;
+	border-radius: 0;
+	background: var(--tt-blue-bg);
+	color: var(--tt-white);
+	font: inherit;
+	text-align: center;
+}
+
+.controls-topnav-search-input::placeholder {
+	color: var(--tt-white);
+	opacity: 1;
+}
+
+.controls-topnav-search-input:focus {
+	outline: 2px solid var(--tt-yellow);
+	outline-offset: 2px;
+}
+
+.controls-topnav-search-input:focus::placeholder {
+	color: transparent;
+}
+
+/* Sidans h1 ovanför Text-TV-sidan: ett band kant i kant med sidan. */
+.pages-headline {
+	margin-block: .5em 0;
+	padding-inline: .5ch; /* 39 tecken ryms: "SVT Text TV - Nyheter och Sportresultat" */
+}
+
+/*
+	Flera sidor (startsidan, /100,300): från 900 px i #pages står två sidor
+	bredvid varandra utan mellanrum, 2 × (40ch + 10px) vid 22 px. Bandet och
+	ramen spänner då över båda. 1150px = 900 + sidomenyn på 250.
+*/
+@container (min-width: 900px) {
+	.page-multiple .pages-headline {
+		width: calc(2 * (40ch + 10px));
+	}
+}
+
+@media only screen and (min-width: 1150px) {
+	.page-multiple .controls__inner {
+		width: calc(2 * (40ch + 10px));
+	}
 }

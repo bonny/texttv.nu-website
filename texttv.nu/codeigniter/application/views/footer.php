@@ -127,11 +127,6 @@ if (!$this->input->get("apiAppShare")) { ?>
 
 	</footer>
 
-	<?php
-	// Inaktiverade egen cookie-ruta 2021-11-07 pga byter till
-	// Googles/AdSense egna.
-	// include_once __DIR__ . '/cookie_banner.php';
-	?>
 <?php } ?>
 
 <?php

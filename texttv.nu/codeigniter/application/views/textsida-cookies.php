@@ -2,10 +2,6 @@
 	
 	<h1>Cookies / Kakor på TextTV.nu</h1>
 		
-	<div>
-		<button style="padding: 10px;" class="site-cookie-banner__showSettings hidden">Visa inställningar för cookies</button>
-	</div>
-		
 	<h2>Vad är cookies</h2>
 	
 	<p>

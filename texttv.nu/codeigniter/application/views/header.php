@@ -603,6 +603,7 @@ if (isset($day_archive)) {
 	<link rel="stylesheet" href="/css/fonts.css">
 	<link rel="stylesheet" href="/css/styles.css">
 	<link rel="stylesheet" href="/css/texttvpage.css">
+	<link rel="stylesheet" href="/css/tt.css">
 	<?php if ($this->input->get("skipScriptsHeader")) {
 		// no scripts
 	} else {

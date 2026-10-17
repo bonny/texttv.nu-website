@@ -1,0 +1,139 @@
+/*
+	tt.css – Text-TV-designsystemet (todo #18).
+	Tokens och komponenter. Laddas efter styles.css och texttvpage.css.
+*/
+
+:root {
+	/* Färger, samma värden som texttvpage.css. */
+	--tt-black: #000;
+	--tt-blue-bg: #00f; /* Rubrikband. Bara som bakgrund. */
+	--tt-blue-fg: #12c; /* Bara inne på Text-TV-sidorna: 2:1 mot svart. */
+	--tt-white: rgb(252, 254, 252); /* Brödtext. */
+	--tt-yellow: rgb(252, 254, 1); /* Länkar, handlingar, markerad rad. */
+	--tt-cyan: #00c8ee; /* Metadata: tid, placering, sidnummer. */
+	--tt-red: rgb(252, 3, 4);
+	--tt-green: #0f0;
+	--tt-magenta: rgb(252, 3, 253);
+	--tt-neutral: #9a9a9a; /* Det enda tillägget: annonsetiketter. */
+
+	--tt-font: "Ubuntu Mono", Courier, monospace;
+
+	/* Luft på var sida om Text-TV-sidan på mobil. */
+	--tt-gutter: 8px;
+}
+
+/*
+	Sidans storlek räknas ur utrymmet sidan får, inte ur skärmen, så att
+	de 40 tecknen alltid ryms: med sidomenyn öppen, med flera sidor i
+	bredd och i liggande läge. Ubuntu Mono är 0,5 em per tecken, så 40
+	tecken är 20 em. 10px = sidans egen padding (.li, 5px per sida).
+	Taket i rem gör att användarens textstorlek respekteras.
+	Delningsbilderna (html.appShare) behåller sina fasta storlekar.
+	Utanför #pages finns ingen container, och då räknas cqi mot skärmen.
+*/
+html:not(.appShare) #pages {
+	container-type: inline-size;
+}
+
+html:not(.appShare) #pages .one-page,
+html:not(.appShare) .tt-sidbredd {
+	font-size: clamp(10px, (100cqi - 2 * var(--tt-gutter) - 10px) / 20, 1.375rem);
+}
+
+/*
+	Ett block som följer Text-TV-sidans bredd: samma teckenstorlek och 40
+	tecken, vänsterställt på sidans axel. 10px = sidans padding, så att
+	bandet går kant i kant med sidan ovanför.
+*/
+.tt-sidbredd {
+	box-sizing: border-box;
+	width: calc(40ch + 10px);
+	max-width: 100%;
+	margin-inline: auto;
+	padding-inline: 5px;
+	text-align: left;
+	font-family: var(--tt-font);
+	line-height: 1.25;
+}
+
+/* Länkar: gul och understruken. Hover och fokus inverterar (beslut 1). */
+.tt-link,
+.tt-linkrow a {
+	display: inline-flex;
+	align-items: center;
+	min-height: 44px;
+	color: var(--tt-yellow);
+	text-decoration: underline;
+	text-underline-offset: .2em;
+}
+
+.tt-link:hover,
+.tt-linkrow a:hover,
+.tt-list a:hover,
+.tt-link:focus-visible,
+.tt-linkrow a:focus-visible,
+.tt-list a:focus-visible {
+	background: var(--tt-yellow);
+	color: var(--tt-black);
+	text-decoration: none;
+	opacity: 1;
+}
+
+.tt-link:focus-visible,
+.tt-linkrow a:focus-visible,
+.tt-list a:focus-visible {
+	outline: 2px solid var(--tt-white);
+	outline-offset: 2px;
+}
+
+/* Rubrikband i full bredd. */
+.tt-band {
+	display: block;
+	margin: 0;
+	padding: .15em 1ch;
+	background: var(--tt-blue-bg);
+	color: var(--tt-white);
+	font: inherit;
+}
+
+/* Lista med en kolumn för metadata (placering, tid, sidnummer) i cyan och
+   hängande indrag. Bredden på kolumnen sätts med --tt-list-meta. */
+.tt-list {
+	display: grid;
+	grid-template-columns: var(--tt-list-meta, 2ch) 1fr;
+	row-gap: .3em;
+	margin: .5em 0 0;
+	padding: 0;
+	list-style: none;
+}
+
+.tt-list > li {
+	display: contents;
+}
+
+.tt-list__meta {
+	color: var(--tt-cyan);
+}
+
+.tt-list a {
+	color: var(--tt-white);
+	text-decoration: none;
+}
+
+/* Rad med länkar som bryts snyggt. */
+.tt-linkrow {
+	display: flex;
+	flex-wrap: wrap;
+	column-gap: 2ch;
+}
+
+/* Gårdagens länkar under sidan (views/day_archive_link.php). På startsidan
+   en ruta i raden bredvid sida 100, lika bred som en sida. */
+.day-archive-link {
+	margin-block: 1em;
+}
+
+.day-archive-link--inline {
+	display: inline-block;
+	vertical-align: top;
+}

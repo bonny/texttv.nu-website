@@ -62,7 +62,16 @@ i avsnitten nedan. Två fel i den första versionen är rättade: bandets blå
 startsidan, sökfältet (klickbart), en arkivsida, en dagslista och en
 informationssida.
 
-**Öppna beslut** (tas innan ytorna görs om):
+**Beslut** (tagna av Pär 2026-10-17, alla enligt förslaget i designytan):
+
+1. Hover: inverterat överallt, gul bakgrund och svart text.
+2. Svart ram på webben. Appen kan följa efter senare.
+3. Desktop: flera sidor i bredd på startsidan.
+4. "Text TV" för tjänsten, "TextTV.nu" för sajten och appen, "Text-TV-" i
+   sammansättningar.
+5. Sökfältet: sifferknappsats på mobil.
+
+Frågorna som de var:
 
 1. **Hover.** Antingen gul bakgrund med svart text på alla länkar, eller
    färgbyte (vit → gul) på rubriklistor och understruken gul på textlänkar.
@@ -95,7 +104,26 @@ informationssida.
     fortfarande "Gårdagens nyheter →", nu som gul textlänk i stället för
     knapp.
   - Kvar: komponentens CSS ligger fortfarande i vyn, och bandet går inte
-    kant i kant med sidan bredvid (se inventeringen).
+    kant i kant med sidan bredvid (se inventeringen). Löst i steg 2 nedan.
+- **Steg 1 och 2 (2026-10-17, lokalt, inte pushat än):**
+  - Ny fil `css/tt.css`, laddas efter `texttvpage.css` i `header.php`
+    (inte i `appembed/`): färgtokens, teckenstorlek ur `#pages` bredd med
+    `cqi`, och komponenterna `tt-sidbredd`, `tt-band`, `tt-link`, `tt-list`
+    och `tt-linkrow`. Delningsbilderna (`html.appShare`) är undantagna.
+  - Teckenstorleken på sidorna: 14,7 px på 320, 16,7 på 360, 17,45 på 375,
+    18,2 på 390, 19,4 på 414, 20,2 på 430 och 22 på desktop (förut 14, 18,
+    18, 18, 18, 18 och 22). Ingen horisontell scroll på någon bredd.
+  - `day_archive_link.php` byggd av komponenterna, utan eget `<style>`.
+    Bandet går nu kant i kant med sidan och följer sidans storlek.
+  - Skärmdumpar i `TextTV.nu/.playwright-mcp/18/` (`fore/`, `fore-mestlast/`,
+    `steg1-storlek/`, `steg2-mestlast/`, jämförelser i `jamfor/`), tagna
+    med ett Playwright-skript på 320–1280 px.
+  - **Rättelser till granskningen:** sida 377 bryts inte av bredden. Raderna
+    med `(X-X,X-X,X-X)` står på egen rad även på 1280 px, så det kommer från
+    SVT:s innehåll. Och cookiebannern renderas inte alls
+    (`include_once` är bortkommenterad i `footer.php:133`), så dess h1 är
+    inget problem. Steg 0 utgår; `cookie_banner.php` kan tas bort som död
+    kod.
 - **5abfe23 (2026-10-17), AMP borttagen.** `amp.php` och AMP-metoderna är
   borta; gamla `/amp`-adresser får 301 via `Sida::amp_redirect()`. AMP behöver
   inte tas hänsyn till i designen.
@@ -126,7 +154,7 @@ steget):
 | --- | --- |
 | Appramen (header, `Sidor`/`Hem`/`← 100`/`102 →`, "Gå till sida") | Ionic-blå `#0066B5`, systemfont, appikon. Ser ut som en app från 2015, inte som Text TV. Samma blå är appens primärfärg (öppet beslut 2) |
 | Sidomenyn och footern ("Sidor"-listan) | Mörkblå `#141c2a`, Helvetica med vanlig understrykning, grå länkar, sidnummer i en annan font. Listan finns dessutom i både sidomenyn och footern. Footerlistan är sajtomfattande internlänkar till `/nyheter/igar`, `/sport/igar` och `/377/igar` (#16) |
-| Cookiebannern | Har en egen `<h1>` ("Får vi använda din data…", `cookie_banner.php:4`), så varje sida får två h1 |
+| Cookiebannern | Har en egen `<h1>` (`cookie_banner.php:4`), men renderas inte: inkluderingen är bortkommenterad i `footer.php`. Död kod |
 | Raden under sidan ("Sidan uppdaterad 20:25" + "Dela"-knapp) | Liten grå text plus knapp med ikon och ram. Webbspråk |
 | "FLER NYHETER EFTER ANNONSEN", "Senaste nyheterna", "Senaste sportnyheterna" | Versal sans-serif och fet Helvetica |
 | Startsidan, rubriken överst ("SVT Text TV - Nyheter och Sportresultat") | Fet monospace utan band, centrerad, ovanför sida 100. Vanlig webbrubrik. Bandet "Igår på Text TV" längre ner sticker ut cirka 10 px till vänster om sidans kolumn och har inte samma kant |
@@ -159,8 +187,8 @@ Samla allt i en ny fil, eller överst i `styles.css`, som CSS custom properties:
 - **Sidans storlek:** idag sätts teckenstorleken med fasta brytpunkter från
   iPhone 5/6-tiden (`styles.css` cirka rad 1080–1120: 22, 16, 14 och 18 px,
   delvis på `device-width`, plus en regel för liggande läge med två sidor i
-  bredd). På 375 px gäller `min-device-width: 375px` och ger **18 px**:
-  40 × 9 = 360 px plus padding, därför bryts sida 377. Ersätt med en storlek
+  bredd). På 375 px gäller `min-device-width: 375px` och ger 18 px. (Att
+  sida 377 bryts beror inte på det, se "Gjort hittills".) Ersätt med en storlek
   som räknas fram ur *sidans* bredd, inte skärmens: sätt
   `container-type: inline-size` på sidans behållare och räkna med `cqi`,
   ungefär `font-size: clamp(10px, (100cqi - 2 * marginal) / 20, 1.375rem)`
@@ -202,8 +230,7 @@ Bygg om `day_archive_link.php` först, som referens, och ta bort dess egna
 
 Ett förslag till ordning, där det som syns mest kommer först:
 
-0. Direkt, oberoende av resten: byt cookiebannerns `<h1>` mot en rubrik som
-   inte är h1, så att varje sida har en h1.
+0. ~~Byt cookiebannerns `<h1>`~~: utgår, bannern renderas inte.
 1. Raden under sidan, "Senaste nyheterna/sportnyheterna" och
    annonsetiketterna: syns på varje sidvisning. Behåll "Senaste nyheterna"
    och "Senaste sportnyheterna" som de är (sökord). "Fler nyheter efter

@@ -122,7 +122,8 @@ Frågorna som de var:
     med `(X-X,X-X,X-X)` står på egen rad även på 1280 px, så det kommer från
     SVT:s innehåll. Och cookiebannern renderas inte alls
     (`include_once` är bortkommenterad i `footer.php:133`), så dess h1 är
-    inget problem. Steg 0 utgår; `cookie_banner.php` kan tas bort som död
+    inget problem. Bannern på prod är Googles samtyckesmeddelande (se
+    inventeringen). Steg 0 utgår; `cookie_banner.php` kan tas bort som död
     kod.
 - **5abfe23 (2026-10-17), AMP borttagen.** `amp.php` och AMP-metoderna är
   borta; gamla `/amp`-adresser får 301 via `Sida::amp_redirect()`. AMP behöver
@@ -154,7 +155,7 @@ steget):
 | --- | --- |
 | Appramen (header, `Sidor`/`Hem`/`← 100`/`102 →`, "Gå till sida") | Ionic-blå `#0066B5`, systemfont, appikon. Ser ut som en app från 2015, inte som Text TV. Samma blå är appens primärfärg (öppet beslut 2) |
 | Sidomenyn och footern ("Sidor"-listan) | Mörkblå `#141c2a`, Helvetica med vanlig understrykning, grå länkar, sidnummer i en annan font. Listan finns dessutom i både sidomenyn och footern. Footerlistan är sajtomfattande internlänkar till `/nyheter/igar`, `/sport/igar` och `/377/igar` (#16) |
-| Cookiebannern | Har en egen `<h1>` (`cookie_banner.php:4`), men renderas inte: inkluderingen är bortkommenterad i `footer.php`. Död kod |
+| Cookiebannern | Bannern som syns på prod är Googles samtyckesmeddelande (`googlefc`, laddas av `adsbygoogle.js`), inte vår `cookie_banner.php`. Den egna filen renderas inte (inkluderingen är bortkommenterad i `footer.php`) och är död kod. Googles banner stylas i AdSense under Sekretess och meddelanden, inte i vår CSS; där kan färger och typsnitt närma sig Text TV. Syns inte lokalt, eftersom skärmdumpsskriptet blockerar annonsskripten |
 | Raden under sidan ("Sidan uppdaterad 20:25" + "Dela"-knapp) | Liten grå text plus knapp med ikon och ram. Webbspråk |
 | "FLER NYHETER EFTER ANNONSEN", "Senaste nyheterna", "Senaste sportnyheterna" | Versal sans-serif och fet Helvetica |
 | Startsidan, rubriken överst ("SVT Text TV - Nyheter och Sportresultat") | Fet monospace utan band, centrerad, ovanför sida 100. Vanlig webbrubrik. Bandet "Igår på Text TV" längre ner sticker ut cirka 10 px till vänster om sidans kolumn och har inte samma kant |

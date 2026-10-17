@@ -57,6 +57,11 @@ Planen granskades mot koden innan arbetet började. Slutsatserna är inarbetade
 i avsnitten nedan. Två fel i den första versionen är rättade: bandets blå
 (regel 1) och varför sida 377 bryts (förslag 1).
 
+**Skisser:** designytan https://claude.ai/artifact/2zAjcXdysWXbMpe4cVbTwn
+(privat) har grunden, besluten med alternativ och mobilskisser av
+startsidan, sökfältet (klickbart), en arkivsida, en dagslista och en
+informationssida.
+
 **Öppna beslut** (tas innan ytorna görs om):
 
 1. **Hover.** Antingen gul bakgrund med svart text på alla länkar, eller

@@ -151,6 +151,14 @@ document.querySelectorAll(".controls-topnav-search-input").forEach(function (inp
 		} else {
 			dialog.setAttribute("open", "");
 			dialog.className += " pageshare__sheet--utan-dialog";
+			// <dialog> stänger själv med Esc; reservrutan behöver hjälp.
+			var esc = function (e) {
+				if (e.key === "Escape" || e.key === "Esc") {
+					document.removeEventListener("keydown", esc);
+					stangRuta();
+				}
+			};
+			document.addEventListener("keydown", esc);
 		}
 	}
 

@@ -890,6 +890,7 @@ ol.day-list__items > li::before {
 
 .tt-arkiv__etikett {
 	color: var(--tt-yellow);
+	margin-right: 1ch; /* om flex-gap saknas (Safari före 14.1) */
 }
 
 .tt-arkiv + #pages > p.ad-header {

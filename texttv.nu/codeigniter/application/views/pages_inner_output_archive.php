@@ -50,8 +50,9 @@ if (sizeof($arr_pages) == 1) {
 } else {
 
 	// Flera sidor
+	// Den senaste av sidornas tider, inte bara den första sidans.
 	$text .= $arkiv_band(
-		$arr_pages[0]->date_updated_unix,
+		max(array_map(function ($p) { return (int) $p->date_updated_unix; }, $arr_pages)),
 		site_url( $pagenum ),
 		sprintf("SVT Text TV %s just nu", $pagenum)
 	);

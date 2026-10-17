@@ -244,7 +244,23 @@ Bygg om `day_archive_link.php` först, som referens, och ta bort dess egna
 
 ### 3. Gå igenom ytorna en i taget
 
-Ett förslag till ordning, där det som syns mest kommer först:
+Ordningen styrs av var trafiken går. GSC 2026-09-17–10-14 (bara klick från
+Google, inte direkttrafik eller appen): `/377` 63,6 % av klicken, startsidan
+21,5 %, övriga levande sidor 12,3 %, arkivsidorna 1,6 % (6 393 adresser),
+informationssidor 0,4 %, dagsarkiv 0,0 %. Arkivsidorna fick alltså inte
+"mycket söktrafik"; det som syns på levande sidor kommer först.
+
+Ordning efter steg 1–3 (reviderad 2026-10-17):
+
+1. Appramen: header, "Gå till sida" med förslag (avsnitt 5), startsidans
+   rubrik.
+2. Sidomenyn och footern (punkt 4 nedan).
+3. Textblocket under `/377` ("Text tv 377 – målservice och resultat"), i
+   sans-serif idag och sajtens viktigaste SEO-text.
+4. Resten i den ursprungliga ordningen nedan, arkivsidorna sist bland
+   sidtyperna.
+
+Den ursprungliga ordningen:
 
 0. ~~Byt cookiebannerns `<h1>`~~: utgår, bannern renderas inte.
 1. Raden under sidan, "Senaste nyheterna/sportnyheterna" och
@@ -252,7 +268,8 @@ Ett förslag till ordning, där det som syns mest kommer först:
    och "Senaste sportnyheterna" som de är (sökord). "Fler nyheter efter
    annonsen" kan stå kvar, i gemener och monospace.
 2. Arkivsidorna: ett band överst som säger att sidan är arkiverad och
-   när, med länk till den levande sidan. De får mycket söktrafik (#16).
+   när, med länk till den levande sidan. (Trodde först att de fick mycket
+   söktrafik; GSC visar 1,6 % av klicken, se ovan.)
    Lös först datumskillnaden mellan listen och sidans rubrikrad (se
    inventeringen), eftersom bandet ska visa datumet. Datumet i `<time
    datetime>`, länken beskrivande ("SVT Text TV 111 just nu →"). Bandet får

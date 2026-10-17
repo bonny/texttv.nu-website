@@ -1,5 +1,5 @@
-**Status:** aktiv
-**Senast uppdaterad:** 2026-10-17
+**Status:** klar 2026-10-18
+**Senast uppdaterad:** 2026-10-18
 
 # Todo #18 — Text-TV-designsystem: gör om det som inte känns Text TV
 
@@ -373,6 +373,94 @@ inte användaren kopiera ett förslag in i fältet och fortsätta skriva.
 - **Rör inte API:t.** `/api/most_read` används av appen. Behövs
   "populära sidor" ur statistiken, gör en ny webbrutt i stället för att
   ändra den befintliga.
+
+## Slutläge 2026-10-18 (natten, Claude ensam efter Pärs "fortsätt tills todo är helt klart")
+
+Alla ytor i ordningen ovan är gjorda och pushade, en yta per commit, med
+två granskningar av en subagent på vägen (fynden rättade eller listade nedan), och
+PHPStan, `make test-api` och skärmdumpar före och efter för varje (i
+`TextTV.nu/.playwright-mcp/18/`, jämförelser i `jamfor/`). Prod
+kontrollerades efter varje deploy.
+
+| Yta | Commit |
+| --- | ------ |
+| `tt.css`, teckenstorlek ur sidans bredd | 115941d |
+| "Mest läst igår" av komponenterna | d18e2ee |
+| Egna cookiebannern borttagen | 3c66139 |
+| Raden under sidan, Senaste nyheterna/sportnyheterna | fd03510 |
+| Versionsnummer på CSS/JS | ef847ee |
+| Appramen, h1 som band, enhetsbrytpunkterna borta | 47bd2be |
+| Sidomeny och footer: gemensam sidlista | bbca36a |
+| PHPStan, deploy väntar på PHPStan | 9d91ac0, b7b8076 |
+| "Gå till sida" med förslag (`js/tt-sok.js`) | 2a6b3cf |
+| jQuery borttagen, Dela med `navigator.share`/`<dialog>` | 96114e2 |
+| Rättelser efter första granskningen | 44f7da7 |
+| Textblocket under 377 (`tt-page`) | 1c1bdb9 |
+| Dagslistor och dagsarkiv | 26f9b47 |
+| Arkivsidorna: band med tid och länk | bbc718b |
+| Informationssidor, blogg, fakta, delat, polisen | f17a59a |
+| `/svt-text-tv` med ram, sidomeny, en h1 | 108f783 |
+| Ny version-raden, brödsmulor, "sänds inte just nu" | 11af41a |
+| Städning: pages-thumbs, /delade, /polisen | 3ecbc17, 978c33e |
+| Delningsbildernas CSS till `tt.css` | 6f2ae65 |
+| Reservregler för äldre webbläsare | 5dff906 |
+| Rättelser efter andra granskningen | e77c23f |
+
+**Mått:** `styles.css` 1 322 → 502 rader, `tt.css` 1 239 rader (med
+reservregler och utskrivna selektorlistor). jQuery (84 kB),
+`js.cookie.js` och `jquery.cookie.js` borta. Inga `<style>`-block kvar i
+vyerna utom `appembed/` (appen, rörs inte). `style=` finns bara på
+AdSense-taggarna.
+
+**Äldre webbläsare (GA4, 28 dagar, 463 000 sidvisningar):** 7,3 % saknar
+container queries, 5,5 % `:is()`, 4,0 % `clamp()`, 3,1 % `<dialog>`. Alla
+har reservregler (5dff906).
+
+**Ändrat i ordningen:** steg 0 (cookiebannerns h1) utgick, bannern på prod
+är Googles. Arkivsidorna flyttades ner efter GSC (1,6 % av klicken).
+
+### Kvar för Pär (texter och beslut, inte kod)
+
+1. **Namnregeln i löptext** (beslut 4). Inte ändrat i natt, eftersom
+   texterna är sökord och FAQ-frågorna är strukturerad data (FAQPage):
+   - `views/textsida-om-texttv-nu.php`: h1 "TextTV.nu är en smartare
+     text-tv för din dator, mobil och surfplatta" (från 2012), h2
+     "Text-tv – för att 2 miljoner…", löptexten, `title`-attribut "Till
+     text-tv sida …".
+   - `views/textsida-vanliga-fragor.php`: frågorna "Finns text-tv kvar
+     fortfarande?", "Vilket år kom text tv?", "Hur många tittar på SVT
+     text tv?", "Vilken text tv app är bäst?", "Hur får jag text tv på
+     min smarta TV?" och svaren.
+   - `views/blogg_overview.php`: "På väg mot en bättre text-tv-upplevelse",
+     h1 "TextTV utvecklingsblogg".
+   - `controllers/textsida.php`: titeln "Mest delade text-tv-sidorna".
+   - `views/header.php` rad ~402 och ~405: meta-beskrivningar med "text-tv".
+   - Prod-databasen `texttv_page_text`: rubriken "Text tv 377 – målservice
+     och resultat" under 377 (och startsidans text).
+2. **Googles samtyckesbanner** stylas i AdSense under Sekretess och
+   meddelanden, inte i vår CSS. Svart, gult och Ubuntu Mono där vore
+   konsekvent.
+3. **Appen:** webben har svart ram nu, appen har kvar `#0066b5`
+   (`texttv.nu (app)/src/css/theme.css`). Beslut 2 sa att appen kan följa
+   efter.
+4. **Arkivsidorna saknar h1** (före och efter #18). Bandet "ARKIV …" är en
+   `<p>`. En h1 där skulle ge Google en rubrik att skriva titeln från, men
+   arkivsidorna rankade redan över de levande sidorna (#11), så det är ett
+   SEO-beslut och inte ändrat. Granskningen 2026-10-18 påpekade det.
+5. **Död fil på servern:** deployen raderar inget, så
+   `views/cookie_banner.php` och `views/pages-thumbs.php` ligger kvar på
+   prod (ofarliga, laddas inte). Samma för `js/jquery.min.js`,
+   `js/js.cookie.js`, `js/jquery.cookie.js`. Kan tas bort för hand eller
+   med ett städsteg i `deploy-website.yml` som det för controllers.
+
+### Uppföljning
+
+- **AdSense:** baslinje RPM per sidvisning 2026-09-19–10-16: 14,59 kr i
+  snitt, per vecka 15,35 → 14,74 → 14,26 → 13,37 (trenden var nedåtgående
+  före designen). Jämför veckorna efter 2026-10-18, och samma veckor 2025.
+- **GSC:** CTR och klick för `/377` och startsidan, YoY med `/377` som
+  kontroll (se memory om GSC-mätning). Core Web Vitals (CLS) efter fyra
+  veckor.
 
 ## Arbetssätt och lokal testning
 

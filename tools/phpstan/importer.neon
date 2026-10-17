@@ -1,0 +1,16 @@
+# PHPStan för importern (Laravel 8). Körs i importer-imagen med importer/
+# monterad på /var/www/html och imagens vendor/ kvar. Kör: make phpstan-importer.
+includes:
+	- importer-baseline.neon
+
+parameters:
+	level: 5
+	phpVersion: 80200
+	tmpDir: /tmp/phpstan-importer
+	bootstrapFiles:
+		- /var/www/html/vendor/autoload.php
+	paths:
+		- /var/www/html/app
+		- /var/www/html/routes
+		- /var/www/html/database
+		- /var/www/html/config

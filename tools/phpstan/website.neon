@@ -1,0 +1,32 @@
+# PHPStan för webbsajten (CodeIgniter 2.2 i texttv.nu/codeigniter/).
+# Kör: make phpstan-website. Ny baseline: make phpstan-baseline.
+includes:
+	- website-baseline.neon
+
+parameters:
+	level: 1
+	phpVersion: 80200
+	tmpDir: /tmp/phpstan-website
+	bootstrapFiles:
+		- website-bootstrap.php
+	paths:
+		- ../../texttv.nu/codeigniter/application/controllers
+		- ../../texttv.nu/codeigniter/application/models
+		- ../../texttv.nu/codeigniter/application/helpers
+		- ../../texttv.nu/codeigniter/application/views
+	# CodeIgniters egna klasser läses men granskas inte.
+	scanDirectories:
+		- ../../texttv.nu/codeigniter/system
+		- ../../texttv.nu/codeigniter/application/core
+		- ../../texttv.nu/codeigniter/application/libraries
+	# CodeIgniter lägger $this->load, ->db, ->input och inladdade modeller som
+	# dynamiska egenskaper på controllers och modeller.
+	universalObjectCratesClasses:
+		- CI_Controller
+		- CI_Model
+	ignoreErrors:
+		# Vyerna laddas inne i CI_Loader, så $this är loadern och variablerna
+		# kommer från controllern via extract().
+		-
+			identifier: variable.undefined
+			path: ../../texttv.nu/codeigniter/application/views/*

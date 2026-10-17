@@ -3,7 +3,7 @@
 
 COMPOSE := docker compose
 
-.PHONY: help up down build rebuild logs ps seed test-api scheduler import artisan tinker mysql shell destroy
+.PHONY: help up down build rebuild logs ps seed test-api phpstan phpstan-website phpstan-importer phpstan-baseline phpstan-install scheduler import artisan tinker mysql shell destroy
 
 help: ## Visa denna hjälp
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | \
@@ -34,6 +34,31 @@ seed: ## Seeda om DB:n (migrera + importera startsidorna). Säkert att köra om 
 
 test-api: ## Jämför /api/*-svaren mot origin/main (eller BASE=<git-ref>). Kräver make up.
 	BASE=$(or $(BASE),origin/main) tests/api/run.sh
+
+# PHPStan körs i projektets egna images (PHP 8.2 som prod), med verktyget i
+# tools/phpstan/ som varken deployas eller startar en deploy. Importern körs
+# med importer/ monterad och imagens vendor/ kvar (Laravel behövs för analysen).
+UIDGID := $(shell id -u):$(shell id -g)
+PHPSTAN_WEB := docker run --rm --entrypoint "" -u $(UIDGID) -v "$(CURDIR)":/app -w /app/tools/phpstan texttv-website:local php -d memory_limit=1G vendor/bin/phpstan
+PHPSTAN_IMP := docker run --rm --entrypoint "" -u $(UIDGID) -v "$(CURDIR)/importer":/var/www/html -v /var/www/html/vendor -v "$(CURDIR)/tools/phpstan":/tools -w /tools texttv-importer:local php -d memory_limit=1G /tools/vendor/bin/phpstan
+
+phpstan: phpstan-website phpstan-importer ## PHPStan på webbsajten (nivå 1) och importern (nivå 5). Bara ny kod granskas (baseline).
+
+phpstan-install: ## Installera PHPStan i tools/phpstan/ (görs automatiskt av make phpstan)
+	docker run --rm --entrypoint "" -u $(UIDGID) -e COMPOSER_HOME=/tmp/composer -v "$(CURDIR)":/app -w /app/tools/phpstan texttv-website:local composer install --no-interaction --quiet
+
+tools/phpstan/vendor/bin/phpstan:
+	$(MAKE) phpstan-install
+
+phpstan-website: tools/phpstan/vendor/bin/phpstan ## PHPStan på texttv.nu/
+	$(PHPSTAN_WEB) analyse -c website.neon --no-progress
+
+phpstan-importer: tools/phpstan/vendor/bin/phpstan ## PHPStan på importer/
+	$(PHPSTAN_IMP) analyse -c importer.neon --no-progress
+
+phpstan-baseline: tools/phpstan/vendor/bin/phpstan ## Skriv om båda baselines (bara när gamla fel är rättade eller medvetet godkända)
+	$(PHPSTAN_WEB) analyse -c website.neon --no-progress --generate-baseline website-baseline.neon
+	$(PHPSTAN_IMP) analyse -c importer.neon --no-progress --generate-baseline importer-baseline.neon
 
 scheduler: ## Starta schedulern (opt-in: auto-importerar från SVT var 2:e min)
 	$(COMPOSE) --profile scheduler up -d scheduler

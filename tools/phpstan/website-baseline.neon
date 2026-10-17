@@ -1,0 +1,61 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Class Texttv_page referenced with incorrect case\: texttv_page\.$#'
+			identifier: class.nameCase
+			count: 5
+			path: ../../texttv.nu/codeigniter/application/controllers/api.php
+
+		-
+			message: '#^Class Texttv_page referenced with incorrect case\: texttv_page\.$#'
+			identifier: class.nameCase
+			count: 2
+			path: ../../texttv.nu/codeigniter/application/controllers/appembed.php
+
+		-
+			message: '#^Class Texttv_page referenced with incorrect case\: texttv_page\.$#'
+			identifier: class.nameCase
+			count: 1
+			path: ../../texttv.nu/codeigniter/application/controllers/oembed.php
+
+		-
+			message: '#^Class Texttv_page referenced with incorrect case\: texttv_page\.$#'
+			identifier: class.nameCase
+			count: 8
+			path: ../../texttv.nu/codeigniter/application/controllers/sida.php
+
+		-
+			message: '#^Variable \$page might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: ../../texttv.nu/codeigniter/application/controllers/sida.php
+
+		-
+			message: '#^Class Texttv_page referenced with incorrect case\: texttv_page\.$#'
+			identifier: class.nameCase
+			count: 1
+			path: ../../texttv.nu/codeigniter/application/helpers/texttv_helper.php
+
+		-
+			message: '#^Variable \$one_page_obj might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: ../../texttv.nu/codeigniter/application/helpers/texttv_helper.php
+
+		-
+			message: '#^Class Texttv_page referenced with incorrect case\: texttv_page\.$#'
+			identifier: class.nameCase
+			count: 4
+			path: ../../texttv.nu/codeigniter/application/views/api.php
+
+		-
+			message: '#^Variable \$pages in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.variable
+			count: 2
+			path: ../../texttv.nu/codeigniter/application/views/header.php
+
+		-
+			message: '#^Class Texttv_page referenced with incorrect case\: texttv_page\.$#'
+			identifier: class.nameCase
+			count: 1
+			path: ../../texttv.nu/codeigniter/application/views/page_text.php

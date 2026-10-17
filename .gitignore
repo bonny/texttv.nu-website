@@ -20,3 +20,6 @@ baselines/*/*.report.html
 
 # API-kontraktstestets utdata (tests/api/run.sh)
 /.api-test/
+
+# PHPStan (make phpstan): verktyget installeras lokalt
+/tools/phpstan/vendor/

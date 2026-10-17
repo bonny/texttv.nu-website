@@ -38,7 +38,7 @@ $page_text = "";
 
 if ( $page_text ) {
 ?>
-<aside class="page-text">
+<aside class="page-text tt-sidbredd tt-page">
 	<?php echo $page_text ?>
 </aside>
 <?php

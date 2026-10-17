@@ -607,3 +607,94 @@ button.tt-link {
 	color: var(--tt-white);
 	font: inherit;
 }
+
+/*
+	tt-page: längre text i sidans spalt, som textblocket under 377
+	(views/page_text.php) och informationssidorna. h1 som band, h2 i gult,
+	brödtext i vitt med lite mer radavstånd, länkar gula och understrukna,
+	punktlistor med Text-TV-tecken.
+*/
+.tt-page {
+	margin-block: 2em;
+	color: var(--tt-white);
+	line-height: 1.4;
+}
+
+.tt-page h1 {
+	display: block;
+	margin: 0 0 1em;
+	padding: .15em .5ch;
+	background: var(--tt-blue-bg);
+	color: var(--tt-white);
+	font-size: 1em;
+	font-weight: normal;
+	line-height: 1.25;
+}
+
+.tt-page h2,
+.tt-page h3 {
+	display: block;
+	margin: 1.5em 0 .5em;
+	color: var(--tt-yellow);
+	font-size: 1em;
+	font-weight: normal;
+	line-height: 1.25;
+}
+
+.tt-page h3 {
+	color: var(--tt-cyan);
+}
+
+.tt-page > :first-child {
+	margin-top: 0;
+}
+
+.tt-page p {
+	margin: 0 0 1em;
+}
+
+.tt-page a {
+	color: var(--tt-yellow);
+	text-decoration: underline;
+	text-underline-offset: .2em;
+}
+
+.tt-page a:hover,
+.tt-page a:focus-visible {
+	background: var(--tt-yellow);
+	color: var(--tt-black);
+	text-decoration: none;
+}
+
+.tt-page ul,
+.tt-page ol {
+	margin: 0 0 1em;
+	padding-left: 2ch;
+}
+
+.tt-page ul {
+	list-style: none;
+}
+
+.tt-page ul > li::before {
+	content: "▪";
+	display: inline-block;
+	width: 2ch;
+	margin-left: -2ch;
+	color: var(--tt-cyan);
+}
+
+.tt-page li + li {
+	margin-top: .25em;
+}
+
+.tt-page img {
+	max-width: 100%;
+	height: auto;
+}
+
+/* Textblocket under sidan har en blå linje ovanför, som footern. */
+.page-text {
+	padding-top: 1.5em;
+	border-top: 2px solid var(--tt-blue-bg);
+}

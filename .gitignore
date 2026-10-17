@@ -23,3 +23,7 @@ baselines/*/*.report.html
 
 # PHPStan (make phpstan): verktyget installeras lokalt
 /tools/phpstan/vendor/
+
+# CodeIgniters cache (t.ex. /polisen) skrivs vid körning
+/texttv.nu/codeigniter/application/cache/*
+!/texttv.nu/codeigniter/application/cache/index.html

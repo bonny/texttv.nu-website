@@ -604,23 +604,6 @@ body {
   }
 }
 
-/* Textblocket under sidan (views/page_text.php) */
-.page-text {
-  font-family: sans-serif;
-  font-size: 1.2rem;
-  line-height: 1.4;
-  color: #888;
-  text-align: left;
-  padding: 2rem;
-  border-top: 1px solid rgb(42, 51, 74);
-  background-color: rgb(17, 22, 35);
-}
-
-.page-text p {
-  margin-top: 0.5em;
-  margin-bottom: 0.5em;
-  line-height: 1.2;
-}
 
 /**
  Nav at bottom because thumbs

@@ -671,88 +671,121 @@ class Importer
     /**
      * Gör sidnummer på en rad till länkar.
      *
+     * Raden kan vara färglagd HTML. Talen letas upp i texten mellan taggarna,
+     * som en sammanhängande sträng, så att "Minst 2 " och "300" i olika spans
+     * ändå ses som ett tal.
+     *
+     * Varje talsekvens bedöms som helhet. Siffror som hänger ihop med ett
+     * mellanslag, punkt, komma, kolon eller bindestreck är en
+     * sekvens: "2 300", "12 485 725", "908.88", "08-784 00 00", "3 698-565".
+     * Bara sekvenser som enbart består av sidnummer blir länkar: "123",
+     * "110-114", "123f" och "405f-412f". Sidnummer följda av en enhet
+     * ("100 meter", "527 kr") och placeringar ("132. Jesper Svensson")
+     * länkas inte.
+     *
      * @param string $line
      * @return string
      */
     public function linkifySingleLine($line)
     {
-        $linkprefix = $this->linkprefix;
-        $replacement = '<a href="' . $linkprefix . '\1">\1</a>';
-
         // Lägg inte till länkar på börskurserna, 203-246.
         if ($this->pageNum() >= 203 && $this->pageNum() <= 246) {
             return $line;
         }
-        
-        // Länka inte "3 485 725 vaccindoser har getts i"
-        $regex = '\b\d \d{3} \d{3} \b';
-        if (preg_match('|' . $regex . '|', $line, $matches)) {
-            return $line;
+
+        // Dela upp i taggar och text. Udda index är taggar.
+        $parts = preg_split('/(<[^>]*>)/', $line, -1, PREG_SPLIT_DELIM_CAPTURE);
+
+        // Texten utan taggar, och var i den varje textdel börjar (i bytes).
+        $text = '';
+        $partStarts = [];
+        foreach ($parts as $index => $part) {
+            if ($index % 2 === 0) {
+                $partStarts[$index] = strlen($text);
+                $text .= $part;
+            }
         }
 
-        // Länka inte sidnummer följt av siffror som inte är sidnummer,
-        // t.ex. "dödsfall. Minst 226 000 människor i"
-        $regexNumberRange = '\b[1-9][0-9]{2} 000\b';
-        if (preg_match('|' . $regexNumberRange . '|', $line, $matches)) {
-            return $line;
+        $sequences = $this->pageNumberSequences($text);
+
+        // Lägg in länkarna bakifrån så att tidigare positioner inte flyttas.
+        foreach (array_reverse($sequences) as [$start, $length, $links]) {
+            foreach (array_reverse($links) as [$offset, $linkLength, $href, $linkText]) {
+                $linkStart = $start + $offset;
+                foreach ($partStarts as $index => $partStart) {
+                    $partEnd = $partStart + strlen($parts[$index]);
+                    if ($linkStart < $partStart || $linkStart + $linkLength > $partEnd) {
+                        continue;
+                    }
+                    // Länken ryms i en textdel. Ligger den över en tagg länkas den inte.
+                    $parts[$index] = substr_replace(
+                        $parts[$index],
+                        '<a href="' . $this->linkprefix . $href . '">' . $linkText . '</a>',
+                        $linkStart - $partStart,
+                        $linkLength
+                    );
+                    break;
+                }
+            }
         }
 
-        // Länka inte telefonnummer t.ex. på sid 800 UR "08-784 42 40"
-        $regexNumberRange = '\b\d{2}-[1-9][0-9]{2}\b';
-        if (preg_match('|' . $regexNumberRange . '|', $line, $matches)) {
-            return $line;
+        return implode('', $parts);
+    }
+
+    /**
+     * Hitta talsekvenserna i en text och vilka sidnummer i dem som ska länkas.
+     *
+     * @return array Per sekvens: [start, längd, länkar], där varje länk är
+     *               [position i sekvensen, längd, href, länktext].
+     */
+    protected function pageNumberSequences(string $text): array
+    {
+        // En sekvens börjar inte direkt efter en bokstav eller siffra
+        // ("Kanal5 620" är "620", inte "5 620"). "f" efter ett tal betyder
+        // flersida ("328f"). Snedstreck binder inte ihop, "328/363" är två sidor.
+        $regexSequence = '/(?<![\p{L}\d])\d+(?:f(?!\p{L}))?(?:(?: |[.,:-])\d+(?:f(?!\p{L}))?)*/u';
+
+        // Ord efter ett tal som visar att det är ett antal, inte ett sidnummer.
+        $regexUnit = '/^ ?(?:kr|kronor|mkr|st|meter|m|km|mil|cm|mm|personer|gånger|procent|%|miljoner|miljarder|år|dagar|timmar|minuter|sekunder|grader)\b/u';
+
+        preg_match_all($regexSequence, $text, $matches, PREG_OFFSET_CAPTURE);
+
+        $sequences = [];
+        foreach ($matches[0] as [$sequence, $start]) {
+            $after = substr($text, $start + strlen($sequence));
+
+            // Direkt följt av en bokstav, t.ex. "107a": inget sidnummer.
+            if (preg_match('/^\p{L}/u', $after) || preg_match($regexUnit, $after)) {
+                continue;
+            }
+
+            // Placering först på raden, t.ex. "132. Jesper Svensson".
+            if (trim(substr($text, 0, $start)) === '' && preg_match('/^\. /', $after)) {
+                continue;
+            }
+
+            // Bara bindestreck får skilja sidnummer åt: "123", "110-114", "101-102-103".
+            $pageNumbers = explode('-', $sequence);
+            foreach ($pageNumbers as $pageNumber) {
+                if (!preg_match('/^[1-9]\d{2}f?$/', $pageNumber)) {
+                    continue 2;
+                }
+            }
+
+            // Två och två blir intervall: "101-102-103" blir "101-102" och "103".
+            $links = [];
+            $offset = 0;
+            foreach (array_chunk($pageNumbers, 2) as $pair) {
+                $linkText = implode('-', $pair);
+                $href = str_replace('f', '', $linkText);
+                $links[] = [$offset, strlen($linkText), $href, $linkText];
+                $offset += strlen($linkText) + 1;
+            }
+
+            $sequences[] = [$start, strlen($sequence), $links];
         }
 
-        // Länka inte "833 miljoner kronor samma period"
-        $regexNumberRange = '\b[1-9][0-9]{2} miljoner\b';
-        if (preg_match('|' . $regexNumberRange . '|', $line, $matches)) {
-            return $line;
-        }
-
-        // Länka inte text som t.ex. börskurs   TELEKOMMUNIKATION       988.51  -0.10
-        // Dvs tre siffror och sen en punkt och siffror igen.
-        $regexNumberRange = '\b([1-9][0-9]{2}\.[0-9]{2})\b';
-        if (preg_match('|' . $regexNumberRange . '|', $line, $matches)) {
-            return $line;
-        }
-
-        // Länka inte ekonomi i korthet-börsresultat
-        // t.ex. "28.812,6 (-0,8 procent)"
-        $regexNumberRange = '\b([1-9][0-9]{2},\d)\b';
-        if (preg_match('|' . $regexNumberRange . '|', $line, $matches)) {
-            return $line;
-        }
-
-        // Intervall 110-114 _eller_ enkelt nummer 123
-        // Matchar rader som innehåller både enkelt nummer och intervall, 
-        // t.ex på sidan 330.
-        // Hoppa över tusental som "Totalt har 14 151 personer" och "Minst 2 300
-        // strokefall", men länka andra sidnummer på samma rad. Hoppa också över
-        // tredje gruppen i "12 485 725", tal efter ett tusental och bindestreck
-        // ("3 698-565" i poängtabellen på 746), och belopp och antal som
-        // "394 kr" och "(170 st)" på t.ex. 763. Intervallet matchas atomiskt så
-        // att "100-200 kr" inte backar och länkar bara 100.
-        $regexNotThousands = '(?<!\b\d )(?<!\b\d\d )'
-            . '(?<!\b\d \d{3} )(?<!\b\d\d \d{3} )'
-            . '(?<!\b\d \d{3}-)(?<!\b\d\d \d{3}-)';
-        $regexNotAmount = '(?! kr\b)(?! st\b)';
-        $regexNumberRange = $regexNotThousands . '(\b[1-9][0-9]{2}(?>(?:-[1-9][0-9]{2})?)\b)' . $regexNotAmount;
-        $line = preg_replace('|' . $regexNumberRange . '|', $replacement, $line, -1, $count);
-        if ($count) {
-            return $line;
-        }
-
-        // Flersida 123f-234f
-        $regexNumberRange = '\b([1-9][0-9]{2})f-([1-9][0-9]{2})f\b';
-        $line = preg_replace('|' . $regexNumberRange . '|', '<a href="' . $linkprefix . '\1-\2">\1f-\2f</a>', $line, -1, $count);
-        if ($count) return $line;
-
-        // Flersida 123f
-        $regexPageNumber = '\b([1-9][0-9]{2})f\b';
-        $line = preg_replace('|' . $regexPageNumber . '|', '<a href="' . $linkprefix . '\1">\1f</a>', $line, -1, $count);
-        if ($count) return $line;
-
-        return $line;
+        return $sequences;
     }
 
     protected function lineHasHeadlineChars($charsExtractor, $line, $lineIndex): bool

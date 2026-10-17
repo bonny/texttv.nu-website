@@ -130,6 +130,19 @@ Från granskningen 2026-10-17:
     100. Samma resultat som förut på alla 16 971 rader i 421 prod-sidor.
     Kvar medvetet: `126 450` länkar båda (går inte att skilja från listan
     `101 104`), lookarounds ser inte över spangränser i HTML:en.
+  - Tredje code review: lapparna öppnade nya hål (telefonnummer, årtal,
+    `100-109f`). **Omskrivet:** `linkifySingleLine()` delar nu upp texten
+    mellan taggarna i talsekvenser och bedömer varje sekvens som helhet;
+    bara sekvenser av enbart sidnummer länkas, inte följda av en enhet
+    (`kr`, `meter`, `personer` …) och inte placeringar (`132. Namn`).
+    Testas av `tests/Unit/LinkifyTest.php`: en specifikation med exakta
+    länkar per rad, och en korpus med 756 rader från 421 prod-sidor
+    (`tests/TestPages/linkify-corpus.json`) som larmar på varje ändrad rad.
+    Mot korpusen ändrades 80 rader, alla genomgångna: golfpengar, F1-tider,
+    matchresultat, belopp, mått och placeringar slutade länkas, och `607f`
+    länkas nu även när raden har ett annat sidnummer. Förlorad: `24.199` på
+    701 (går inte att skilja från ett decimaltal). Övriga 676 rader ger
+    byte-identisk HTML.
   - Död kod bort: `linkifySingleLineWithSpanSupport()` och parametern
     `$numberReplacements`, som aldrig sattes. Testsidan `100.html` har fått
     de gamla tabbarna borttagna i stället för att `cleanup()` ändras.

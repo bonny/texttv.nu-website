@@ -160,58 +160,6 @@ class ImportTest extends TestCase
     }
 
     /**
-     * Testa att sidnummer på en rad blir till länkar, och att siffror som
-     * inte är sidnummer (antal, börskurser) inte blir det.
-     *
-     * Testar linkifySingleLine(), som linkify() kör på varje rad. Fallen var
-     * tidigare skrivna för linkifySingleLineWithSpanSupport() med en span per
-     * tecken, ett format som colorize() inte längre ger.
-     */
-    public function test_linkify()
-    {
-        $importer = new Importer(100);
-        $importer->fromFile(__DIR__ . '/../TestPages/100.html');
-
-        // [radens text, förväntat antal länkar]
-        $arrLines = [
-            ['Inrikes 101 Utrikes 104 Innehåll 700', 3],
-            ['-------- 136 --------', 1],
-            ['Franskt knivdåd utreds som terror 134 ', 1],
-            ['41 nya coronadödsfall i Sverige....106', 1],
-            ['Situationen förvärras inom vården..108', 1],
-            ['Fler rubriker 102', 1],
-            ['  en 90 procents skydd mot covid-19 men ', 0],
-            ['I studien har över 26 000 vaccinerade', 0],
-            // ['ECDC. Cypern landar i 962 nya fall per', 0],
-            // ['100 000 invånare under de två senaste ', 0],
-            ['OMX STOCKHOLM (SLUT )   908.88  +0.25 ', 0],
-            ['   SJUKVÅRD               3136.61  -0.09 ', 0],
-            ['      83.4  83.6 CINT   83.6      180911', 0],
-            ['  Minst 2 300 strokefall kan förhindras ', 0],
-            ['  Arbetslöshet I mars var 549 000', 0],
-            // Tusental hoppas över, men andra sidnummer på raden länkas.
-            ['Minst 2 300 drabbade, se 104', 1],
-            ['Totalt har 14 151 personer, se 104', 1],
-            ['Hela 12 485 725 doser', 0],
-            ['Totalt 1 234 567', 0],
-            ['101-102-103', 2],
-            ['Inrikes 101 104 700', 3],
-            ['TV3,TV4,Kanal5 620-', 1],
-            // Poängtabell på 746 och belopp på 763.
-            ['1. Smederna     14 11  0  3 698-565 28', 0],
-            ['Topptipset        527 kr       (2 st)', 0],
-            ['   12 rätt         8 419 kr     (170 st)', 0],
-            ['Vinst 100-200 kr', 0],
-            ['6. Vargarna     14  4  0 10 599-624 10', 0],
-        ];
-
-        foreach ($arrLines as [$text, $expected]) {
-            $line = $importer->linkifySingleLine($text);
-            $this->assertSame($expected, substr_count($line, '<a '), "Rad: {$text}");
-        }
-    }
-
-    /**
      * Testa hela kedjan som importen kör: cleanup, colorize och linkify.
      */
     public function test_linkify_pipeline()
@@ -222,7 +170,7 @@ class ImportTest extends TestCase
 
         preg_match_all('|<a href="([^"]+)"|', $importer->subpage(0)['text'], $matches);
 
-        // "/100" kommer från "Pollenhalt 100 gånger högre", en känd felträff.
-        $this->assertSame(['/107', '/137', '/100', '/115', '/300', '/189'], $matches[1]);
+        // "Pollenhalt 100 gånger högre" ska inte länka 100.
+        $this->assertSame(['/107', '/137', '/115', '/300', '/189'], $matches[1]);
     }
 }

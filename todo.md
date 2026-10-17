@@ -4,7 +4,7 @@ Index över förbättringsarbete. Varje todo har en egen fil under
 [`todos/`](todos/) med fullständig analys. Konvention och
 mappstruktur: [`todos/README.md`](todos/README.md).
 
-Senast uppdaterad: 2026-10-17 (+#17 Uppgradera prod till Debian 13; #15 granskad, småsakerna klara, blockerad av #17.)
+Senast uppdaterad: 2026-10-17 (+#18 Text-TV-designsystem.)
 
 ## Aktiva
 
@@ -14,6 +14,7 @@ Senast uppdaterad: 2026-10-17 (+#17 Uppgradera prod till Debian 13; #15 granskad
 | 16  | Gör arkivet till en tillgång: idéer för användare, Google och AI | ny 2026-10-14, idékatalog. **Deployat 2026-10-14:** canonical på arkivsidor och startsidan, dagsarkiv `/377/igar` med datumsidor (330 borttagen, den är en meny), gårdagens nyheter/sportnyheter `/nyheter/igar` och `/sport/igar`, ny 404-sida i Text-TV-stil. **2026-10-16:** gårdagens tre mest lästa nyheter i startsidans "Igår på Text TV". Mät 2026-11-14. Nästa: retention (#10). Ämnessidor nedprioriterade (nästan ingen ämnestrafik idag) | [todos/16-gor-arkivet-till-en-tillgang.md](todos/16-gor-arkivet-till-en-tillgang.md) |
 | 15  | Uppgradera EOL-ramverken (CodeIgniter 2, Laravel 8) | **Blockerad av: #17.** Granskad 2026-10-17; småsakerna som gick att göra nu är klara och deployade (oanvända `laravel-short-schedule`, döda `test`/`welcome`-controllers, importerns tester gröna och en länkbugg fixad). Research klar 2026-10-14: **båda apparna fungerar på PHP 8.4** (provat i Docker, prod kör 8.2), så OS/PHP-uppgraderingen blockeras inte. Förslag: Laravel 8 → 13 i samband med Debian 13, CI 2 står kvar tills behov | [todos/15-uppgradera-eol-ramverken.md](todos/15-uppgradera-eol-ramverken.md) |
 | 17  | Uppgradera prod till Debian 13 (trixie) och PHP 8.4 | ny 2026-10-17, utbruten ur #15. Ingen brådska: Debian 12 LTS ger PHP 8.2-fixar till 2028-06-30. Förslag: uppgradera på plats under 2027 med Hetzner-snapshot som rollback och provkörning på en klon först, Laravel 13 i samma veva | [todos/17-uppgradera-prod-till-debian-13.md](todos/17-uppgradera-prod-till-debian-13.md) |
+| 18  | Text-TV-designsystem: gör om det som inte känns Text TV | ny 2026-10-17. Förebild: "Mest läst igår" på startsidan (blått band, gula textlänkar, cyan metadata, 40 tecken bred kolumn). Plan: tokens för Text-TV-färgerna och Ubuntu Mono, ett fåtal komponenter (band, länk, lista, länkrad, textsida), sedan en yta i taget: raden under sidan, appramen, footer/sidomeny, dagslistor, informationssidor. Inventering: 64 färgvärden, sex typsnitt, nio vyer med egen `<style>` | [todos/18-text-tv-designsystem.md](todos/18-text-tv-designsystem.md) |
 | 10  | Retention raderar arkivsidor som rankar | **pausad — mätt 2026-08-02: 76 % av arkivsidorna med trafik raderas, men de är färska nyhetssidor vars efterfrågan ändå dör. Ingen åtgärd.** Fyndet som blev kvar: arkivsnapshots från 2016–17 rankar över de levande sidorna på ämnesfrågor (`resultatbörsen`: arkiv 25 klick, live /330 noll) | [todos/10-retention-raderar-arkivsidor-som-rankar.md](todos/10-retention-raderar-arkivsidor-som-rankar.md) |
 
 ### Beroenden

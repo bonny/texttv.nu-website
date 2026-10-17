@@ -104,7 +104,7 @@ Fyra vägar:
 Från granskningen 2026-10-17:
 
 - [x] Ta bort `spatie/laravel-short-schedule` ur importern. Gjort 2026-10-17
-  (branch `stadning-15`); bara paketet och `spatie/temporary-directory`
+  (939e2af, deployat); bara paketet och `spatie/temporary-directory`
   försvann ur låsfilen.
 - [x] Ta bort `controllers/test.php` och `controllers/welcome.php` och routen
   `$route['dev']` (pekar på en controller som inte finns). `/test` och
@@ -113,11 +113,21 @@ Från granskningen 2026-10-17:
 - [x] Fixa de två PHPUnit-tester som redan fallerar, så att testsviten duger
   som verifiering inför Laravel-hoppet. Gjort 2026-10-17: båda var inaktuell
   testdata från 2021. `test_linkify` testar nu `linkifySingleLine()`, den
-  metod prod använder (`linkifySingleLineWithSpanSupport()` anropas inte
-  längre, död kod). Det avslöjade en bugg: "Minst 2 300 strokefall" länkade
-  300. Regeln för tusental gäller nu även ensiffrigt (`\d{1,2}`); mot
-  prod-sidorna påverkar det bara poängtabeller på 746 och "1 507 kr" på 763,
-  som felaktigt länkades. `test_colorize` saknar fortfarande assertions.
+  metod prod använder, och `test_linkify_pipeline` kör hela kedjan
+  cleanup → colorize → linkify. Det avslöjade att "Minst 2 300 strokefall"
+  länkade 300.
+  - Första fixen (5330773) gjorde hela-rad-spärren för tusental bredare, men
+    den tog då också bort riktiga länkar på samma rad. Efter code review samma
+    dag: spärren är borttagen och ersatt med lookbehinds i sidnummer-regexen
+    som bara hoppar över själva tusentalet (`2 300`, `14 151`), tal direkt
+    efter `siffra-` (`3 698-565`) och tal följda av ` kr`/` st`. Mot 421
+    prod-sidor ändrades 5 rader på 763 och 778, alla belopp som slutade
+    länkas. "Del 2 302" går inte att skilja från tusentalet "2 302" och
+    länkas inte.
+  - Död kod bort: `linkifySingleLineWithSpanSupport()` och parametern
+    `$numberReplacements`, som aldrig sattes. Testsidan `100.html` har fått
+    de gamla tabbarna borttagna i stället för att `cleanup()` ändras.
+  - `test_colorize` saknar fortfarande assertions.
 
 ## Nästa steg (när #17 är på gång)
 

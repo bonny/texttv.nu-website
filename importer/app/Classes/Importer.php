@@ -462,13 +462,13 @@ class Importer
                     return $line;
                 }
 
-                $line = $this->linkifySingleLine($line, $numberReplacements);
+                $line = $this->linkifySingleLine($line);
 
                 // Gör länkar av saker som inte är sidnummer, t.ex. webbplatser.
                 // "Läs mer på svtsport.se"
                 // Nästa sida
                 // @TODO: fixelifix
-                $line = $this->linkifyURLsSingleLine($line, $lineIndex, $numberReplacements);
+                $line = $this->linkifyURLsSingleLine($line, $lineIndex);
 
                 return $line;
             }, $subPageLines, array_keys($subPageLines));
@@ -642,117 +642,7 @@ class Importer
         return $newLine;
     }
 
-    public function linkifySingleLineWithSpanSupport($line, &$numberReplacements = null)
-    {
-        $regexSpanStart = '<span\b[^>]*>';
-        $regexSpanEnd = '</span>';
-        $regexSingleNumber0 = '(0)';
-        $regexSingleNumber1to9 = '([1-9])';
-        $regexSingleNumber0to9 = '([0-9])';
-
-        // Matchar
-        $regexSpanAndThreeNumberLargerThan100 =
-            $regexSpanStart . $regexSingleNumber1to9 . $regexSpanEnd .
-            $regexSpanStart . $regexSingleNumber0to9 . $regexSpanEnd .
-            $regexSpanStart . $regexSingleNumber0to9 . $regexSpanEnd;
-
-        $regexSpanAndThreeNumberLessThan100 =
-            $regexSpanStart . $regexSingleNumber0 . $regexSpanEnd .
-            $regexSpanStart . $regexSingleNumber0to9 . $regexSpanEnd .
-            $regexSpanStart . $regexSingleNumber0to9 . $regexSpanEnd;
-
-        // Matchar tre nummer och en punkt, så t.ex. "908." borde fastna, som t.ex.
-        // ekonomisidor har för kurser osv. "OMX STOCKHOLM (SLUT )   908.88  +0.25".
-        $regexSpanAndThreeNumberLargerThan100AndADot =
-            $regexSpanAndThreeNumberLargerThan100 .
-            $regexSpanStart . '\.' . $regexSpanEnd;
-
-        // Baila om vi matchar "908." osv.
-        $numMatches = preg_match_all('|' . $regexSpanAndThreeNumberLargerThan100AndADot . '|', $line);
-        if ($numMatches) {
-            return $line;
-        }
-
-        // Baila om vi matchar börskurser som t.ex. "83.4  83.6 CINT   83.6      180911"
-        // där "180911" är två nummer på varandra.
-        $regexSpanAndThreeNumberLargerThan100AndOneMoreNumber =
-            $regexSpanAndThreeNumberLargerThan100 .
-            $regexSpanStart . $regexSingleNumber0to9 . $regexSpanEnd;
-
-        $numMatches = preg_match_all('|' . $regexSpanAndThreeNumberLargerThan100AndOneMoreNumber . '|', $line);
-        if ($numMatches) {
-            return $line;
-        }
-
-        // Baila om sidnummer har en siffra innan, t.ex. "Minst 2 300 strokefall kan förhindras".
-        $regexSpanAndThreeNumberLargerThan100AndASpaceAndNumberBefore =
-            $regexSpanStart . $regexSingleNumber0to9 . $regexSpanEnd .
-            $regexSpanStart . '\ ' . $regexSpanEnd . // spar char
-            $regexSpanAndThreeNumberLargerThan100;
-
-        $numMatches = preg_match_all('|' . $regexSpanAndThreeNumberLargerThan100AndASpaceAndNumberBefore . '|', $line);
-        if ($numMatches) {
-            return $line;
-        }
-
-        // Baila om sidnummer har siffror efter som inte är giltigt nummer,
-        // t.ex. "Arbetslöshet I mars var 549 000".
-        $regexSpanAndThreeNumberLargerThan100AndNotValidPageRangeAfter =
-            $regexSpanAndThreeNumberLargerThan100 .
-            $regexSpanStart . '\ ' . $regexSpanEnd . // spar char
-            $regexSpanAndThreeNumberLessThan100;
-
-        $numMatches = preg_match_all('|' . $regexSpanAndThreeNumberLargerThan100AndNotValidPageRangeAfter . '|', $line);
-        if ($numMatches) {
-            return $line;
-        }
-
-        #dump('$regexSpanAndThreeNumberLargerThan100AndADot', $numMatches, strip_tags($line));
-
-        $line = preg_replace_callback('|' . $regexSpanAndThreeNumberLargerThan100 . '|', function ($matches) {
-            // $matches[0] = complete match, dvs. <span>1</span><span>0</span><span>0</span>
-            // $matches[1] = first subpattern, dvs. siffra ett
-            // $matches[2] = second subpattern, dvs. siffra två
-            // $matches[3] = third subpattern, dvs. siffra tre
-            $pageNum = $matches[1] . $matches[2] . $matches[3];
-            $completeMatch = $matches[0];
-
-            // Gamla Android-appen som är flera år gammal
-            // använder FastClick som inte fungerar om markup är
-            // <a href="/123"><span>1</span><span>2</span><span>3</span></a>
-            // så ta ersatt allt med en enda länk dock måste vi överföra 
-            // alla attribut (class, data-*) till länken.
-            $dom = new \DOMDocument();
-            $dom->loadHTML($completeMatch);
-            $spans = $dom->getElementsByTagName('span');
-            $classes = [];
-            $dataImageHashes = [];
-            foreach ($spans as $oneSpan) {
-                // class, data-image-hash
-                $classes[] = $oneSpan->getAttribute('class');
-                $dataImageHashes[] = $oneSpan->getAttribute('data-image-hash');
-            }
-
-            $classes = array_unique($classes);
-            $dataImageHashes = array_unique($dataImageHashes);
-
-            // Länk runt allt.
-            $replacementString = sprintf(
-                '<a href="%5$s%2$s" class="%3$s"%4$s>%2$s</a>',
-                $completeMatch,
-                $pageNum,
-                implode(' ', $classes),
-                $this->withdebug ? sprintf(' data-image-hashes="%1$s"', implode(' ', $dataImageHashes)) : '', // 4
-                $this->linkprefix // 5
-            );
-
-            return $replacementString;
-        }, $line, -1, $numberReplacements);
-
-        return $line;
-    }
-
-    public function linkifyURLsSingleLine($line, $lineIndex, &$numberReplacements = null)
+    public function linkifyURLsSingleLine($line, $lineIndex)
     {
         // Länkar är oftast på sista raden, den med blå bakgrund,
         // så ta det säkra före det osäkra och länka endast saker på den raden.
@@ -779,11 +669,12 @@ class Importer
     }
 
     /**
-     * @param mixed $line 
-     * @param mixed|null $numberReplacements 
-     * @return mixed 
+     * Gör sidnummer på en rad till länkar.
+     *
+     * @param string $line
+     * @return string
      */
-    public function linkifySingleLine($line, &$numberReplacements = null)
+    public function linkifySingleLine($line)
     {
         $regexSingleNumber0 = '(0)';
         $regexSingleNumber1to9 = '([1-9])';
@@ -799,13 +690,6 @@ class Importer
         
         // Länka inte "3 485 725 vaccindoser har getts i"
         $regex = '\b\d \d{3} \d{3} \b';
-        if (preg_match('|' . $regex . '|', $line, $matches)) {
-            return $line;
-        }
-
-        // Länka inte "Totalt har 14 151 personer som varit"
-        // eller "Minst 2 300 strokefall kan förhindras"
-        $regex = '\b\d{1,2} [1-9][0-9]{2}\b';
         if (preg_match('|' . $regex . '|', $line, $matches)) {
             return $line;
         }
@@ -846,7 +730,13 @@ class Importer
         // Intervall 110-114 _eller_ enkelt nummer 123
         // Matchar rader som innehåller både enkelt nummer och intervall, 
         // t.ex på sidan 330.
-        $regexNumberRange = '(\b[1-9][0-9]{2}(?:-[1-9][0-9]{2})?\b)';
+        // Hoppa över tusental som "Totalt har 14 151 personer" och "Minst 2 300
+        // strokefall", men länka andra sidnummer på samma rad. Hoppa också över
+        // tal direkt efter "siffra-", så att "3 698-565" inte länkar 565, och
+        // belopp och antal som "394 kr" och "(170 st)" på t.ex. 763.
+        $regexNotThousands = '(?<!\b\d )(?<!\b\d\d )(?<!\d-)';
+        $regexNotAmount = '(?! kr\b)(?! st\b)';
+        $regexNumberRange = $regexNotThousands . '(\b[1-9][0-9]{2}(?:-[1-9][0-9]{2})?\b)' . $regexNotAmount;
         $line = preg_replace('|' . $regexNumberRange . '|', $replacement, $line, -1, $count);
         if ($count) {
             return $line;
@@ -1163,9 +1053,8 @@ class Importer
 
             // Ta bort "\n\n\t\t" som verkar vara överst på varje sida.
             // $pageAsText = str_replace("\n\n\t\t", '', $pageAsText);
-            // Sedan 7 juni 2021 verkar det som att tabbarna inte är kvar,
-            // men ta bort dem om de finns (testsidan 100.html är från före dess).
-            $pageAsText = preg_replace('|^\n\n\t*|', "", $pageAsText);
+            // Sedan 7 juni 2021 verkar det som att tabbarna inte är kvar
+            $pageAsText = preg_replace('|^\n\n|', "", $pageAsText);
 
             // Skapa collection med alla rader.
             $pageLines = collect(explode("\n", $pageAsText));

@@ -189,11 +189,33 @@ class ImportTest extends TestCase
             ['      83.4  83.6 CINT   83.6      180911', 0],
             ['  Minst 2 300 strokefall kan förhindras ', 0],
             ['  Arbetslöshet I mars var 549 000', 0],
+            // Tusental hoppas över, men andra sidnummer på raden länkas.
+            ['Minst 2 300 drabbade, se 104', 1],
+            ['Totalt har 14 151 personer, se 104', 1],
+            // Poängtabell på 746 och belopp på 763.
+            ['1. Smederna     14 11  0  3 698-565 28', 0],
+            ['Topptipset        527 kr       (2 st)', 0],
+            ['   12 rätt         8 419 kr     (170 st)', 0],
         ];
 
         foreach ($arrLines as [$text, $expected]) {
             $line = $importer->linkifySingleLine($text);
             $this->assertSame($expected, substr_count($line, '<a '), "Rad: {$text}");
         }
+    }
+
+    /**
+     * Testa hela kedjan som importen kör: cleanup, colorize och linkify.
+     */
+    public function test_linkify_pipeline()
+    {
+        $importer = new Importer(100);
+        $importer->fromFile(__DIR__ . '/../TestPages/100.html');
+        $importer->cleanup()->colorize()->linkify();
+
+        preg_match_all('|<a href="([^"]+)"|', $importer->subpage(0)['text'], $matches);
+
+        // "/100" kommer från "Pollenhalt 100 gånger högre", en känd felträff.
+        $this->assertSame(['/107', '/137', '/100', '/115', '/300', '/189'], $matches[1]);
     }
 }

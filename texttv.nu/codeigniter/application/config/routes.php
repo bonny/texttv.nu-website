@@ -101,9 +101,6 @@ $route['blogg/(:any)'] = "blogg/visa/$1";
 $route['feed'] = "rssfeed";
 $route['feed/(:any)'] = "rssfeed/visa/$1";
 
-// Dev for dev & test pages
-$route['dev'] = "dev";
-
 // Super-seo-page for svt text tv
 $route['svt-text-tv'] = "svttexttv";
 

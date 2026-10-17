@@ -804,7 +804,8 @@ class Importer
         }
 
         // Länka inte "Totalt har 14 151 personer som varit"
-        $regex = '\b\d{2} [1-9][0-9]{2}\b';
+        // eller "Minst 2 300 strokefall kan förhindras"
+        $regex = '\b\d{1,2} [1-9][0-9]{2}\b';
         if (preg_match('|' . $regex . '|', $line, $matches)) {
             return $line;
         }
@@ -1162,8 +1163,9 @@ class Importer
 
             // Ta bort "\n\n\t\t" som verkar vara överst på varje sida.
             // $pageAsText = str_replace("\n\n\t\t", '', $pageAsText);
-            // Sedan 7 juni 2021 verkar det som att tabbarna inte är kvar
-            $pageAsText = preg_replace('|^\n\n|', "", $pageAsText);
+            // Sedan 7 juni 2021 verkar det som att tabbarna inte är kvar,
+            // men ta bort dem om de finns (testsidan 100.html är från före dess).
+            $pageAsText = preg_replace('|^\n\n\t*|', "", $pageAsText);
 
             // Skapa collection med alla rader.
             $pageLines = collect(explode("\n", $pageAsText));

@@ -3,33 +3,36 @@
 $arr_pages = $pages;
 $text = "";
 	
-// Start format för det inre innehållet som har med valda sidor att göra
+// Överst: ett band som säger att sidan är arkiverad och när, med länk till
+// den levande sidan (todo #18). Delningsbilderna (apiAppShare) behåller sin
+// gamla överdel, eftersom den syns i bilderna som delas.
+$arkiv_band = function ($unix, $live_url, $live_label) {
+	return sprintf(
+		'<div class="tt-sidbredd tt-arkiv">
+			<p class="tt-band tt-arkiv__band"><span class="tt-arkiv__etikett">ARKIV</span> <time datetime="%1$s">%2$s</time></p>
+			<p class="tt-linkrow"><a href="%3$s">%4$s →</a></p>
+		</div>',
+		date("c", $unix),
+		html_escape(date_sv('D j M Y H:i', $unix)),
+		html_escape($live_url),
+		html_escape($live_label)
+	);
+};
+
 if (sizeof($arr_pages) == 1) {
 
 	// Om en sida
-
 	if ( ! $this->input->get("apiAppShare") ) {
-
-		$text .= sprintf(
-			'
-			<div class="introtext alert">
-				<p class="introtext__sender">
-					<a href="%3$s">SVT Text TV %2$d</a>
-					<br>%1$s
-				</p>
-
-			</div>
-			',
-			ucfirst( date_sv('D j M Y, H:i', $page->date_updated_unix) ),
-			(int) $page->num,
-			site_url( $page->num )
+		$text .= $arkiv_band(
+			$page->date_updated_unix,
+			site_url( $page->num ),
+			sprintf("SVT Text TV %d just nu", (int) $page->num)
 		);
-
 	}
 
-} else {
+} elseif ( $this->input->get("apiAppShare") ) {
 
-	// Om flera sidor
+	// Flera sidor i en delningsbild
 	$text .= sprintf(
 		'
 		<div class="introtext alert">
@@ -44,6 +47,15 @@ if (sizeof($arr_pages) == 1) {
 		$pagenum
 	);
 
+} else {
+
+	// Flera sidor
+	$text .= $arkiv_band(
+		$arr_pages[0]->date_updated_unix,
+		site_url( $pagenum ),
+		sprintf("SVT Text TV %s just nu", $pagenum)
+	);
+
 }
 
 $this->output->append_output($text);
@@ -51,7 +63,7 @@ $this->output->append_output("<div id='pages'>");
 
 $banner_output = <<<EOT
 	<!-- TextTV - arkivsida -->
-	<p>Annons:</p>
+	<p class="ad-header">Annons</p>
 	<ins class="adsbygoogle"
 	     style="display:inline-block;width:100%;height:100px"
 	     data-ad-client="ca-pub-1689239266452655"
@@ -75,52 +87,11 @@ $this->output->append_output("</ul>");
 
 	if ( ! $this->input->get("apiAppShare") ) {
 		
-		// Info-text längst ner under arkivsida
+		// Längst ner: tillbaka till den levande sidan.
 		$this->output->append_output( sprintf(
-			'
-			<style>
-				.intro-archive-info {
-					display: block;
-					margin: 20px auto;
-					max-width: 20em;
-					clear: both;
-				}
-				.archive-share-button {
-					vertical-align: middle;
-				}
-				.archive-share-button {
-					display: inline-block;
-				}
-				.archive-share-button-fb {
-				    transform: scale(1.5);
-				    position: relative;
-				    top: -3px;
-				    margin-right: 20px;
-			    }
-			    
-			    /* slide over on ipad
-			     * iPad Air or iPad Mini 
-				 * (device-width: 768px) and (width: 320px)
-				 * iPad Pro
-				 * (device-width: 1024px) and (width: 320px)
-				 */
-				 @media (device-width: 768px) and (width: 320px) {
-					 body, pre {
-						 xfont-size: 14px;
-					 }
-				 }
-				 @media (device-width: 1024px) and (width: 320px) {
-					 body, pre {
-						 xfont-size: 14px;
-					 }
-				 }
-			</style>
-			<div class="intro-archive-info">
-				Du tittar på en arkiverad version av <a href="%2$s">SVT Text TV %1$d</a>.
-			</div>
-			',
-			(int) $page->num,
-			site_url( $page->num )
+			'<p class="tt-sidbredd tt-arkiv__slut">Du tittar på en arkiverad version. <a class="tt-link" href="%2$s">SVT Text TV %1$s just nu →</a></p>',
+			html_escape( sizeof($arr_pages) == 1 ? (string) (int) $page->num : $pagenum ),
+			html_escape( site_url( sizeof($arr_pages) == 1 ? $page->num : $pagenum ) )
 		) );
 
 	}

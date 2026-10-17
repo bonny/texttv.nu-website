@@ -790,3 +790,33 @@ ol.day-list__items > li::before {
 	padding: 0;
 	list-style: none;
 }
+
+/*
+	Arkivsidorna (views/pages_inner_output_archive.php): ett band överst med
+	tiden för versionen och en länk till den levande sidan.
+*/
+.tt-arkiv {
+	margin-top: 100px; /* under den fasta ramen; .page-is-archive nollar #pages marginal */
+}
+
+.tt-arkiv__band {
+	display: flex;
+	justify-content: space-between;
+	gap: 1ch;
+	margin: 0;
+	padding-inline: .5ch;
+}
+
+.tt-arkiv__etikett {
+	color: var(--tt-yellow);
+}
+
+.tt-arkiv + #pages > p.ad-header {
+	margin-top: .5em;
+}
+
+.tt-arkiv__slut {
+	margin-block: 1.5em;
+	color: var(--tt-neutral);
+	line-height: 1.4;
+}

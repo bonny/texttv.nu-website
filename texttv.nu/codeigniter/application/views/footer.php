@@ -180,7 +180,7 @@ if ($this->input->get("apiAppShare")) {
 // Show sidebar
 if (!isset($disableSidebar) && !$this->input->get("apiAppShare")) {
 ?>
-	<nav class="sidebar" aria-label="Sidor">
+	<nav class="sidebar" id="sidomeny" aria-label="Sidor">
 		<?php $this->load->view('sidlista') ?>
 	</nav>
 <?php

@@ -19,7 +19,15 @@
 		return;
 	}
 
+	var form = input.form;
 	var data = JSON.parse(dataElm.textContent);
+
+	// Läser upp antalet förslag för skärmläsare.
+	var status = document.createElement("div");
+	status.className = "sr-only";
+	status.setAttribute("role", "status");
+	status.setAttribute("aria-live", "polite");
+	list.parentNode.appendChild(status);
 	var sidor = data.sidor;
 	var SENASTE_KEY = "tt-senaste";
 	var SENASTE_MAX = 4;
@@ -110,7 +118,10 @@
 	function sektioner(q) {
 		if (q === "") {
 			var s = [];
-			var senaste = lasSenaste();
+			// Sidan man redan står på är inget förslag.
+			var senaste = lasSenaste().filter(function (s) {
+				return s.url !== location.pathname;
+			});
 			if (senaste.length) {
 				s.push({ rubrik: "Senast besökta", rader: senaste });
 			}
@@ -184,11 +195,14 @@
 		if (!s.length) {
 			var tom = document.createElement("div");
 			tom.className = "tt-sok__tom";
+			tom.setAttribute("role", "option");
+			tom.setAttribute("aria-disabled", "true");
 			tom.textContent = /^\d+$/.test(q) ? "Skriv tre siffror." : "Ingen sida heter så.";
 			list.appendChild(tom);
 		}
 
 		markera(q === "" ? -1 : 0);
+		status.textContent = options.length ? options.length + " förslag" : "Inga förslag";
 	}
 
 	function markera(i) {
@@ -250,12 +264,6 @@
 			if (n) {
 				markera(e.key === "ArrowDown" ? (active + 1) % n : (active - 1 + n) % n);
 			}
-		} else if (e.key === "Enter") {
-			// Tre siffror skickar formuläret som förut (GET /?number=).
-			if (active >= 0 && !list.hidden && !/^\d{3}$/.test(input.value.trim())) {
-				e.preventDefault();
-				ga(options[active].dataset.url);
-			}
 		} else if (e.key === "Escape") {
 			if (!list.hidden) {
 				e.preventDefault();
@@ -263,6 +271,21 @@
 			}
 		}
 	});
+
+	// Formuläret skickas bara med tre siffror (GET /?number=377). Med något
+	// annat i fältet går Enter till det markerade förslaget, eller ingenstans;
+	// "xyz" gav annars /?number=xyz och en omdirigering till /0.
+	if (form) {
+		form.addEventListener("submit", function (e) {
+			if (/^\d{3}$/.test(input.value.trim())) {
+				return;
+			}
+			e.preventDefault();
+			if (active >= 0 && options[active]) {
+				ga(options[active].dataset.url);
+			}
+		});
+	}
 
 	// mousedown i stället för click: blur på fältet stänger annars listan
 	// innan klicket kommer fram.

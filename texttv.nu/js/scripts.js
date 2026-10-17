@@ -22,11 +22,21 @@ function ttLoading() {
 
 document.documentElement.classList.add("is-domready");
 
-// Sidomenyn.
+// Sidomenyn. Öppnas den flyttas fokus till första länken i den.
 document.querySelectorAll("li.nav-menu a").forEach(function (a) {
+	a.setAttribute("aria-controls", "sidomeny");
+	a.setAttribute("aria-expanded", "false");
 	a.addEventListener("click", function (e) {
 		e.preventDefault();
-		document.body.classList.toggle("menu-active");
+		var open = document.body.classList.toggle("menu-active");
+		a.setAttribute("aria-expanded", open ? "true" : "false");
+		var first = open && document.querySelector("#sidomeny a");
+		if (first) {
+			// Vänta lite: menyn är dold (visibility) tills övergången börjat.
+			setTimeout(function () {
+				first.focus({ preventScroll: true });
+			}, 60);
+		}
 	});
 });
 
@@ -128,7 +138,10 @@ document.querySelectorAll(".controls-topnav-search-input").forEach(function (inp
 	}
 
 	button.addEventListener("click", function () {
-		hamtaPermalank().then(function (data) {
+		hamtaPermalank().catch(function () {
+			// Utan permalänk delas adressen man står på.
+			return { permalink: location.href, title: document.title };
+		}).then(function (data) {
 			if (navigator.share) {
 				navigator.share({ title: "Text TV: " + data.title, url: data.permalink }).catch(function (e) {
 					// AbortError = användaren stängde delningen själv.

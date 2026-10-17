@@ -70,7 +70,6 @@ if ( "/" == current_url()) {
 					class="controls-topnav-search-input"
 					type="text"
 					inputmode="numeric"
-					pattern="[0-9]*"
 					maxlength="3"
 					autocomplete="off"
 					role="combobox"

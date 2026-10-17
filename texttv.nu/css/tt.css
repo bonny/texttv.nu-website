@@ -521,6 +521,13 @@ button.tt-link {
 	display: none;
 }
 
+/* Ramen längst ner (?navAtBottom=1): listan öppnas uppåt. */
+.nav-at-bottom .tt-sok {
+	top: auto;
+	bottom: 100%;
+	margin: 0 0 4px;
+}
+
 .tt-sok__grupp + .tt-sok__grupp {
 	margin-top: .75em;
 }

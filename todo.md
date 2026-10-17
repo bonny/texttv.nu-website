@@ -4,7 +4,7 @@ Index över förbättringsarbete. Varje todo har en egen fil under
 [`todos/`](todos/) med fullständig analys. Konvention och
 mappstruktur: [`todos/README.md`](todos/README.md).
 
-Senast uppdaterad: 2026-10-17 (#18 granskad: AD, UX, copy, SEO; sökförslag tillagda.)
+Senast uppdaterad: 2026-10-17 (#18 steg 1–3 pushade, beslut tagna.)
 
 ## Aktiva
 

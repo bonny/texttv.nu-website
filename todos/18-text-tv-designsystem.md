@@ -70,6 +70,10 @@ informationssida.
 4. "Text TV" för tjänsten, "TextTV.nu" för sajten och appen, "Text-TV-" i
    sammansättningar.
 5. Sökfältet: sifferknappsats på mobil.
+6. Rubriklistor (`tt-list`) är täta: rader på 31 px, klickyta 25 px (WCAG
+   minimum 24). 44 px gjorde "Senaste nyheterna" 54 % längre och gles.
+   44 px gäller länkar och länkrader, inte rubriklistor. Beslut 2026-10-17
+   efter jämförelse i `.playwright-mcp/18/radhojd/`.
 
 Frågorna som de var:
 
@@ -105,7 +109,7 @@ Frågorna som de var:
     knapp.
   - Kvar: komponentens CSS ligger fortfarande i vyn, och bandet går inte
     kant i kant med sidan bredvid (se inventeringen). Löst i steg 2 nedan.
-- **Steg 1 och 2 (2026-10-17, lokalt, inte pushat än):**
+- **Steg 1 och 2 (2026-10-17, pushat 115941d, d18e2ee):**
   - Ny fil `css/tt.css`, laddas efter `texttvpage.css` i `header.php`
     (inte i `appembed/`): färgtokens, teckenstorlek ur `#pages` bredd med
     `cqi`, och komponenterna `tt-sidbredd`, `tt-band`, `tt-link`, `tt-list`
@@ -128,6 +132,17 @@ Frågorna som de var:
 - **5abfe23 (2026-10-17), AMP borttagen.** `amp.php` och AMP-metoderna är
   borta; gamla `/amp`-adresser får 301 via `Sida::amp_redirect()`. AMP behöver
   inte tas hänsyn till i designen.
+
+- **Steg 3 (2026-10-17, pushat fd03510):** raden under sidan ("Uppdaterad
+  22:15" i cyan, "Dela →" som gul textlänk), annonsetiketterna i monospace
+  och neutral grå, "Senaste nyheterna/sportnyheterna" med dubbelhöga gula
+  rubriker (`tt-h2`) och `tt-list`. 70 rader oanvänd CSS borttagen.
+- **ef847ee: versionsnummer på CSS och `scripts.js`** (`?v=` + filens
+  ändringstid). CSS cachas i en vecka, så utan det fick återkommande
+  besökare ny HTML med gammal CSS. Direkt efter en deploy serverar nginx
+  ändå den gamla HTML:en i några sekunder (STALE), så en skärmdump direkt
+  efter deploy kan se trasig ut; ta om den.
+- **Egna cookiebannern borttagen (3c66139).**
 
 ### Inventering 2026-10-17 (snabb, lokalt på 390 px bredd)
 

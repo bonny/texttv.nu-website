@@ -164,103 +164,6 @@ span.textfilltest {
   padding: 0;
 }
 
-.textcontent {
-  max-width: 40em;
-}
-
-.textcontent,
-.textcontent h1 {
-  font-family: "Helvetica Neue", Arial, sans-serif;
-}
-
-.textcontent {
-  word-break: break-word;
-  text-align: left;
-  line-height: 1.3;
-  padding: 2em;
-  position: relative;
-  font-size: 16px;
-  margin-top: 94px;
-}
-.textcontent p,
-.textcontent ul {
-  margin-top: 1em;
-  margin-bottom: 1em;
-}
-.textcontent p,
-.textcontent li,
-.textcontent ul {
-  line-height: inherit;
-}
-
-.textcontent ul {
-  margin-left: 30px;
-  list-style-type: disc;
-}
-
-.textcontent li {
-  margin-bottom: 0.5em;
-}
-
-.textcontent h1 {
-  font-size: 1.5em;
-  line-height: 1;
-  display: block;
-}
-
-.textcontent h2 {
-  font-size: 1.25em;
-  line-height: 1.2;
-  margin-top: 2em;
-  display: block;
-  clear: both;
-}
-
-.textcontent h3 {
-  font-size: 1em;
-  font-weight: bold;
-  margin-top: 1.5em;
-}
-
-.textcontent-overview-article {
-  margin-top: 5em;
-}
-
-.textcontent-blog-excerpt {
-  font-size: 1.2em;
-}
-
-.meta {
-  color: #999;
-}
-
-.textcontent img {
-  max-width: 100%;
-  height: auto;
-}
-
-.PrevBlogPostsNav {
-  text-align: left;
-  padding: 2rem;
-  margin-bottom: 1rem;
-  border-top: 1px solid #666;
-  font-family: var(--font-system-ui);
-  line-height: 1.4;
-}
-
-.PrevBlogPostsNav-article {
-  font-size: 1rem;
-  padding-block: 0.5rem;
-}
-
-.PrevBlogPostsNav-article-date {
-  font-size: 0.8rem;
-}
-
-.PrevBlogPostsNav-article-title {
-  margin-top: 0.25rem;
-}
-
 .image-float {
   max-width: 35%;
   float: right;
@@ -603,7 +506,6 @@ body {
     width: calc(100% - 250px);
   }
 }
-
 
 /**
  Nav at bottom because thumbs

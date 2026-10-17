@@ -621,13 +621,13 @@ button.tt-link {
 	brödtext i vitt med lite mer radavstånd, länkar gula och understrukna,
 	punktlistor med Text-TV-tecken.
 */
-.tt-page {
+:is(.tt-page, .textcontent) {
 	margin-block: 2em;
 	color: var(--tt-white);
 	line-height: 1.4;
 }
 
-.tt-page h1 {
+:is(.tt-page, .textcontent) h1 {
 	display: block;
 	margin: 0 0 1em;
 	padding: .15em .5ch;
@@ -638,8 +638,8 @@ button.tt-link {
 	line-height: 1.25;
 }
 
-.tt-page h2,
-.tt-page h3 {
+:is(.tt-page, .textcontent) h2,
+:is(.tt-page, .textcontent) h3 {
 	display: block;
 	margin: 1.5em 0 .5em;
 	color: var(--tt-yellow);
@@ -648,42 +648,42 @@ button.tt-link {
 	line-height: 1.25;
 }
 
-.tt-page h3 {
+:is(.tt-page, .textcontent) h3 {
 	color: var(--tt-cyan);
 }
 
-.tt-page > :first-child {
+:is(.tt-page, .textcontent) > :first-child {
 	margin-top: 0;
 }
 
-.tt-page p {
+:is(.tt-page, .textcontent) p {
 	margin: 0 0 1em;
 }
 
-.tt-page a {
+:is(.tt-page, .textcontent) a {
 	color: var(--tt-yellow);
 	text-decoration: underline;
 	text-underline-offset: .2em;
 }
 
-.tt-page a:hover,
-.tt-page a:focus-visible {
+:is(.tt-page, .textcontent) a:hover,
+:is(.tt-page, .textcontent) a:focus-visible {
 	background: var(--tt-yellow);
 	color: var(--tt-black);
 	text-decoration: none;
 }
 
-.tt-page ul,
-.tt-page ol {
+:is(.tt-page, .textcontent) ul,
+:is(.tt-page, .textcontent) ol {
 	margin: 0 0 1em;
 	padding-left: 2ch;
 }
 
-.tt-page ul {
+:is(.tt-page, .textcontent) ul {
 	list-style: none;
 }
 
-.tt-page ul > li::before {
+:is(.tt-page, .textcontent) ul > li::before {
 	content: "▪";
 	display: inline-block;
 	width: 2ch;
@@ -691,11 +691,11 @@ button.tt-link {
 	color: var(--tt-cyan);
 }
 
-.tt-page li + li {
+:is(.tt-page, .textcontent) li + li {
 	margin-top: .25em;
 }
 
-.tt-page img {
+:is(.tt-page, .textcontent) img {
 	max-width: 100%;
 	height: auto;
 }
@@ -819,4 +819,94 @@ ol.day-list__items > li::before {
 	margin-block: 1.5em;
 	color: var(--tt-neutral);
 	line-height: 1.4;
+}
+
+/*
+	Informationssidorna, bloggen, faktasidorna, /delade och /polisen
+	(div.textcontent): tt-page i sidans spalt under ramen.
+*/
+.textcontent {
+	box-sizing: border-box;
+	width: calc(40ch + 10px);
+	max-width: 100%;
+	margin: 100px auto 0;
+	padding: 1em 5px 2em;
+	font-family: var(--tt-font);
+	text-align: left;
+	overflow-wrap: break-word;
+}
+
+/* Datum och liknande i bloggen. */
+.meta {
+	color: var(--tt-cyan);
+}
+
+.textcontent-overview-article {
+	margin-top: 2em;
+}
+
+.textcontent-overview-article h2 {
+	margin-top: 0;
+}
+
+/* Formulär på /delade (välj datum). */
+.textcontent select,
+.textcontent input[type="submit"],
+.textcontent button {
+	min-height: 36px;
+	margin: .25em .5ch .25em 0;
+	padding: 0 1ch;
+	border: 0;
+	border-radius: 0;
+	background: var(--tt-blue-bg);
+	color: var(--tt-white);
+	font: inherit;
+}
+
+.textcontent input[type="submit"],
+.textcontent button {
+	background: var(--tt-yellow);
+	color: var(--tt-black);
+	cursor: pointer;
+}
+
+/* Alla blogginlägg (views/blogg_prev_posts_nav.php). */
+.PrevBlogPostsNav {
+	box-sizing: border-box;
+	width: calc(40ch + 10px);
+	max-width: 100%;
+	margin: 0 auto 2em;
+	padding: 1em 5px 0;
+	border-top: 2px solid var(--tt-blue-bg);
+	font-family: var(--tt-font);
+	text-align: left;
+	line-height: 1.4;
+}
+
+.PrevBlogPostsNav-title {
+	margin: 0 0 .5em;
+	color: var(--tt-yellow);
+	font-size: 1em;
+	font-weight: normal;
+}
+
+.PrevBlogPostsNav-article {
+	display: grid;
+	grid-template-columns: 11ch 1fr;
+	padding-block: .2em;
+}
+
+.PrevBlogPostsNav-article p {
+	margin: 0;
+}
+
+.PrevBlogPostsNav-article a {
+	color: var(--tt-white);
+	text-decoration: none;
+}
+
+.PrevBlogPostsNav-article a:hover,
+.PrevBlogPostsNav-article a:focus-visible {
+	background: var(--tt-yellow);
+	color: var(--tt-black);
 }

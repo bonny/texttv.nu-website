@@ -21,8 +21,10 @@ HTML och CSS på vägen.
 
 Reglerna, så att de kan återanvändas:
 
-1. **Text-TV:s palett, inga mellantoner.** Svart bakgrund. Blått (`#00f`)
-   för rubrikband. Gult för länkar och handlingar. Cyan för metadata som tid,
+1. **Text-TV:s palett, inga mellantoner.** Svart bakgrund. Blått (`#00f`,
+   samma som `.bgB` i `texttvpage.css`) för rubrikband. Blå *text* på
+   Text-TV-sidorna är en annan färg (`#12c`, `.B`) och har för låg kontrast
+   mot svart (cirka 2:1) för att användas i ramen. Gult för länkar och handlingar. Cyan för metadata som tid,
    placering och sidnummer. Vitt för brödtext. Inga grå ramar, inga
    genomskinliga understrykningar.
 2. **Rubrik = färgat band i full bredd**, som "SVT Text"-bandet på sidorna.
@@ -47,6 +49,32 @@ Reglerna, så att de kan återanvändas:
 9. **Luft grupperar.** Mer avstånd mellan grupper än inom dem.
 10. **Rubriklistor utan understrykning.** Vit text, gul vid hover och fokus.
     Grå, halvgenomskinliga understrykningar blev dubbla när rubriken bröts.
+    (Krockar med hoverregeln i förslaget, se "Öppna beslut".)
+
+### Granskning av planen 2026-10-17 (art director, UX, copy, SEO)
+
+Planen granskades mot koden innan arbetet började. Slutsatserna är inarbetade
+i avsnitten nedan. Två fel i den första versionen är rättade: bandets blå
+(regel 1) och varför sida 377 bryts (förslag 1).
+
+**Öppna beslut** (tas innan ytorna görs om):
+
+1. **Hover.** Antingen gul bakgrund med svart text på alla länkar, eller
+   färgbyte (vit → gul) på rubriklistor och understruken gul på textlänkar.
+   Båda står i todon idag. Välj en regel.
+2. **Appens blå.** `#0066B5` är `--ion-color-primary` i appen
+   (`texttv.nu (app)/src/css/theme.css`) och finns troligen i appikonen. Blir
+   webbens ram svart och blå skiljer sig webb och app åt. Okej, eller ska
+   appen följa efter senare?
+3. **Desktop och flera sidor i bredd.** Med 22 px som tak blir kolumnen cirka
+   440 px på en 1280 px skärm. Vad ska den tomma ytan göra, och hur ser
+   `/100,300` och `/101-103` ut?
+4. **Hur namnet stavas.** Vyerna har fem stavningar: "Text TV" (164),
+   "TextTV" (39), "text-tv" (21), "Texttv" (8), "Text-TV" (7). Förslag:
+   "Text TV" för tjänsten, "TextTV.nu" för sajten, "Text-TV-" i
+   sammansättningar.
+5. **Sökfältet: siffror eller fritext.** Sifferknappsats och bara sidnummer
+   på mobil, eller fritext med namnsökning överallt (se förslag 5).
 
 ### Gjort hittills
 
@@ -91,8 +119,9 @@ steget):
 
 | Yta | Vad som skaver |
 | --- | --- |
-| Appramen (header, `Sidor`/`Hem`/`← 100`/`102 →`, "Gå till sida") | Ionic-blå `#0066B5`, systemfont, appikon. Ser ut som en app från 2015, inte som Text TV |
-| Sidomenyn och footern ("Sidor"-listan) | Mörkblå `#141c2a`, Helvetica med vanlig understrykning, grå länkar, sidnummer i en annan font. Listan finns dessutom i både sidomenyn och footern |
+| Appramen (header, `Sidor`/`Hem`/`← 100`/`102 →`, "Gå till sida") | Ionic-blå `#0066B5`, systemfont, appikon. Ser ut som en app från 2015, inte som Text TV. Samma blå är appens primärfärg (öppet beslut 2) |
+| Sidomenyn och footern ("Sidor"-listan) | Mörkblå `#141c2a`, Helvetica med vanlig understrykning, grå länkar, sidnummer i en annan font. Listan finns dessutom i både sidomenyn och footern. Footerlistan är sajtomfattande internlänkar till `/nyheter/igar`, `/sport/igar` och `/377/igar` (#16) |
+| Cookiebannern | Har en egen `<h1>` ("Får vi använda din data…", `cookie_banner.php:4`), så varje sida får två h1 |
 | Raden under sidan ("Sidan uppdaterad 20:25" + "Dela"-knapp) | Liten grå text plus knapp med ikon och ram. Webbspråk |
 | "FLER NYHETER EFTER ANNONSEN", "Senaste nyheterna", "Senaste sportnyheterna" | Versal sans-serif och fet Helvetica |
 | Startsidan, rubriken överst ("SVT Text TV - Nyheter och Sportresultat") | Fet monospace utan band, centrerad, ovanför sida 100. Vanlig webbrubrik. Bandet "Igår på Text TV" längre ner sticker ut cirka 10 px till vänster om sidans kolumn och har inte samma kant |
@@ -110,27 +139,47 @@ Samla allt i en ny fil, eller överst i `styles.css`, som CSS custom properties:
 
 - **Färger:** de åtta Text-TV-färgerna (`--tt-black`, `--tt-blue`, `--tt-yellow`,
   `--tt-cyan`, `--tt-white`, `--tt-red`, `--tt-green`, `--tt-magenta`), samma
-  värden som `texttvpage.css` använder. Lägg till högst en neutral färg för
-  sådant som Text TV inte har, till exempel annonsetiketter. Inget annat.
+  värden som `texttvpage.css` använder. De är inte rena (vitt
+  `rgb(252,254,252)`, gult `rgb(252,254,1)`, cyan `#00c8ee`), och blått finns
+  i två varianter: `--tt-blue-bg` (`#00f`) och `--tt-blue-fg` (`#12c`, bara
+  inne på Text-TV-sidorna). Skriv vid varje token vad den får användas till.
+  Lägg till högst en neutral färg för sådant som Text TV inte har, till
+  exempel annonsetiketter. Inget annat.
 - **Typografi:** Ubuntu Mono överallt. En storlek för brödtext och en för
-  dubbelhöga rubriker, som på Text TV. Ingen sans-serif.
+  dubbelhöga rubriker, som på Text TV. Ingen sans-serif. Lägg en fallbackfont
+  med `size-adjust` så att FOUT inte flyttar layouten.
+- **Rubriknivåer:** tre, inte en. Blått band för sidans eller blockets
+  rubrik (högst ett per block), dubbelhög gul eller cyan text för h2, cyan
+  etikett för metadata. Blir allt band blir allt lika viktigt.
 - **Sidans storlek:** idag sätts teckenstorleken med fasta brytpunkter från
-  iPhone 5/6-tiden (`styles.css` cirka rad 1080–1110: 22, 16 och 14 px, delvis
-  på `device-width`). Därför bryts sida 377 på 375 px. Ersätt med en
-  storlek som räknas fram ur skärmbredden, ungefär
-  `font-size: clamp(10px, (100vw - 2 * marginal) / 20, 22px)`
-  (Ubuntu Mono är cirka 0,5 em per tecken, så 40 tecken blir 20 em). Prova på
-  320, 360, 375, 390, 414 och 430 px och med sidomenyn öppen. Gör det här
-  först: allt annat ska anpassas efter sidans bredd.
+  iPhone 5/6-tiden (`styles.css` cirka rad 1080–1120: 22, 16, 14 och 18 px,
+  delvis på `device-width`, plus en regel för liggande läge med två sidor i
+  bredd). På 375 px gäller `min-device-width: 375px` och ger **18 px**:
+  40 × 9 = 360 px plus padding, därför bryts sida 377. Ersätt med en storlek
+  som räknas fram ur *sidans* bredd, inte skärmens: sätt
+  `container-type: inline-size` på sidans behållare och räkna med `cqi`,
+  ungefär `font-size: clamp(10px, (100cqi - 2 * marginal) / 20, 1.375rem)`
+  (Ubuntu Mono är 0,5 em per tecken, så 40 tecken blir 20 em). Med `vw`
+  blir det fel så fort sidan inte har hela skärmen: sidomenyn öppen, flera
+  sidor i bredd (`/100,300`) eller liggande läge. Taket i `rem` gör att
+  användarens textstorlek respekteras. Prova på 320, 360, 375, 390, 414 och
+  430 px, med sidomenyn öppen, i liggande läge och med flera sidor. Gör det
+  här först: allt annat ska anpassas efter sidans bredd.
 - **Mått:** `ch` och radhöjd som rutnät. Kolumn `40ch`. Avstånd i hela rader
   (`1lh` eller `1.25em`).
 - **Interaktion:** hover och fokus = gul bakgrund med svart text, samma på alla
-  länkar. Synlig fokusring.
+  länkar (eller färgbyte, se öppet beslut 1). Synlig fokusring som syns på
+  gul hoverbakgrund, på det blå bandet och på svart.
+- **Text:** en regel för hur namnet stavas (öppet beslut 4). Annonsetiketter
+  behåller ord som AdSense godkänner ("Annons", "Annonser"); bara stilen
+  ändras.
 
 ### 2. Komponenter (små, återanvändbara klasser)
 
 - **`tt-band`**: rubrikband i full bredd, blått med vit eller gul text.
-  Ersätter alla rubriker i sajtens ram.
+  Ersätter sidans och blockens rubriker i sajtens ram, inte varje rubrik
+  (se rubriknivåer). När en befintlig rubrik flyttas in i bandet behålls
+  orden och rubriknivån.
 - **`tt-link`**: gul, understruken länktext med 44 px klickyta. Ersätter
   knappar med ram ("Dela", gårdagslänkarna med flera).
 - **`tt-list`**: lista med en metadatakolumn (tid, placering eller sidnummer i
@@ -148,16 +197,33 @@ Bygg om `day_archive_link.php` först, som referens, och ta bort dess egna
 
 Ett förslag till ordning, där det som syns mest kommer först:
 
+0. Direkt, oberoende av resten: byt cookiebannerns `<h1>` mot en rubrik som
+   inte är h1, så att varje sida har en h1.
 1. Raden under sidan, "Senaste nyheterna/sportnyheterna" och
-   annonsetiketterna: syns på varje sidvisning.
+   annonsetiketterna: syns på varje sidvisning. Behåll "Senaste nyheterna"
+   och "Senaste sportnyheterna" som de är (sökord). "Fler nyheter efter
+   annonsen" kan stå kvar, i gemener och monospace.
 2. Arkivsidorna: ett band överst som säger att sidan är arkiverad och
    när, med länk till den levande sidan. De får mycket söktrafik (#16).
-3. Appramen och navigeringen, och startsidans rubrik.
-4. Footern och sidomenyn. Gör en lista av två, så att den finns på ett ställe.
+   Lös först datumskillnaden mellan listen och sidans rubrikrad (se
+   inventeringen), eftersom bandet ska visa datumet. Datumet i `<time
+   datetime>`, länken beskrivande ("SVT Text TV 111 just nu →"). Bandet får
+   inte trycka ner sidans h1 och innehåll så mycket att LCP blir sämre.
+3. Appramen och navigeringen, och startsidans rubrik. "Gå till sida" får
+   förslag, se avsnitt 5. Startsidans h1 "SVT
+   Text TV - Nyheter och Sportresultat" flyttas in i bandet med samma ord.
+4. Footern och sidomenyn. Gör en PHP-partial som båda använder, i stället
+   för att ta bort listan på ett ställe. Länkarna ska finnas kvar i HTML:en
+   även utan JS (internlänkar till arkiven, #16). Kolla först hur
+   sidomenyn öppnas: knappen "Sidor" i `controls.php` är en länk till `/`.
 5. Dagslistorna och dagsarkiven (#16). En gemensam rubrik: band med
-   avdelning och datum en gång, föregående/nästa dag som länkrad.
-6. Informationssidorna och bloggen.
-7. Resten: cookiebannern, notiser, `/delade`, `/polisen` och fakta.
+   avdelning och datum en gång ("Nyheter · tors 15 okt 2026"),
+   föregående/nästa dag som länkrad ("← 14 okt · 16 okt →"). Datumet tas
+   bort ur underrubriken, inte ur h1 eller `<title>`.
+6. Informationssidorna och bloggen. Skriv om texterna samtidigt, inte bara
+   stilen: Om-sidans h1 "TextTV.nu är en smartare text-tv för din dator,
+   mobil och surfplatta" är från 2012.
+7. Resten: cookiebannerns stil, notiser, `/delade`, `/polisen` och fakta.
 
 För varje yta: skärmdump före och efter på 390 px och desktop, flytta
 inline-CSS till komponenterna och ta bort CSS som blir oanvänd.
@@ -172,11 +238,73 @@ inline-CSS till komponenterna och ta bort CSS som blir oanvänd.
   `:is()` räcker i de webbläsare som besöker sajten idag (kolla GA4).
 - Inga `<style>`-block i vyerna när det är klart.
 
+### 5. "Gå till sida" med förslag (önskemål från Pär 2026-10-17)
+
+Idag är "Gå till sida" ett `type="number"`-fält utan förslag
+(`controls.php`, `#goPageNum` och `#search-input`; JS i `js/scripts.js`).
+Ett klick i fältet ska i stället visa en lista med förslag direkt, innan
+något har skrivits. Hör till appramen (steg 3 ovan) och görs inom den här
+todon.
+
+**Hur andra gör.** Det vanliga mönstret är att listan öppnas när fältet får
+fokus och då visar några senaste sökningar (sparade lokalt i webbläsaren,
+högst cirka 4, sektionen döljs om historiken är tom) och sedan populära
+sökningar (cirka 6). När man börjar skriva byts listan mot träffar. Algolia
+Autocomplete har det som standard (`openOnFocus`, plugins för senaste och
+populära sökningar). Command-paletter som Linear och GitHub (⌘K) visar
+senaste och föreslagna mål på samma sätt. Baymard: autocomplete finns på
+80 % av e-handelssajter men bara 19 % gör det helt rätt, och 58 % låter
+inte användaren kopiera ett förslag in i fältet och fortsätta skriva.
+
+**Förslag för TextTV.nu, i Text-TV-stil:**
+
+- **Tomt fält:**
+  - `Senast besökta`: sidnummer + namn från `localStorage`, högst 4.
+  - `Mest läst nu`: 3 rubriker från `/api/most_read/news` (finns redan).
+  - `Populära sidor`: fast lista med 100 Nyheter, 300 Sport, 377 Resultat,
+    330 Resultatbörsen, 401 Väder och några till, samma källa som
+    footerlistan (partialen i steg 4).
+- **När man skriver:**
+  - Siffror filtrerar på sidnummer: "3" visar 3xx, "37" visar 370–379
+    med namn.
+  - Bokstäver matchar namn: "väd" ger 401 Väder, "resu" ger 330 och 377.
+  - Tre siffror + Enter går direkt till sidan som idag. Det snabba sättet
+    får aldrig bli långsammare. Fundera på att gå direkt vid tre siffror,
+    som med fjärrkontrollen.
+- **Utseende:** svart lista, sidnummer i cyan, namn i vitt, rubrikerna i
+  sektionerna som cyan etiketter (inte band), markerad rad enligt
+  hoverregeln. Samma rutnät i `ch` som resten.
+- **Tillgänglighet:** combobox enligt WAI-ARIA APG (`role="combobox"`,
+  `aria-expanded`, `aria-controls`, `aria-activedescendant`), pil upp/ned,
+  Enter, Esc. Fokus stannar i fältet.
+
+**Fallgropar:**
+
+- **Fältet får fokus automatiskt på desktop** när sidan laddas
+  (`scripts.js`, cirka rad 200). Listan får inte öppnas då, utan bara vid
+  klick, tangentbord eller `/`, annars ligger den öppen på varje sidvisning.
+- **`type="number"` tar inte bokstäver.** För namnsökning krävs
+  `type="text"` (eller `search`), men då förlorar mobilen sifferknappsatsen
+  om inte `inputmode="numeric"` sätts, och då går bokstäver inte att skriva
+  på mobilen. Bestäm: sifferknappsats och bara sidnummer på mobil, eller
+  fritext överallt.
+- **Utan JS** ska formuläret fungera som idag (`GET /?number=377`), och
+  listan får inte ersätta länkarna i footern.
+- **Annonser och CLS:** listan läggs ovanpå (position absolute/popover) och
+  får inte flytta innehållet.
+- **Rör inte API:t.** `/api/most_read` används av appen. Behövs
+  "populära sidor" ur statistiken, gör en ny webbrutt i stället för att
+  ändra den befintliga.
+
 ## Arbetssätt och lokal testning
 
 - **Per yta:** UX- och art director-granskning, ändra lokalt, skärmdumpar
   före och efter på mobil (390 px, och 320 px för bredden) och desktop
-  (1280 px), visa Pär innan push. Så gjordes "Mest läst igår".
+  (1280 px), visa Pär innan push. Så gjordes "Mest läst igår". Kolla också
+  tangentbordsnavigering och klickytor på 320 px.
+- **Baslinje före arkivsidorna och appramen:** GSC för samma period året
+  innan, med /377 som kontroll, och RPM i AdSense (filtrerat på
+  `DOMAIN_NAME==texttv.nu`).
 - **Lokal sajt:** `http://texttv.test:8380` (`make up`). Skärmdumpar med
   Playwright MCP måste sparas under `TextTV.nu/` (t.ex.
   `TextTV.nu/.playwright-mcp/`), inte i scratchpad.
@@ -198,7 +326,11 @@ inline-CSS till komponenterna och ta bort CSS som blir oanvänd.
   villkor och kan ha krav. En ändrad layout kan flytta annonser och påverka
   intäkterna. Mät RPM i AdSense före och efter de ytor som rör annonserna.
 - **CLS och prestanda.** Webbfonten används redan, men fler element i Ubuntu
-  Mono betyder att FOUT syns mer. Kolla CWV i GSC efteråt.
+  Mono betyder att FOUT syns mer. Kolla CWV i GSC efteråt. Ge annonserna
+  plats med fast höjd så att de inte flyttar innehållet.
+- **SEO.** Rubriker som flyttas in i band ska behålla orden och h1-nivån, och
+  footerns internlänkar till arkiven får inte försvinna ur HTML:en när
+  listorna slås ihop.
 - **Appen.** `appembed/` och API:t används av appen. Rör inte API:t. Kolla
   `appembed`-vyerna om de delar CSS med webben.
 - **Läsbarhet för långa texter.** Monospace på informationssidor och i bloggen

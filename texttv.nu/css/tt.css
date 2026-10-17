@@ -35,6 +35,20 @@ html:not(.appShare) #pages {
 	container-type: inline-size;
 }
 
+/* Reserv för webbläsare utan container queries eller clamp() (7 % av
+   sidvisningarna 2026-10): samma räkning mot skärmen, tak 22 px. */
+html:not(.appShare) #pages .one-page,
+html:not(.appShare) .tt-sidbredd {
+	font-size: calc((100vw - 26px) / 20);
+}
+
+@media (min-width: 466px) {
+	html:not(.appShare) #pages .one-page,
+	html:not(.appShare) .tt-sidbredd {
+		font-size: 22px;
+	}
+}
+
 html:not(.appShare) #pages .one-page,
 html:not(.appShare) .tt-sidbredd {
 	font-size: clamp(10px, (100cqi - 2 * var(--tt-gutter) - 10px) / 20, 1.375rem);
@@ -53,6 +67,19 @@ html:not(.appShare) .tt-sidbredd {
 	14–22 px. Ersätter de gamla brytpunkterna per enhet (iPhone 5/6, iPad).
 	Delningsbilderna har egna storlekar i styles.css (.appShare body).
 */
+/* Reserv för webbläsare utan clamp() (4 % av sidvisningarna 2026-10). */
+body,
+pre {
+	font-size: calc((100vw - 26px) / 20);
+}
+
+@media (min-width: 466px) {
+	body,
+	pre {
+		font-size: 22px;
+	}
+}
+
 body,
 pre {
 	font-size: clamp(14px, (100vw - 2 * var(--tt-gutter) - 10px) / 20, 1.375rem);
@@ -67,8 +94,10 @@ pre {
 	box-sizing: border-box;
 	width: calc(40ch + 10px);
 	max-width: 100%;
-	margin-inline: auto;
-	padding-inline: 5px;
+	margin-left: auto;
+	margin-right: auto;
+	padding-left: 5px;
+	padding-right: 5px;
 	text-align: left;
 	font-family: var(--tt-font);
 	line-height: 1.25;
@@ -98,7 +127,13 @@ button.tt-link {
 
 .tt-link:hover,
 .tt-linkrow a:hover,
-.tt-list a:hover,
+.tt-list a:hover {
+	background: var(--tt-yellow);
+	color: var(--tt-black);
+	text-decoration: none;
+	opacity: 1;
+}
+
 .tt-link:focus-visible,
 .tt-linkrow a:focus-visible,
 .tt-list a:focus-visible {
@@ -118,7 +153,8 @@ button.tt-link {
 /* Rubrikband i full bredd. */
 .tt-band {
 	display: block;
-	margin-block: 0;
+	margin-top: 0;
+	margin-bottom: 0;
 	padding: .15em 1ch;
 	background: var(--tt-blue-bg);
 	color: var(--tt-white);
@@ -144,7 +180,8 @@ button.tt-link {
 /* Lite luft runt varje rad, så att rubrikerna blir lättare att träffa. */
 .tt-list__meta,
 .tt-list a {
-	padding-block: .2em;
+	padding-top: .2em;
+	padding-bottom: .2em;
 }
 
 .tt-list__meta {
@@ -182,7 +219,8 @@ button.tt-link {
 /* Gårdagens länkar under sidan (views/day_archive_link.php). På startsidan
    en ruta i raden bredvid sida 100, lika bred som en sida. */
 .day-archive-link {
-	margin-block: 1em;
+	margin-top: 1em;
+	margin-bottom: 1em;
 }
 
 .day-archive-link--inline {
@@ -195,7 +233,8 @@ button.tt-link {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	margin-block: .5em;
+	margin-top: .5em;
+	margin-bottom: .5em;
 }
 
 .pageshare__updated {
@@ -290,7 +329,11 @@ button.tt-link {
 	height: 1.5em;
 }
 
-.controls__home:hover,
+.controls__home:hover {
+	background: var(--tt-yellow);
+	color: var(--tt-black);
+}
+
 .controls__home:focus-visible {
 	background: var(--tt-yellow);
 	color: var(--tt-black);
@@ -337,8 +380,10 @@ button.tt-link {
 
 /* Sidans h1 ovanför Text-TV-sidan: ett band kant i kant med sidan. */
 .pages-headline {
-	margin-block: .5em 0;
-	padding-inline: .5ch; /* 39 tecken ryms: "SVT Text TV - Nyheter och Sportresultat" */
+	margin-top: .5em;
+	margin-bottom: 0;
+	padding-left: .5ch;
+	padding-right: .5ch; /* 39 tecken ryms: "SVT Text TV - Nyheter och Sportresultat" */
 }
 
 /*
@@ -394,7 +439,8 @@ button.tt-link {
 .sidlista__fyll {
 	flex: 1;
 	min-width: 1ch;
-	margin-inline: .5ch;
+	margin-left: .5ch;
+	margin-right: .5ch;
 	overflow: hidden;
 	white-space: nowrap;
 	color: var(--tt-blue-fg);
@@ -408,15 +454,22 @@ button.tt-link {
 	color: var(--tt-cyan);
 }
 
-.sidlista a:hover,
+.sidlista a:hover {
+	background: var(--tt-yellow);
+	color: var(--tt-black);
+}
+
 .sidlista a:focus-visible {
 	background: var(--tt-yellow);
 	color: var(--tt-black);
 }
 
 .sidlista a:hover .sidlista__num,
+.sidlista a:hover .sidlista__fyll {
+	color: var(--tt-black);
+}
+
 .sidlista a:focus-visible .sidlista__num,
-.sidlista a:hover .sidlista__fyll,
 .sidlista a:focus-visible .sidlista__fyll {
 	color: var(--tt-black);
 }
@@ -591,7 +644,8 @@ button.tt-link {
 }
 
 .pageshare__sheet > * {
-	margin-inline: 1ch;
+	margin-left: 1ch;
+	margin-right: 1ch;
 }
 
 .pageshare__sheet > .tt-band {
@@ -607,7 +661,8 @@ button.tt-link {
 .pageshare__sheet__text_input {
 	box-sizing: border-box;
 	width: calc(100% - 2ch);
-	margin-block: .25em .5em;
+	margin-top: .25em;
+	margin-bottom: .5em;
 	padding: .25em .5ch;
 	border: 0;
 	background: var(--tt-blue-bg);
@@ -621,13 +676,16 @@ button.tt-link {
 	brödtext i vitt med lite mer radavstånd, länkar gula och understrukna,
 	punktlistor med Text-TV-tecken.
 */
-:is(.tt-page, .textcontent) {
-	margin-block: 2em;
+.tt-page,
+.textcontent {
+	margin-top: 2em;
+	margin-bottom: 2em;
 	color: var(--tt-white);
 	line-height: 1.4;
 }
 
-:is(.tt-page, .textcontent) h1 {
+.tt-page h1,
+.textcontent h1 {
 	display: block;
 	margin: 0 0 1em;
 	padding: .15em .5ch;
@@ -638,8 +696,10 @@ button.tt-link {
 	line-height: 1.25;
 }
 
-:is(.tt-page, .textcontent) h2,
-:is(.tt-page, .textcontent) h3 {
+.tt-page h2,
+.textcontent h2,
+.tt-page h3,
+.textcontent h3 {
 	display: block;
 	margin: 1.5em 0 .5em;
 	color: var(--tt-yellow);
@@ -648,42 +708,57 @@ button.tt-link {
 	line-height: 1.25;
 }
 
-:is(.tt-page, .textcontent) h3 {
+.tt-page h3,
+.textcontent h3 {
 	color: var(--tt-cyan);
 }
 
-:is(.tt-page, .textcontent) > :first-child {
+.tt-page > :first-child,
+.textcontent > :first-child {
 	margin-top: 0;
 }
 
-:is(.tt-page, .textcontent) p {
+.tt-page p,
+.textcontent p {
 	margin: 0 0 1em;
 }
 
-:is(.tt-page, .textcontent) a {
+.tt-page a,
+.textcontent a {
 	color: var(--tt-yellow);
 	text-decoration: underline;
 	text-underline-offset: .2em;
 }
 
-:is(.tt-page, .textcontent) a:hover,
-:is(.tt-page, .textcontent) a:focus-visible {
+.tt-page a:hover,
+.textcontent a:hover {
 	background: var(--tt-yellow);
 	color: var(--tt-black);
 	text-decoration: none;
 }
 
-:is(.tt-page, .textcontent) ul,
-:is(.tt-page, .textcontent) ol {
+.tt-page a:focus-visible,
+.textcontent a:focus-visible {
+	background: var(--tt-yellow);
+	color: var(--tt-black);
+	text-decoration: none;
+}
+
+.tt-page ul,
+.textcontent ul,
+.tt-page ol,
+.textcontent ol {
 	margin: 0 0 1em;
 	padding-left: 2ch;
 }
 
-:is(.tt-page, .textcontent) ul {
+.tt-page ul,
+.textcontent ul {
 	list-style: none;
 }
 
-:is(.tt-page, .textcontent) ul > li::before {
+.tt-page ul > li::before,
+.textcontent ul > li::before {
 	content: "▪";
 	display: inline-block;
 	width: 2ch;
@@ -691,11 +766,13 @@ button.tt-link {
 	color: var(--tt-cyan);
 }
 
-:is(.tt-page, .textcontent) li + li {
+.tt-page li + li,
+.textcontent li + li {
 	margin-top: .25em;
 }
 
-:is(.tt-page, .textcontent) img {
+.tt-page img,
+.textcontent img {
 	max-width: 100%;
 	height: auto;
 }
@@ -718,7 +795,8 @@ button.tt-link {
 }
 
 .tt-dag .tt-band {
-	padding-inline: .5ch;
+	padding-left: .5ch;
+	padding-right: .5ch;
 }
 
 /* 1ch mellanrum: "← onsdag 14 oktober" och "fredag 16 oktober →" är 19
@@ -764,7 +842,8 @@ ol.day-list__items > li {
 
 ol.day-list__items > li::before {
 	content: counter(mest-lasta);
-	padding-block: .2em;
+	padding-top: .2em;
+	padding-bottom: .2em;
 	color: var(--tt-cyan);
 }
 
@@ -778,7 +857,8 @@ ol.day-list__items > li::before {
 
 /* Dagsarkivet: alla versioner under dagen som en länkrad. */
 .tt-dag__versioner {
-	margin-block: 1.5em;
+	margin-top: 1.5em;
+	margin-bottom: 1.5em;
 }
 
 .tt-dag__versioner .tt-band {
@@ -804,7 +884,8 @@ ol.day-list__items > li::before {
 	justify-content: space-between;
 	gap: 1ch;
 	margin: 0;
-	padding-inline: .5ch;
+	padding-left: .5ch;
+	padding-right: .5ch;
 }
 
 .tt-arkiv__etikett {
@@ -816,7 +897,8 @@ ol.day-list__items > li::before {
 }
 
 .tt-arkiv__slut {
-	margin-block: 1.5em;
+	margin-top: 1.5em;
+	margin-bottom: 1.5em;
 	color: var(--tt-neutral);
 	line-height: 1.4;
 }
@@ -893,7 +975,8 @@ ol.day-list__items > li::before {
 .PrevBlogPostsNav-article {
 	display: grid;
 	grid-template-columns: 11ch 1fr;
-	padding-block: .2em;
+	padding-top: .2em;
+	padding-bottom: .2em;
 }
 
 .PrevBlogPostsNav-article p {
@@ -905,7 +988,11 @@ ol.day-list__items > li::before {
 	text-decoration: none;
 }
 
-.PrevBlogPostsNav-article a:hover,
+.PrevBlogPostsNav-article a:hover {
+	background: var(--tt-yellow);
+	color: var(--tt-black);
+}
+
 .PrevBlogPostsNav-article a:focus-visible {
 	background: var(--tt-yellow);
 	color: var(--tt-black);
@@ -918,7 +1005,8 @@ ol.day-list__items > li::before {
 }
 
 .svt-text-tv-sida .tt-band {
-	padding-inline: .5ch;
+	padding-left: .5ch;
+	padding-right: .5ch;
 }
 
 .svt-text-tv-sida .teaser {
@@ -990,7 +1078,12 @@ ol.day-list__items > li::before {
 	text-underline-offset: .2em;
 }
 
-.breadcrumbs__link:hover,
+.breadcrumbs__link:hover {
+	background: var(--tt-yellow);
+	color: var(--tt-black);
+	text-decoration: none;
+}
+
 .breadcrumbs__link:focus-visible {
 	background: var(--tt-yellow);
 	color: var(--tt-black);
@@ -1131,4 +1224,16 @@ html.appShare .pageshare {
 	width: auto;
 	height: 39px;
 	display: block;
+}
+
+/* Delningsrutan i webbläsare utan <dialog>. */
+.pageshare__sheet--utan-dialog {
+	display: block;
+	position: fixed;
+	z-index: 10;
+	top: 110px;
+	left: 0;
+	right: 0;
+	margin-left: auto;
+	margin-right: auto;
 }

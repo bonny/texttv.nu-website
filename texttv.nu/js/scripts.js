@@ -117,24 +117,41 @@ document.querySelectorAll(".controls-topnav-search-input").forEach(function (inp
 		});
 		var stang = el("button", { type: "button", class: "tt-link" }, "Stäng");
 		stang.addEventListener("click", function () {
-			dialog.close();
+			stangRuta();
 		});
 		actions.appendChild(kopiera);
 		actions.appendChild(stang);
 		dialog.appendChild(actions);
 
+		// Äldre webbläsare (3 % 2026-10) saknar <dialog>: då är rutan en
+		// vanlig fast positionerad ruta som tas bort när den stängs.
+		var modal = typeof dialog.showModal === "function";
+		function stangRuta() {
+			if (modal) {
+				dialog.close();
+			} else if (dialog.parentNode) {
+				dialog.parentNode.removeChild(dialog);
+			}
+		}
 		dialog.addEventListener("close", function () {
-			dialog.remove();
+			if (dialog.parentNode) {
+				dialog.parentNode.removeChild(dialog);
+			}
 		});
 		// Klick på bakgrunden stänger.
 		dialog.addEventListener("click", function (e) {
 			if (e.target === dialog) {
-				dialog.close();
+				stangRuta();
 			}
 		});
 
 		document.body.appendChild(dialog);
-		dialog.showModal();
+		if (modal) {
+			dialog.showModal();
+		} else {
+			dialog.setAttribute("open", "");
+			dialog.className += " pageshare__sheet--utan-dialog";
+		}
 	}
 
 	button.addEventListener("click", function () {

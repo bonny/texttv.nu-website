@@ -14,7 +14,8 @@ set -euo pipefail
 # 07e98b0 kopierades till servern 15:52:08–15:52:23 UTC 2026-10-18. Rader
 # från och med då har den nya koden redan räknat.
 CUTOFF_UTC="2026-10-18 15:52:08"
-TYPER="'SHARE','COPYLINK','COPYTEXT','OPENLINK'"
+# OPENLINK ("Öppna i webbläsaren") räknas inte, som i Api::page().
+TYPER="'SHARE','COPYLINK','COPYTEXT'"
 
 E=/usr/share/nginx/l.texttv.nu/importer/.env
 DIR=/root/db-backups-$(date +%F)

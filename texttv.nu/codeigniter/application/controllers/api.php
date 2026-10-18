@@ -745,7 +745,9 @@ class Api extends CI_Controller
 		// aldrig i texttv.is_shared: /sida/delat visade bara webben, och
 		// städningen raderade de delade arkivsidorna efter ett år. Högst tio
 		// sidor per delning, så att ett anrop inte kan räkna upp hela tabellen.
-		if ($type !== 'VIEW') {
+		// "Öppna i webbläsaren" (OPENLINK) är ingen delning: den gör att sidor
+		// som 700 och 401 toppar listan.
+		if (in_array($type, ['SHARE', 'COPYLINK', 'COPYTEXT'], true)) {
 			$share_ids = array_slice(array_unique(array_filter(array_map("intval", $arr_page_ids))), 0, 10);
 			mark_archive_ids_as_shared($share_ids);
 		}

@@ -26,6 +26,9 @@ Följdfel: `texttv:cleanup-old-pages` raderar arkivsidor äldre än ett år med
   (`make test-api` identiskt).
 - `a4d5523` `is_shared` är TINYINT och sql_mode strikt: uppräkningen stannar
   på 127 i stället för att ge databasfel i svaret.
+- OPENLINK ("Öppna i webbläsaren") räknas inte längre som delning. Den var
+  vanligast av de fyra (157 av 376 på tio dagar) och gav sida 700
+  (Textningsinfo) och 401 (väder) överst i listan.
 - `b2d1451` "Dela sidan" är en gul knapp i stället för en textlänk, finns även
   på arkivsidorna (dit delade länkar leder), och webbens delningar går till
   GA4 som `share` med `method` (webbläsarens delning, kopiera länk, facebook,

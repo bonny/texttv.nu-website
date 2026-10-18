@@ -19,7 +19,9 @@ $render_list = function ($items, $ordered = false) use ($e) {
 	$out = "<{$tag} class=\"tt-list day-list__items\">";
 	foreach ($items as $item) {
 		$out .= sprintf(
-			'<li><span class="tt-list__meta">%1$s</span><span><a href="%2$s">%3$s</a> <span class="day-list__num">%4$d</span></span></li>',
+			// Sidnumret i en egen kolumn till höger, som på Text TV. Efter
+			// rubriken hoppade det mellan radslut och ny rad.
+			'<li><span class="tt-list__meta">%1$s</span><a href="%2$s">%3$s</a><span class="day-list__num">%4$d</span></li>',
 			$e($item["time"]),
 			$e($item["permalink"]),
 			$e($item["title"]),

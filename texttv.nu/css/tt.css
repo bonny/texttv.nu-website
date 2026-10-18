@@ -910,11 +910,13 @@ button.tt-link {
 
 .day-list__items {
 	--tt-list-meta: 6ch;
+	/* Tid, rubrik och sidnummer i en egen kolumn till höger. */
+	grid-template-columns: var(--tt-list-meta) 1fr 4ch;
 }
 
-/* Mest lästa: placering, tid och rubrik. */
+/* Mest läst: placering, tid, rubrik och sidnummer. */
 ol.day-list__items {
-	grid-template-columns: 3ch 6ch 1fr;
+	grid-template-columns: 3ch 6ch 1fr 4ch;
 	counter-reset: mest-lasta;
 }
 
@@ -929,7 +931,14 @@ ol.day-list__items > li::before {
 }
 
 .day-list__num {
+	padding-top: .2em;
+	padding-bottom: .2em;
 	color: var(--tt-cyan);
+	text-align: right;
+}
+
+.day-list__items a {
+	align-self: start;
 }
 
 .tt-dag__vidare {

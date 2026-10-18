@@ -506,10 +506,21 @@ button.tt-link {
 	opacity: 1;
 }
 
+/* "Stäng ×" överst i menyn, bara på mobil (js/scripts.js). */
+.sidebar__stang {
+	display: flex;
+	justify-content: flex-end;
+	margin: -1em 0 0;
+}
+
 @media only screen and (min-width: 700px) {
 	.sidebar {
 		visibility: visible;
 		opacity: 1;
+	}
+
+	.sidebar__stang {
+		display: none;
 	}
 
 	.site-footer__sidor {

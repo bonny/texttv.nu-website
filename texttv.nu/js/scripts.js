@@ -22,23 +22,66 @@ function ttLoading() {
 
 document.documentElement.classList.add("is-domready");
 
-// Sidomenyn. Öppnas den flyttas fokus till första länken i den.
-document.querySelectorAll("li.nav-menu a").forEach(function (a) {
-	a.setAttribute("aria-controls", "sidomeny");
-	a.setAttribute("aria-expanded", "false");
-	a.addEventListener("click", function (e) {
-		e.preventDefault();
-		var open = document.body.classList.toggle("menu-active");
-		a.setAttribute("aria-expanded", open ? "true" : "false");
-		var first = open && document.querySelector("#sidomeny a");
+// Sidomenyn på mobil. Öppnas den flyttas fokus till första länken i den.
+// Den stängs med "Sidor ≡" igen, "Stäng ×" i menyn, Esc eller ett tryck
+// utanför, och fokus går då tillbaka till "Sidor ≡".
+(function () {
+	var toggle = document.querySelector("li.nav-menu a");
+	var meny = document.getElementById("sidomeny");
+	if (!toggle || !meny) {
+		return;
+	}
+
+	function arOppen() {
+		return document.body.classList.contains("menu-active");
+	}
+
+	function oppna() {
+		document.body.classList.add("menu-active");
+		toggle.setAttribute("aria-expanded", "true");
+		var first = meny.querySelector(".sidlista a");
 		if (first) {
 			// Vänta lite: menyn är dold (visibility) tills övergången börjat.
 			setTimeout(function () {
 				first.focus({ preventScroll: true });
 			}, 60);
 		}
+	}
+
+	function stang() {
+		document.body.classList.remove("menu-active");
+		toggle.setAttribute("aria-expanded", "false");
+		toggle.focus({ preventScroll: true });
+	}
+
+	toggle.setAttribute("aria-controls", "sidomeny");
+	toggle.setAttribute("aria-expanded", "false");
+	toggle.addEventListener("click", function (e) {
+		e.preventDefault();
+		if (arOppen()) {
+			stang();
+		} else {
+			oppna();
+		}
 	});
-});
+
+	var stangKnapp = meny.querySelector(".sidebar__stang button");
+	if (stangKnapp) {
+		stangKnapp.addEventListener("click", stang);
+	}
+
+	document.addEventListener("keydown", function (e) {
+		if (arOppen() && (e.key === "Escape" || e.key === "Esc")) {
+			stang();
+		}
+	});
+
+	document.addEventListener("click", function (e) {
+		if (arOppen() && !meny.contains(e.target) && !toggle.contains(e.target)) {
+			stang();
+		}
+	});
+})();
 
 // "Gå till sida": tre siffror skickar formuläret (GET /?number=377).
 document.querySelectorAll(".controls-topnav-search-input").forEach(function (input) {

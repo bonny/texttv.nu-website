@@ -104,6 +104,7 @@ if ($this->input->get("apiAppShare")) {
 if (!isset($disableSidebar) && !$this->input->get("apiAppShare")) {
 ?>
 	<nav class="sidebar" id="sidomeny" aria-label="Sidor">
+		<div class="sidebar__stang"><button type="button" class="tt-link">Stäng ×</button></div>
 		<?php $this->load->view('sidlista') ?>
 	</nav>
 <?php

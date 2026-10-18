@@ -103,7 +103,10 @@ if ( isset($pages) && is_array($pages) && ! ( isset($pagedescription) && $pagede
 					placeholder="Gå till sida"
 					>
 			</form>
-			<div id="tt-sok-forslag" class="tt-sok" role="listbox" aria-label="Förslag" hidden></div>
+			<div class="tt-sok" hidden>
+				<div class="tt-sok__stang"><button type="button" class="tt-link">Stäng ×</button></div>
+				<div id="tt-sok-forslag" role="listbox" aria-label="Förslag"></div>
+			</div>
 			<?php if ( ! empty( $gotoNextPageNum ) ) { ?>
 				<a class="tt-link controls__next" href="/<?php echo (int) $gotoNextPageNum ?>" aria-label="Nästa sida, <?php echo (int) $gotoNextPageNum ?>"><?php echo (int) $gotoNextPageNum ?> →</a>
 			<?php } else { ?>

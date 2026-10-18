@@ -15,6 +15,7 @@
 
 	var input = document.getElementById("search-input");
 	var list = document.getElementById("tt-sok-forslag");
+	var panel = list && list.parentNode; // .tt-sok: listan och "Stäng ×"
 	var dataElm = document.getElementById("tt-sok-data");
 	if (!input || !list || !dataElm) {
 		return;
@@ -28,7 +29,7 @@
 	status.className = "sr-only";
 	status.setAttribute("role", "status");
 	status.setAttribute("aria-live", "polite");
-	list.parentNode.appendChild(status);
+	panel.parentNode.appendChild(status);
 	var sidor = data.sidor;
 	var SENASTE_KEY = "tt-senaste";
 	var SENASTE_MAX = 4;
@@ -89,7 +90,7 @@
 				mestLast = (json.pages || []).slice(0, 3).map(function (p) {
 					return { num: String(p.page_num), namn: p.title, url: "/" + p.page_num };
 				});
-				if (!list.hidden && input.value === "") {
+				if (!panel.hidden && input.value === "") {
 					rita();
 				}
 			})
@@ -223,12 +224,12 @@
 	function oppna() {
 		hamtaMestLast();
 		rita();
-		list.hidden = false;
+		panel.hidden = false;
 		input.setAttribute("aria-expanded", "true");
 	}
 
 	function stang() {
-		list.hidden = true;
+		panel.hidden = true;
 		input.setAttribute("aria-expanded", "false");
 		input.removeAttribute("aria-activedescendant");
 		active = -1;
@@ -246,12 +247,12 @@
 		oppna();
 	});
 	input.addEventListener("click", function () {
-		if (list.hidden) {
+		if (panel.hidden) {
 			oppna();
 		}
 	});
 	input.addEventListener("input", function () {
-		if (list.hidden) {
+		if (panel.hidden) {
 			oppna();
 		} else {
 			rita();
@@ -262,7 +263,7 @@
 	input.addEventListener("keydown", function (e) {
 		if (e.key === "ArrowDown" || e.key === "ArrowUp") {
 			e.preventDefault();
-			if (list.hidden) {
+			if (panel.hidden) {
 				oppna();
 			}
 			var n = options.length;
@@ -272,7 +273,7 @@
 		} else if (e.key === "Escape") {
 			// Esc stänger listan och tömmer fältet; med tomt fält och stängd
 			// lista görs inget, så att Esc når annat på sidan.
-			if (!list.hidden || input.value !== "") {
+			if (!panel.hidden || input.value !== "") {
 				e.preventDefault();
 				input.value = "";
 				stang();
@@ -304,6 +305,38 @@
 			ga(opt.dataset.url);
 		}
 	});
+
+	// På mobil stängs listan inte alltid av blur: Androids bakåtknapp och
+	// iOS "dölj tangentbord" tar bort tangentbordet men fältet behåller
+	// fokus, och ett tryck på något som inte är en länk tar inte fokus
+	// från fältet i Safari. Därför stängs den på tre sätt till:
+
+	// "Stäng ×" i listan (syns bara med pekskärm, se css/tt.css).
+	panel.querySelector(".tt-sok__stang button").addEventListener("click", function () {
+		input.blur();
+		stang();
+	});
+
+	// Ett tryck utanför fältet och listan.
+	document.addEventListener("pointerdown", function (e) {
+		if (!panel.hidden && !panel.contains(e.target) && !(form && form.contains(e.target))) {
+			input.blur();
+			stang();
+		}
+	});
+
+	// Tangentbordet döljs: den synliga ytan blir plötsligt mycket högre.
+	var vv = window.visualViewport;
+	if (vv) {
+		var hojd = vv.height;
+		vv.addEventListener("resize", function () {
+			if (!panel.hidden && document.activeElement === input && vv.height - hojd > 120) {
+				input.blur();
+				stang();
+			}
+			hojd = vv.height;
+		});
+	}
 
 	sparaBesok();
 })();

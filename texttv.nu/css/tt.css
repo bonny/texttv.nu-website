@@ -679,6 +679,26 @@ button.tt-link {
 	display: none;
 }
 
+/* "Stäng ×" överst i listan, bara med pekskärm (js/tt-sok.js). Där
+   döljs tangentbordet utan att fältet tappar fokus, och då stod listan
+   kvar. Med mus räcker Esc och klick utanför. */
+.tt-sok__stang {
+	display: none;
+}
+
+@media (pointer: coarse) {
+	.tt-sok__stang {
+		display: flex;
+		justify-content: flex-end;
+		margin: -.25em 0 0;
+		padding: 0 1ch;
+	}
+
+	.tt-sok__stang button {
+		min-height: 36px;
+	}
+}
+
 /* Ramen längst ner (?navAtBottom=1): listan öppnas uppåt. */
 .nav-at-bottom .tt-sok {
 	top: auto;

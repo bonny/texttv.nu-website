@@ -435,6 +435,26 @@ body {
   display: block;
 }
 
+/*
+  Reservera annonsens höjd innan den laddas, annars trycks sidan ner när
+  den kommer (todo #19). Uppmätt på /377 2026-10-18: CLS 0,39 → 0 på mobil,
+  0,14 → 0,002 på 1280. Annonsen är "auto": kvadratisk i sidans bredd på
+  mobil, 280 px hög på bredare skärmar. aspect-ratio släpper när AdSense
+  sätter en egen höjd; utan fyllning tas rutan bort.
+*/
+.ad--beforeMainText ins.adsbygoogle {
+  min-height: 280px;
+}
+@media only screen and (max-width: 699px) {
+  .ad--beforeMainText ins.adsbygoogle {
+    min-height: 0;
+    aspect-ratio: 1 / 1;
+  }
+}
+.ad--beforeMainText ins.adsbygoogle[data-ad-status="unfilled"] {
+  display: none !important;
+}
+
 /**
  * Page share
  */

@@ -37,6 +37,8 @@ return [
 		]],
 		["/600,650-656", "TV-tablåer", "600", []],
 		["/700", "Innehåll", "700", []],
+		["/sida/senast-uppdaterat", "Senast uppdaterat", null, []],
+		["/sida/delat", "Mest delat", null, []],
 	],
 	"fler" => [
 		["/336", "Premier League", "336"],

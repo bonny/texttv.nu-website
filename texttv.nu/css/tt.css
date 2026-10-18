@@ -1148,7 +1148,7 @@ ol.day-list__items > li::before {
 	margin-top: 0;
 }
 
-/* Formulär på /delade (välj datum). */
+/* Formulär i informationstexterna. */
 .textcontent select,
 .textcontent input[type="submit"],
 .textcontent button {
@@ -1390,14 +1390,117 @@ html:not(.appShare) .TextTVPage .tt-rad a::after {
 	text-underline-offset: .2em;
 }
 
-/* /sida/delat (views/delade.php): datumlistan och dagens mest delade. */
+/*
+	/sida/delat (views/delade.php). Raderna som en Text-TV-sida: sidnummer
+	i cyan, rubriken, prickar fram till antalet delningar. Samma mönster
+	som sidlistan i menyn.
+*/
 .most-shared-section {
 	margin-bottom: 2em;
 }
 
-.most-shared-dates-ul-list {
-	max-height: 20em;
-	overflow-y: auto;
+.textcontent .delat-kolumner {
+	display: flex;
+	justify-content: space-between;
+	margin: 0 0 .25em;
+	color: var(--tt-cyan);
+}
+
+.textcontent .delat-lista {
+	margin: 0 0 1em;
+	padding: 0;
+	list-style: none;
+}
+
+.textcontent .delat-lista li + li {
+	margin-top: 0;
+}
+
+.textcontent .delat-lista a {
+	display: flex;
+	align-items: baseline;
+	/* Bryts rubriken står prickarna och antalet på sista raden. */
+	align-items: last baseline;
+	min-height: 36px;
+	padding: .3em 0;
+	box-sizing: border-box;
+	color: var(--tt-yellow);
+	text-decoration: none;
+}
+
+.delat-lista__num {
+	flex: 0 0 4ch;
+	align-self: first baseline;
+	color: var(--tt-cyan);
+}
+
+.delat-lista__titel {
+	min-width: 0;
+	text-decoration: underline;
+	text-underline-offset: .2em;
+}
+
+.delat-lista__fyll {
+	flex: 1;
+	min-width: 1ch;
+	margin: 0 .5ch;
+	overflow: hidden;
+	white-space: nowrap;
+	color: var(--tt-blue-fg);
+}
+
+.delat-lista__fyll::after {
+	content: "........................................";
+}
+
+.delat-lista__antal {
+	color: var(--tt-white);
+}
+
+.textcontent .delat-lista a:hover,
+.textcontent .delat-lista a:focus-visible {
+	background: var(--tt-yellow);
+}
+
+.delat-lista a:hover span,
+.delat-lista a:focus-visible span {
+	color: var(--tt-black);
+}
+
+.delat-tom {
+	color: var(--tt-cyan);
+}
+
+/* Välj en dag. Fältet och "Visa" på egen rad, så att etiketten inte
+   trycker ihop dem på mobil. */
+.delat-valj {
+	margin: 2em 0 0;
+	padding-top: 1em;
+	border-top: 2px solid var(--tt-blue-bg);
+}
+
+.delat-valj label {
+	display: block;
+	margin-bottom: .25em;
+	color: var(--tt-cyan);
+}
+
+.delat-valj__falt {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+}
+
+.textcontent .delat-valj input[type="date"] {
+	min-height: 36px;
+	margin: .25em .5ch .25em 0;
+	padding: 0 1ch;
+	border: 0;
+	border-radius: 0;
+	background: var(--tt-blue-bg);
+	color: var(--tt-white);
+	font: inherit;
+	color-scheme: dark;
 }
 
 /* Tabeller i informationstexterna (t.ex. /text-tv-fakta/statistik). */

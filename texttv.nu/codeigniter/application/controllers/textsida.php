@@ -59,12 +59,27 @@ class Textsida extends CI_Controller {
 
 			case "delat":
 				
-				$data["custom_page_title"] = "Mest delade text-tv-sidorna";
-				
-				if ( $this->input->get("datum") ) {
-					$data["custom_page_title"] = "Mest delat " . date_sv("l j F Y", strtotime($this->input->get("datum")));
+				// En dag: ?datum=2015-08-24 eller /sida/delat/2015-08-24. Annat än
+				// ett riktigt datum mellan första mätdagen och idag ger 404; förut
+				// blev det "torsdag 1 januari 1970" och en tom lista.
+				$datum = $this->input->get("datum") ?: $third_level;
+				if ($datum) {
+					$d = DateTime::createFromFormat("!Y-m-d", (string) $datum);
+					if (!$d || $d->format("Y-m-d") !== $datum || $datum < DELAT_FORSTA_DAG || $datum > date("Y-m-d")) {
+						show_texttv_404();
+						return;
+					}
+					$data["delat_datum"] = $datum;
+					$data["custom_page_title"] = "Mest delat " . date_sv("l j F Y", strtotime($datum)) . " - SVT Text TV";
+					$data["custom_meta_description"] = "De mest delade nyheterna från SVT Text TV " . date_sv("l j F Y", strtotime($datum)) . ", delade från texttv.nu och TextTV.nu-appen.";
+					$data["custom_canonical"] = $canonical . "delat?datum=" . $datum;
+				} else {
+					$data["delat_datum"] = null;
+					$data["custom_page_title"] = "Mest delade text-tv-sidorna";
+					$data["custom_meta_description"] = "De mest delade nyheterna från SVT Text TV idag och igår, och för varje dag sedan 2015.";
+					$data["custom_canonical"] = $canonical . "delat";
 				}
-				
+
 				$this->load->view("header", $data);
 				$this->load->view("delade");
 				break;

@@ -124,7 +124,8 @@ document.addEventListener("keydown", function (e) {
 	if (document.body.classList.contains("menu-active") || document.querySelector("dialog[open]")) {
 		return;
 	}
-	var lank = document.querySelector(e.key === "ArrowLeft" ? ".controls__prev" : ".controls__next");
+	// rel=prev/next: dagarna på /sida/delat.
+	var lank = document.querySelector(e.key === "ArrowLeft" ? ".controls__prev, a[rel=prev]" : ".controls__next, a[rel=next]");
 	if (lank) {
 		e.preventDefault();
 		ttLoading();

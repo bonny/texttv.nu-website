@@ -261,6 +261,9 @@ function get_most_read_pages_for_period($time_from = null, $time_to = null, $typ
 	return $result;
 } // end get most read pages for period
 
+// Första dagen med delningar i databasen (/sida/delat).
+define("DELAT_FORSTA_DAG", "2015-07-04");
+
 function get_shared_pages_for_period($time_from, $time_to) {
 	$time_from_ymd = date("Y-m-d H:i", $time_from);
 	$time_to_ymd = date("Y-m-d H:i", $time_to);

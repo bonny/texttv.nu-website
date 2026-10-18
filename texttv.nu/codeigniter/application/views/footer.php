@@ -44,7 +44,7 @@ if (!$this->input->get("apiAppShare")) { ?>
 
 			<nav class="tt-linkrow site-footer__mer" aria-label="Mer på TextTV.nu">
 				<a href="/sida/delat">Mest delat</a>
-				<a href="/sida/polisen">Omnämnt av Polisen</a>
+				<a href="/sida/polisen">Polishändelser i Text TV</a>
 				<a href="/sida/vanliga-fragor">Vanliga frågor</a>
 				<a href="/blogg">Blogg</a>
 				<a href="/sida/om-texttv-nu">Om TextTV.nu</a>

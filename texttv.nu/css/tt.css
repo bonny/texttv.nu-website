@@ -937,8 +937,59 @@ ol.day-list__items > li::before {
 	text-align: right;
 }
 
-.day-list__items a {
+.day-list__rubrik {
 	align-self: start;
+	padding-top: .2em;
+	padding-bottom: .2em;
+}
+
+.day-list__rubrik a {
+	padding: 0;
+}
+
+/* "Karta →" till Brottsplatskartan efter rubriken (todo #21). */
+.tt-list .day-list__karta {
+	color: var(--tt-yellow);
+	white-space: nowrap;
+}
+
+/* "Polisen rapporterade" under nyheter och arkiverade nyheter (todo #21). */
+.tt-polis {
+	margin-top: .5em;
+	margin-bottom: 1em;
+}
+
+.tt-polis__rubrik {
+	margin: 0;
+	color: var(--tt-cyan);
+}
+
+.tt-polis__lista {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.tt-polis__lista li {
+	margin: .25em 0;
+}
+
+.tt-polis__lista a {
+	color: var(--tt-yellow);
+	text-decoration: underline;
+	text-underline-offset: .2em;
+}
+
+.tt-polis__lista a:hover,
+.tt-polis__lista a:focus-visible {
+	background: var(--tt-yellow);
+	color: var(--tt-black);
+	text-decoration: none;
+}
+
+.tt-polis__tid {
+	display: block;
+	color: var(--tt-neutral);
 }
 
 .tt-dag__vidare {

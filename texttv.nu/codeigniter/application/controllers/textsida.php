@@ -71,25 +71,15 @@ class Textsida extends CI_Controller {
 
 			case "polisen":
 
-				$this->load->driver('cache');
-				
-				// Hämta ev. cachade händelser.
-				$cache_key = 'polisen_media_events';
-				$eventsInMedia = $this->cache->file->get($cache_key);
-				
-				if (!$eventsInMedia) {
-					// Inga cachade händelser hittades, så hämta på nytt.
-					$eventsInMediaURL = 'https://brottsplatskartan.se/api/eventsInMedia?media=texttv&limit=50&page=1';
-					$eventsInMedia = file_get_contents($eventsInMediaURL);
-					$eventsInMedia = json_decode($eventsInMedia);
-					
-					// Cache i n minuter
-					$cache_ttl = 60 * 5;
-					$this->cache->file->save($cache_key, $eventsInMedia, $cache_ttl);
-				}
-				
+				// Flödet innehåller sedan 2026-10-18 även Brottsplatskartans
+				// AI-matchningar (todo #21). Fem minuters cache.
+				$eventsInMedia = bpk_hamta_json('https://brottsplatskartan.se/api/eventsInMedia?media=texttv&limit=50&page=1', 'events-in-media', 300, 60);
+				// Vyn läser objekt (->data, ->permalink).
+				$eventsInMedia = json_decode(json_encode($eventsInMedia ?: new stdClass()));
+
 				$data['events_in_media'] = $eventsInMedia;
-				$data["custom_page_title"] = "Polishändelser som det skrivs om på Text TV";
+				$data["custom_page_title"] = "Polishändelser i Text TV";
+				$data["custom_meta_description"] = "Nyheter på SVT Text TV om händelser som Polisen har rapporterat, med länk till händelsen på kartan hos Brottsplatskartan.";
 				$data["custom_canonical"] = $canonical . "polisen";
 								
 				$this->load->view("header", $data);

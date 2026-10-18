@@ -89,6 +89,11 @@ foreach ($arr_pages as $one_page) {
 }
 $this->output->append_output("</ul>");
 
+// Polishändelser som Brottsplatskartan kopplat till nyheten (todo #21).
+if (!empty($polis_handelser) && !$this->input->get("apiAppShare")) {
+	$this->output->append_output($this->load->view('polis_handelser', ['polis_handelser' => $polis_handelser], TRUE));
+}
+
 	if ( ! $this->input->get("apiAppShare") ) {
 		
 		// Längst ner: tillbaka till den levande sidan.

@@ -18,14 +18,29 @@ $render_list = function ($items, $ordered = false) use ($e) {
 	$tag = $ordered ? "ol" : "ul";
 	$out = "<{$tag} class=\"tt-list day-list__items\">";
 	foreach ($items as $item) {
+		// "Karta →" när Brottsplatskartan kopplat en polishändelse till
+		// nyheten (todo #21). Bara den första, listan ska vara tät.
+		$karta = "";
+		$handelser = bpk_handelser_for_titel($item["title"]);
+		if ($handelser) {
+			$lank = bpk_lank($handelser[0]["url"], "dagslista");
+			if ($lank) {
+				$karta = sprintf(
+					' <a class="day-list__karta" href="%1$s" aria-label="%2$s">Karta →</a>',
+					$e($lank),
+					$e("Polisens händelse på Brottsplatskartan: " . trim($handelser[0]["typ"] . ", " . $handelser[0]["plats"], ", "))
+				);
+			}
+		}
 		$out .= sprintf(
 			// Sidnumret i en egen kolumn till höger, som på Text TV. Efter
 			// rubriken hoppade det mellan radslut och ny rad.
-			'<li><span class="tt-list__meta">%1$s</span><a href="%2$s">%3$s</a><span class="day-list__num">%4$d</span></li>',
+			'<li><span class="tt-list__meta">%1$s</span><span class="day-list__rubrik"><a href="%2$s">%3$s</a>%5$s</span><span class="day-list__num">%4$d</span></li>',
 			$e($item["time"]),
 			$e($item["permalink"]),
 			$e($item["title"]),
-			$item["page_num"]
+			$item["page_num"],
+			$karta // 5
 		);
 	}
 	return $out . "</{$tag}>";

@@ -73,6 +73,10 @@ class Sida extends CI_Controller {
 				$data["pagenum"] = $page_num;
 				$data["is_archive"] = TRUE;
 				$data["page_permalink"] = $page->get_permalink();
+				// "Polisen rapporterade" under arkiverade nyheter (todo #21).
+				$data["polis_handelser"] = (sizeof($arr_pages) === 1 && (int) $page->num >= 100 && (int) $page->num <= 199)
+					? bpk_handelser_for_titel($page->title)
+					: [];
 
 				$this->load->view('header', $data);
 				$this->load->view('pages_inner_output_archive', $data);
@@ -479,6 +483,10 @@ class Sida extends CI_Controller {
 		$data["yesterday_prefix"] = $yesterday_prefix;
 		$data["yesterday_top"] = $yesterday_top;
 		$data["today_versions"] = $this->_today_versions($arr_page_objs, $not_broadcasted);
+		// "Polisen rapporterade" under nyhetssidor (todo #21).
+		$data["polis_handelser"] = (sizeof($arr_page_objs) === 1 && !$not_broadcasted && (int) $page->num >= 100 && (int) $page->num <= 199)
+			? bpk_handelser_for_titel($page->title)
+			: [];
 
 		// Ladda vyer för sidhuvud och kontroller
 		$this->load->view('header', $data);

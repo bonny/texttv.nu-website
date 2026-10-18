@@ -198,6 +198,12 @@ if (!empty($today_versions)) {
 		. '</nav>';
 }
 
+// Polishändelser som Brottsplatskartan kopplat till nyheten (todo #21).
+// Sätts bara av Sida::visa().
+if (!empty($polis_handelser)) {
+	$out .= $this->load->view('polis_handelser', ['polis_handelser' => $polis_handelser], TRUE);
+}
+
 // Länkar till gårdagen (todo #16), före annonsen. Sätts bara av Sida::visa(),
 // inte av api/get_html som också laddar den här vyn.
 if ($yesterday_links_html && !$is_startpage) {

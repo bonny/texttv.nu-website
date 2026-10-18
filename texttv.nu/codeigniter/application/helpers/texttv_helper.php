@@ -1495,3 +1495,124 @@ function blogg_utdrag($html, $max_length = 155, $title = '')
 
 	return rtrim($text, " ,.:;–-") . '…';
 }
+
+/**
+ * Normaliserad nyhetsrubrik, samma som Brottsplatskartans
+ * NewsArticle::normalizeTitle(): gemener, ihopslagna blanktecken och utan
+ * avslutande "..191" (Text TV sätter ibland sidnumret efter prickar).
+ */
+function bpk_titel_nyckel($title)
+{
+	$t = mb_strtolower(trim((string) $title));
+	$t = preg_replace('/\.{2,}[\d\s]*$/u', '', $t);
+	return trim(preg_replace('/\s+/u', ' ', $t));
+}
+
+/**
+ * Hämtar JSON från Brottsplatskartans API, cachat i en fil i tempkatalogen
+ * (som yesterday_top_news()). $ttl sekunder vid lyckad hämtning, $ttl_fel
+ * om den misslyckades, så att ett fel där inte gör sidorna här långsamma.
+ * Högst tre sekunders väntan. CI:s cachedrivrutin ger deprecation-varningar
+ * på PHP 8.2, därav en egen. Todo #21.
+ *
+ * @return mixed Avkodad JSON (assoc), eller null.
+ */
+function bpk_hamta_json($url, $namn, $ttl, $ttl_fel)
+{
+	$dir = sys_get_temp_dir() . "/texttv-bpk";
+	$file = $dir . "/" . $namn . ".json";
+
+	$cached = @file_get_contents($file);
+	if ($cached !== false) {
+		$wrap = json_decode($cached, true);
+		if (is_array($wrap) && isset($wrap["giltig_till"]) && $wrap["giltig_till"] > time()) {
+			return $wrap["data"];
+		}
+	}
+
+	$context = stream_context_create(["http" => [
+		"timeout" => 3,
+		"header" => "User-Agent: texttv.nu\r\n",
+	]]);
+	$json = @file_get_contents($url, false, $context);
+	$data = $json === false ? null : json_decode($json, true);
+	if ($data === null) {
+		error_log("texttv: kunde inte hämta $url");
+	}
+
+	if (is_dir($dir) || @mkdir($dir, 0700, true)) {
+		$tmp = $file . "." . getmypid() . ".tmp";
+		$wrap = ["giltig_till" => time() + ($data === null ? $ttl_fel : $ttl), "data" => $data];
+		if (@file_put_contents($tmp, json_encode($wrap)) !== false) {
+			@rename($tmp, $file);
+		}
+	}
+
+	return $data;
+}
+
+/**
+ * Polishändelser som Brottsplatskartan kopplat till nyheter på Text TV
+ * (AI-matchning där, /api/texttvHandelser). Nyckel: bpk_titel_nyckel() av
+ * nyhetens rubrik, värde: högst tre händelser (typ, plats, tid_iso8601, url).
+ * Tio minuters cache. Todo #21.
+ *
+ * @return array<string, array>
+ */
+function bpk_texttv_handelser()
+{
+	static $map = null;
+	if ($map !== null) {
+		return $map;
+	}
+
+	$data = bpk_hamta_json("https://brottsplatskartan.se/api/texttvHandelser?dagar=14", "texttv-handelser", 600, 120);
+
+	$map = [];
+	if (is_array($data) && isset($data["data"]) && is_array($data["data"])) {
+		foreach ($data["data"] as $row) {
+			if (empty($row["texttv_titel_nyckel"]) || empty($row["handelse"]["url"])) {
+				continue;
+			}
+			$key = (string) $row["texttv_titel_nyckel"];
+			$id = (int) $row["handelse"]["id"];
+			if (isset($map[$key][$id]) || (isset($map[$key]) && sizeof($map[$key]) >= 3)) {
+				continue;
+			}
+			$map[$key][$id] = [
+				"typ" => (string) $row["handelse"]["typ"],
+				"plats" => (string) $row["handelse"]["plats"],
+				"tid_iso8601" => (string) $row["handelse"]["tid_iso8601"],
+				"url" => (string) $row["handelse"]["url"],
+			];
+		}
+	}
+
+	return $map;
+}
+
+/**
+ * Brottsplatskartans händelser för en nyhetsrubrik, eller tom array.
+ */
+function bpk_handelser_for_titel($title)
+{
+	$key = bpk_titel_nyckel($title);
+	if ($key === '') {
+		return [];
+	}
+	$map = bpk_texttv_handelser();
+	return isset($map[$key]) ? array_values($map[$key]) : [];
+}
+
+/**
+ * Länk till en händelse på Brottsplatskartan, märkt så att trafiken från
+ * texttv.nu syns där.
+ */
+function bpk_lank($url, $medium)
+{
+	$url = (string) $url;
+	if (!preg_match('#^https://brottsplatskartan\.se/#', $url)) {
+		return '';
+	}
+	return $url . (strpos($url, '?') === false ? '?' : '&') . 'utm_source=texttv.nu&utm_medium=' . rawurlencode($medium);
+}

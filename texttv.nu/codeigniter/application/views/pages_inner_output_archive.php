@@ -11,7 +11,7 @@ $arkiv_band = function ($unix, $live_url, $live_label) {
 	// det är sidan som den ser ut nu.
 	return sprintf(
 		'<div class="tt-sidbredd tt-arkiv">
-			<p class="tt-arkiv__band"><span class="tt-arkiv__etikett">ÄLDRE VERSION</span></p>
+			<p class="tt-arkiv__band">ÄLDRE VERSION</p>
 			<p class="tt-arkiv__text">Så här såg sidan ut <time datetime="%1$s">%2$s</time>.</p>
 			<p class="tt-linkrow"><a href="%3$s">%4$s →</a></p>
 		</div>',

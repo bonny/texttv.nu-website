@@ -75,7 +75,7 @@ class Sida extends CI_Controller {
 				$data["page_permalink"] = $page->get_permalink();
 				// "Polisen rapporterade" under arkiverade nyheter (todo #21).
 				$data["polis_handelser"] = (sizeof($arr_pages) === 1 && (int) $page->num >= 100 && (int) $page->num <= 199)
-					? bpk_handelser_for_titel($page->title)
+					? bpk_handelser_for_titel($page->title, $page->date_added_unix)
 					: [];
 
 				$this->load->view('header', $data);
@@ -317,7 +317,8 @@ class Sida extends CI_Controller {
 		}
 
 		$today = new DateTime("today", new DateTimeZone("Europe/Stockholm"));
-		$versions = get_page_versions_for_day($num, $today->format("Y-m-d"));
+		// En extra, eftersom versionen som visas räknas bort nedan.
+		$versions = get_page_versions_for_day($num, $today->format("Y-m-d"), self::TODAY_VERSIONS_COUNT + 1);
 
 		// Ett lätt objekt räcker: permalänken byggs av nummer, titel och id.
 		$version_page = new Texttv_page();
@@ -485,7 +486,7 @@ class Sida extends CI_Controller {
 		$data["today_versions"] = $this->_today_versions($arr_page_objs, $not_broadcasted);
 		// "Polisen rapporterade" under nyhetssidor (todo #21).
 		$data["polis_handelser"] = (sizeof($arr_page_objs) === 1 && !$not_broadcasted && (int) $page->num >= 100 && (int) $page->num <= 199)
-			? bpk_handelser_for_titel($page->title)
+			? bpk_handelser_for_titel($page->title, $page->date_added_unix)
 			: [];
 
 		// Ladda vyer för sidhuvud och kontroller

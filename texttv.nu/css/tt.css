@@ -1038,20 +1038,12 @@ ol.day-list__items > li::before {
 }
 
 .tt-arkiv__band {
-	display: flex;
-	flex-wrap: wrap;
-	justify-content: space-between;
-	gap: 0 1ch;
 	margin: 0;
 	padding: .15em .5ch;
 	/* Gult som varning, inte blått som sidornas rubriker: det här är inte
 	   sidan som den ser ut nu (todo #18, Pärs skärmdump 2026-10-18). */
 	background: var(--tt-yellow);
 	color: var(--tt-black);
-}
-
-.tt-arkiv__etikett {
-	margin-right: 1ch; /* om flex-gap saknas (Safari före 14.1) */
 }
 
 .tt-arkiv__text {

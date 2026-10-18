@@ -42,6 +42,23 @@ och mer integrerad? "Kör på bara, fritt fram!"
 - Länkarna till Brottsplatskartan har `utm_source=texttv.nu` och
   `utm_medium=polisruta|dagslista|polisen`.
 
+## Efter kodgranskningen samma dag
+
+- **Lås vid hämtningen** (`bpk_hamta_json`): bara en worker hämtar åt
+  gången, de andra får gammal data direkt. Förut kunde alla php-fpm-workers
+  (max 10) hänga på ett långsamt Brottsplatskartan när cachen gick ut. curl
+  med 1 s anslutning och 2 s totalt. Vid fel behålls den senaste goda datan.
+- **Tidsvillkor:** en händelse visas bara om sidans version ligger mellan ett
+  dygn före och tre dygn efter nyhetens första version hos Brottsplatskartan.
+  Utan det fick en arkivsida från 2019 med en återkommande rubrik ("Man
+  skjuten i Malmö") en händelse från i dag.
+- **Kartbild** i rutan och på `/sida/polisen` (`bild` i `/api/texttvHandelser`).
+- Rutan står **efter annonsen** "Fler nyheter efter annonsen", så att
+  kartbilden inte trycker ner den.
+- `/sida/polisen` cachas 30 min; Brottsplatskartans `eventsInMedia` 15 min och
+  escapar `%`/`_` (`22868113` där).
+- "Tidigare i dag" hämtar 9 versioner i stället för upp till 500.
+
 ## Följ upp
 
 - GA4 för brottsplatskartan.se (property 305258979): sessioner med

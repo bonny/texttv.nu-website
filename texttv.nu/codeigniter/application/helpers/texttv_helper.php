@@ -329,9 +329,10 @@ function show_texttv_404() {
  *
  * @param int    $page_num Sidnummer.
  * @param string $day_ymd  Datum, Y-m-d.
+ * @param int    $limit    Högst så många (nyaste).
  * @return array Rader med id, title och date_added (Y-m-d H:i:s).
  */
-function get_page_versions_for_day($page_num, $day_ymd) {
+function get_page_versions_for_day($page_num, $day_ymd, $limit = 500) {
 	$tz = new DateTimeZone("Europe/Stockholm");
 	$from = new DateTime($day_ymd . " 00:00:00", $tz);
 	$to = clone $from;
@@ -348,7 +349,7 @@ function get_page_versions_for_day($page_num, $day_ymd) {
 	// Tom titel = "Sidan ej i sändning", som importern också sparar.
 	$ci->db->where("title <>", "");
 	$ci->db->order_by("date_added", "DESC");
-	$ci->db->limit(500);
+	$ci->db->limit((int) $limit);
 
 	return $ci->db->get()->result();
 }
@@ -810,6 +811,8 @@ function get_day_stories($conf, $day_ymd, $is_sport)
 				"id" => (int) $row->id,
 				"page_num" => (int) $row->page_num,
 				"time" => substr($row->first_added, 11, 5),
+				// Hela tiden, för uppslaget mot Brottsplatskartan (todo #21).
+				"first_added" => (string) $row->first_added,
 			];
 		}
 	}
@@ -825,6 +828,7 @@ function get_day_stories($conf, $day_ymd, $is_sport)
 		$item = [
 			"title" => $story["title"],
 			"time" => $story["time"],
+			"unix" => (int) strtotime($story["first_added"] . " Europe/Stockholm"),
 			"page_num" => $story["page_num"],
 			"permalink" => $link_page->get_permalink(),
 		];
@@ -1510,10 +1514,17 @@ function bpk_titel_nyckel($title)
 
 /**
  * Hämtar JSON från Brottsplatskartans API, cachat i en fil i tempkatalogen
- * (som yesterday_top_news()). $ttl sekunder vid lyckad hämtning, $ttl_fel
- * om den misslyckades, så att ett fel där inte gör sidorna här långsamma.
- * Högst tre sekunders väntan. CI:s cachedrivrutin ger deprecation-varningar
- * på PHP 8.2, därav en egen. Todo #21.
+ * (som yesterday_top_news()). Todo #21.
+ *
+ * - $ttl sekunder vid lyckad hämtning, $ttl_fel efter ett fel. Vid fel
+ *   behålls den senaste goda datan, bara giltighetstiden förlängs.
+ * - Bara en worker hämtar åt gången (flock utan väntan). De andra får den
+ *   gamla datan direkt, eller null om ingen finns, och väntar inte. Annars
+ *   kunde alla php-fpm-workers (max 10) hänga på ett långsamt
+ *   Brottsplatskartan när cachen gick ut, och hela sajten med dem.
+ * - curl med 1 s anslutning och 2 s totalt.
+ *
+ * CI:s cachedrivrutin ger deprecation-varningar på PHP 8.2, därav en egen.
  *
  * @return mixed Avkodad JSON (assoc), eller null.
  */
@@ -1522,31 +1533,69 @@ function bpk_hamta_json($url, $namn, $ttl, $ttl_fel)
 	$dir = sys_get_temp_dir() . "/texttv-bpk";
 	$file = $dir . "/" . $namn . ".json";
 
-	$cached = @file_get_contents($file);
-	if ($cached !== false) {
-		$wrap = json_decode($cached, true);
-		if (is_array($wrap) && isset($wrap["giltig_till"]) && $wrap["giltig_till"] > time()) {
-			return $wrap["data"];
+	$las_cache = function () use ($file) {
+		$cached = @file_get_contents($file);
+		$wrap = $cached === false ? null : json_decode($cached, true);
+		return is_array($wrap) && array_key_exists("data", $wrap) ? $wrap : null;
+	};
+
+	$wrap = $las_cache();
+	if ($wrap && isset($wrap["giltig_till"]) && $wrap["giltig_till"] > time()) {
+		return $wrap["data"];
+	}
+	$gammal = $wrap ? $wrap["data"] : null;
+
+	if (!is_dir($dir) && !@mkdir($dir, 0700, true) && !is_dir($dir)) {
+		return $gammal;
+	}
+	$lock = @fopen($file . ".lock", "c");
+	if (!$lock || !flock($lock, LOCK_EX | LOCK_NB)) {
+		// En annan worker hämtar redan.
+		if ($lock) {
+			fclose($lock);
 		}
+		return $gammal;
 	}
 
-	$context = stream_context_create(["http" => [
-		"timeout" => 3,
-		"header" => "User-Agent: texttv.nu\r\n",
-	]]);
-	$json = @file_get_contents($url, false, $context);
-	$data = $json === false ? null : json_decode($json, true);
+	// En annan worker kan ha hunnit skriva filen mellan läsningen och låset.
+	$wrap = $las_cache();
+	if ($wrap && isset($wrap["giltig_till"]) && $wrap["giltig_till"] > time()) {
+		flock($lock, LOCK_UN);
+		fclose($lock);
+		return $wrap["data"];
+	}
+
+	$json = false;
+	if (function_exists("curl_init")) {
+		$ch = curl_init($url);
+		curl_setopt_array($ch, [
+			CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_CONNECTTIMEOUT => 1,
+			CURLOPT_TIMEOUT => 2,
+			CURLOPT_USERAGENT => "texttv.nu",
+		]);
+		$json = curl_exec($ch);
+		if (curl_getinfo($ch, CURLINFO_HTTP_CODE) !== 200) {
+			$json = false;
+		}
+	}
+	$data = is_string($json) ? json_decode($json, true) : null;
+
 	if ($data === null) {
 		error_log("texttv: kunde inte hämta $url");
+		$data = $gammal;
+		$giltig_till = time() + $ttl_fel;
+	} else {
+		$giltig_till = time() + $ttl;
 	}
 
-	if (is_dir($dir) || @mkdir($dir, 0700, true)) {
-		$tmp = $file . "." . getmypid() . ".tmp";
-		$wrap = ["giltig_till" => time() + ($data === null ? $ttl_fel : $ttl), "data" => $data];
-		if (@file_put_contents($tmp, json_encode($wrap)) !== false) {
-			@rename($tmp, $file);
-		}
+	$tmp = $file . "." . getmypid() . ".tmp";
+	if (@file_put_contents($tmp, json_encode(["giltig_till" => $giltig_till, "data" => $data])) !== false) {
+		@rename($tmp, $file);
 	}
+
+	flock($lock, LOCK_UN);
+	fclose($lock);
 
 	return $data;
 }
@@ -1566,25 +1615,29 @@ function bpk_texttv_handelser()
 		return $map;
 	}
 
-	$data = bpk_hamta_json("https://brottsplatskartan.se/api/texttvHandelser?dagar=14", "texttv-handelser-v2", 600, 120);
+	$data = bpk_hamta_json("https://brottsplatskartan.se/api/texttvHandelser?dagar=14", "texttv-handelser-v3", 600, 120);
 
 	$map = [];
 	if (is_array($data) && isset($data["data"]) && is_array($data["data"])) {
 		foreach ($data["data"] as $row) {
-			if (empty($row["texttv_titel_nyckel"]) || empty($row["handelse"]["url"])) {
+			$h = isset($row["handelse"]) && is_array($row["handelse"]) ? $row["handelse"] : [];
+			if (empty($row["texttv_titel_nyckel"]) || empty($h["url"]) || empty($h["id"])) {
 				continue;
 			}
 			$key = (string) $row["texttv_titel_nyckel"];
-			$id = (int) $row["handelse"]["id"];
+			$id = (int) $h["id"];
 			if (isset($map[$key][$id]) || (isset($map[$key]) && sizeof($map[$key]) >= 3)) {
 				continue;
 			}
 			$map[$key][$id] = [
-				"typ" => (string) $row["handelse"]["typ"],
-				"plats" => (string) $row["handelse"]["plats"],
-				"tid_iso8601" => (string) $row["handelse"]["tid_iso8601"],
-				"url" => (string) $row["handelse"]["url"],
-				"bild" => isset($row["handelse"]["bild"]) ? (string) $row["handelse"]["bild"] : "",
+				"typ" => (string) ($h["typ"] ?? ""),
+				"plats" => (string) ($h["plats"] ?? ""),
+				"tid_iso8601" => (string) ($h["tid_iso8601"] ?? ""),
+				"url" => (string) $h["url"],
+				"bild" => (string) ($h["bild"] ?? ""),
+				// När nyheten låg på Text TV, för att inte koppla en äldre
+				// nyhet med samma rubrik till händelsen.
+				"texttv_unix" => !empty($row["texttv_tid"]) ? (int) strtotime($row["texttv_tid"] . " Europe/Stockholm") : 0,
 			];
 		}
 	}
@@ -1593,16 +1646,26 @@ function bpk_texttv_handelser()
 }
 
 /**
- * Brottsplatskartans händelser för en nyhetsrubrik, eller tom array.
+ * Brottsplatskartans händelser för en nyhetsrubrik som låg på Text TV vid
+ * $unix, eller tom array. Tidsvillkoret behövs eftersom rubriker återkommer:
+ * "Man skjuten i Malmö" på en arkivsida från 2019 ska inte få en händelse
+ * från i dag. Brottsplatskartan ger tiden för nyhetens första version; en
+ * nyhet ligger kvar några dygn, därför ett dygn före till tre efter.
  */
-function bpk_handelser_for_titel($title)
+function bpk_handelser_for_titel($title, $unix)
 {
 	$key = bpk_titel_nyckel($title);
-	if ($key === '') {
+	if ($key === '' || !$unix) {
 		return [];
 	}
 	$map = bpk_texttv_handelser();
-	return isset($map[$key]) ? array_values($map[$key]) : [];
+	if (!isset($map[$key])) {
+		return [];
+	}
+	return array_values(array_filter($map[$key], function ($h) use ($unix) {
+		$diff = (int) $unix - $h["texttv_unix"];
+		return $h["texttv_unix"] && $diff >= -86400 && $diff <= 3 * 86400;
+	}));
 }
 
 /**

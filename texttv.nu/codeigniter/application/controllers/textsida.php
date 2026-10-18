@@ -72,8 +72,9 @@ class Textsida extends CI_Controller {
 			case "polisen":
 
 				// Flödet innehåller sedan 2026-10-18 även Brottsplatskartans
-				// AI-matchningar (todo #21). Fem minuters cache.
-				$eventsInMedia = bpk_hamta_json('https://brottsplatskartan.se/api/eventsInMedia?media=texttv&limit=50&page=1', 'events-in-media', 300, 60);
+				// AI-matchningar (todo #21). En halvtimmes cache: frågan är tung
+				// hos Brottsplatskartan när dess cache är kall.
+				$eventsInMedia = bpk_hamta_json('https://brottsplatskartan.se/api/eventsInMedia?media=texttv&limit=50&page=1', 'events-in-media', 1800, 120);
 				// Vyn läser objekt (->data, ->permalink).
 				$eventsInMedia = json_decode(json_encode($eventsInMedia ?: new stdClass()));
 

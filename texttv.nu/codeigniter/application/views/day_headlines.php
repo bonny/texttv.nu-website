@@ -21,7 +21,7 @@ $render_list = function ($items, $ordered = false) use ($e) {
 		// "Karta →" när Brottsplatskartan kopplat en polishändelse till
 		// nyheten (todo #21). Bara den första, listan ska vara tät.
 		$karta = "";
-		$handelser = bpk_handelser_for_titel($item["title"]);
+		$handelser = bpk_handelser_for_titel($item["title"], isset($item["unix"]) ? $item["unix"] : 0);
 		if ($handelser) {
 			$lank = bpk_lank($handelser[0]["url"], "dagslista");
 			if ($lank) {

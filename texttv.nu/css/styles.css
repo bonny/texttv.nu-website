@@ -475,6 +475,7 @@ body {
 
 #pages {
   margin-top: 100px;
+  margin-top: calc(var(--tt-ram, 98px) + 2px); /* ramens höjd, js i views/controls.php */
 }
 
 /* end new blue nav header 2016 */

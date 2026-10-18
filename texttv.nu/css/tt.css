@@ -860,6 +860,7 @@ button.tt-link {
 .page-is-day-archive #pages.day-list,
 .page-is-day-archive #pages.day-archive {
 	margin-top: 100px;
+	margin-top: calc(var(--tt-ram, 98px) + 2px);
 }
 
 .tt-dag .tt-band {
@@ -949,20 +950,29 @@ ol.day-list__items > li::before {
 */
 .tt-arkiv {
 	margin-top: 100px; /* under den fasta ramen; .page-is-archive nollar #pages marginal */
+	margin-top: calc(var(--tt-ram, 98px) + 8px);
 }
 
 .tt-arkiv__band {
 	display: flex;
+	flex-wrap: wrap;
 	justify-content: space-between;
-	gap: 1ch;
+	gap: 0 1ch;
 	margin: 0;
-	padding-left: .5ch;
-	padding-right: .5ch;
+	padding: .15em .5ch;
+	/* Gult som varning, inte blått som sidornas rubriker: det här är inte
+	   sidan som den ser ut nu (todo #18, Pärs skärmdump 2026-10-18). */
+	background: var(--tt-yellow);
+	color: var(--tt-black);
 }
 
 .tt-arkiv__etikett {
-	color: var(--tt-yellow);
 	margin-right: 1ch; /* om flex-gap saknas (Safari före 14.1) */
+}
+
+.tt-arkiv__text {
+	margin: .25em 0 0;
+	color: var(--tt-white);
 }
 
 .tt-arkiv + #pages > p.ad-header {
@@ -985,6 +995,7 @@ ol.day-list__items > li::before {
 	width: calc(40ch + 10px);
 	max-width: 100%;
 	margin: 100px auto 0;
+	margin-top: calc(var(--tt-ram, 98px) + 2px);
 	padding: 1em 5px 2em;
 	font-family: var(--tt-font);
 	text-align: left;
@@ -1098,6 +1109,7 @@ ol.day-list__items > li::before {
 	position: fixed;
 	z-index: 5;
 	top: 100px;
+	top: calc(var(--tt-ram, 98px) + 2px);
 	left: 0;
 	right: 0;
 }
@@ -1135,6 +1147,7 @@ ol.day-list__items > li::before {
 	width: calc(40ch + 10px);
 	max-width: 100%;
 	margin: 110px auto 0;
+	margin-top: calc(var(--tt-ram, 98px) + 12px);
 	padding: 0 5px;
 	list-style: none;
 	text-align: left;
@@ -1192,6 +1205,7 @@ ol.day-list__items > li::before {
    ramen. */
 .not-broadcasted-notice {
 	margin: 110px auto 1em; /* som .breadcrumbs */
+	margin-top: calc(var(--tt-ram, 98px) + 12px);
 	line-height: 1.4;
 }
 
@@ -1329,6 +1343,7 @@ html.appShare .pageshare {
 	position: fixed;
 	z-index: 10;
 	top: 110px;
+	top: calc(var(--tt-ram, 98px) + 12px);
 	left: 0;
 	right: 0;
 	margin-left: auto;

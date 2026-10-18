@@ -112,3 +112,23 @@ if ( isset($pages) && is_array($pages) && ! ( isset($pagedescription) && $pagede
 		</div>
 	</div>
 </nav>
+<script>
+// Ramen ligger fast överst. Dess höjd (--tt-ram) styr var sidan börjar
+// under den, så att inget hamnar bakom ramen när texten är större, t.ex.
+// med större teckenstorlek i Android. Direkt efter ramen, före första
+// ritningen. Todo #18.
+(function () {
+	var ram = document.currentScript.previousElementSibling;
+	var root = document.documentElement;
+	if (!ram || root.classList.contains("nav-at-bottom")) {
+		return;
+	}
+	var satt = function () {
+		root.style.setProperty("--tt-ram", ram.offsetHeight + "px");
+	};
+	satt();
+	if (window.ResizeObserver) {
+		new ResizeObserver(satt).observe(ram);
+	}
+})();
+</script>

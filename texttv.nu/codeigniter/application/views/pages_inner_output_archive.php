@@ -7,13 +7,16 @@ $text = "";
 // den levande sidan (todo #18). Delningsbilderna (apiAppShare) behåller sin
 // gamla överdel, eftersom den syns i bilderna som delas.
 $arkiv_band = function ($unix, $live_url, $live_label) {
+	// Gult band "ÄLDRE VERSION" och tiden i klartext, så att ingen tror att
+	// det är sidan som den ser ut nu.
 	return sprintf(
 		'<div class="tt-sidbredd tt-arkiv">
-			<p class="tt-band tt-arkiv__band"><span class="tt-arkiv__etikett">ARKIV</span> <time datetime="%1$s">%2$s</time></p>
+			<p class="tt-arkiv__band"><span class="tt-arkiv__etikett">ÄLDRE VERSION</span></p>
+			<p class="tt-arkiv__text">Så här såg sidan ut <time datetime="%1$s">%2$s</time>.</p>
 			<p class="tt-linkrow"><a href="%3$s">%4$s →</a></p>
 		</div>',
 		date("c", $unix),
-		html_escape(date_sv('D j M Y H:i', $unix)),
+		html_escape(date_sv('l j F Y', $unix) . ' kl ' . date('H:i', $unix)),
 		html_escape($live_url),
 		html_escape($live_label)
 	);

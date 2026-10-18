@@ -34,6 +34,7 @@ ssh texttv.nu 'bash -s' < todos/23-blogginlagg/infoga.sh   # lägger in inlägge
 - `infoga.sh`: SQL:en i `inlagg.sql`. Går att köra om, lägger bara in om
   permalänken saknas. Ångra med `DELETE … WHERE permalink =
   'texttv-nu-ser-ut-som-text-tv-igen'`.
+- **Backup gjord 2026-10-18 16:56–16:58** (Pär ok): `/root/db-backups-2026-10-18/` med `texttv_blogg.sql` (90 kB), `texttv.nu.sql.gz` (1,5 GB, DB 1 498 MB) och `texttv_stats.sql.gz` (29 MB). Alla tre slutar med "Dump completed". Sajten svarade under tiden (load 3,6).
 - Provkört lokalt 2026-10-18: inlägget renderas på
   `/blogg/texttv-nu-ser-ut-som-text-tv-igen`, och två körningar ger en rad.
 

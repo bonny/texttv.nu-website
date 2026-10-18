@@ -4,8 +4,9 @@
 # Går att köra om: inlägget läggs bara in om permalänken inte redan finns.
 # Ångra: DELETE FROM `texttv.nu`.texttv_blogg WHERE permalink = 'texttv-nu-ser-ut-som-text-tv-igen';
 # Använder importerns DB-uppgifter via en tillfällig fil som bara root kan
-# läsa och som tas bort efteråt. Avbryter om dagens backup av bloggtabellen
-# saknas.
+# läsa och som tas bort efteråt. --defaults-file, inte --defaults-extra-file:
+# /root/.my.cnf har ett gammalt lösenord och läses annars efter och vinner.
+# Avbryter om dagens backup av bloggtabellen saknas.
 set -euo pipefail
 E=/usr/share/nginx/l.texttv.nu/importer/.env
 DIR=/root/db-backups-$(date +%F)
@@ -14,7 +15,7 @@ CNF=$(mktemp); trap 'rm -f "$CNF"' EXIT
 val() { grep -E "^$1=" "$E" | head -1 | cut -d= -f2- | sed 's/^"//; s/"$//'; }
 printf '[client]\nuser=%s\npassword="%s"\nhost=%s\n' "$(val DB_USERNAME)" "$(val DB_PASSWORD)" "$(val DB_HOST)" > "$CNF"
 [ -s "$DIR/texttv_blogg.sql" ] || { echo "Ingen backup av bloggtabellen i dag ($DIR). Kör backup.sh först."; exit 1; }
-mysql --defaults-extra-file="$CNF" --default-character-set=utf8mb4 <<'SQL'
+mysql --defaults-file="$CNF" --default-character-set=utf8mb4 <<'SQL'
 -- Todo #23: blogginlägget om nya utseendet. Körs av infoga.sh.
 -- Läggs bara in om permalänken inte redan finns, så det går att köra om.
 SET NAMES utf8mb4;

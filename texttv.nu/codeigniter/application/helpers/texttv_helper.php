@@ -1063,6 +1063,123 @@ function get_latest_updated_pages($from, $to, $maxcount = 20) {
 
 }
 
+/**
+ * Senaste versionen av varje sida i intervallet som ändrats de senaste
+ * $hours timmarna, nyast först. För /sida/senast-uppdaterat. Samma urval
+ * som get_latest_updated_pages(), men en rad per sida redan i SQL, så att
+ * sidor som uppdateras ofta inte tränger undan resten, och utan att packa
+ * upp sidinnehållet.
+ */
+function get_latest_updated_page_per_num($from, $to, $hours = 8) {
+	$from = (int) $from;
+	$to = (int) $to;
+	$hours = (int) $hours;
+
+	$ci =& get_instance();
+	$ci->load->database();
+
+	// UNCOMPRESSED_LENGTH läser bara längden i början av fältet, samma
+	// värde som LENGTH(UNCOMPRESS()) i get_latest_updated_pages().
+	$sql = "
+		SELECT
+			t.id,
+			t.page_num,
+			t.title,
+			DATE(t.date_added) AS date_added_ymd,
+			DATE_FORMAT(t.date_added, '%H:%i') AS date_added_formatted
+		FROM texttv t
+		JOIN (
+			SELECT MAX(id) AS id
+			FROM texttv
+			WHERE
+				date_added >= DATE_SUB(NOW(), INTERVAL $hours HOUR)
+				AND page_num BETWEEN $from AND $to
+				AND title <> ''
+				AND page_num NOT IN (188, 100, 101, 102, 103, 104, 105, 300, 301, 302, 400)
+				AND page_num NOT BETWEEN 350 AND 399
+				AND UNCOMPRESSED_LENGTH(page_content) > 1200
+			GROUP BY page_num
+		) senaste ON senaste.id = t.id
+		ORDER BY t.date_added DESC, t.page_num
+	";
+
+	return $ci->db->query($sql);
+}
+
+/**
+ * Rubriker som inte ska visas i listorna på /sida/delat och
+ * /sida/senast-uppdaterat. Under fyra tecken är något fel. "Inrikes 101
+ * Utrikes 104 Innehåll 700" är sidfoten på en tom sida i 190-serien.
+ */
+function tt_lista_rubrik_ar_brus($titel) {
+	return mb_strlen($titel) < 4 || preg_match('/Innehåll\s+700/u', $titel);
+}
+
+/**
+ * Arkivrader (id, page_num, title, date_added_formatted) som rader till
+ * output_tt_lista(), högst $max. Rubriker utan innehåll tas bort, och samma
+ * nyhet på två sidor (134 och 142) visas en gång, den första i ordningen.
+ * Länken går till arkivversionen, så att den visar nyheten i listan även när
+ * sidan sedan har fått en annan.
+ */
+function tt_lista_rader($rows, $max = 0) {
+	$rader = [];
+	$titlar = [];
+	foreach ($rows as $row) {
+		if ($max && count($rader) >= $max) {
+			break;
+		}
+		$titel = trim((string) $row->title);
+		if (tt_lista_rubrik_ar_brus($titel) || isset($titlar[$titel])) {
+			continue;
+		}
+		$titlar[$titel] = true;
+
+		// Permalänken behöver bara id, sidnummer och rubrik.
+		$arkiv = new Texttv_page();
+		$arkiv->id = (int) $row->id;
+		$arkiv->num = (int) $row->page_num;
+		$arkiv->title = $titel;
+
+		$rader[] = [
+			"url" => $arkiv->get_permalink(),
+			"num" => (int) $row->page_num,
+			"titel" => $titel,
+			"tid" => (string) $row->date_added_formatted,
+			"rad" => $row,
+		];
+	}
+	return $rader;
+}
+
+/**
+ * Listan på /sida/delat och /sida/senast-uppdaterat: sidnummer i cyan och
+ * rubriken, med $visa_tid även tiden först. Utan rader $tom_text.
+ */
+function output_tt_lista($rader, $tom_text, $visa_tid = false) {
+	if ( ! $rader) {
+		printf('<p class="delat-tom">%s</p>', html_escape($tom_text));
+		return;
+	}
+
+	echo '<ol class="delat-lista">';
+	foreach ($rader as $rad) {
+		printf(
+			'<li><a href="%1$s"%5$s>%6$s'
+			. '<span class="delat-lista__num">%2$d</span>'
+			. '<span class="delat-lista__titel">%3$s</span>'
+			. '</a></li>',
+			html_escape($rad["url"]),
+			$rad["num"],
+			html_escape($rad["titel"]),
+			html_escape($rad["tid"]),
+			$visa_tid ? '' : sprintf(' title="Sida %d kl %s"', $rad["num"], html_escape($rad["tid"])),
+			$visa_tid ? '<span class="delat-lista__tid">' . html_escape($rad["tid"]) . '</span>' : ''
+		);
+	}
+	echo '</ol>';
+}
+
 function get_shared_pages($days = 1, $limit = 10) {
 
 	// Interpoleras i INTERVAL respektive LIMIT nedan. Se L1 i #08.

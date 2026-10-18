@@ -1452,6 +1452,12 @@ html:not(.appShare) .TextTVPage .tt-rad a::after {
 	color: var(--tt-white);
 }
 
+/* "Igår" över raderna från före midnatt. */
+.delat-dag {
+	margin: 1em 0 .3em;
+	color: var(--tt-cyan);
+}
+
 .delat-lista__titel {
 	min-width: 0;
 	text-decoration: underline;

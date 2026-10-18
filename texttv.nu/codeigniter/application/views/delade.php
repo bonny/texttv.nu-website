@@ -11,63 +11,10 @@
 
 if ( ! function_exists("output_shared_pages")) {
 
+	// Högst tio. Raderna kommer sorterade på antal delningar, så av samma
+	// nyhet på två sidor visas den som delats mest (texttv_helper.php).
 	function output_shared_pages($result, $tom_text) {
-
-		$max = 10;
-		$rader = [];
-		$titlar = [];
-
-		foreach ($result->result() as $row) {
-			if (count($rader) >= $max) {
-				break;
-			}
-
-			$titel = trim((string) $row->title);
-
-			// Under fyra tecken är något fel. "Inrikes 101 Utrikes 104
-			// Innehåll 700" är sidfoten på en tom sida i 190-serien.
-			if (mb_strlen($titel) < 4 || preg_match('/Innehåll\s+700/u', $titel)) {
-				continue;
-			}
-
-			// Samma nyhet på två sidor (134 och 142) visas en gång, med den
-			// som delats mest (raderna kommer sorterade så).
-			if (isset($titlar[$titel])) {
-				continue;
-			}
-			$titlar[$titel] = true;
-
-			$archive_page = new Texttv_page();
-			$archive_page->id = $row->id;
-			$archive_page->load(true);
-
-			$rader[] = [
-				"url" => $archive_page->get_permalink(),
-				"num" => (int) $row->page_num,
-				"titel" => $titel,
-				"tid" => $row->date_added_formatted,
-			];
-		}
-
-		if ( ! $rader) {
-			printf('<p class="delat-tom">%s</p>', html_escape($tom_text));
-			return;
-		}
-
-		echo '<ol class="delat-lista">';
-		foreach ($rader as $rad) {
-			printf(
-				'<li><a href="%1$s" title="Sida %2$d kl %4$s">'
-				. '<span class="delat-lista__num">%2$d</span>'
-				. '<span class="delat-lista__titel">%3$s</span>'
-				. '</a></li>',
-				html_escape($rad["url"]),
-				$rad["num"],
-				html_escape($rad["titel"]),
-				html_escape($rad["tid"])
-			);
-		}
-		echo '</ol>';
+		output_tt_lista(tt_lista_rader($result->result(), 10), $tom_text);
 	}
 
 	// Välj en dag. Telefonens egen kalender, från första mätdagen till idag.
@@ -151,9 +98,9 @@ $idag = date("Y-m-d");
 
 		<?php output_shared_pages_date_form(null); ?>
 
-		<p class="tt-linkrow"><a href="/sida/senast-uppdaterat">Senast uppdaterat</a></p>
-
 	<?php } ?>
+
+		<p class="tt-linkrow"><a href="/sida/senast-uppdaterat">Senast uppdaterat</a></p>
 	</div>
 
 </div>

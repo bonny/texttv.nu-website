@@ -1,49 +1,31 @@
 <?php
 
 /*
-	/sida/senast-uppdaterat: nyhets- och sportsidorna som ändrats senast, som
-	"Senast uppdaterat" i appen. Samma urval som /api/last_updated (senaste
-	åtta timmarna, utan nyhetsrullen och resultatsidorna). Raderna ser ut som
-	på /sida/delat, med tiden först.
+	/sida/senast-uppdaterat: nyhets- och sportsidorna som ändrats de senaste
+	åtta timmarna, som "Senast uppdaterat" i appen. Samma sidor som
+	/api/last_updated, men en rad per sida (get_latest_updated_page_per_num i
+	texttv_helper.php). Raderna ser ut som på /sida/delat, med tiden först,
+	och länkar till arkivversionen med just den rubriken.
 */
 
 if ( ! function_exists("output_latest_updated_pages")) {
 
+	// Åtta timmar kan gå över midnatt. Rader från igår får en egen lista
+	// under "Igår", så att 23:10 inte ser ut att vara senare än 01:50.
 	function output_latest_updated_pages($result, $tom_text) {
-
-		$max = 25;
-		$rader = [];
-
-		// Senaste först. En sida som ändrats flera gånger visas en gång.
-		foreach ($result->result() as $row) {
-			if (count($rader) >= $max) {
-				break;
-			}
-			if (isset($rader[$row->page_num])) {
-				continue;
-			}
-			$rader[$row->page_num] = $row;
+		$idag = date("Y-m-d");
+		$dagar = ["idag" => [], "tidigare" => []];
+		foreach (tt_lista_rader($result->result()) as $rad) {
+			$dagar[$rad["rad"]->date_added_ymd === $idag ? "idag" : "tidigare"][] = $rad;
 		}
 
-		if ( ! $rader) {
-			printf('<p class="delat-tom">%s</p>', html_escape($tom_text));
-			return;
+		if ($dagar["idag"] || ! $dagar["tidigare"]) {
+			output_tt_lista($dagar["idag"], $tom_text, true);
 		}
-
-		echo '<ol class="delat-lista delat-lista--tid">';
-		foreach ($rader as $row) {
-			printf(
-				'<li><a href="/%1$d">'
-				. '<span class="delat-lista__tid">%2$s</span>'
-				. '<span class="delat-lista__num">%1$d</span>'
-				. '<span class="delat-lista__titel">%3$s</span>'
-				. '</a></li>',
-				(int) $row->page_num,
-				html_escape($row->date_added_formatted),
-				html_escape(trim((string) $row->title))
-			);
+		if ($dagar["tidigare"]) {
+			echo '<p class="delat-dag">Igår</p>';
+			output_tt_lista($dagar["tidigare"], $tom_text, true);
 		}
-		echo '</ol>';
 	}
 }
 
@@ -58,12 +40,12 @@ if ( ! function_exists("output_latest_updated_pages")) {
 
 		<div class="most-shared-section">
 			<h2>Nyheter</h2>
-			<?php output_latest_updated_pages(get_latest_updated_pages(100, 200, 50), "Inga nyhetssidor har ändrats de senaste åtta timmarna."); ?>
+			<?php output_latest_updated_pages(get_latest_updated_page_per_num(100, 200), "Inga nyhetssidor har ändrats de senaste åtta timmarna."); ?>
 		</div>
 
 		<div class="most-shared-section">
 			<h2>Sport</h2>
-			<?php output_latest_updated_pages(get_latest_updated_pages(300, 329, 50), "Inga sportsidor har ändrats de senaste åtta timmarna."); ?>
+			<?php output_latest_updated_pages(get_latest_updated_page_per_num(300, 329), "Inga sportsidor har ändrats de senaste åtta timmarna."); ?>
 		</div>
 
 		<p class="tt-linkrow"><a href="/sida/delat">Mest delat</a></p>

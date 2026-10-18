@@ -85,6 +85,11 @@ class Textsida extends CI_Controller {
 				break;
 
 			case "senast-uppdaterat":
+				// Inga undersidor, som /sida/delat/inte-ett-datum.
+				if ($third_level !== "") {
+					show_texttv_404();
+					return;
+				}
 				$data["custom_page_title"] = "Senast uppdaterat på SVT Text TV";
 				$data["custom_meta_description"] = "Nyheterna och sportsidorna på SVT Text TV som ändrats senast, med tid och sidnummer.";
 				$data["custom_canonical"] = $canonical . "senast-uppdaterat";

@@ -410,13 +410,16 @@ if (!isset($is_archive)) {
 	}
 }
 
-// Unvik att arkivera några gamla sidor
-// 1 Oct 2016 börjar med 571 som hade dåligt result i Google SERP.
+// Arkivversioner av 377 indexeras inte: tusentals nästan likadana versioner
+// per år som annars konkurrerar med levande /377 (70 % av klicken). Gamla
+// resultat finns i dagsarkiven /377/igar och /377/2026-10-14, som indexeras.
+// 571 hade noindex sedan 2016 ("dåligt result i Google SERP"), borttaget
+// 2026-10-18: nästan ingen efterfrågan åt något håll.
 // Inte fler resultatsidor: arkivet /330/resultatborsen-13586101 är vår bästa
 // sida för "resultatbörsen" och tappade inte när levande /330 steg (todo #11).
 // Noindex på 330–399 provades och backades 2026-10-18 innan det mätts.
 if (isset($is_archive) && $is_archive) {
-	if (in_array($pages[0]->num, [571, 377])) {
+	if ((int) $pages[0]->num === 377) {
 		$ok_to_archive = false;
 	}
 }

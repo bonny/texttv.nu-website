@@ -1479,6 +1479,32 @@ html.appShare .pageshare {
 	display: block;
 }
 
+/* Kortkommandon (? på tangentbordet, js/scripts.js). Samma ruta som Dela. */
+.tt-kortkommandon dl {
+	display: grid;
+	grid-template-columns: 6ch 1fr;
+	gap: .4em 1ch;
+	margin-top: 0;
+	margin-bottom: 1em;
+}
+
+.tt-kortkommandon dt,
+.tt-kortkommandon dd {
+	margin: 0;
+}
+
+.tt-kortkommandon kbd {
+	font: inherit;
+	color: var(--tt-cyan);
+}
+
+/* Knappen i sidfoten: bara där det finns ett tangentbord att tala om. */
+@media not ((hover: hover) and (pointer: fine)) {
+	.tt-linkrow .tt-kortkommandon-knapp {
+		display: none;
+	}
+}
+
 /* Delningsrutan i webbläsare utan <dialog>. */
 .pageshare__sheet--utan-dialog {
 	display: block;

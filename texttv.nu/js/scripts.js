@@ -2,7 +2,8 @@
 	TextTV.nu på webben. Vanlig JS utan jQuery (todo #18).
 
 	- Sidomenyn: "Sidor ≡" (li.nav-menu a) fäller ut den på mobil.
-	- ← och → bläddrar till föregående och nästa sida.
+	- ← och → bläddrar till föregående och nästa sida. ? visar alla
+	  kortkommandon, / och siffror går till "Gå till sida".
 	- Rader med en enda länk blir tryckbara i hela sin bredd (.tt-rad).
 	- "Gå till sida": tre siffror skickar formuläret direkt. Förslagen under
 	  fältet ligger i js/tt-sok.js.
@@ -130,6 +131,132 @@ document.addEventListener("keydown", function (e) {
 		window.location.href = lank.href;
 	}
 });
+
+// Kortkommandon på tangentbordet: ? visar en ruta med alla, / går till
+// "Gå till sida", och en siffra börjar skriva ett sidnummer där, som att
+// slå numret på fjärrkontrollen. e.key är tecknet, så det fungerar med
+// svenskt tangentbord (? = Shift + +, / = Shift + 7) och amerikanskt.
+(function () {
+	var sok = document.getElementById("search-input");
+
+	function iFalt(t) {
+		return t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName));
+	}
+
+	var KOMMANDON = [
+		["← →", "Föregående och nästa sida"],
+		["0–9", "Skriv ett sidnummer"],
+		["/", "Gå till sida"],
+		["Esc", "Stäng menyn, rutan eller förslagen"],
+		["?", "Visa kortkommandon"],
+	];
+
+	function visaKortkommandon() {
+		if (document.querySelector("dialog[open]")) {
+			return;
+		}
+		var dialog = document.createElement("dialog");
+		dialog.className = "pageshare__sheet tt-kortkommandon";
+		dialog.setAttribute("aria-labelledby", "tt-kortkommandon-rubrik");
+		var h = document.createElement("h2");
+		h.id = "tt-kortkommandon-rubrik";
+		h.className = "tt-band";
+		h.textContent = "Kortkommandon";
+		dialog.appendChild(h);
+		var dl = document.createElement("dl");
+		KOMMANDON.forEach(function (k) {
+			var dt = document.createElement("dt");
+			var kbd = document.createElement("kbd");
+			kbd.textContent = k[0];
+			dt.appendChild(kbd);
+			var dd = document.createElement("dd");
+			dd.textContent = k[1];
+			dl.appendChild(dt);
+			dl.appendChild(dd);
+		});
+		dialog.appendChild(dl);
+		var rad = document.createElement("div");
+		rad.className = "tt-linkrow";
+		var stang = document.createElement("button");
+		stang.type = "button";
+		stang.className = "tt-link";
+		stang.textContent = "Stäng";
+		rad.appendChild(stang);
+		dialog.appendChild(rad);
+
+		var modal = typeof dialog.showModal === "function";
+		function stangRuta() {
+			if (modal) {
+				dialog.close();
+			} else if (dialog.parentNode) {
+				dialog.parentNode.removeChild(dialog);
+				document.removeEventListener("keydown", esc);
+			}
+		}
+		function esc(e) {
+			if (e.key === "Escape" || e.key === "Esc") {
+				stangRuta();
+			}
+		}
+		stang.addEventListener("click", stangRuta);
+		dialog.addEventListener("close", function () {
+			if (dialog.parentNode) {
+				dialog.parentNode.removeChild(dialog);
+			}
+		});
+		dialog.addEventListener("click", function (e) {
+			if (e.target === dialog) {
+				stangRuta();
+			}
+		});
+		document.body.appendChild(dialog);
+		if (modal) {
+			dialog.showModal();
+		} else {
+			dialog.setAttribute("open", "");
+			dialog.className += " pageshare__sheet--utan-dialog";
+			document.addEventListener("keydown", esc);
+		}
+		stang.focus();
+	}
+
+	document.querySelectorAll(".tt-kortkommandon-knapp").forEach(function (b) {
+		b.addEventListener("click", function (e) {
+			e.preventDefault();
+			visaKortkommandon();
+		});
+	});
+
+	document.addEventListener("keydown", function (e) {
+		if (e.ctrlKey || e.metaKey || e.altKey || e.defaultPrevented || e.isComposing) {
+			return;
+		}
+		if (iFalt(e.target) || document.querySelector("dialog[open]")) {
+			return;
+		}
+		if (e.key === "?") {
+			e.preventDefault();
+			visaKortkommandon();
+			return;
+		}
+		if (!sok || document.body.classList.contains("menu-active")) {
+			return;
+		}
+		if (e.key === "/") {
+			e.preventDefault();
+			sok.focus();
+			return;
+		}
+		if (/^[0-9]$/.test(e.key)) {
+			// Siffran skrivs i fältet. keyup kommer i fältet, så tre siffror
+			// skickar formuläret som vanligt, och input visar förslagen.
+			e.preventDefault();
+			sok.focus();
+			sok.value = e.key;
+			sok.dispatchEvent(new Event("input", { bubbles: true }));
+		}
+	});
+})();
 
 // Rader i Text-TV-sidan med exakt en länk ("Ambulansförare dödad … 130")
 // får klassen tt-rad, och CSS gör då hela raden tryckbar. Rader med flera

@@ -24,10 +24,12 @@ class Sida extends CI_Controller {
 	];
 
 	/**
-	 * Antal av gårdagens mest lästa nyheter i startsidans "Igår på Text TV".
-	 * Få, så att sidorna under inte trycks ner på mobil. Todo #16.
+	 * Antal av gårdagens mest lästa nyheter i startsidans "Mest läst igår".
+	 * Åtta i rutan bredvid 100 på bred skärm, där det finns plats. På smalare
+	 * skärm visas fem (css/tt.css), så att sidorna under inte trycks ner för
+	 * mycket. Todo #16, höjt från tre 2026-10-18.
 	 */
-	const STARTPAGE_YESTERDAY_COUNT = 3;
+	const STARTPAGE_YESTERDAY_COUNT = 8;
 
 	// Om ingen sida anges går vi till 100
 	// Update 3 april 2015: vi visar över sporten, 300, pga. det är säkert bra

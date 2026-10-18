@@ -224,6 +224,14 @@ button.tt-link {
 	column-gap: 2ch;
 }
 
+/* Startsidans "Mest läst igår": åtta när rutan står bredvid 100 (två sidor i
+   bredd från 1180 px), annars fem. */
+@media only screen and (max-width: 1179px) {
+	.day-archive-link--inline .tt-list > li:nth-child(n+6) {
+		display: none;
+	}
+}
+
 /* Gårdagens länkar under sidan (views/day_archive_link.php). På startsidan
    en ruta i raden bredvid sida 100, lika bred som en sida. */
 .day-archive-link {

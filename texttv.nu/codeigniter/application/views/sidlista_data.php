@@ -15,6 +15,8 @@
 return [
 	"lista" => [
 		["/", "Hem", null, []],
+		// SVT:s egen startsida heter "Start" på 100 (Pär 2026-10-18).
+		["/100", "Start", "100", []],
 		["/101-102,103-105", "Nyheter", "101-105", [
 			["/101-103", "Inrikes", "101-103"],
 			["/104-105", "Utrikes", "104-105"],
@@ -35,7 +37,6 @@ return [
 		["/700", "Innehåll", "700", []],
 	],
 	"fler" => [
-		["/100", "Startsidan", "100"],
 		["/336", "Premier League", "336"],
 		["/358", "SHL tabell", "358"],
 		["/360", "Ishockey Allsvenskan", "360"],

@@ -28,14 +28,17 @@ class Textsida extends CI_Controller {
 		$data = array(
 			"wrapclasses" => array("textsida"),
 			"third_level" => $third_level,
-			// Utan frågesträng, så att t.ex. ?utm_source= inte blir en egen sida.
-			"custom_canonical" => "https://texttv.nu/sida/" . rawurlencode($sidnamn),
 		);
+		// Canonical utan frågesträng, så att t.ex. ?utm_source= inte blir en
+		// egen sida (todo #19). Inte för /sida/delat, där ?datum= ger olika
+		// listor.
+		$canonical = "https://texttv.nu/sida/";
 		
 		switch ($sidnamn) {
 			
 			case "om-texttv-nu":
 				$data["custom_page_title"] = "Om TextTV.nu";
+				$data["custom_canonical"] = $canonical . "om-texttv-nu";
 				$data["custom_meta_description"] = "TextTV.nu är SVT Text TV i en snabbare och tydligare form för mobil, surfplatta och dator, med appar för iPhone och Android. Ett fristående projekt, inte från SVT.";
 				$this->load->view("header", $data);
 				$this->load->view("textsida-om-texttv-nu");
@@ -43,6 +46,7 @@ class Textsida extends CI_Controller {
 
 			case "vanliga-fragor":
 				$data["custom_page_title"] = "Vanliga frågor om Text TV";
+				$data["custom_canonical"] = $canonical . "vanliga-fragor";
 				$data["custom_meta_description"] = "Svar på vanliga frågor om Text TV och TextTV.nu: vilka sidor som finns, var du hittar resultat och målservice, och hur appen fungerar.";
 				$this->load->view("header", $data);
 				$this->load->view("textsida-vanliga-fragor");
@@ -86,6 +90,7 @@ class Textsida extends CI_Controller {
 				
 				$data['events_in_media'] = $eventsInMedia;
 				$data["custom_page_title"] = "Polishändelser som det skrivs om på Text TV";
+				$data["custom_canonical"] = $canonical . "polisen";
 								
 				$this->load->view("header", $data);
 				$this->load->view("polisen");
@@ -93,6 +98,7 @@ class Textsida extends CI_Controller {
 
 			case "cookies":				
 				$data["custom_page_title"] = "Om kakor";
+				$data["custom_canonical"] = $canonical . "cookies";
 				$this->load->view("header", $data);
 				$this->load->view("textsida-cookies");
 				break;
@@ -100,6 +106,8 @@ class Textsida extends CI_Controller {
 			case "integritetspolicy":
 			case "integritet":
 				$data["custom_page_title"] = "Integritetspolicy";
+				// /sida/integritet är samma sida.
+				$data["custom_canonical"] = $canonical . "integritetspolicy";
 				$this->load->view("header", $data);
 				$this->load->view("textsida-integritetspolicy");
 				break;		

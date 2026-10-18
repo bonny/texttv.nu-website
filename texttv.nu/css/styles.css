@@ -451,6 +451,10 @@ body {
     aspect-ratio: 1 / 1;
   }
 }
+.ad--beforeMainText ins.adsbygoogle[data-ad-status="filled"] {
+  min-height: 0; /* en lägre annons ska inte få tomrum under sig */
+  aspect-ratio: auto;
+}
 .ad--beforeMainText ins.adsbygoogle[data-ad-status="unfilled"] {
   display: none !important;
 }

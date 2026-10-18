@@ -1471,11 +1471,15 @@ function shorten_text($text, $max_length = 140, $cut_off = '...', $keep_word = f
  */
 function blogg_utdrag($html, $max_length = 155, $title = '')
 {
-	$text = html_entity_decode(strip_tags((string) $html), ENT_QUOTES, 'UTF-8');
+	// Stycken och radbrytningar blir mellanslag, annars blir
+	// "<p>Hej</p><p>Då</p>" "HejDå".
+	$html = preg_replace('#<(br|/p|/div|/li|/h[1-6])\b[^>]*>#i', ' ', (string) $html);
+	$text = html_entity_decode(strip_tags($html), ENT_QUOTES, 'UTF-8');
 	$text = trim(preg_replace('/\s+/u', ' ', $text));
 
+	// Rubriken bara som hela ord: "Nytt" ska inte klippa "Nyttig".
 	$title = trim((string) $title);
-	if ($title !== '' && mb_stripos($text, $title) === 0) {
+	if ($title !== '' && preg_match('/^' . preg_quote($title, '/') . '(?!\p{L})/iu', $text)) {
 		$text = ltrim(mb_substr($text, mb_strlen($title)), " .:–-");
 	}
 

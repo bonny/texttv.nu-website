@@ -49,6 +49,14 @@ html:not(.appShare) .tt-sidbredd {
 	}
 }
 
+/* Från 700 px tar sidomenyn 280 px; 22 px ryms först från 746 px. */
+@media (min-width: 700px) and (max-width: 745px) {
+	html:not(.appShare) #pages .one-page,
+	html:not(.appShare) .tt-sidbredd {
+		font-size: calc((100vw - 280px - 26px) / 20);
+	}
+}
+
 html:not(.appShare) #pages .one-page,
 html:not(.appShare) .tt-sidbredd {
 	font-size: clamp(10px, (100cqi - 2 * var(--tt-gutter) - 10px) / 20, 1.375rem);
@@ -1137,7 +1145,9 @@ ol.day-list__items > li::before {
 /*
 	Större träffyta för små länkar på pekskärm (todo #19): sidnummer inne i
 	Text-TV-sidorna (27×18 px) och brödsmulorna. ::after växer utanför
-	länken, så radhöjden är oförändrad. Inte i delningsbilderna.
+	länken, så radhöjden är oförändrad. Inte i delningsbilderna. Ytan växer
+	bara nedåt: raderna har line-height 1, och en länk på raden under ritas
+	efter och tog annars tryck på nedre delen av länken ovanför.
 */
 @media (pointer: coarse) {
 	html:not(.appShare) .TextTVPage a,
@@ -1149,10 +1159,10 @@ ol.day-list__items > li::before {
 	.breadcrumbs__link::after {
 		content: "";
 		position: absolute;
-		top: -10px;
-		bottom: -10px;
-		left: -3px;
-		right: -3px;
+		top: 0;
+		bottom: -.4em;
+		left: -.5ch;
+		right: -.5ch;
 	}
 }
 

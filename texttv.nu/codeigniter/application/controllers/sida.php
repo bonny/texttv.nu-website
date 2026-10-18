@@ -335,11 +335,13 @@ class Sida extends CI_Controller {
 		// Startsidan hoppar över sidor som inte sänds just nu ("103 Sidan ej
 		// i sändning"). De tog annars en egen ruta och sköt rutnätet ur led
 		// på desktop (todo #19).
+		// 100 tas aldrig bort (titel och canonical för startsidan bygger på
+		// den), och filtret används bara när minst två sidor blir kvar.
 		if ($pagedescription === "startpage") {
 			$sands = array_values(array_filter($arr_page_objs, function ($p) {
-				return !empty($p->id) && !$p->is_not_broadcasted();
+				return (int) $p->num === 100 || (!empty($p->id) && !$p->is_not_broadcasted());
 			}));
-			if ($sands) {
+			if (sizeof($sands) >= 2) {
 				$arr_page_objs = $sands;
 				$page = $sands[sizeof($sands) - 1];
 			}

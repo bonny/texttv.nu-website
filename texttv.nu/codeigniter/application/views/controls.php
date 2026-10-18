@@ -40,9 +40,31 @@ $gotoPrevPageNum = null;
 if ( "/" == current_url()) {
 	$gotoNextPageNum = 101;
 	$gotoPrevPageNum = 100;
+} else if ( isset($pagedescription) && $pagedescription === "startpage" ) {
+	// Startsidan visar flera sidor men pilarna går till 100 och 101.
+	$gotoPrevPageNum = 100;
+	$gotoNextPageNum = 101;
+} else if ( isset($pages) && is_array($pages) && sizeof($pages) > 1 ) {
+	// Flera sidor (101-103, 100,300): föregående till första sidan, nästa
+	// efter sista. $page är bara den sist laddade (todo #19).
+	$gotoPrevPageNum = $pages[0]->prev_page;
+	$gotoNextPageNum = $pages[sizeof($pages) - 1]->next_page;
 } else if ( isset($page) ) {
 	$gotoNextPageNum = $page->next_page;
 	$gotoPrevPageNum = $page->prev_page;
+}
+// En länk till en sida man redan står på (999 → 999, ← 100 på 100,300)
+// visas inte.
+if ( isset($pages) && is_array($pages) && ! ( isset($pagedescription) && $pagedescription === "startpage" ) ) {
+	$visade = array_map(function ($p) {
+		return (int) $p->num;
+	}, $pages);
+	if ( in_array((int) $gotoNextPageNum, $visade, true) ) {
+		$gotoNextPageNum = null;
+	}
+	if ( in_array((int) $gotoPrevPageNum, $visade, true) ) {
+		$gotoPrevPageNum = null;
+	}
 }
 ?>
 <nav class="controls" aria-label="Sidnavigering">

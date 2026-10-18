@@ -466,6 +466,12 @@ if (isset($day_archive)) {
 	?>
 		<meta name="robots" content="noindex, follow">
 	<?php
+	} elseif (!empty($not_broadcasted) && empty($not_broadcasted["page"])) {
+		// Sidan har inte sänts på länge (todo #19): visa förklaringen för
+		// besökaren men håll den ur Googles index.
+	?>
+		<meta name="robots" content="noindex, follow">
+	<?php
 	}
 
 	/**

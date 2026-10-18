@@ -305,11 +305,44 @@ class Sida extends CI_Controller {
 			return;
 		}
 
+		// Text TV har sidorna 100–999. /1000 och /099 gav förut 200 med en
+		// tom sida; nu sajtens 404 (todo #19). Modellen lämnas orörd, den
+		// används även av API:t.
+		foreach ($arr_pages as $one_page) {
+			if (!preg_match('/^\d{3}$/', (string) $one_page) || (int) $one_page < 100) {
+				show_texttv_404();
+				return;
+			}
+		}
+
 		// Samla ihop alla sidor i en array med sid-object
 		$arr_page_objs = array();
 		foreach ($arr_pages as $one_page) {
 			$page = new texttv_page($one_page);
 			$arr_page_objs[] = $page;
+		}
+
+		// En sida som aldrig funnits i databasen (SVT har inte använt numret)
+		// är också en 404, inte en tom sida.
+		$finns = array_filter($arr_page_objs, function ($p) {
+			return !empty($p->id);
+		});
+		if (!$finns) {
+			show_texttv_404();
+			return;
+		}
+
+		// Startsidan hoppar över sidor som inte sänds just nu ("103 Sidan ej
+		// i sändning"). De tog annars en egen ruta och sköt rutnätet ur led
+		// på desktop (todo #19).
+		if ($pagedescription === "startpage") {
+			$sands = array_values(array_filter($arr_page_objs, function ($p) {
+				return !empty($p->id) && !$p->is_not_broadcasted();
+			}));
+			if ($sands) {
+				$arr_page_objs = $sands;
+				$page = $sands[sizeof($sands) - 1];
+			}
 		}
 
 		// Sidor som inte sänds just nu (t.ex. tipssidorna mitt i veckan) visar

@@ -31,6 +31,9 @@ class Sida extends CI_Controller {
 	 */
 	const STARTPAGE_YESTERDAY_COUNT = 8;
 
+	/** Högsta antal sidor i en adress som /101-103,300 (granskning 2026-10-18). */
+	const MAX_PAGES_PER_URL = 30;
+
 	// Om ingen sida anges går vi till 100
 	// Update 3 april 2015: vi visar över sporten, 300, pga. det är säkert bra
 	public function index() {
@@ -55,7 +58,8 @@ class Sida extends CI_Controller {
 			foreach ($arr_db_ids as $one_db_id) {
 				// om inte ett nummer: abort!
 				if (!is_numeric($one_db_id)) {
-					die("There was an error, ey!");
+					show_texttv_404();
+					return;
 				}
 				$page = new texttv_page();
 				$page->id = $one_db_id;
@@ -368,6 +372,14 @@ class Sida extends CI_Controller {
 				show_texttv_404();
 				return;
 			}
+		}
+
+		// Tak för hur många sidor en adress får visa. /100-999 gav 4 MB HTML
+		// och 900 DB-frågor. Menyns största intervall är 376-395 (20 sidor).
+		// Bara här: API:t har egna anropare och lämnas orört.
+		if (sizeof($arr_pages) > self::MAX_PAGES_PER_URL) {
+			show_texttv_404();
+			return;
 		}
 
 		// Samla ihop alla sidor i en array med sid-object

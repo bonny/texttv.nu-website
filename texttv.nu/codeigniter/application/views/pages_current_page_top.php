@@ -5,11 +5,8 @@ if (isset($pages) && is_array($pages)) {
 	?>
 	<!-- TextTV.nu – innan sidans huvudtext -->
 	<!-- .ad--beforeMainText är display:none by default — visas bara via CSS-syskonregeln .breadcrumbs + .ad--beforeMainText. -->
-	<!-- På sidor utan breadcrumbs (t.ex. /100, /101-/105) är <ins> dolt → availableWidth=0 → adsbygoogle.push() kraschar. -->
-	<!-- Kolla layout innan push så vi slipper konsol-felet utan att förändra ad-beteendet på sidor som faktiskt visar annonsen. -->
-	<!-- TODO: Lighthouse "errors-in-console" kvarstår delvis efter denna fix (verifierat 2026-05-19). -->
-	<!-- Roten är förmodligen enable_page_level_ads i footer.php eller andra ad-block (pages_inner_output_current.php m.fl.). -->
-	<!-- Återuppta om Best Practices-score blir viktigt. -->
+	<!-- På sidor utan breadcrumbs (t.ex. /100, /101-/105) är <ins> dolt. Då tas hela blocket bort: ett obearbetat <ins> -->
+	<!-- i DOM:en fångar nästa adsbygoogle.push(), så blocket "innan fler nyheter" fylldes aldrig (granskning 2026-10-18). -->
 	<div class="ad ad--beforeMainText">
 		<p class="ad-header">Annons</p>
 		<ins class="adsbygoogle"
@@ -22,6 +19,8 @@ if (isset($pages) && is_array($pages)) {
 			var ins = document.currentScript.previousElementSibling;
 			if (ins && ins.offsetWidth > 0) {
 				(adsbygoogle = window.adsbygoogle || []).push({});
+			} else if (ins) {
+				ins.parentNode.parentNode.removeChild(ins.parentNode);
 			}
 		})();
 		</script>

@@ -62,6 +62,22 @@ if (sizeof($arr_pages) == 1) {
 
 }
 
+// Sidornas html byggs först, så att vi vet om den har en egen <h1>.
+$pages_html = "";
+foreach ($arr_pages as $one_page) {
+	$pages_html .= $one_page->get_output();
+}
+
+// Nyhetsarkiven saknade <h1> (granskning 2026-10-18). Rubriken för
+// skärmläsare och sökmotorer, samma grepp som på de levande sidorna.
+if (stripos($pages_html, "<h1") === false && !$this->input->get("apiAppShare")) {
+	$rubrik = trim((string) $arr_pages[0]->title);
+	$text .= sprintf(
+		'<h1 class="sr-only">%s</h1>',
+		html_escape($rubrik !== "" && sizeof($arr_pages) == 1 ? $rubrik : sprintf("SVT Text TV %s", $pagenum))
+	);
+}
+
 $this->output->append_output($text);
 $this->output->append_output("<div id='pages'>");
 
@@ -84,9 +100,7 @@ if ( $this->input->get("apiAppShare") ) {
 }
 
 $this->output->append_output("<ul>");
-foreach ($arr_pages as $one_page) {
-	$this->output->append_output($one_page->get_output());
-}
+$this->output->append_output($pages_html);
 $this->output->append_output("</ul>");
 
 // Polishändelser som Brottsplatskartan kopplat till nyheten (todo #21).

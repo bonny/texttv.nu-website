@@ -17,6 +17,8 @@
 	<meta charset="utf-8">
 	<title>TextTV.nu</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<?php // Bara för appens webbvy. Samma innehåll som /{sida}, ska inte in i Google. ?>
+	<meta name="robots" content="noindex, follow">
 	<base href="/appembed/" />
 	<link rel="stylesheet" href="/css/fonts.css">
 	<link rel="stylesheet" href="/css/texttvpage.css">

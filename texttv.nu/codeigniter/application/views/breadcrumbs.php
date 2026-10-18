@@ -29,6 +29,7 @@ if (isset($pages) && is_array($pages)) {
 		return;
 	}
 
+	// Föräldern är en enskild sida: intervallen (/300-302 m.fl.) har noindex.
 	// Inrikes = 101 - 130
 	// Utrikes = 130 - 199
 	// Ekonomi = 200 -
@@ -37,28 +38,28 @@ if (isset($pages) && is_array($pages)) {
 	if ($pagenum > 101 && $pagenum < 130) {
 		$arr_parent	= [
 			"title" => "Nyheter Sverige",
-			"url" => "https://texttv.nu/101,102,103"
+			"url" => "https://texttv.nu/101"
 		];
 	}
 
 	if ($pagenum >= 130 && $pagenum < 200) {
 		$arr_parent	= [
 			"title" => "Nyheter världen",
-			"url" => "https://texttv.nu/104-105"
+			"url" => "https://texttv.nu/104"
 		];
 	}
 
 	if ($pagenum > 200 && $pagenum < 300) {
 		$arr_parent	= [
 			"title" => "Ekonomi",
-			"url" => "https://texttv.nu/200-202"
+			"url" => "https://texttv.nu/200"
 		];
 	}
 
 	if ($pagenum > 300 && $pagenum < 400) {
 		$arr_parent	= [
 			"title" => "Sport",
-			"url" => "https://texttv.nu/300-302"
+			"url" => "https://texttv.nu/300"
 		];
 	}
 

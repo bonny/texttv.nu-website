@@ -411,9 +411,13 @@ if (!isset($is_archive)) {
 }
 
 // Unvik att arkivera några gamla sidor
-// 1 Oct 2016 börjar med 571 som hade dåligt result i Google SERP
+// 1 Oct 2016 börjar med 571 som hade dåligt result i Google SERP.
+// 2026-10-18: alla resultat- och tabellsidor (330–399) och tips/trav (550–599).
+// Gamla resultat tog visningar från de levande sidorna, t.ex. ett arkiv av 330
+// med 15 600 visningar. Nyhetsarkiven (100–329) indexeras som förut.
 if (isset($is_archive) && $is_archive) {
-	if (in_array($pages[0]->num, [571, 377])) {
+	$archive_num = (int) $pages[0]->num;
+	if (($archive_num >= 330 && $archive_num <= 399) || ($archive_num >= 550 && $archive_num <= 599)) {
 		$ok_to_archive = false;
 	}
 }
@@ -551,6 +555,11 @@ if (isset($day_archive)) {
 				$meta_description = trim($meta_description);
 			}
 
+
+			// "INRIKES PUBLICERAD 17 OKTOBER" först och avstavningar som
+			// "för- sök" stod kvar i beskrivningen (granskning 2026-10-18).
+			$meta_description = preg_replace('/^[A-ZÅÄÖ]+(?: [A-ZÅÄÖ]+)* (?:PUBLICERAD|UPPDATERAD) \d{1,2} [A-ZÅÄÖ]+ /u', '', $meta_description);
+			$meta_description = preg_replace('/(\p{Ll})- (?!och |eller |samt )(\p{Ll})/u', '$1$2', $meta_description);
 
 			$meta_description = mb_substr($meta_description, 0, 200);
 			$meta_description = trim($meta_description);
@@ -727,7 +736,7 @@ if (isset($day_archive)) {
 				"datePublished": <?php echo json_encode($archive_date, JSON_HEX_TAG) ?>,
 				"dateModified": <?php echo json_encode($archive_date, JSON_HEX_TAG) ?>,
 				"author": {
-					"@type": "Person",
+					"@type": "Organization",
 					"name": "SVT Text TV"
 				},
 				"publisher": {

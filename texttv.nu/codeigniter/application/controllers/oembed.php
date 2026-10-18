@@ -47,7 +47,9 @@ class Oembed extends CI_Controller {
 
 			// om inte ett nummer: abort!
 			if ( empty( $matches ) ) {
-				die("There was an error, ey!");
+				$this->output->set_status_header(404);
+				$this->output->set_output("There was an error, ey!");
+				return;
 			}
 			#print_r($matches);
 

@@ -2,6 +2,8 @@
 	TextTV.nu på webben. Vanlig JS utan jQuery (todo #18).
 
 	- Sidomenyn: "Sidor ≡" (li.nav-menu a) fäller ut den på mobil.
+	- ← och → bläddrar till föregående och nästa sida.
+	- Rader med en enda länk blir tryckbara i hela sin bredd (.tt-rad).
 	- "Gå till sida": tre siffror skickar formuläret direkt. Förslagen under
 	  fältet ligger i js/tt-sok.js.
 	- "Dela →": telefonens egen delning om den finns, annars en ruta med
@@ -71,8 +73,29 @@ document.documentElement.classList.add("is-domready");
 	}
 
 	document.addEventListener("keydown", function (e) {
-		if (arOppen() && (e.key === "Escape" || e.key === "Esc")) {
+		if (!arOppen()) {
+			return;
+		}
+		if (e.key === "Escape" || e.key === "Esc") {
 			stang();
+			return;
+		}
+		// Tab stannar i den öppna menyn, i stället för att gå vidare till
+		// den dolda sidan bakom (granskning 2026-10-18).
+		if (e.key === "Tab") {
+			var lankar = meny.querySelectorAll("a[href], button");
+			if (!lankar.length) {
+				return;
+			}
+			var forsta = lankar[0];
+			var sista = lankar[lankar.length - 1];
+			if (e.shiftKey && document.activeElement === forsta) {
+				e.preventDefault();
+				sista.focus();
+			} else if (!e.shiftKey && document.activeElement === sista) {
+				e.preventDefault();
+				forsta.focus();
+			}
 		}
 	});
 
@@ -82,6 +105,40 @@ document.documentElement.classList.add("is-domready");
 		}
 	});
 })();
+
+// ← och → på tangentbordet bläddrar som pilarna i ramen, som på tv:n.
+// Inte i fält, inte med Ctrl/Alt/Cmd (webbläsarens bakåt), inte när menyn
+// är öppen.
+document.addEventListener("keydown", function (e) {
+	if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") {
+		return;
+	}
+	if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey || e.defaultPrevented) {
+		return;
+	}
+	var t = e.target;
+	if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) {
+		return;
+	}
+	if (document.body.classList.contains("menu-active") || document.querySelector("dialog[open]")) {
+		return;
+	}
+	var lank = document.querySelector(e.key === "ArrowLeft" ? ".controls__prev" : ".controls__next");
+	if (lank) {
+		e.preventDefault();
+		ttLoading();
+		window.location.href = lank.href;
+	}
+});
+
+// Rader i Text-TV-sidan med exakt en länk ("Ambulansförare dödad … 130")
+// får klassen tt-rad, och CSS gör då hela raden tryckbar. Rader med flera
+// länkar ("Utrikes 104 Sport 300") behåller små ytor per nummer.
+document.querySelectorAll(".TextTVPage .line").forEach(function (line) {
+	if (line.querySelectorAll("a").length === 1) {
+		line.classList.add("tt-rad");
+	}
+});
 
 // "Gå till sida": tre siffror skickar formuläret (GET /?number=377).
 document.querySelectorAll(".controls-topnav-search-input").forEach(function (input) {

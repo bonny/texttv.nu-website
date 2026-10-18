@@ -69,6 +69,10 @@ class Sitemap extends CI_Controller {
 		}
 
 		$midnight = $today->format(DATE_W3C);
+		// Dagens listor ändras hela dagen (granskning 2026-10-18).
+		$now = (new DateTime("now", $today->getTimezone()))->format(DATE_W3C);
+		$urls[] = ["loc" => "/nyheter/idag", "lastmod" => $now];
+		$urls[] = ["loc" => "/sport/idag", "lastmod" => $now];
 		$urls[] = ["loc" => "/nyheter/igar", "lastmod" => $midnight];
 		$urls[] = ["loc" => "/sport/igar", "lastmod" => $midnight];
 		$urls[] = ["loc" => "/377/igar", "lastmod" => $midnight];

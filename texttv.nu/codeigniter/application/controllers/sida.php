@@ -468,9 +468,13 @@ class Sida extends CI_Controller {
 					$yesterday_links[] = ["/{$num}/igar", "Gårdagens resultat {$num}"];
 				}
 			}
+			// Dagens lista först: "nyheten jag läste i morse" (granskning
+			// 2026-10-18).
 			if ($num >= 100 && $num <= 199) {
+				$yesterday_links[] = ["/nyheter/idag", "Dagens nyheter"];
 				$yesterday_links[] = ["/nyheter/igar", "Gårdagens nyheter"];
 			} elseif ($num >= 300 && $num <= 399) {
+				$yesterday_links[] = ["/sport/idag", "Dagens sportnyheter"];
 				$yesterday_links[] = ["/sport/igar", "Gårdagens sportnyheter"];
 			}
 		}

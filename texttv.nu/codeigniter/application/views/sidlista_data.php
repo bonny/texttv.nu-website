@@ -20,6 +20,7 @@ return [
 		["/101-102,103-105", "Nyheter", "101-105", [
 			["/101-103", "Inrikes", "101-103"],
 			["/104-105", "Utrikes", "104-105"],
+			["/nyheter/idag", "Dagens nyheter", null],
 			["/nyheter/igar", "Gårdagens nyheter", null],
 		]],
 		["/300-302", "Sport", "300-302", [
@@ -27,8 +28,9 @@ return [
 			["/376", "Målservice", "376"],
 			["/377", "Målservice, resultat", "377"],
 			["/376-395", "Målservice & resultat", "376-395"],
+			["/sport/idag", "Dagens sportnyheter", null],
 			["/sport/igar", "Gårdagens sportnyheter", null],
-			["/377/igar", "Gårdagens resultat", "377"],
+			["/377/igar", "Gårdagens 377", null], // Inte "377" i nummerspalten: den är dagens sida.
 		]],
 		["/400", "Väder", "400", [
 			["/401", "Vädret i dag/i morgon", "401"],

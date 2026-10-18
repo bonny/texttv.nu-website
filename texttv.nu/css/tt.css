@@ -438,8 +438,17 @@ button.tt-link {
 	outline-offset: 2px;
 }
 
+/* Fältet ska se ut som ett fält och inte som en knapp: en vit linje
+   under, och ledtexten står kvar svagare vid fokus i stället för att
+   rutan blir tom (granskning 2026-10-18). */
+.controls-topnav-search-input {
+	box-shadow: inset 0 -3px 0 var(--tt-white);
+	caret-color: var(--tt-yellow);
+}
+
 .controls-topnav-search-input:focus::placeholder {
-	color: transparent;
+	color: var(--tt-white);
+	opacity: .55;
 }
 
 /* Sidans h1 ovanför Text-TV-sidan: ett band kant i kant med sidan. */
@@ -590,6 +599,26 @@ button.tt-link {
 
 	.site-footer__sidor {
 		display: none;
+	}
+}
+
+/* Från 1280 px finns plats för större text i sidomenyn: 18 px som i
+   sidhuvudets länkar i stället för 16 (granskning 2026-10-18). Spalten blir
+   330 px, och sidan och ramen flyttas lika mycket. Sidans två kolumner
+   behöver 900 px, och 1280 − 330 = 950. */
+@media only screen and (min-width: 1280px) {
+	.sidebar {
+		width: 330px;
+		font-size: 18px; /* 33 tecken i 310 px */
+	}
+
+	.wrap {
+		margin-left: 330px;
+	}
+
+	.controls,
+	body .pages-updated {
+		left: 330px;
 	}
 }
 
@@ -814,10 +843,18 @@ button.tt-link {
 }
 
 .tt-page a:focus-visible,
-.textcontent a:focus-visible {
+.textcontent a:focus-visible,
+.TextTVPage a:focus-visible {
 	background: var(--tt-yellow);
 	color: var(--tt-black);
 	text-decoration: none;
+}
+
+/* Samma gula fokus i Text-TV-sidan som överallt annars (granskning
+   2026-10-18). Sidan har inget .tt-page-omslag. */
+.TextTVPage a:focus-visible {
+	outline: 2px solid var(--tt-white);
+	outline-offset: 1px;
 }
 
 .tt-page ul,
@@ -1273,6 +1310,35 @@ ol.day-list__items > li::before {
 		bottom: -.4em;
 		left: -.5ch;
 		right: -.5ch;
+	}
+}
+
+/*
+	Rader med en enda länk (.tt-rad, satt i js/scripts.js) är tryckbara i
+	hela sin bredd: rubriken och prickarna leder till samma sida som numret
+	(granskning 2026-10-18). Länkens ::after täcker raden. Raderna ligger
+	tätt, men varje yta stannar inom sin egen rad.
+*/
+html:not(.appShare) .TextTVPage .tt-rad {
+	position: relative;
+	cursor: pointer;
+}
+
+html:not(.appShare) .TextTVPage .tt-rad a {
+	position: static;
+}
+
+html:not(.appShare) .TextTVPage .tt-rad a::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+}
+
+@media (hover: hover) {
+	html:not(.appShare) .TextTVPage .tt-rad:hover a {
+		background: var(--tt-yellow);
+		color: var(--tt-black);
+		text-decoration: none;
 	}
 }
 

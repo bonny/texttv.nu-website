@@ -86,11 +86,19 @@ $json_ld = [
 		<a href="<?php echo $e($d["next_url"]) ?>"><?php echo $e($d["next_human"]) ?> →</a>
 	</nav>
 
-	<p class="tt-dag__intro">
-		<?php echo $d["headline_count"] ?> nyheter sändes för första gången på
-		SVT Text TV den här dagen. Tiden är när nyheten först sändes, och varje
-		rubrik leder till nyhetens sista version den dagen.
-	</p>
+	<?php if (!empty($d["is_today_url"])) { ?>
+		<p class="tt-dag__intro">
+			<?php echo $d["headline_count"] ?> nyheter har sänts på SVT Text TV
+			hittills i dag. Tiden är när nyheten först sändes, och varje rubrik
+			leder till nyhetens senaste version.
+		</p>
+	<?php } else { ?>
+		<p class="tt-dag__intro">
+			<?php echo $d["headline_count"] ?> nyheter sändes för första gången på
+			SVT Text TV den här dagen. Tiden är när nyheten först sändes, och varje
+			rubrik leder till nyhetens sista version den dagen.
+		</p>
+	<?php } ?>
 
 	<?php if (sizeof($d["groups"]) > 1) { ?>
 		<p class="tt-dag__hopp">

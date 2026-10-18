@@ -50,7 +50,7 @@ $rows = [
 	$line(" " . $link(401, "Väder") . "            " . $link(600, "På TV"), "bgBl G"),
 	$line(" " . $link(101, "Inrikes") . "          " . $link(104, "Utrikes"), "bgBl G"),
 	$line(""),
-	$line(" " . '<a href="/nyheter/igar">Gårdagens nyheter</a>', "bgBl G"),
+	$line(" " . '<a href="/nyheter/idag">Dagens nyheter</a>' . "   " . '<a href="/nyheter/igar">Gårdagens</a>', "bgBl G"),
 	$line(""),
 	$line(" Eller skriv ett sidnummer i rutan", "bgBl W"),
 	$line(" Gå till sida högst upp.", "bgBl W"),

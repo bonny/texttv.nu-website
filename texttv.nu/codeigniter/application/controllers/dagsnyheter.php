@@ -3,7 +3,8 @@
 /**
  * Dagslistor: alla nyheter respektive sportnyheter som sändes en dag, med
  * de mest lästa först. /nyheter/igar, /nyheter/2026-10-12, /sport/igar och
- * /sport/2026-10-12. Todo #16.
+ * /sport/2026-10-12. Todo #16. Dagens hittills på /nyheter/idag och
+ * /sport/idag (granskning 2026-10-18).
  *
  * Startsidan visar flera sidor (100, 300, 401, 101–105) men bara nuläget.
  * Här samlas gårdagens, eller en viss dags, nyheter på en sida med länkar
@@ -47,8 +48,13 @@ class Dagsnyheter extends CI_Controller
 		$tz = new DateTimeZone("Europe/Stockholm");
 		$today = new DateTime("today", $tz);
 		$is_yesterday_url = ($day === "igar");
+		// /nyheter/idag: dagens nyheter hittills, så att man hittar nyheten
+		// man läste i morse (granskning 2026-10-18).
+		$is_today_url = ($day === "idag");
 
-		if ($is_yesterday_url) {
+		if ($is_today_url) {
+			$date = clone $today;
+		} elseif ($is_yesterday_url) {
 			$date = clone $today;
 			$date->modify("-1 day");
 		} else {
@@ -59,8 +65,8 @@ class Dagsnyheter extends CI_Controller
 			}
 		}
 
-		if ($date == $today) {
-			redirect($conf["live_url"], "location", 302);
+		if ($date == $today && !$is_today_url) {
+			redirect("/{$section}/idag", "location", 302);
 			return;
 		}
 
@@ -74,6 +80,12 @@ class Dagsnyheter extends CI_Controller
 		$day_ymd = $date->format("Y-m-d");
 
 		list($items, $items_by_key) = get_day_stories($conf, $day_ymd, $section === "sport");
+		// Tidigt på morgonen kan dagens lista vara tom. Då är gårdagens
+		// närmast.
+		if (empty($items) && $is_today_url) {
+			redirect("/{$section}/igar", "location", 302);
+			return;
+		}
 		if (empty($items)) {
 			show_texttv_404();
 			return;
@@ -120,7 +132,11 @@ class Dagsnyheter extends CI_Controller
 		$yesterday = clone $today;
 		$yesterday->modify("-1 day");
 
-		if ($is_yesterday_url) {
+		if ($is_today_url) {
+			$canonical = "https://texttv.nu/{$section}/idag";
+			$meta_title = sprintf('%1$s, %2$s – SVT Text TV', $conf["today"], $human($date, "l j M"));
+			$headline = $conf["today"] . " på SVT Text TV";
+		} elseif ($is_yesterday_url) {
 			$canonical = "https://texttv.nu/{$section}/igar";
 			$meta_title = sprintf('%1$s, %2$s – SVT Text TV', $conf["yesterday"], $human($date, "l j M"));
 			$headline = $conf["yesterday"] . " på SVT Text TV";
@@ -137,7 +153,7 @@ class Dagsnyheter extends CI_Controller
 			return $item["title"];
 		}, array_slice($most_read ? $most_read : $all_items, 0, 3));
 		$meta_description = sprintf(
-			'Alla %1$d %2$s från SVT Text TV %3$s.',
+			$is_today_url ? 'Alla %1$d %2$s från SVT Text TV hittills i dag, %3$s.' : 'Alla %1$d %2$s från SVT Text TV %3$s.',
 			$headline_count,
 			mb_strtolower($conf["name"]),
 			$date_human
@@ -150,8 +166,8 @@ class Dagsnyheter extends CI_Controller
 		$results_links = [];
 		foreach ($conf["results"] as $num => $label) {
 			$results_links[] = [
-				"url" => $is_yesterday_url ? "/{$num}/igar" : "/{$num}/{$day_ymd}",
-				"label" => $is_yesterday_url ? "Gårdagens resultat" : "Resultat",
+				"url" => $is_today_url ? "/{$num}" : ($is_yesterday_url ? "/{$num}/igar" : "/{$num}/{$day_ymd}"),
+				"label" => $is_today_url ? "Dagens resultat" : ($is_yesterday_url ? "Gårdagens resultat" : "Resultat"),
 				"num" => $num,
 			];
 		}
@@ -168,23 +184,25 @@ class Dagsnyheter extends CI_Controller
 			"headline" => $headline,
 			"date_human" => $date_human,
 			"is_yesterday_url" => $is_yesterday_url,
+			"is_today_url" => $is_today_url,
 			"groups" => $groups,
 			"headline_count" => $headline_count,
 			"most_read" => $most_read,
 			"results_links" => $results_links,
-			"other_url" => $is_yesterday_url ? "/{$other}/igar" : "/{$other}/{$day_ymd}",
-			"other_label" => $is_yesterday_url ? day_sections()[$other]["yesterday"] : day_sections()[$other]["name"] . " samma dag",
+			"other_url" => $is_today_url ? "/{$other}/idag" : ($is_yesterday_url ? "/{$other}/igar" : "/{$other}/{$day_ymd}"),
+			"other_label" => $is_today_url ? day_sections()[$other]["today"] : ($is_yesterday_url ? day_sections()[$other]["yesterday"] : day_sections()[$other]["name"] . " samma dag"),
 			"canonical" => $canonical,
-			"prev_url" => $prev_date >= $oldest ? "/{$section}/" . $prev_date->format("Y-m-d") : null,
-			"prev_human" => $human($prev_date, "l j F"),
-			"next_url" => $next_date == $today ? $conf["live_url"] : ($next_date == $yesterday ? "/{$section}/igar" : "/{$section}/" . $next_date->format("Y-m-d")),
-			"next_human" => $next_date == $today ? $conf["live_label"] : $human($next_date, "l j F"),
+			"prev_url" => $is_today_url ? "/{$section}/igar" : ($prev_date >= $oldest ? "/{$section}/" . $prev_date->format("Y-m-d") : null),
+			"prev_human" => $is_today_url ? $conf["yesterday"] : $human($prev_date, "l j F"),
+			// Från i dag: vidare till den levande sidan. Till i dag: dagens lista.
+			"next_url" => $is_today_url ? $conf["live_url"] : ($next_date == $today ? "/{$section}/idag" : ($next_date == $yesterday ? "/{$section}/igar" : "/{$section}/" . $next_date->format("Y-m-d"))),
+			"next_human" => $is_today_url ? $conf["now_label"] : ($next_date == $today ? $conf["today"] : $human($next_date, "l j F")),
 		];
 
 		// En passerad dag ändras inte. /igar och gårdagens datumsida får aldrig
 		// cachas förbi midnatt (innehåll respektive "idag →"-länk byts då).
-		$cache_seconds = $is_yesterday_url ? 600 : 3600;
-		if ($is_yesterday_url || $next_date == $today) {
+		$cache_seconds = $is_today_url ? 120 : ($is_yesterday_url ? 600 : 3600);
+		if ($is_today_url || $is_yesterday_url || $next_date == $today) {
 			$tomorrow = clone $today;
 			$tomorrow->modify("+1 day");
 			$cache_seconds = max(1, min($cache_seconds, $tomorrow->getTimestamp() - time()));

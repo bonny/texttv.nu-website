@@ -37,7 +37,7 @@ if (isset($pages) && is_array($pages) && function_exists("get_permalink_from_pag
 if (!$this->input->get("apiAppShare")) { ?>
 	<footer class="site-footer">
 		<div class="site-footer__inner tt-sidbredd">
-			<nav class="site-footer__sidor" aria-label="Sidor">
+			<nav class="site-footer__sidor" aria-label="Alla sidor">
 				<h2 class="tt-band">Sidor</h2>
 				<?php $this->load->view('sidlista') ?>
 			</nav>

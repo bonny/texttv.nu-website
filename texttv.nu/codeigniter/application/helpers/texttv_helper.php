@@ -704,8 +704,10 @@ function day_sections()
 		"nyheter" => [
 			"name" => "Nyheter",
 			"yesterday" => "Gårdagens nyheter",
+			"today" => "Dagens nyheter",
 			"live_url" => "/",
 			"live_label" => "Dagens nyheter",
+			"now_label" => "Startsidan just nu",
 			"most_read" => "news",
 			"groups" => [
 				["Inrikes", 106, 129],
@@ -720,8 +722,10 @@ function day_sections()
 		"sport" => [
 			"name" => "Sportnyheter",
 			"yesterday" => "Gårdagens sportnyheter",
+			"today" => "Dagens sportnyheter",
 			"live_url" => "/300",
 			"live_label" => "Dagens sport 300",
+			"now_label" => "Sport 300 just nu",
 			"most_read" => "sport",
 			"groups" => [
 				["Sport", 303, 329],

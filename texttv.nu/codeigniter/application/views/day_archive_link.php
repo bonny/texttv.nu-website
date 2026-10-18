@@ -19,7 +19,7 @@
 $inline = !empty($inline);
 $yesterday_top = !empty($yesterday_top) ? $yesterday_top : [];
 ?>
-<nav class="tt-sidbredd day-archive-link<?php echo $inline ? " day-archive-link--inline" : "" ?>" aria-label="Gårdagen">
+<nav class="tt-sidbredd day-archive-link<?php echo $inline ? " day-archive-link--inline" : "" ?>" aria-label="Dagslistor">
 	<?php if ($yesterday_prefix) { ?>
 		<span class="tt-band"><?php echo html_escape($yesterday_prefix) ?></span>
 	<?php } ?>

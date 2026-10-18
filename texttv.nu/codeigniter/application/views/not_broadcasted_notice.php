@@ -24,6 +24,15 @@ if ($this->input->get("apiAppShare")) {
 			<a href="<?php echo html_escape($nb["last_permalink"]) ?>">Se sidan som den såg ut senast den sändes.</a>
 		<?php } ?>
 	</p>
+	<?php // Inte en återvändsgränd: samma förslag som 404-sidan (granskning 2026-10-18). ?>
+	<p>Prova någon av de här:</p>
+	<p class="tt-linkrow">
+		<a href="/100">Nyheter 100</a>
+		<a href="/300">Sport 300</a>
+		<a href="/377">Målservice 377</a>
+		<a href="/401">Väder 401</a>
+		<a href="/nyheter/idag">Dagens nyheter</a>
+	</p>
 	<?php } else { ?>
 	<p>
 		<strong>Sidan sänds inte just nu.</strong>

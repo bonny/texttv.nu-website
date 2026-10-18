@@ -459,6 +459,16 @@ body {
   display: none !important;
 }
 
+/*
+  Sidan är color-scheme: dark men annonsens iframe är ljus. När de skiljer
+  sig målar webbläsaren en vit bakgrund bakom iframen, så rutan blinkar vitt
+  medan AdSense laddar (syns mest vid bläddring med ← →). Samma schema på
+  iframen gör den genomskinlig tills annonsen själv ritar något.
+*/
+.ad iframe {
+  color-scheme: light;
+}
+
 /**
  * Page share
  */

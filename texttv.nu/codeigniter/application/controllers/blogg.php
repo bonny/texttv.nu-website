@@ -13,6 +13,8 @@ class Blogg extends CI_Controller {
 		);
 
 		$data["custom_page_title"] = "Utvecklingsblogg - TextTV nu";
+		$data["custom_meta_description"] = "Utvecklingsbloggen för TextTV.nu: nya funktioner på sajten och i apparna, och hur tjänsten byggs.";
+		$data["custom_canonical"] = "https://texttv.nu/blogg";
 
 		$this->load->view("header", $data);
 		$this->load->view("blogg_overview", $data);
@@ -55,7 +57,10 @@ class Blogg extends CI_Controller {
 			"wrapclasses" => array("textsida"),
 			"blogg_entries" => $result,
 			"prev_blog_posts" => $latest_posts,
-			"custom_page_title" => $result->row()->title . " | Text TV Utvecklingsblogg"
+			"custom_page_title" => $result->row()->title . " | Text TV Utvecklingsblogg",
+			// Början av inlägget, utan HTML (todo #19).
+			"custom_meta_description" => blogg_utdrag($result->row()->content, 155, $result->row()->title),
+			"custom_canonical" => "https://texttv.nu/blogg/" . rawurlencode($result->row()->permalink),
 		);
 
 		$this->load->view("header", $data);

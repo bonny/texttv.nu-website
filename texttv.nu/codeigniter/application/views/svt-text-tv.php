@@ -35,13 +35,15 @@ foreach ( $arr_pages as $vals ) {
 
 	printf('
 		<section class="svt-text-tv-sida">
-			<h2 class="tt-sidbredd tt-band">%1$s</h2>
+			<h2 class="tt-sidbredd tt-band">%4$d %1$s</h2>
 			%3$s
 			<div>%2$s</div>
 		</section>
 		', html_escape($vals["page"]->get_page_title()),
 		$vals["page"]->get_output(),
-		$teaser // 3
+		$teaser, // 3
+		// Sidnumret först: 101–103 heter alla "Inrikes" (todo #19).
+		(int) $vals["page"]->num // 4
 	);
 
 }

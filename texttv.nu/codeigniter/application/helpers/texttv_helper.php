@@ -1464,3 +1464,30 @@ function shorten_text($text, $max_length = 140, $cut_off = '...', $keep_word = f
 
     return $text;
 }
+/**
+ * Utdrag ur ett blogginlägg: utan HTML, med blanktecken ihopslagna och
+ * avkortat vid ett ord med "…". Börjar texten med rubriken tas den bort,
+ * annars står rubriken två gånger i bloggöversikten (todo #19).
+ */
+function blogg_utdrag($html, $max_length = 155, $title = '')
+{
+	$text = html_entity_decode(strip_tags((string) $html), ENT_QUOTES, 'UTF-8');
+	$text = trim(preg_replace('/\s+/u', ' ', $text));
+
+	$title = trim((string) $title);
+	if ($title !== '' && mb_stripos($text, $title) === 0) {
+		$text = ltrim(mb_substr($text, mb_strlen($title)), " .:–-");
+	}
+
+	if (mb_strlen($text) <= $max_length) {
+		return $text;
+	}
+
+	$text = mb_substr($text, 0, $max_length + 1);
+	$last_space = mb_strrpos($text, ' ');
+	if ($last_space) {
+		$text = mb_substr($text, 0, $last_space);
+	}
+
+	return rtrim($text, " ,.:;–-") . '…';
+}

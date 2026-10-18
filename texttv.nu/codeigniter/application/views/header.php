@@ -603,6 +603,11 @@ if (isset($day_archive)) {
 	?>
 		<meta name="description" content="<?php echo @htmlspecialchars($meta_description, ENT_QUOTES, "UTF-8"); ?>">
 	<?php
+	} elseif (!empty($custom_meta_description)) {
+		// Informationssidorna och bloggen (todo #19).
+	?>
+		<meta name="description" content="<?php echo htmlspecialchars($custom_meta_description, ENT_QUOTES, "UTF-8"); ?>">
+	<?php
 	}
 
 	?>
@@ -672,6 +677,11 @@ if (isset($day_archive)) {
 		// Pekar även gamla URL-format och inaktuella slugs till permalänken.
 	?>
 		<link rel="canonical" href="<?php echo htmlspecialchars("https://texttv.nu" . $archive_permalink, ENT_QUOTES) ?>" />
+	<?php
+	} elseif (!empty($custom_canonical)) {
+		// Informationssidorna och bloggen (todo #19).
+	?>
+		<link rel="canonical" href="<?php echo htmlspecialchars($custom_canonical, ENT_QUOTES) ?>" />
 	<?php
 	} elseif ($is_start && $this->uri->uri_string() === "") {
 		// Bara själva startsidan, inte /100,300-kombinationer som också får

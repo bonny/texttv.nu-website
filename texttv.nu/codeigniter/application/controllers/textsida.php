@@ -27,19 +27,23 @@ class Textsida extends CI_Controller {
 			
 		$data = array(
 			"wrapclasses" => array("textsida"),
-			"third_level" => $third_level
+			"third_level" => $third_level,
+			// Utan frågesträng, så att t.ex. ?utm_source= inte blir en egen sida.
+			"custom_canonical" => "https://texttv.nu/sida/" . rawurlencode($sidnamn),
 		);
 		
 		switch ($sidnamn) {
 			
 			case "om-texttv-nu":
 				$data["custom_page_title"] = "Om TextTV.nu";
+				$data["custom_meta_description"] = "TextTV.nu är SVT Text TV i en snabbare och tydligare form för mobil, surfplatta och dator, med appar för iPhone och Android. Ett fristående projekt, inte från SVT.";
 				$this->load->view("header", $data);
 				$this->load->view("textsida-om-texttv-nu");
 				break;
 
 			case "vanliga-fragor":
 				$data["custom_page_title"] = "Vanliga frågor om Text TV";
+				$data["custom_meta_description"] = "Svar på vanliga frågor om Text TV och TextTV.nu: vilka sidor som finns, var du hittar resultat och målservice, och hur appen fungerar.";
 				$this->load->view("header", $data);
 				$this->load->view("textsida-vanliga-fragor");
 				break;

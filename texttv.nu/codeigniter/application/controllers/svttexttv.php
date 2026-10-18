@@ -10,6 +10,8 @@ class svttexttv extends CI_Controller {
 		);
 
 		$data["custom_page_title"] = "SVT Text TV";
+		$data["custom_meta_description"] = "SVT Text TV på en sida: senaste nyheterna på 100–104, sporten på 300 och resultaten på 377. Uppdateras löpande.";
+		$data["custom_canonical"] = "https://texttv.nu/svt-text-tv";
 		
 		// $this->load->view("delade");
 

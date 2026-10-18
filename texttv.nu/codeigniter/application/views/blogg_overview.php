@@ -83,7 +83,11 @@ if ($is_single_blog_entry) {
 	
 		$printf_format = '';
 		$cut_off = sprintf('<p class="textcontent-readmore"><a href="https://texttv.nu/blogg/%1$s">Läs hela inlägget</a></p>', $row->permalink);
-		$content_excerpt = shorten_text(strip_tags($row->content), $max_length = 280, $cut_off, $keep_word = true);
+		$utdrag = html_escape(blogg_utdrag($row->content, 280, $row->title));
+		$content_excerpt = '<p>' . $utdrag . '</p>';
+		if (mb_substr($utdrag, -1) === '…') {
+			$content_excerpt .= $cut_off;
+		}
 	
 		if ($is_single_blog_entry) {
 			// Format for single blog page
@@ -101,7 +105,7 @@ if ($is_single_blog_entry) {
 				<article class="textcontent-overview-article">
 					<h2><a href="/blogg/%4$s">%1$s</a></h2>
 					<p class="meta"><time datetime="%5$s">%2$s</time></p>
-					<div class="textcontent-blog-excerpt"><p>%6$s</p></div>
+					<div class="textcontent-blog-excerpt">%6$s</div>
 				</article>
 			';			
 	

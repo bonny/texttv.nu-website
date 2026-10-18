@@ -509,7 +509,13 @@ class Sida extends CI_Controller {
 		$this->load->view('header', $data);
 
 		$this->load->view("pages_updated_container", $data);
-		$this->load->view("breadcrumbs", $data);
+		// Toppannonsen visas bara efter brödsmulorna (CSS-regeln
+		// .breadcrumbs + .ad--beforeMainText). Utan dem skrivs den inte ut
+		// alls: ett dolt <ins> fångade push() från blocket "innan fler
+		// nyheter", som då aldrig fylldes (granskning 2026-10-18).
+		$breadcrumbs_html = $this->load->view("breadcrumbs", $data, TRUE);
+		$this->output->append_output($breadcrumbs_html);
+		$data["has_breadcrumbs"] = strpos($breadcrumbs_html, 'class="breadcrumbs"') !== false;
 		$this->load->view("pages_current_page_top", $data);
 		if ($not_broadcasted) {
 			$this->load->view("not_broadcasted_notice", $data);

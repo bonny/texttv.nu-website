@@ -412,12 +412,11 @@ if (!isset($is_archive)) {
 
 // Unvik att arkivera några gamla sidor
 // 1 Oct 2016 börjar med 571 som hade dåligt result i Google SERP.
-// 2026-10-18: alla resultat- och tabellsidor (330–399) och tips/trav (550–599).
-// Gamla resultat tog visningar från de levande sidorna, t.ex. ett arkiv av 330
-// med 15 600 visningar. Nyhetsarkiven (100–329) indexeras som förut.
+// Inte fler resultatsidor: arkivet /330/resultatborsen-13586101 är vår bästa
+// sida för "resultatbörsen" och tappade inte när levande /330 steg (todo #11).
+// Noindex på 330–399 provades och backades 2026-10-18 innan det mätts.
 if (isset($is_archive) && $is_archive) {
-	$archive_num = (int) $pages[0]->num;
-	if (($archive_num >= 330 && $archive_num <= 399) || ($archive_num >= 550 && $archive_num <= 599)) {
+	if (in_array($pages[0]->num, [571, 377])) {
 		$ok_to_archive = false;
 	}
 }

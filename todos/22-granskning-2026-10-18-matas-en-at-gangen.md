@@ -17,7 +17,7 @@ Commit `331d675`, `df41d5e` och `524193c`:
 
 - Annonsbuggen: det nedre blocket (8021374801) fylldes aldrig på `/`,
   100–105 och flersidor. Den dolda toppannonsens `<ins>` fångade push().
-- Noindex på arkivversioner av 330–399 och 550–599.
+- ~~Noindex på arkivversioner av 330–399 och 550–599.~~ **Backat samma dag** efter Pärs fråga: arkivet `/330/resultatborsen-13586101` är vår bästa sida för "resultatbörsen" (135 klick i #16) och tappade inte när levande /330 steg (#11). Noindex skulle säkert kosta de klicken, medan vinsten för /330 bara var en gissning. Granskaren hade bara sett CTR 0,42 %.
 - Brödsmulorna pekar på enskilda sidor i stället för intervall med noindex.
 - Noindex på `/appembed/`, 404 i stället för 200 på ogiltiga arkiv-id,
   högst 30 sidor per adress. Verifierat live: blocket fylls nu på `/`, 101, 104 och 377, och TagError är borta.
@@ -30,7 +30,7 @@ Commit `331d675`, `df41d5e` och `524193c`:
 
 ## För Pär i AdSense (bara läsrätt via MCP)
 
-1. **Stäng av Ad intents.** 2,2 % av intäkten (cirka 125 kr/mån).
+1. ~~**Stäng av Ad intents.**~~ **Gjort av Pär 2026-10-18** ("Avsiktsbaserade format" av). 2,2 % av intäkten (cirka 125 kr/mån).
    Chippet "Text-TV-app" ligger över brödsmulorna, och understrukna ord i
    377-tabellen går inte att skilja från sajtens länkar.
 2. **Stäng av "Upptäck mer"** (relaterade sökningar i tomma annonsplatser).

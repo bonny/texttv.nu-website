@@ -258,11 +258,11 @@ body {
 
 /* body.menu-active = when sidebar is sible */
 .menu-active .wrap {
-  -webkit-transform: translateX(250px);
-  transform: translateX(250px);
-  -moz-transform: translateX(250px);
-  -ms-transform: translateX(250px);
-  -o-transform: translateX(250px);
+  -webkit-transform: translateX(280px);
+  transform: translateX(280px);
+  -moz-transform: translateX(280px);
+  -ms-transform: translateX(280px);
+  -o-transform: translateX(280px);
 }
 
 .menu-active .sidebar {
@@ -275,7 +275,7 @@ body {
 @media only screen and (min-width: 700px) {
 
   .wrap {
-    margin-left: 250px;
+    margin-left: 280px;
   }
 
   .nav-menu {

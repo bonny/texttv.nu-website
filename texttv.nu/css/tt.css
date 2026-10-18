@@ -312,7 +312,7 @@ button.tt-link {
 /* Sidomenyn står alltid framme från 700 px, och ramen börjar efter den. */
 @media only screen and (min-width: 700px) {
 	.controls {
-		left: 250px;
+		left: 280px;
 	}
 }
 
@@ -408,7 +408,7 @@ button.tt-link {
 /*
 	Flera sidor (startsidan, /100,300): från 900 px i #pages står två sidor
 	bredvid varandra utan mellanrum, 2 × (40ch + 10px) vid 22 px. Bandet och
-	ramen spänner då över båda. 1150px = 900 + sidomenyn på 250.
+	ramen spänner då över båda. 1180px = 900 + sidomenyn på 280.
 */
 @container (min-width: 900px) {
 	.page-multiple .pages-headline {
@@ -416,7 +416,7 @@ button.tt-link {
 	}
 }
 
-@media only screen and (min-width: 1150px) {
+@media only screen and (min-width: 1180px) {
 	.page-multiple .controls__inner,
 	.page-multiple .pageshare {
 		width: calc(2 * (40ch + 10px));
@@ -506,14 +506,14 @@ button.tt-link {
 	top: 0;
 	bottom: 0;
 	left: 0;
-	width: 250px;
+	width: 280px;
 	box-sizing: border-box;
 	overflow: auto;
 	padding: 1em 1ch 6em; /* 6em: en annons i nederkant får inte täcka länkarna */
 	background: var(--tt-black);
 	border-right: 2px solid var(--tt-blue-bg);
 	font-family: var(--tt-font);
-	font-size: 14px; /* 33 tecken, "  Målservice & resultat . 376-395" behöver 32 */
+	font-size: 16px; /* 32 tecken i 280 px (Ubuntu Mono, 1ch = .5em): "  Målservice & resultat . 376-395" */
 	line-height: 1.25;
 	text-align: left;
 	visibility: hidden;
@@ -1066,7 +1066,7 @@ ol.day-list__items > li::before {
 
 @media only screen and (min-width: 700px) {
 	.pages-updated {
-		left: 250px;
+		left: 280px;
 	}
 }
 

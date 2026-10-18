@@ -1,4 +1,4 @@
-**Status:** aktiv — utkast klart, skript för backup och publicering i `23-blogginlagg/`, Pär kör
+**Status:** klar 2026-10-18 — publicerat 17:05 som /blogg/texttv-nu-ser-ut-som-text-tv-igen (id 81), efter backup av DB:n
 **Senast uppdaterad:** 2026-10-18
 
 # Todo #23 — Blogginlägg om nya utseendet (2026-10-17–18)
@@ -20,7 +20,7 @@ Kontrollera innan publicering:
 
 ## Publicera
 
-Claude får inte skriva till prod-DB:n (auto mode), så Pär kör skripten i
+Skripten i (körda av Claude 2026-10-18 med Pärs ok)
 [`23-blogginlagg/`](23-blogginlagg/) från repo-roten:
 
 ```bash

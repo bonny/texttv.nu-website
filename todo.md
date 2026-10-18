@@ -4,13 +4,12 @@ Index över förbättringsarbete. Varje todo har en egen fil under
 [`todos/`](todos/) med fullständig analys. Konvention och
 mappstruktur: [`todos/README.md`](todos/README.md).
 
-Senast uppdaterad: 2026-10-18 (#18–#21 klara, +#22 granskningen 2026-10-18, +#23 blogginlägg.)
+Senast uppdaterad: 2026-10-18 (#18–#21 klara, +#22 granskningen 2026-10-18, #23 blogginlägget publicerat.)
 
 ## Aktiva
 
 | #   | Titel | Status | Fil |
 | --- | ----- | ------ | --- |
-| 23  | Blogginlägg om nya utseendet | utkast klart 2026-10-18, Pär publicerar | [todos/23-blogginlagg-nya-utseendet.md](todos/23-blogginlagg-nya-utseendet.md) |
 | 22  | Granskningen 2026-10-18: det som mäts en ändring åt gången | ny 2026-10-18. Säkra fixar deployade (annonsblocket som aldrig fylldes, tryckbara rader, `/nyheter/idag`). Ad intents avstängda av Pär 2026-10-18. Kvar: AdSense-inställningar för Pär (vinjettfallet 11–14 okt, ankaret, GA4-länkning) och fem ändringar som mäts en åt gången (toppannonsens höjd på mobil först) | [todos/22-granskning-2026-10-18-matas-en-at-gangen.md](todos/22-granskning-2026-10-18-matas-en-at-gangen.md) |
 | 12  | php-fpm-poolen slår i taket i normaldrift | **`most_read`-filcachen mätt 2026-10-16:** slowloggen 400–1 100 → 184 per dygn (15 okt), varningarna 5. **`pm.max_children` höjd 5 → 10 2026-10-16 20:15** (backup i `/root/config-backups-2026-10-16/`). Väntar på mätning till 2026-10-23, sedan stäng. Kvar: omräkningen av `most_read` tar fortfarande över 3 s på kvällar (`page_actions`-storlek/queryplan) | [todos/12-php-fpm-poolen-slar-i-taket.md](todos/12-php-fpm-poolen-slar-i-taket.md) |
 | 16  | Gör arkivet till en tillgång: idéer för användare, Google och AI | ny 2026-10-14, idékatalog. **Deployat 2026-10-14:** canonical på arkivsidor och startsidan, dagsarkiv `/377/igar` med datumsidor (330 borttagen, den är en meny), gårdagens nyheter/sportnyheter `/nyheter/igar` och `/sport/igar`, ny 404-sida i Text-TV-stil. **2026-10-16:** gårdagens tre mest lästa nyheter i startsidans "Igår på Text TV". Mät 2026-11-14. Nästa: retention (#10). Ämnessidor nedprioriterade (nästan ingen ämnestrafik idag) | [todos/16-gor-arkivet-till-en-tillgang.md](todos/16-gor-arkivet-till-en-tillgang.md) |
@@ -61,6 +60,7 @@ eller markera todon som klar.
 
 | #   | Titel | Datum | Fil |
 | --- | ----- | ----- | --- |
+| 23  | Blogginlägg om nya utseendet | 2026-10-18 | [todos/done/23-blogginlagg-nya-utseendet.md](todos/done/23-blogginlagg-nya-utseendet.md) |
 | 21  | Tydligare koppling till Brottsplatskartan | 2026-10-18 | [todos/done/21-brottsplatskartan-integration.md](todos/done/21-brottsplatskartan-integration.md) |
 | 20  | "Tidigare i dag" på sportsidorna | 2026-10-18 | [todos/done/20-tidigare-i-dag-pa-sportsidorna.md](todos/done/20-tidigare-i-dag-pa-sportsidorna.md) |
 | 19  | Efter designbytet: annons-CLS på 377, 404:or och småsaker | 2026-10-18 | [todos/done/19-efter-designbytet.md](todos/done/19-efter-designbytet.md) |

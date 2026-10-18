@@ -13,14 +13,14 @@ kontroll, och AdSense-inställningar som bara Pär kan ändra.
 
 ## Gjort 2026-10-18
 
-Commit `331d675` och `df41d5e`:
+Commit `331d675`, `df41d5e` och `524193c`:
 
 - Annonsbuggen: det nedre blocket (8021374801) fylldes aldrig på `/`,
   100–105 och flersidor. Den dolda toppannonsens `<ins>` fångade push().
 - Noindex på arkivversioner av 330–399 och 550–599.
 - Brödsmulorna pekar på enskilda sidor i stället för intervall med noindex.
 - Noindex på `/appembed/`, 404 i stället för 200 på ogiltiga arkiv-id,
-  högst 30 sidor per adress.
+  högst 30 sidor per adress. Verifierat live: blocket fylls nu på `/`, 101, 104 och 377, och TagError är borta.
 - Nyhetsarkiven: `<h1>`, rensad description, author som Organization.
 - Hela raden tryckbar i Text-TV-sidan, ←/→ som snabbtangenter, fokus i
   menyn, gul fokusram, sökfältet ser ut som ett fält, 18 px i sidomenyn

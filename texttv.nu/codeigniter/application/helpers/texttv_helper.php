@@ -1440,7 +1440,9 @@ function mark_archive_ids_as_shared($arr_page_ids) {
 	$ci =& get_instance();
     $ci->load->database();
 
-	$sql_set_shared = sprintf('UPDATE texttv SET is_shared = is_shared + 1 WHERE id IN (%s)', implode(",", $arr_page_ids));
+	// is_shared är TINYINT (högst 127). Med strikt sql_mode ger is_shared + 1
+	// över taket ett fel, och då ett felsvar till appen som delade.
+	$sql_set_shared = sprintf('UPDATE texttv SET is_shared = LEAST(is_shared + 1, 127) WHERE id IN (%s)', implode(",", array_map("intval", $arr_page_ids)));
 	$ci->db->query($sql_set_shared);	
 }
 

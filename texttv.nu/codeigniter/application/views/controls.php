@@ -50,7 +50,7 @@ if ( "/" == current_url()) {
 		<script type="application/json" id="tt-sok-data"><?php echo json_encode($sok_json, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) ?></script>
 		<div class="controls__row">
 			<a href="/" class="controls__home">
-				<svg viewBox="0 0 350 350" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><path fill="#00f" d="M76 75h50v50H76z"/><path fill="#00c8ee" d="M151 75h50v50h-50z"/><path fill="#fcfe01" d="M151 150h50v50h-50z"/><path fill="#fc0304" d="M151 225h50v50h-50z"/><path fill="#0f0" d="M226 75h50v50h-50z"/></g></svg>
+				<svg viewBox="0 0 350 350" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><rect fill="#008EFF" width="350" height="350" rx="40"/><path fill="#0049FC" d="M76 75h50v50H76z"/><path fill="#57C6EB" d="M151 75h50v50h-50z"/><path fill="#E5DB2B" d="M151 150h50v50h-50z"/><path fill="#F3A633" d="M151 225h50v50h-50z"/><path fill="#80F200" d="M226 75h50v50h-50z"/></g></svg>
 				TextTV.nu
 			</a>
 			<ul class="controls__menu">

@@ -180,6 +180,24 @@ if (!isset($not_broadcasted) || !$not_broadcasted || $not_broadcasted["page"]) {
 	$out .= $text_archive;
 }
 
+// Dagens tidigare versioner av sportsidorna (todo #20). Sätts bara av
+// Sida::visa(), inte av api/get_html som också laddar den här vyn.
+if (!empty($today_versions)) {
+	$num_label = (int) $arr_pages[0]->num;
+	$items = array_map(function ($v) use ($num_label) {
+		return sprintf(
+			'<li><a href="%1$s" aria-label="%3$s">%2$s</a></li>',
+			html_escape($v["permalink"]),
+			html_escape($v["time"]),
+			html_escape($num_label . " kl " . $v["time"])
+		);
+	}, $today_versions);
+	$out .= '<nav class="tt-sidbredd tt-tidigare" aria-label="Tidigare versioner i dag">'
+		. '<p class="tt-tidigare__rubrik">Tidigare i dag</p>'
+		. '<ul class="tt-linkrow">' . implode("", $items) . '</ul>'
+		. '</nav>';
+}
+
 // Länkar till gårdagen (todo #16), före annonsen. Sätts bara av Sida::visa(),
 // inte av api/get_html som också laddar den här vyn.
 if ($yesterday_links_html && !$is_startpage) {

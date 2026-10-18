@@ -269,6 +269,27 @@ button.tt-link {
 	color: var(--tt-cyan);
 }
 
+/* "Tidigare i dag" under sportsidorna: dagens äldre versioner (todo #20). */
+/* Rubriken och tiderna på samma rad, som "Uppdaterad 15:05  Dela →". */
+.tt-tidigare {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	margin-top: 0;
+	margin-bottom: .5em;
+}
+
+.tt-tidigare__rubrik {
+	margin: 0 2ch 0 0;
+	color: var(--tt-cyan);
+}
+
+.tt-tidigare .tt-linkrow {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
 /* Annonser utan fyllning, och alla annonser när annonsskriptet är
    blockerat (js/scripts.js sätter .ad--tom): etiketten "Annons" ska inte
    stå kvar ensam (todo #19). */

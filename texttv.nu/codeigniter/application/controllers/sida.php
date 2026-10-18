@@ -287,6 +287,54 @@ class Sida extends CI_Controller {
 		];
 	}
 
+	/**
+	 * Hur många av dagens tidigare versioner som länkas under sidan.
+	 */
+	const TODAY_VERSIONS_COUNT = 8;
+
+	/**
+	 * Dagens tidigare versioner av en sportsida (300–399), nyaste först,
+	 * för raden "Tidigare i dag" under sidan. Svarar på "vad stod det i
+	 * paus?" utan att man letar i arkivet. Versionen som visas räknas inte.
+	 * Todo #20.
+	 *
+	 * @return array Med time ("H:i") och permalink, högst TODAY_VERSIONS_COUNT.
+	 */
+	private function _today_versions($arr_page_objs, $not_broadcasted) {
+		if (sizeof($arr_page_objs) !== 1 || $not_broadcasted) {
+			return [];
+		}
+		$current = $arr_page_objs[0];
+		$num = (int) $current->num;
+		if ($num < 300 || $num > 399 || empty($current->id)) {
+			return [];
+		}
+
+		$today = new DateTime("today", new DateTimeZone("Europe/Stockholm"));
+		$versions = get_page_versions_for_day($num, $today->format("Y-m-d"));
+
+		// Ett lätt objekt räcker: permalänken byggs av nummer, titel och id.
+		$version_page = new Texttv_page();
+		$version_page->num = $num;
+		$links = [];
+		foreach ($versions as $one_version) {
+			if ((int) $one_version->id === (int) $current->id) {
+				continue;
+			}
+			$version_page->id = $one_version->id;
+			$version_page->title = $one_version->title;
+			$links[] = [
+				"time" => substr($one_version->date_added, 11, 5),
+				"permalink" => $version_page->get_permalink(),
+			];
+			if (sizeof($links) >= self::TODAY_VERSIONS_COUNT) {
+				break;
+			}
+		}
+
+		return $links;
+	}
+
 	// Tar emot $pagenum som en eller flera sidor
 	function visa($pagenum = NULL, $pagedescription = NULL) {
 
@@ -428,6 +476,7 @@ class Sida extends CI_Controller {
 		$data["yesterday_links"] = $yesterday_links;
 		$data["yesterday_prefix"] = $yesterday_prefix;
 		$data["yesterday_top"] = $yesterday_top;
+		$data["today_versions"] = $this->_today_versions($arr_page_objs, $not_broadcasted);
 
 		// Ladda vyer för sidhuvud och kontroller
 		$this->load->view('header', $data);

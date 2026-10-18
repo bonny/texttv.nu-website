@@ -741,6 +741,15 @@ class Api extends CI_Controller
 
 		$statsdb->insert('page_actions', $insert_data);
 
+		// Appen delar sedan 2019 utan /api/share, så delningar därifrån räknades
+		// aldrig i texttv.is_shared: /sida/delat visade bara webben, och
+		// städningen raderade de delade arkivsidorna efter ett år. Högst tio
+		// sidor per delning, så att ett anrop inte kan räkna upp hela tabellen.
+		if ($type !== 'VIEW') {
+			$share_ids = array_slice(array_unique(array_filter(array_map("intval", $arr_page_ids))), 0, 10);
+			mark_archive_ids_as_shared($share_ids);
+		}
+
 		$this->output->append_output(json_encode($arr_json_response));
 	}
 }

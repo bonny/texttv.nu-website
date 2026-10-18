@@ -1121,6 +1121,28 @@ ol.day-list__items > li::before {
 	text-decoration: none;
 }
 
+/*
+	Större träffyta för små länkar på pekskärm (todo #19): sidnummer inne i
+	Text-TV-sidorna (27×18 px) och brödsmulorna. ::after växer utanför
+	länken, så radhöjden är oförändrad. Inte i delningsbilderna.
+*/
+@media (pointer: coarse) {
+	html:not(.appShare) .TextTVPage a,
+	.breadcrumbs__link {
+		position: relative;
+	}
+
+	html:not(.appShare) .TextTVPage a::after,
+	.breadcrumbs__link::after {
+		content: "";
+		position: absolute;
+		top: -10px;
+		bottom: -10px;
+		left: -3px;
+		right: -3px;
+	}
+}
+
 /* "Sidan sänds inte just nu" (views/not_broadcasted_notice.php). Sidor
    utan brödsmulor (t.ex. 550) har inget annat som trycker ner den under
    ramen. */

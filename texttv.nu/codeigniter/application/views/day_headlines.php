@@ -98,7 +98,7 @@ $json_ld = [
 	<?php } ?>
 
 	<?php if ($d["most_read"]) { ?>
-		<h2 class="tt-dag__h2">Mest lästa</h2>
+		<h2 class="tt-dag__h2 tt-band">Mest läst</h2>
 		<?php echo $render_list($d["most_read"], true) ?>
 	<?php } ?>
 

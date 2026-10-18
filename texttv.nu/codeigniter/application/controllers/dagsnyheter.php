@@ -143,7 +143,7 @@ class Dagsnyheter extends CI_Controller
 			$date_human
 		);
 		if ($top_titles) {
-			$meta_description .= " " . ($most_read ? "Mest lästa: " : "Bland annat: ") . implode(", ", $top_titles) . ".";
+			$meta_description .= " " . ($most_read ? "Mest läst: " : "Bland annat: ") . implode(", ", $top_titles) . ".";
 		}
 
 		// Resultatsidornas dagsarkiv samma dag.

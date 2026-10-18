@@ -270,6 +270,21 @@ document.querySelectorAll(".controls-topnav-search-input").forEach(function (inp
 	}, 5000);
 })();
 
+// Annonsskriptet blockerat (annonsblockerare): göm annonsrutorna, annars står
+// "Annons" och "Fler nyheter efter annonsen" kvar utan annons (todo #19).
+// adsbygoogle.loaded sätts av Googles skript när det har körts. Ett skript
+// som bara väntar på samtycke räknas som laddat och påverkas inte.
+window.addEventListener("load", function () {
+	setTimeout(function () {
+		if (window.adsbygoogle && window.adsbygoogle.loaded === true) {
+			return;
+		}
+		document.querySelectorAll(".ad").forEach(function (ad) {
+			ad.classList.add("ad--tom");
+		});
+	}, 3000);
+});
+
 if ("serviceWorker" in navigator) {
 	navigator.serviceWorker.register("/service-worker.js");
 }

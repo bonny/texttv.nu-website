@@ -445,7 +445,8 @@ if (isset($day_archive)) {
 	<link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16" />
 	<link rel="apple-touch-icon" href="/images/favicon-152.png">
 	<meta name="mobile-web-app-capable" content="yes">
-	<meta name="theme-color" content="#0066B5">
+	<meta name="theme-color" content="#000000">
+	<meta name="color-scheme" content="dark">
 	<link rel="dns-prefetch" href="//google-analytics.com">
 	<link rel="dns-prefetch" href="//www.google-analytics.com">
 	<link rel="dns-prefetch" href="//ssl.google-analytics.com">
@@ -746,27 +747,25 @@ if (isset($day_archive)) {
 
 	} // archive rich data
 
-	// Article structured data för live (non-archive) single-page sidor.
+	// WebPage för levande (icke-arkiv) enskilda sidor. Förut Article, men en
+	// levande sida är ingen artikel: den byts ut hela tiden (todo #19).
 	// Arkivsidor får NewsArticle ovan; multi-page-vyer och appShare hoppas över.
 	// json_encode säkerställer att citat-tecken i $meta_title/$meta_description inte bryter JSON.
 	if (!isset($is_archive) && !isset($day_archive) && !$this->input->get("apiAppShare") && isset($pages) && sizeof($pages) == 1) {
 		$live_canonical = "https://texttv.nu/" . (int) $pages[0]->num;
 		$article_data = [
 			"@context" => "https://schema.org",
-			"@type" => "Article",
-			"mainEntityOfPage" => [
-				"@type" => "WebPage",
-				"@id" => $live_canonical
-			],
-			"headline" => $meta_title,
+			"@type" => "WebPage",
+			"@id" => $live_canonical,
+			"url" => $live_canonical,
+			"name" => $meta_title,
 			"description" => $meta_description,
-			"image" => "https://texttv.nu/images/texttv-nu-publisher-logo.png",
-			"datePublished" => date("c", $pages[0]->date_added_unix),
+			"inLanguage" => "sv-SE",
 			"dateModified" => date("c", $pages[0]->date_updated_unix),
-			"author" => [
-				"@type" => "Organization",
-				"name" => "SVT Text TV",
-				"url" => "https://www.svt.se/text-tv/"
+			"isPartOf" => [
+				"@type" => "WebSite",
+				"name" => "TextTV.nu",
+				"url" => "https://texttv.nu"
 			],
 			"publisher" => [
 				"@type" => "Organization",

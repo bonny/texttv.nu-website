@@ -129,7 +129,7 @@ if (isset($pages) && is_array($pages)) {
 			<ol class="breadcrumbs" itemscope itemtype="https://schema.org/BreadcrumbList">
 
 				<li class="breadcrumbs__item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-					<a class="breadcrumbs__link" href="http://texttv.nu/" itemprop="item"><span itemprop="name">Hem</span><meta itemprop="position" content="1" /></a> › 
+					<a class="breadcrumbs__link" href="https://texttv.nu/" itemprop="item"><span itemprop="name">Hem</span><meta itemprop="position" content="1" /></a> › 
 				</li>
 
 				<li class="breadcrumbs__item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">

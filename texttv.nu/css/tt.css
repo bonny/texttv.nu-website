@@ -261,6 +261,14 @@ button.tt-link {
 	color: var(--tt-cyan);
 }
 
+/* Annonser utan fyllning, och alla annonser när annonsskriptet är
+   blockerat (js/scripts.js sätter .ad--tom): etiketten "Annons" ska inte
+   stå kvar ensam (todo #19). */
+.ad--tom,
+.ad:has(ins.adsbygoogle[data-ad-status="unfilled"]) {
+	display: none !important;
+}
+
 /* Annonsetiketten. Annonsens egen bredd lämnas orörd (intäkterna). */
 .ad-header {
 	font-family: var(--tt-font);
@@ -855,6 +863,11 @@ button.tt-link {
 	color: var(--tt-yellow);
 	font-size: 1em;
 	font-weight: normal;
+}
+
+/* "Mest läst" som band, som "Mest läst igår" på startsidan. */
+.tt-dag__h2.tt-band {
+	color: var(--tt-white);
 }
 
 .day-list__items {

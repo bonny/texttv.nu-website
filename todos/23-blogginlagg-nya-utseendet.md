@@ -1,4 +1,4 @@
-**Status:** aktiv — utkast klart, Pär publicerar
+**Status:** aktiv — utkast klart, skript för backup och publicering i `23-blogginlagg/`, Pär kör
 **Senast uppdaterad:** 2026-10-18
 
 # Todo #23 — Blogginlägg om nya utseendet (2026-10-17–18)
@@ -17,6 +17,25 @@ Kontrollera innan publicering:
 - Att länkarna fungerar: `/nyheter/idag`, `/nyheter/igar`, `/377/igar`,
   `/sida/polisen`.
 - Rubrikförslag 2 och 3 om förslag 1 känns för stort.
+
+## Publicera
+
+Claude får inte skriva till prod-DB:n (auto mode), så Pär kör skripten i
+[`23-blogginlagg/`](23-blogginlagg/) från repo-roten:
+
+```bash
+ssh texttv.nu 'bash -s' < todos/23-blogginlagg/backup.sh   # backup till /root/db-backups-YYYY-MM-DD/
+ssh texttv.nu 'bash -s' < todos/23-blogginlagg/infoga.sh   # lägger in inlägget (avbryter utan dagens backup)
+```
+
+- `backup.sh`: bloggtabellen, sedan hela `texttv.nu` och `texttv_stats`
+  (gzip, `--single-transaction`, nice/ionice). Hela dumpen hoppas över om
+  databaserna är större än halva det lediga utrymmet.
+- `infoga.sh`: SQL:en i `inlagg.sql`. Går att köra om, lägger bara in om
+  permalänken saknas. Ångra med `DELETE … WHERE permalink =
+  'texttv-nu-ser-ut-som-text-tv-igen'`.
+- Provkört lokalt 2026-10-18: inlägget renderas på
+  `/blogg/texttv-nu-ser-ut-som-text-tv-igen`, och två körningar ger en rad.
 
 ## Utkast
 

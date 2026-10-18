@@ -7,7 +7,8 @@
 	direkt, det sköter js/scripts.js som förut.
 
 	Combobox enligt WAI-ARIA APG: fokus stannar i fältet, pil upp/ned
-	flyttar markeringen (aria-activedescendant), Enter går dit, Esc stänger.
+	flyttar markeringen (aria-activedescendant), Enter går dit, Esc stänger
+	och tömmer fältet.
 */
 (function () {
 	"use strict";
@@ -239,7 +240,11 @@
 		location.href = url;
 	}
 
-	input.addEventListener("focus", oppna);
+	// Det som står kvar i fältet markeras, så att nästa tecken ersätter det.
+	input.addEventListener("focus", function () {
+		input.select();
+		oppna();
+	});
 	input.addEventListener("click", function () {
 		if (list.hidden) {
 			oppna();
@@ -265,8 +270,11 @@
 				markera(e.key === "ArrowDown" ? (active + 1) % n : (active - 1 + n) % n);
 			}
 		} else if (e.key === "Escape") {
-			if (!list.hidden) {
+			// Esc stänger listan och tömmer fältet; med tomt fält och stängd
+			// lista görs inget, så att Esc når annat på sidan.
+			if (!list.hidden || input.value !== "") {
 				e.preventDefault();
+				input.value = "";
 				stang();
 			}
 		}

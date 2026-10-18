@@ -802,4 +802,7 @@ if (isset($day_archive)) {
 </head>
 
 <body data-pages='<?php echo json_encode($bodyPagesDataAttr, JSON_UNESCAPED_UNICODE | JSON_HEX_APOS | JSON_HEX_TAG | JSON_HEX_AMP) ?>'>
+	<?php if (!$this->input->get("apiAppShare")) { ?>
+		<a class="tt-hopp" href="#search-input">Gå till sida</a>
+	<?php } ?>
 	<div class="wrap <?php echo implode(" ", $wrapclasses) ?>" id="wrap">

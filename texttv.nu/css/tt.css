@@ -231,14 +231,33 @@ button.tt-link {
 /* Raden under sidan: tid i cyan till vänster, "Dela →" till höger. */
 .pageshare {
 	display: flex;
-	justify-content: space-between;
+	flex-wrap: wrap;
 	align-items: center;
 	margin-top: .5em;
 	margin-bottom: .5em;
 }
 
+/* Hopplänk för tangentbordet: första tabbstoppet, syns bara med fokus. */
+.tt-hopp {
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 1000;
+	padding: .5em 1ch;
+	background: var(--tt-yellow);
+	color: var(--tt-black);
+	font-family: var(--tt-font);
+	transform: translateY(-120%);
+}
+
+.tt-hopp:focus {
+	transform: none;
+	outline: 2px solid var(--tt-white);
+}
+
+/* "Dela →" direkt efter tiden. margin i stället för gap (äldre webbläsare). */
 .pageshare__updated {
-	margin: 0;
+	margin: 0 2ch 0 0;
 	color: var(--tt-cyan);
 }
 
@@ -398,7 +417,8 @@ button.tt-link {
 }
 
 @media only screen and (min-width: 1150px) {
-	.page-multiple .controls__inner {
+	.page-multiple .controls__inner,
+	.page-multiple .pageshare {
 		width: calc(2 * (40ch + 10px));
 	}
 }
@@ -847,11 +867,10 @@ ol.day-list__items {
 	counter-reset: mest-lasta;
 }
 
-ol.day-list__items > li {
-	counter-increment: mest-lasta;
-}
-
+/* Räknaren på ::before: li har display: contents (.tt-list) och räknar
+   då inte själv. */
 ol.day-list__items > li::before {
+	counter-increment: mest-lasta;
 	content: counter(mest-lasta);
 	padding-top: .2em;
 	padding-bottom: .2em;

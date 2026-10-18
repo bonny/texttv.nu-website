@@ -70,7 +70,7 @@ if ( "/" == current_url()) {
 					class="controls-topnav-search-input"
 					type="text"
 					inputmode="numeric"
-					maxlength="3"
+					maxlength="30"
 					autocomplete="off"
 					role="combobox"
 					aria-autocomplete="list"

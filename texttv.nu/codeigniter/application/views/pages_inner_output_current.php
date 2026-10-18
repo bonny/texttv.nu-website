@@ -158,11 +158,12 @@ if ( true || $this->input->get("enable-share") ) {
 	}
 	
 
-	// Tid i cyan som metadata, "Dela" som gul textlänk (todo #18). Klassen
+	// Tid i cyan som metadata och "Dela sidan" som gul knapp, så att den
+	// syns (todo #18, fler delningar 2026-10-18). Klassen
 	// pageshare__sharebutton används av js/scripts.js.
 	$text_archive .= sprintf('
 		<p class="pageshare__updated">Uppdaterad <time datetime="%2$s">%1$s</time></p>
-		<button type="button" class="pageshare__sharebutton tt-link">Dela →</button>
+		<button type="button" class="pageshare__sharebutton">Dela sidan</button>
 		',
 		date("H:i", $one_page_obj->date_added_unix),
 		date("c", $one_page_obj->date_added_unix)

@@ -7,7 +7,7 @@
 	- Rader med en enda länk blir tryckbara i hela sin bredd (.tt-rad).
 	- "Gå till sida": tre siffror skickar formuläret direkt. Förslagen under
 	  fältet ligger i js/tt-sok.js.
-	- "Dela →": telefonens egen delning om den finns, annars en ruta med
+	- "Dela sidan": telefonens egen delning om den finns, annars en ruta med
 	  Facebook, X, e-post och länken.
 	- Ny version av sidan: frågar /api/updated var femte sekund och visar
 	  .pages-updated när en nyare version finns.
@@ -295,6 +295,20 @@ document.querySelectorAll(".controls-topnav-search-input").forEach(function (inp
 		});
 	}
 
+	// Delningen till GA4 ("share", som appen skickar till Firebase), så att
+	// webb och app går att jämföra. Bara när delningen faktiskt gjordes.
+	function matDelning(metod) {
+		if (typeof gtag === "function") {
+			gtag("event", "share", {
+				method: metod,
+				content_type: "page",
+				item_id: pages.map(function (p) {
+					return p.id;
+				}).join(","),
+			});
+		}
+	}
+
 	function el(tag, attrs, text) {
 		var e = document.createElement(tag);
 		Object.keys(attrs || {}).forEach(function (k) {
@@ -317,6 +331,11 @@ document.querySelectorAll(".controls-topnav-search-input").forEach(function (inp
 		links.appendChild(el("a", { href: "https://www.facebook.com/sharer.php?u=" + encodeURIComponent(url), target: "_blank", rel: "noopener" }, "Facebook →"));
 		links.appendChild(el("a", { href: "https://twitter.com/intent/tweet?text=" + encodeURIComponent(title) + "&url=" + encodeURIComponent(url), target: "_blank", rel: "noopener" }, "X →"));
 		links.appendChild(el("a", { href: "mailto:?subject=" + encodeURIComponent("Text TV: " + title) + "&body=" + encodeURIComponent(title + "\n\n" + url) }, "E-post →"));
+		links.querySelectorAll("a").forEach(function (a) {
+			a.addEventListener("click", function () {
+				matDelning(a.textContent.replace(" →", "").toLowerCase());
+			});
+		});
 		dialog.appendChild(links);
 
 		var label = el("label", { for: "pageshare-lank", class: "pageshare__sheet__label" }, "Länk");
@@ -332,6 +351,7 @@ document.querySelectorAll(".controls-topnav-search-input").forEach(function (inp
 		kopiera.addEventListener("click", function () {
 			var klar = function () {
 				kopiera.textContent = "Kopierad ✓";
+				matDelning("kopiera länk");
 			};
 			if (navigator.clipboard) {
 				navigator.clipboard.writeText(url).then(klar, function () {
@@ -396,7 +416,9 @@ document.querySelectorAll(".controls-topnav-search-input").forEach(function (inp
 			return { permalink: location.href, title: document.title };
 		}).then(function (data) {
 			if (navigator.share) {
-				navigator.share({ title: "Text TV: " + data.title, url: data.permalink }).catch(function (e) {
+				navigator.share({ title: "Text TV: " + data.title, url: data.permalink }).then(function () {
+					matDelning("webbläsarens delning");
+				}).catch(function (e) {
 					// AbortError = användaren stängde delningen själv.
 					if (e && e.name !== "AbortError") {
 						visaRuta(data);

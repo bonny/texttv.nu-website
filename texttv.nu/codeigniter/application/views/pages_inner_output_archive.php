@@ -110,6 +110,13 @@ if (!empty($polis_handelser) && !$this->input->get("apiAppShare")) {
 
 	if ( ! $this->input->get("apiAppShare") ) {
 		
+		// Dela även härifrån: hit kommer den som fått en delad länk (todo
+		// om fler delningar 2026-10-18). Samma knapp som på de levande sidorna,
+		// js/scripts.js hämtar permalänken.
+		$this->output->append_output(
+			'<div class="pageshare tt-sidbredd"><button type="button" class="pageshare__sharebutton">Dela sidan</button></div>'
+		);
+
 		// Längst ner: tillbaka till den levande sidan.
 		$this->output->append_output( sprintf(
 			'<p class="tt-sidbredd tt-arkiv__slut">Du tittar på en arkiverad version. <a class="tt-link" href="%2$s">SVT Text TV %1$s just nu →</a></p>',

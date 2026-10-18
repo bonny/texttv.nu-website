@@ -271,7 +271,30 @@ button.tt-link {
 	outline: 2px solid var(--tt-white);
 }
 
-/* "Dela →" direkt efter tiden. margin i stället för gap (äldre webbläsare). */
+/* "Dela sidan": gul knapp, som "Visa" på /sida/delat. Som textlänk syntes
+   den knappt under sidan. */
+.pageshare__sharebutton {
+	min-height: 36px;
+	margin: .25em 0;
+	padding: 0 1.5ch;
+	border: 0;
+	border-radius: 0;
+	background: var(--tt-yellow);
+	color: var(--tt-black);
+	font: inherit;
+	cursor: pointer;
+}
+
+.pageshare__sharebutton:hover {
+	background: var(--tt-white);
+}
+
+.pageshare__sharebutton:focus-visible {
+	outline: 2px solid var(--tt-white);
+	outline-offset: 2px;
+}
+
+/* "Dela sidan" direkt efter tiden. margin i stället för gap (äldre webbläsare). */
 .pageshare__updated {
 	margin: 0 2ch 0 0;
 	color: var(--tt-cyan);

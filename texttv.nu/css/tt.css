@@ -1446,6 +1446,12 @@ html:not(.appShare) .TextTVPage .tt-rad a::after {
 	color: var(--tt-cyan);
 }
 
+/* Senast uppdaterat: tiden före sidnumret. */
+.delat-lista__tid {
+	flex: 0 0 6ch;
+	color: var(--tt-white);
+}
+
 .delat-lista__titel {
 	min-width: 0;
 	text-decoration: underline;

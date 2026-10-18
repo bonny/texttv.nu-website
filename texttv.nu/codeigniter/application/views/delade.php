@@ -151,6 +151,8 @@ $idag = date("Y-m-d");
 
 		<?php output_shared_pages_date_form(null); ?>
 
+		<p class="tt-linkrow"><a href="/sida/senast-uppdaterat">Senast uppdaterat</a></p>
+
 	<?php } ?>
 	</div>
 

@@ -84,6 +84,14 @@ class Textsida extends CI_Controller {
 				$this->load->view("delade");
 				break;
 
+			case "senast-uppdaterat":
+				$data["custom_page_title"] = "Senast uppdaterat på SVT Text TV";
+				$data["custom_meta_description"] = "Nyheterna och sportsidorna på SVT Text TV som ändrats senast, med tid och sidnummer.";
+				$data["custom_canonical"] = $canonical . "senast-uppdaterat";
+				$this->load->view("header", $data);
+				$this->load->view("senast-uppdaterat");
+				break;
+
 			case "polisen":
 
 				// Flödet innehåller sedan 2026-10-18 även Brottsplatskartans

@@ -4,12 +4,13 @@ Index över förbättringsarbete. Varje todo har en egen fil under
 [`todos/`](todos/) med fullständig analys. Konvention och
 mappstruktur: [`todos/README.md`](todos/README.md).
 
-Senast uppdaterad: 2026-10-18 (#18 klar.)
+Senast uppdaterad: 2026-10-18 (#18 klar, ny #19.)
 
 ## Aktiva
 
 | #   | Titel | Status | Fil |
 | --- | ----- | ------ | --- |
+| 19  | Efter designbytet: annons-CLS på 377, 404:or och småsaker | ny 2026-10-18 från granskningen av live efter #18. **Hög:** toppannonsen på /377 ger CLS 0,39 på mobil (beslut för Pär, påverkar RPM). Medel: ogiltiga sidnummer svarar 200, startsidans rutnät på desktop, små klickytor, meta description saknas. Designbytets egna fel rättade samma dag (`88b5d0b`) | [todos/19-efter-designbytet.md](todos/19-efter-designbytet.md) |
 | 12  | php-fpm-poolen slår i taket i normaldrift | **`most_read`-filcachen mätt 2026-10-16:** slowloggen 400–1 100 → 184 per dygn (15 okt), varningarna 5. **`pm.max_children` höjd 5 → 10 2026-10-16 20:15** (backup i `/root/config-backups-2026-10-16/`). Väntar på mätning till 2026-10-23, sedan stäng. Kvar: omräkningen av `most_read` tar fortfarande över 3 s på kvällar (`page_actions`-storlek/queryplan) | [todos/12-php-fpm-poolen-slar-i-taket.md](todos/12-php-fpm-poolen-slar-i-taket.md) |
 | 16  | Gör arkivet till en tillgång: idéer för användare, Google och AI | ny 2026-10-14, idékatalog. **Deployat 2026-10-14:** canonical på arkivsidor och startsidan, dagsarkiv `/377/igar` med datumsidor (330 borttagen, den är en meny), gårdagens nyheter/sportnyheter `/nyheter/igar` och `/sport/igar`, ny 404-sida i Text-TV-stil. **2026-10-16:** gårdagens tre mest lästa nyheter i startsidans "Igår på Text TV". Mät 2026-11-14. Nästa: retention (#10). Ämnessidor nedprioriterade (nästan ingen ämnestrafik idag) | [todos/16-gor-arkivet-till-en-tillgang.md](todos/16-gor-arkivet-till-en-tillgang.md) |
 | 15  | Uppgradera EOL-ramverken (CodeIgniter 2, Laravel 8) | **Blockerad av: #17.** Granskad 2026-10-17; småsakerna som gick att göra nu är klara och deployade (oanvända `laravel-short-schedule`, döda `test`/`welcome`-controllers, importerns tester gröna och en länkbugg fixad). Research klar 2026-10-14: **båda apparna fungerar på PHP 8.4** (provat i Docker, prod kör 8.2), så OS/PHP-uppgraderingen blockeras inte. Förslag: Laravel 8 → 13 i samband med Debian 13, CI 2 står kvar tills behov | [todos/15-uppgradera-eol-ramverken.md](todos/15-uppgradera-eol-ramverken.md) |

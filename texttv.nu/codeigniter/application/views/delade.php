@@ -5,8 +5,8 @@
 	(?datum=2015-08-24). Datumet kontrolleras i controllers/textsida.php,
 	som skickar $delat_datum (null utan datum).
 
-	Raderna ser ut som en Text-TV-sida: sidnummer, rubrik, prickar och
-	antal delningar, som sidlistan i menyn.
+	Raderna ser ut som en Text-TV-sida: sidnummer i cyan och rubriken.
+	Antalet delningar visas inte, det är för få (ofta 1).
 */
 
 if ( ! function_exists("output_shared_pages")) {
@@ -46,7 +46,6 @@ if ( ! function_exists("output_shared_pages")) {
 				"num" => (int) $row->page_num,
 				"titel" => $titel,
 				"tid" => $row->date_added_formatted,
-				"antal" => (int) $row->num_shares,
 			];
 		}
 
@@ -55,22 +54,17 @@ if ( ! function_exists("output_shared_pages")) {
 			return;
 		}
 
-		echo '<p class="delat-kolumner" aria-hidden="true"><span>Sida</span><span>Delad</span></p>';
 		echo '<ol class="delat-lista">';
 		foreach ($rader as $rad) {
 			printf(
 				'<li><a href="%1$s" title="Sida %2$d kl %4$s">'
 				. '<span class="delat-lista__num">%2$d</span>'
 				. '<span class="delat-lista__titel">%3$s</span>'
-				. '<span class="delat-lista__fyll" aria-hidden="true"></span>'
-				. '<span class="delat-lista__antal"><span class="sr-only">, delad </span>%5$d<span class="sr-only"> %6$s</span></span>'
 				. '</a></li>',
 				html_escape($rad["url"]),
 				$rad["num"],
 				html_escape($rad["titel"]),
-				html_escape($rad["tid"]),
-				$rad["antal"],
-				$rad["antal"] === 1 ? "gång" : "gånger"
+				html_escape($rad["tid"])
 			);
 		}
 		echo '</ol>';

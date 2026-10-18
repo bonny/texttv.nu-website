@@ -1392,18 +1392,10 @@ html:not(.appShare) .TextTVPage .tt-rad a::after {
 
 /*
 	/sida/delat (views/delade.php). Raderna som en Text-TV-sida: sidnummer
-	i cyan, rubriken, prickar fram till antalet delningar. Samma mönster
-	som sidlistan i menyn.
+	i cyan och rubriken.
 */
 .most-shared-section {
 	margin-bottom: 2em;
-}
-
-.textcontent .delat-kolumner {
-	display: flex;
-	justify-content: space-between;
-	margin: 0 0 .25em;
-	color: var(--tt-cyan);
 }
 
 .textcontent .delat-lista {
@@ -1419,8 +1411,6 @@ html:not(.appShare) .TextTVPage .tt-rad a::after {
 .textcontent .delat-lista a {
 	display: flex;
 	align-items: baseline;
-	/* Bryts rubriken står prickarna och antalet på sista raden. */
-	align-items: last baseline;
 	min-height: 36px;
 	padding: .3em 0;
 	box-sizing: border-box;
@@ -1430,7 +1420,6 @@ html:not(.appShare) .TextTVPage .tt-rad a::after {
 
 .delat-lista__num {
 	flex: 0 0 4ch;
-	align-self: first baseline;
 	color: var(--tt-cyan);
 }
 
@@ -1438,23 +1427,6 @@ html:not(.appShare) .TextTVPage .tt-rad a::after {
 	min-width: 0;
 	text-decoration: underline;
 	text-underline-offset: .2em;
-}
-
-.delat-lista__fyll {
-	flex: 1;
-	min-width: 1ch;
-	margin: 0 .5ch;
-	overflow: hidden;
-	white-space: nowrap;
-	color: var(--tt-blue-fg);
-}
-
-.delat-lista__fyll::after {
-	content: "........................................";
-}
-
-.delat-lista__antal {
-	color: var(--tt-white);
 }
 
 .textcontent .delat-lista a:hover,

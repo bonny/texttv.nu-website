@@ -22,6 +22,10 @@ if (empty($polis_handelser)) {
 			?>
 			<li>
 				<a href="<?php echo html_escape($lank) ?>"><?php echo html_escape(trim($h["typ"] . ", " . $h["plats"], ", ")) ?> →</a>
+				<?php $bild = bpk_kartbild(isset($h["bild"]) ? $h["bild"] : "");
+				if ($bild) { ?>
+					<a class="tt-polis__karta" href="<?php echo html_escape($lank) ?>" tabindex="-1" aria-hidden="true"><img src="<?php echo html_escape($bild) ?>" alt="" width="640" height="320" loading="lazy"></a>
+				<?php } ?>
 				<?php if ($tid) { ?>
 					<span class="tt-polis__tid"><time datetime="<?php echo html_escape(date("c", $tid)) ?>"><?php echo html_escape(date_sv("D j M", $tid) . " " . date("H:i", $tid)) ?></time> · Brottsplatskartan</span>
 				<?php } ?>

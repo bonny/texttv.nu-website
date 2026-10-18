@@ -987,6 +987,22 @@ ol.day-list__items > li::before {
 	text-decoration: none;
 }
 
+/* Kartbilden från Brottsplatskartan, 2:1 i sidans bredd. */
+.tt-polis__karta {
+	display: block;
+	margin: .5em 0;
+}
+
+.tt-polis__karta img {
+	display: block;
+	width: 100%;
+	height: auto;
+	aspect-ratio: 2 / 1;
+	border: 2px solid var(--tt-blue-bg);
+	box-sizing: border-box;
+	background: var(--tt-blue-fg);
+}
+
 .tt-polis__tid {
 	display: block;
 	color: var(--tt-neutral);

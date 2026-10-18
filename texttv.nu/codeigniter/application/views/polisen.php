@@ -33,6 +33,14 @@ $events = isset($events_in_media->data) && is_array($events_in_media->data) ? $e
 				<?php echo html_escape(trim(($one_event->title_type ?? "") . ", " . ($one_event->location_string ?? $one_event->title_location ?? ""), ", ")) ?>
 				<?php if ($karta) { ?></a><?php } ?>
 			</h2>
+			<?php $bild = bpk_kartbild(isset($one_event->image) ? $one_event->image : "");
+			if ($bild) { ?>
+				<p class="tt-polis__karta">
+					<?php if ($karta) { ?><a href="<?php echo html_escape($karta) ?>" tabindex="-1" aria-hidden="true"><?php } ?>
+					<img src="<?php echo html_escape($bild) ?>" alt="" width="640" height="320" loading="lazy">
+					<?php if ($karta) { ?></a><?php } ?>
+				</p>
+			<?php } ?>
 			<?php if ($tid) { ?>
 				<p class="tt-polis-handelse__tid"><time datetime="<?php echo html_escape(date("c", $tid)) ?>"><?php echo html_escape(ucfirst(date_sv("l j F Y", $tid)) . " kl " . date("H:i", $tid)) ?></time></p>
 			<?php } ?>

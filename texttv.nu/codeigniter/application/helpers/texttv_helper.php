@@ -1566,7 +1566,7 @@ function bpk_texttv_handelser()
 		return $map;
 	}
 
-	$data = bpk_hamta_json("https://brottsplatskartan.se/api/texttvHandelser?dagar=14", "texttv-handelser", 600, 120);
+	$data = bpk_hamta_json("https://brottsplatskartan.se/api/texttvHandelser?dagar=14", "texttv-handelser-v2", 600, 120);
 
 	$map = [];
 	if (is_array($data) && isset($data["data"]) && is_array($data["data"])) {
@@ -1584,6 +1584,7 @@ function bpk_texttv_handelser()
 				"plats" => (string) $row["handelse"]["plats"],
 				"tid_iso8601" => (string) $row["handelse"]["tid_iso8601"],
 				"url" => (string) $row["handelse"]["url"],
+				"bild" => isset($row["handelse"]["bild"]) ? (string) $row["handelse"]["bild"] : "",
 			];
 		}
 	}
@@ -1602,6 +1603,16 @@ function bpk_handelser_for_titel($title)
 	}
 	$map = bpk_texttv_handelser();
 	return isset($map[$key]) ? array_values($map[$key]) : [];
+}
+
+/**
+ * Kartbild från Brottsplatskartans tileserver, eller '' om adressen inte
+ * pekar dit (data från ett externt API skrivs ut i src).
+ */
+function bpk_kartbild($url)
+{
+	$url = (string) $url;
+	return preg_match('#^https://kartbilder\.brottsplatskartan\.se/#', $url) ? $url : '';
 }
 
 /**

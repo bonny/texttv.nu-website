@@ -12,7 +12,7 @@ help: ## Visa denna hjälp
 up: ## Starta stacken (bygger images automatiskt första gången). Snabb vid dagligt bruk.
 	$(COMPOSE) up -d
 	@echo "Klar. Sajten: http://texttv.test:8380/100  (vänta nån sekund på init-importen)"
-	@echo "Schedulern (auto-import från SVT) är AV — starta vid behov med 'make scheduler'."
+	@echo "Lokalimporten hämtar nyheter/sport var 15:e min (tjänsten lokalimport). Hela prod-schemat: 'make scheduler'."
 
 down: ## Stoppa stacken (behåller data)
 	$(COMPOSE) down

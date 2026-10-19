@@ -79,4 +79,12 @@ Sammanvägt, så som steg 1 ska byggas:
 
 ## Status
 
-- [ ] Beslut från Pär: bygga steg 1?
+- [x] Steg 1 deployat 2026-10-19: flikarna Idag och Igår (se git log).
+- [x] 7 dagar deployat samma kväll, på Pärs begäran direkt i stället för
+  efter mätningen. `week_top_news()` summerar visningarna per nyhet över
+  sju dygn (idag inräknat), matchade mot alla sju dygnens nyheter, cache
+  10 min. Passerade dygn läses ur most_read-filen utan timgräns
+  (`most_read_pages_settled()`), annars hade den tunga frågan körts för sex
+  dygn i timmen (#12). Veckodag i listan inte gjord.
+- [ ] Mät 2026-10-24 med #16: `most_read_tab` per flik och
+  `select_content` per flik i GA4.

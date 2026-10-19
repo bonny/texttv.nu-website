@@ -577,6 +577,30 @@ function most_read_pages_cached($type, $dateUnix)
 }
 
 /**
+ * most_read för en dag, men en passerad dag läses ur filen utan att den
+ * blir för gammal, om den skrevs efter dagens slut. Ett avslutat dygn
+ * ändras inte, medan most_read_pages_cached() räknar om det varje timme.
+ * För 7-dagarslistan på startsidan (todo #25), som annars skulle köra den
+ * tunga frågan för sex dygn i timmen (#12).
+ *
+ * @param string $type    Som most_read_pages_cached().
+ * @param string $day_ymd Datum, Y-m-d.
+ * @return array [sidor, ttl] som most_read_pages_cached().
+ */
+function most_read_pages_settled($type, $day_ymd)
+{
+	$day_unix = strtotime($day_ymd . " 12:00");
+	if ($day_ymd < date("Y-m-d")) {
+		$file = sys_get_temp_dir() . "/texttv-most-read/" . ($type ? $type : "all") . "-" . $day_ymd . ".json";
+		$cached = most_read_read_cache($file, PHP_INT_MAX, strtotime("tomorrow", $day_unix));
+		if ($cached !== null) {
+			return [$cached[0], 3600];
+		}
+	}
+	return most_read_pages_cached($type, $day_unix);
+}
+
+/**
  * @return array|null [sidor, sekunder kvar av filens livslängd], eller
  *                    null om filen saknas, är för gammal eller trasig.
  */
@@ -849,6 +873,24 @@ function get_day_stories($conf, $day_ymd, $is_sport)
 }
 
 /**
+ * Nyheten som en sida ur most_read visar: samma rubrik, annars en snarlik
+ * (day_same_story()). Null om ingen finns.
+ */
+function day_story_for_page($one, $items_by_key)
+{
+	$key = day_story_key($one["title"]);
+	if (isset($items_by_key[$key])) {
+		return $items_by_key[$key];
+	}
+	foreach ($items_by_key as $other_key => $other_item) {
+		if (day_same_story($key, $other_key, (int) $one["page_num"] === $other_item["page_num"])) {
+			return $other_item;
+		}
+	}
+	return null;
+}
+
+/**
  * Dagens mest lästa, matchade mot get_day_stories(), så att tid, sidnummer
  * och länk är desamma i båda listorna. Mest lästa nyheter från dagen innan
  * (kvarliggare) finns inte bland nyheterna och hoppas därför över.
@@ -863,16 +905,7 @@ function get_day_most_read($most_read_pages, $items_by_key, $limit)
 	$most_read = [];
 	$seen = [];
 	foreach ($most_read_pages as $one) {
-		$key = day_story_key($one["title"]);
-		$item = isset($items_by_key[$key]) ? $items_by_key[$key] : null;
-		if (!$item) {
-			foreach ($items_by_key as $other_key => $other_item) {
-				if (day_same_story($key, $other_key, (int) $one["page_num"] === $other_item["page_num"])) {
-					$item = $other_item;
-					break;
-				}
-			}
-		}
+		$item = day_story_for_page($one, $items_by_key);
 		if (!$item || isset($seen[$item["permalink"]])) {
 			continue;
 		}
@@ -899,7 +932,10 @@ function get_day_most_read($most_read_pages, $items_by_key, $limit)
 function yesterday_top_news($count)
 {
 	$yesterday = new DateTime("yesterday", new DateTimeZone("Europe/Stockholm"));
-	return startpage_top_news($yesterday->format("Y-m-d"), $count, 0);
+	$day_ymd = $yesterday->format("Y-m-d");
+	return startpage_top_news($day_ymd, $count, 0, function () use ($day_ymd) {
+		return day_top_news($day_ymd);
+	});
 }
 
 /**
@@ -914,25 +950,115 @@ function yesterday_top_news($count)
 function today_top_news($count)
 {
 	$today = new DateTime("today", new DateTimeZone("Europe/Stockholm"));
-	return startpage_top_news($today->format("Y-m-d"), $count, 60);
+	$day_ymd = $today->format("Y-m-d");
+	return startpage_top_news($day_ymd, $count, 60, function () use ($day_ymd) {
+		return day_top_news($day_ymd);
+	});
 }
 
 /**
- * En dags mest lästa nyheter, cachade i en fil per dag.
+ * De mest lästa nyheterna de senaste sju dygnen, idag inräknat, för fliken
+ * "7 dagar" i startsidans "Mest läst" (todo #25). Räknas om var tionde
+ * minut.
+ *
+ * Visningarna per dygn kommer från most_read-cachen (50 sidor per dygn,
+ * cachad i 14 dagar), och summeras per nyhet. Samma nyhet kan stå på olika
+ * sidor och med ändrad rubrik olika dagar, så sidorna matchas mot alla sju
+ * dygnens nyheter på samma sätt som get_day_most_read(). En nyhet som går
+ * över midnatt räknas därför ihop, fast dagslistorna bara tar med den
+ * första dagen.
+ *
+ * @param int $count Antal nyheter.
+ * @return array Nyheter i samma form som get_day_stories(), eller tom.
+ */
+function week_top_news($count)
+{
+	$today = new DateTime("today", new DateTimeZone("Europe/Stockholm"));
+	$today_ymd = $today->format("Y-m-d");
+	return startpage_top_news("vecka-" . $today_ymd, $count, 600, function () use ($today) {
+		$conf = day_sections()["nyheter"];
+		$days = [];
+		for ($i = 6; $i >= 0; $i--) {
+			$day = clone $today;
+			$day->modify("-$i days");
+			$days[] = $day->format("Y-m-d");
+		}
+
+		// Alla nyheterna, äldst först, så att en nyhet behåller sin första
+		// dags version och permalänk.
+		$items_by_key = [];
+		foreach ($days as $day_ymd) {
+			list(, $day_by_key) = get_day_stories($conf, $day_ymd, false);
+			$items_by_key += $day_by_key;
+		}
+		if (!$items_by_key) {
+			return [[], true];
+		}
+
+		$views = [];
+		$items = [];
+		$complete = true;
+		foreach ($days as $day_ymd) {
+			list($pages, $ttl) = most_read_pages_settled($conf["most_read"], $day_ymd);
+			if ($ttl <= 5) {
+				$complete = false;
+			}
+			foreach ($pages as $one) {
+				$item = day_story_for_page($one, $items_by_key);
+				if (!$item) {
+					continue;
+				}
+				$link = $item["permalink"];
+				$items[$link] = $item;
+				$views[$link] = (isset($views[$link]) ? $views[$link] : 0) + (int) $one["count_page_ids"];
+			}
+		}
+		arsort($views);
+
+		$top = [];
+		foreach (array_slice(array_keys($views), 0, 10) as $link) {
+			$top[] = $items[$link];
+		}
+		return [$top, $complete];
+	});
+}
+
+/**
+ * En dags mest lästa nyheter, i samma ordning som most_read.
+ *
+ * @param string $day_ymd Datum, Y-m-d.
+ * @return array [nyheter, om resultatet får sparas]. most_read svarar med
+ *               en kort ttl när en annan worker räknar om; för en passerad
+ *               dag är det då en ögonblicksbild från före midnatt.
+ */
+function day_top_news($day_ymd)
+{
+	$conf = day_sections()["nyheter"];
+	list($stories, $stories_by_key) = get_day_stories($conf, $day_ymd, false);
+	list($most_read_pages, $most_read_ttl) = most_read_pages_cached($conf["most_read"], strtotime($day_ymd . " 12:00"));
+	// Spara tio, så att antalet på startsidan kan ändras utan omräkning.
+	$items = $stories ? get_day_most_read($most_read_pages, $stories_by_key, 10) : [];
+	$is_past_day = $day_ymd < date("Y-m-d");
+	return [$items, $most_read_ttl > 5 || !$is_past_day];
+}
+
+/**
+ * Startsidans listor i "Mest läst", cachade i en fil var (todo #16, #25).
  *
  * Räknar en annan worker redan fram listan väntar vi inte på den, utan
  * serverar den förra filen, eller ingenting om den inte finns (bara de
  * första sekunderna efter midnatt).
  *
- * @param string $day_ymd Datum, Y-m-d.
- * @param int    $count   Antal nyheter.
- * @param int    $max_age Sekunder filen gäller, 0 för alltid.
+ * @param string   $name    Filnamnets del efter "startpage-news-".
+ * @param int      $count   Antal nyheter.
+ * @param int      $max_age Sekunder filen gäller, 0 för alltid.
+ * @param callable $compute Ger [nyheter, om de får sparas].
  * @return array
  */
-function startpage_top_news($day_ymd, $count, $max_age)
+function startpage_top_news($name, $count, $max_age, $compute)
 {
 	$dir = sys_get_temp_dir() . "/texttv-most-read";
-	$file = $dir . "/startpage-news-" . $day_ymd . ".json";
+	$file = $dir . "/startpage-news-" . $name . ".json";
 
 	$read = function ($check_age) use ($file, $max_age) {
 		if ($check_age && $max_age && @filemtime($file) < time() - $max_age) {
@@ -964,16 +1090,8 @@ function startpage_top_news($day_ymd, $count, $max_age)
 	// En annan worker kan ha skrivit filen mellan läsningen och låset.
 	$items = $read(true);
 	if ($items === null) {
-		$conf = day_sections()["nyheter"];
-		list($stories, $stories_by_key) = get_day_stories($conf, $day_ymd, false);
-		list($most_read_pages, $most_read_ttl) = most_read_pages_cached($conf["most_read"], strtotime($day_ymd . " 12:00"));
-		// Spara tio, så att antalet på startsidan kan ändras utan omräkning.
-		$items = $stories ? get_day_most_read($most_read_pages, $stories_by_key, 10) : [];
-
-		// most_read svarar med en kort ttl när en annan worker räknar om. För
-		// gårdagen är det då en ögonblicksbild från före midnatt: spara inte
-		// den, utan räkna igen vid nästa visning. För idag duger den.
-		if ($most_read_ttl > 5 || $max_age) {
+		list($items, $save) = $compute();
+		if ($save) {
 			$tmp = $file . "." . getmypid() . ".tmp";
 			if (@file_put_contents($tmp, json_encode($items)) !== false) {
 				@rename($tmp, $file);

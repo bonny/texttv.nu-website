@@ -3,15 +3,15 @@
 /*
 	Länkar från en levande sida till gårdagen: sidans dagsarkiv (/377/igar)
 	och avdelningens dagslista (/nyheter/igar, /sport/igar). Startsidan får
-	alla, och dessutom "Mest läst" med flikarna Idag och Igår
-	(yesterday_top_news() och today_top_news()). Listan byggs av Sida::visa()
+	alla, och dessutom "Mest läst" med flikarna Idag, Igår och 7 dagar
+	(yesterday_top_news(), today_top_news() och week_top_news()). Listan byggs av Sida::visa()
 	och skrivs ut av pages_inner_output_current.php direkt under sidan.
 	Todo #16 och #25.
 
 	Byggd av komponenterna i css/tt.css (todo #18): tt-sidbredd, tt-band,
 	tt-list och tt-linkrow.
 
-	Flikarna (todo #25): båda listorna finns i HTML:en, så att nginx-cachen
+	Flikarna (todo #25): alla listorna finns i HTML:en, så att nginx-cachen
 	och Google ser samma sida. Utan JS syns "Mest läst igår" som förut. Knappar
 	med aria-pressed, inte ARIA-tabs, eftersom ← → redan byter sida
 	(js/scripts.js).
@@ -26,6 +26,7 @@ $inline = !empty($inline);
 $yesterday_top = !empty($yesterday_top) ? $yesterday_top : [];
 $today_top = !empty($today_top) ? $today_top : [];
 $today_links = !empty($today_links) ? $today_links : [];
+$week_top = !empty($week_top) ? $week_top : [];
 $flikar = $yesterday_top && $today_links;
 
 $lista = function ($items) {
@@ -65,6 +66,7 @@ $lankrad = function ($links) {
 		<span class="tt-flikar" hidden>
 			<button type="button" class="tt-flik" data-flik="idag" aria-controls="mest-last-idag" aria-pressed="false">Idag</button>
 			<button type="button" class="tt-flik" data-flik="igar" aria-controls="mest-last-igar" aria-pressed="true">Igår</button>
+			<button type="button" class="tt-flik" data-flik="vecka" aria-controls="mest-last-vecka" aria-pressed="false">7 dagar</button>
 		</span>
 	</div>
 	<div class="mest-last__paneler">
@@ -77,6 +79,12 @@ $lankrad = function ($links) {
 			<?php // Tidigt på dagen finns bara några få (todo #25). ?>
 			<?php if (count($today_top) < 3) { ?>
 				<p class="mest-last__tunt"><?php echo $today_top ? "Fler läses under dagen." : "Inga nyheter har lästs än idag." ?></p>
+			<?php } ?>
+			<?php $lankrad($today_links) ?>
+		</div>
+		<div class="mest-last__panel is-dold" id="mest-last-vecka" data-flik="vecka">
+			<?php if ($week_top) { $lista($week_top); } else { ?>
+				<p class="mest-last__tunt">Inga nyheter har lästs de senaste sju dagarna.</p>
 			<?php } ?>
 			<?php $lankrad($today_links) ?>
 		</div>
@@ -105,7 +113,6 @@ $lankrad = function ($links) {
 	var vald = "igar";
 	var visa = function (flik) {
 		vald = flik;
-		ruta.classList.toggle("mest-last--idag", flik === "idag");
 		knappar.forEach(function (k) {
 			k.setAttribute("aria-pressed", k.dataset.flik === flik ? "true" : "false");
 		});
@@ -116,7 +123,7 @@ $lankrad = function ($links) {
 
 	var timme = Number(new Intl.DateTimeFormat("sv-SE", { hour: "numeric", hourCycle: "h23", timeZone: "Europe/Stockholm" }).format(new Date()));
 	var sparad = hamta();
-	visa(sparad === "idag" || sparad === "igar" ? sparad : (timme < 10 ? "igar" : "idag"));
+	visa(["idag", "igar", "vecka"].indexOf(sparad) !== -1 ? sparad : (timme < 10 ? "igar" : "idag"));
 	// Rubriken blir "Mest läst"; fliken säger vilken dag.
 	ruta.classList.add("mest-last--js");
 	ruta.querySelector(".tt-flikar").hidden = false;

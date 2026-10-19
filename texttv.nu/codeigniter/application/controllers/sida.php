@@ -489,9 +489,10 @@ class Sida extends CI_Controller {
 		if ($pagedescription === "startpage") {
 			$yesterday_prefix = $yesterday_top ? "Mest läst igår" : "Igår på Text TV";
 		}
-		// Fliken "Idag" i samma ruta (todo #25), med länkraden till dagens
+		// Flikarna "Idag" och "7 dagar" i samma ruta (todo #25), med länkraden till dagens
 		// listor. Bara när gårdagens lista finns, annars rutan som förut.
 		$today_top = $pagedescription === "startpage" && $yesterday_top ? today_top_news(self::STARTPAGE_YESTERDAY_COUNT) : [];
+		$week_top = $pagedescription === "startpage" && $yesterday_top ? week_top_news(self::STARTPAGE_YESTERDAY_COUNT) : [];
 		$today_links = [
 			["/nyheter/idag", "Nyheter"],
 			["/sport/idag", "Sport"],
@@ -509,6 +510,7 @@ class Sida extends CI_Controller {
 		$data["yesterday_top"] = $yesterday_top;
 		$data["today_top"] = $today_top;
 		$data["today_links"] = $today_links;
+		$data["week_top"] = $week_top;
 		$data["today_versions"] = $this->_today_versions($arr_page_objs, $not_broadcasted);
 		// "Polisen rapporterade" under nyhetssidor (todo #21).
 		$data["polis_handelser"] = (sizeof($arr_page_objs) === 1 && !$not_broadcasted && (int) $page->num >= 100 && (int) $page->num <= 199)

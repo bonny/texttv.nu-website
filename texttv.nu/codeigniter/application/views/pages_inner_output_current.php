@@ -104,6 +104,7 @@ if (!empty($yesterday_links)) {
 		"yesterday_top" => isset($yesterday_top) ? $yesterday_top : [],
 		"today_top" => isset($today_top) ? $today_top : [],
 		"today_links" => isset($today_links) ? $today_links : [],
+		"week_top" => isset($week_top) ? $week_top : [],
 		"inline" => $is_startpage,
 	], TRUE);
 }

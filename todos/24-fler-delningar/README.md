@@ -1,7 +1,7 @@
 # 24. Fler delningar, och räkna dem som finns
 
 **Status:** aktiv
-**Senast uppdaterad:** 2026-10-18
+**Senast uppdaterad:** 2026-10-19
 
 ## Bakgrund
 
@@ -34,7 +34,15 @@ Följdfel: `texttv:cleanup-old-pages` raderar arkivsidor äldre än ett år med
   GA4 som `share` med `method` (webbläsarens delning, kopiera länk, facebook,
   x, e-post).
 
-## Kvar: efterräkning (kräver Pär)
+## Efterräkning: körd 2026-10-18 20:11
+
+Körd med `APPLY=1`. Backup: `/root/db-backups-2026-10-18/is_shared-fore-efterrakning-201102.tsv`
+(234 sidor, 218 hade `is_shared` 0 och 16 hade 1). En torrkörning 2026-10-19
+visade 199 sidor och 230 delningar (2026-10-09 → 10-18; 10-08 hade redan
+städats bort), och `is_shared` var då redan uppräknat med just de antalen.
+**Kör inte skriptet igen**: det dubbelräknar.
+
+### Så var det tänkt
 
 `page_actions` sparar 10 dagar, så delningarna från cirka 2026-10-08 fram till
 deployen av `07e98b0` (15:52:08 UTC 2026-10-18) kan läggas till i efterhand.

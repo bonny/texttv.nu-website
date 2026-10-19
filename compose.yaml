@@ -101,17 +101,24 @@ services:
       <<: *importer-env
       AUTORUN_ENABLED: "false"
       LOKALIMPORT_MINUTER: ${LOKALIMPORT_MINUTER:-15}
+      LOG_LEVEL: warning                   # inte en INFO-rad per sida i loggen
     command:
       - sh
       - -c
       - |
+        # Ett heltal på minst 1, annars 15.
+        case "$$LOKALIMPORT_MINUTER" in
+          ''|*[!0-9]*) LOKALIMPORT_MINUTER=15 ;;
+        esac
+        [ "$$LOKALIMPORT_MINUTER" -ge 1 ] || LOKALIMPORT_MINUTER=15
         varv=0
         per_timme=$$((60 / LOKALIMPORT_MINUTER))
         [ "$$per_timme" -ge 1 ] || per_timme=1
+        # Bara stdout (en rad per sida) bort; fel syns i loggen.
         while true; do
-          php artisan texttv:import 100-199,300-399,400-401 > /dev/null 2>&1 || echo "lokalimport: nyheter/sport misslyckades"
+          php artisan texttv:import 100-199,300-399,400-401 > /dev/null || echo "lokalimport: nyheter/sport misslyckades"
           if [ $$((varv % per_timme)) -eq 0 ]; then
-            php artisan texttv:import 402-899 > /dev/null 2>&1 || echo "lokalimport: övriga sidor misslyckades"
+            php artisan texttv:import 402-899 > /dev/null || echo "lokalimport: övriga sidor misslyckades"
           fi
           echo "lokalimport: klar $$(date '+%F %H:%M'), nästa om $$LOKALIMPORT_MINUTER min"
           varv=$$((varv + 1))

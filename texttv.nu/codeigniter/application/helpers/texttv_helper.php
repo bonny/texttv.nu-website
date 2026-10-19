@@ -514,6 +514,11 @@ function most_read_pages_cached($type, $dateUnix)
 	// skulle serveras i en timme till trots att den saknar dagens sista
 	// visningar.
 	$valid_from = $is_past_day ? strtotime("tomorrow", $dateUnix) : 0;
+	// En sådan fil gäller sedan så länge den finns: ett avslutat dygn
+	// ändras inte. Förut räknades det om varje timme, vilket startsidans
+	// 7 dagar (todo #25) hade gjort för sex dygn i timmen. nginx får
+	// fortfarande högst en timme.
+	$file_ttl = $is_past_day ? PHP_INT_MAX : $ttl;
 
 	$dir = sys_get_temp_dir() . "/texttv-most-read";
 	if (!is_dir($dir) && !@mkdir($dir, 0700, true) && !is_dir($dir)) {
@@ -521,7 +526,7 @@ function most_read_pages_cached($type, $dateUnix)
 	}
 	$file = $dir . "/" . ($type ? $type : "all") . "-" . $date_ymd . ".json";
 
-	$cached = most_read_read_cache($file, $ttl, $valid_from);
+	$cached = most_read_read_cache($file, $file_ttl, $valid_from);
 	if ($cached !== null) {
 		return $cached;
 	}
@@ -541,7 +546,7 @@ function most_read_pages_cached($type, $dateUnix)
 			return [$stale[0], 5];
 		}
 		flock($lock, LOCK_EX);
-		$cached = most_read_read_cache($file, $ttl, $valid_from);
+		$cached = most_read_read_cache($file, $file_ttl, $valid_from);
 	}
 
 	if ($cached === null) {
@@ -574,30 +579,6 @@ function most_read_pages_cached($type, $dateUnix)
 	}
 
 	return $cached;
-}
-
-/**
- * most_read för en dag, men en passerad dag läses ur filen utan att den
- * blir för gammal, om den skrevs efter dagens slut. Ett avslutat dygn
- * ändras inte, medan most_read_pages_cached() räknar om det varje timme.
- * För 7-dagarslistan på startsidan (todo #25), som annars skulle köra den
- * tunga frågan för sex dygn i timmen (#12).
- *
- * @param string $type    Som most_read_pages_cached().
- * @param string $day_ymd Datum, Y-m-d.
- * @return array [sidor, ttl] som most_read_pages_cached().
- */
-function most_read_pages_settled($type, $day_ymd)
-{
-	$day_unix = strtotime($day_ymd . " 12:00");
-	if ($day_ymd < date("Y-m-d")) {
-		$file = sys_get_temp_dir() . "/texttv-most-read/" . ($type ? $type : "all") . "-" . $day_ymd . ".json";
-		$cached = most_read_read_cache($file, PHP_INT_MAX, strtotime("tomorrow", $day_unix));
-		if ($cached !== null) {
-			return [$cached[0], 3600];
-		}
-	}
-	return most_read_pages_cached($type, $day_unix);
 }
 
 /**
@@ -933,9 +914,11 @@ function yesterday_top_news($count)
 {
 	$yesterday = new DateTime("yesterday", new DateTimeZone("Europe/Stockholm"));
 	$day_ymd = $yesterday->format("Y-m-d");
+	// Filen gäller bara om den skrevs efter dygnets slut.
+	$valid_from = (new DateTime("today", new DateTimeZone("Europe/Stockholm")))->getTimestamp();
 	return startpage_top_news($day_ymd, $count, 0, function () use ($day_ymd) {
 		return day_top_news($day_ymd);
-	});
+	}, $valid_from);
 }
 
 /**
@@ -951,7 +934,9 @@ function today_top_news($count)
 {
 	$today = new DateTime("today", new DateTimeZone("Europe/Stockholm"));
 	$day_ymd = $today->format("Y-m-d");
-	return startpage_top_news($day_ymd, $count, 60, function () use ($day_ymd) {
+	// Eget filnamn: gårdagens lista i morgon får inte läsa dagens
+	// ögonblicksbild.
+	return startpage_top_news("idag-" . $day_ymd, $count, 60, function () use ($day_ymd) {
 		return day_top_news($day_ymd);
 	});
 }
@@ -984,32 +969,30 @@ function week_top_news($count)
 			$days[] = $day->format("Y-m-d");
 		}
 
-		// Alla nyheterna, äldst först, så att en nyhet behåller sin första
-		// dags version och permalänk.
-		$items_by_key = [];
+		// Nyheterna per dag. En sida matchas mot sin egen dags nyheter och
+		// dagen innans (en nyhet som går över midnatt finns bara under sin
+		// första dag), inte mot hela veckans: matchningen är similar_text.
+		$by_day = [];
 		foreach ($days as $day_ymd) {
-			list(, $day_by_key) = get_day_stories($conf, $day_ymd, false);
-			$items_by_key += $day_by_key;
-		}
-		if (!$items_by_key) {
-			return [[], true];
+			list(, $by_day[$day_ymd]) = get_day_stories($conf, $day_ymd, false);
 		}
 
 		$views = [];
 		$items = [];
-		$complete = true;
+		$prev_by_key = [];
 		foreach ($days as $day_ymd) {
-			list($pages, $ttl) = most_read_pages_settled($conf["most_read"], $day_ymd);
-			if ($ttl <= 5) {
-				$complete = false;
-			}
+			list($pages) = most_read_pages_cached($conf["most_read"], strtotime($day_ymd . " 12:00"));
+			$candidates = $by_day[$day_ymd] + $prev_by_key;
+			$prev_by_key = $by_day[$day_ymd];
 			foreach ($pages as $one) {
-				$item = day_story_for_page($one, $items_by_key);
+				$item = day_story_for_page($one, $candidates);
 				if (!$item) {
 					continue;
 				}
 				$link = $item["permalink"];
-				$items[$link] = $item;
+				if (!isset($items[$link])) {
+					$items[$link] = $item;
+				}
 				$views[$link] = (isset($views[$link]) ? $views[$link] : 0) + (int) $one["count_page_ids"];
 			}
 		}
@@ -1019,7 +1002,10 @@ function week_top_news($count)
 		foreach (array_slice(array_keys($views), 0, 10) as $link) {
 			$top[] = $items[$link];
 		}
-		return [$top, $complete];
+		// Sparas även när most_read för någon dag var en äldre fil (en annan
+		// worker räknade om): för en vecka spelar det ingen roll, och annars
+		// görs hela omräkningen om vid nästa visning.
+		return [$top, true];
 	});
 }
 
@@ -1038,7 +1024,8 @@ function day_top_news($day_ymd)
 	list($most_read_pages, $most_read_ttl) = most_read_pages_cached($conf["most_read"], strtotime($day_ymd . " 12:00"));
 	// Spara tio, så att antalet på startsidan kan ändras utan omräkning.
 	$items = $stories ? get_day_most_read($most_read_pages, $stories_by_key, 10) : [];
-	$is_past_day = $day_ymd < date("Y-m-d");
+	$today = new DateTime("today", new DateTimeZone("Europe/Stockholm"));
+	$is_past_day = $day_ymd < $today->format("Y-m-d");
 	return [$items, $most_read_ttl > 5 || !$is_past_day];
 }
 
@@ -1052,16 +1039,23 @@ function day_top_news($day_ymd)
  * @param string   $name    Filnamnets del efter "startpage-news-".
  * @param int      $count   Antal nyheter.
  * @param int      $max_age Sekunder filen gäller, 0 för alltid.
- * @param callable $compute Ger [nyheter, om de får sparas].
+ * @param callable $compute    Ger [nyheter, om de får sparas].
+ * @param int      $valid_from En fil skriven före den här tiden gäller inte.
  * @return array
  */
-function startpage_top_news($name, $count, $max_age, $compute)
+function startpage_top_news($name, $count, $max_age, $compute, $valid_from = 0)
 {
 	$dir = sys_get_temp_dir() . "/texttv-most-read";
 	$file = $dir . "/startpage-news-" . $name . ".json";
 
-	$read = function ($check_age) use ($file, $max_age) {
-		if ($check_age && $max_age && @filemtime($file) < time() - $max_age) {
+	$read = function ($check_age) use ($file, $max_age, $valid_from) {
+		// Annars ser kontrollen efter låset samma mtime som före.
+		clearstatcache(true, $file);
+		$mtime = @filemtime($file);
+		if ($mtime === false || $mtime < $valid_from) {
+			return null;
+		}
+		if ($check_age && $max_age && $mtime < time() - $max_age) {
 			return null;
 		}
 		$json = @file_get_contents($file);

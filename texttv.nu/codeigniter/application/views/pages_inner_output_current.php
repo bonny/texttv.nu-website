@@ -102,6 +102,8 @@ if (!empty($yesterday_links)) {
 		"yesterday_links" => $yesterday_links,
 		"yesterday_prefix" => $yesterday_prefix,
 		"yesterday_top" => isset($yesterday_top) ? $yesterday_top : [],
+		"today_top" => isset($today_top) ? $today_top : [],
+		"today_links" => isset($today_links) ? $today_links : [],
 		"inline" => $is_startpage,
 	], TRUE);
 }

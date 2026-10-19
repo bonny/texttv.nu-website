@@ -244,6 +244,79 @@ button.tt-link {
 	vertical-align: top;
 }
 
+/* "Mest läst" med flikarna Idag och Igår i bandet (todo #25). Aktiv flik
+   inverterad, vit med blå text, som ett markerat fält på Text TV. Gult
+   betyder handling (hover och fokus), som på länkarna. */
+.tt-band--flikar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	column-gap: 1ch;
+	padding-top: 0;
+	padding-bottom: 0;
+	padding-right: 0;
+}
+
+.mest-last--js .mest-last__igar {
+	display: none;
+}
+
+.tt-flikar {
+	display: flex;
+}
+
+.tt-flikar[hidden] {
+	display: none;
+}
+
+.tt-flik {
+	min-height: 44px;
+	margin: 0;
+	padding: 0 1ch;
+	border: 0;
+	border-radius: 0;
+	background: none;
+	color: var(--tt-white);
+	font: inherit;
+	cursor: pointer;
+}
+
+.tt-flik[aria-pressed="true"] {
+	background: var(--tt-white);
+	color: var(--tt-blue-bg);
+	cursor: default;
+}
+
+.tt-flik:hover,
+.tt-flik:focus-visible {
+	background: var(--tt-yellow);
+	color: var(--tt-black);
+}
+
+.tt-flik:focus-visible {
+	outline: 2px solid var(--tt-white);
+	outline-offset: -2px;
+}
+
+/* Panelerna i samma rutnätscell: rutan är lika hög som den längsta, så
+   att sidorna bredvid och under inte hoppar när man byter flik. */
+.mest-last__paneler {
+	display: grid;
+}
+
+.mest-last__panel {
+	grid-area: 1 / 1;
+}
+
+.mest-last__panel.is-dold {
+	visibility: hidden;
+}
+
+.mest-last__tunt {
+	margin: .5em 0 0;
+	color: var(--tt-cyan);
+}
+
 /* Raden under sidan: tid i cyan till vänster, "Dela →" till höger. */
 .pageshare {
 	display: flex;

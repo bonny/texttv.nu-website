@@ -886,16 +886,12 @@ function get_day_most_read($most_read_pages, $items_by_key, $limit)
 }
 
 /**
- * Gårdagens mest lästa nyheter för startsidans "Igår på Text TV" (todo #16).
+ * Gårdagens mest lästa nyheter för startsidans "Mest läst" (todo #16, #25).
  *
  * Startsidan renderas om var fjärde sekund (nginx-cachens TTL), och
  * sammanställningen kör två rubrikqueries plus most_read. Gårdagen ändras
  * inte efter midnatt, så resultatet räknas fram en gång per dygn och sparas
  * bredvid most_read-cachen (som också städar bort gamla filer).
- *
- * Räknar en annan worker redan fram listan väntar vi inte på den, utan
- * startsidan visas utan rubriker. Det gäller bara de första sekunderna
- * efter midnatt.
  *
  * @param int $count Antal nyheter.
  * @return array Nyheter i samma form som get_day_stories(), eller tom.
@@ -903,24 +899,57 @@ function get_day_most_read($most_read_pages, $items_by_key, $limit)
 function yesterday_top_news($count)
 {
 	$yesterday = new DateTime("yesterday", new DateTimeZone("Europe/Stockholm"));
-	$day_ymd = $yesterday->format("Y-m-d");
+	return startpage_top_news($yesterday->format("Y-m-d"), $count, 0);
+}
 
+/**
+ * Dagens mest lästa nyheter hittills, för fliken "Idag" i startsidans
+ * "Mest läst" (todo #25). Räknas om högst en gång i minuten, som
+ * most_read-cachen för idag, så startsidan lägger inte till någon fråga per
+ * sidvisning.
+ *
+ * @param int $count Antal nyheter.
+ * @return array Nyheter i samma form som get_day_stories(), eller tom.
+ */
+function today_top_news($count)
+{
+	$today = new DateTime("today", new DateTimeZone("Europe/Stockholm"));
+	return startpage_top_news($today->format("Y-m-d"), $count, 60);
+}
+
+/**
+ * En dags mest lästa nyheter, cachade i en fil per dag.
+ *
+ * Räknar en annan worker redan fram listan väntar vi inte på den, utan
+ * serverar den förra filen, eller ingenting om den inte finns (bara de
+ * första sekunderna efter midnatt).
+ *
+ * @param string $day_ymd Datum, Y-m-d.
+ * @param int    $count   Antal nyheter.
+ * @param int    $max_age Sekunder filen gäller, 0 för alltid.
+ * @return array
+ */
+function startpage_top_news($day_ymd, $count, $max_age)
+{
 	$dir = sys_get_temp_dir() . "/texttv-most-read";
 	$file = $dir . "/startpage-news-" . $day_ymd . ".json";
 
-	$read = function () use ($file) {
+	$read = function ($check_age) use ($file, $max_age) {
+		if ($check_age && $max_age && @filemtime($file) < time() - $max_age) {
+			return null;
+		}
 		$json = @file_get_contents($file);
 		$items = $json === false ? null : json_decode($json, true);
 		return is_array($items) ? $items : null;
 	};
 
-	$items = $read();
+	$items = $read(true);
 	if ($items !== null) {
 		return array_slice($items, 0, $count);
 	}
 
 	if (!is_dir($dir) && !@mkdir($dir, 0700, true) && !is_dir($dir)) {
-		error_log("texttv igår på startsidan: kan inte skapa cachekatalogen $dir");
+		error_log("texttv mest läst på startsidan: kan inte skapa cachekatalogen $dir");
 		return [];
 	}
 	$lock = @fopen($file . ".lock", "c");
@@ -928,11 +957,12 @@ function yesterday_top_news($count)
 		if ($lock) {
 			fclose($lock);
 		}
-		return [];
+		$stale = $read(false);
+		return $stale !== null ? array_slice($stale, 0, $count) : [];
 	}
 
 	// En annan worker kan ha skrivit filen mellan läsningen och låset.
-	$items = $read();
+	$items = $read(true);
 	if ($items === null) {
 		$conf = day_sections()["nyheter"];
 		list($stories, $stories_by_key) = get_day_stories($conf, $day_ymd, false);
@@ -940,10 +970,10 @@ function yesterday_top_news($count)
 		// Spara tio, så att antalet på startsidan kan ändras utan omräkning.
 		$items = $stories ? get_day_most_read($most_read_pages, $stories_by_key, 10) : [];
 
-		// most_read svarar med en kort ttl när en annan worker räknar om och
-		// den bara har gårdagens ögonblicksbild från före midnatt. Spara inte
-		// den, utan räkna igen vid nästa visning.
-		if ($most_read_ttl > 5) {
+		// most_read svarar med en kort ttl när en annan worker räknar om. För
+		// gårdagen är det då en ögonblicksbild från före midnatt: spara inte
+		// den, utan räkna igen vid nästa visning. För idag duger den.
+		if ($most_read_ttl > 5 || $max_age) {
 			$tmp = $file . "." . getmypid() . ".tmp";
 			if (@file_put_contents($tmp, json_encode($items)) !== false) {
 				@rename($tmp, $file);

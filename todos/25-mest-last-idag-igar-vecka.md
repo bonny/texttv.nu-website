@@ -40,6 +40,43 @@ Gäller rutan "Mest läst igår" bredvid 100 på startsidan
    arkivsidorna, mot uppföljningen i #16 (2026-10-24).
 3. Senaste 7 dagarna sedan, om "Idag" används.
 
+## Granskning 2026-10-19 (SEO, UX, art director)
+
+Sammanvägt, så som steg 1 ska byggas:
+
+- **Utseende (AD, alternativ A):** bandet heter "Mest läst" och flikarna
+  sitter i bandet till höger: `██ Mest läst      Idag [Igår] 7 dagar ██`.
+  Aktiv flik inverterad (vit bakgrund, blå text), inaktiva vit text på blått
+  utan understrykning, hover/fokus gul med svart text och vit outline som
+  `.tt-link`. Gult betyder handling (#18), så inga gula eller färgade
+  fastext-flikar (alternativ B avfärdat). Klasser `.tt-band--flikar`,
+  `.tt-flikar`, `.tt-flik`. Flikarna minst 44 px höga (bandet växer ~12 px på
+  desktop, eller osynlig `::after` som klickyta).
+- **Knappar, inte ARIA-tabs (UX):** `button` med `aria-pressed` och
+  `aria-controls`. WAI-ARIA-tabs byter med ← →, som redan byter sida
+  (`js/scripts.js` rad 113). Tab/Enter räcker, och pilarna behåller sin
+  funktion.
+- **Alla listor i HTML:en (SEO + cache):** panelerna server-renderade med
+  vanliga `<a href>` till permalänkarna, de dolda med `hidden`. Ingen fetch,
+  inga flik-URL:er (`?flik=`, `#idag`), ingen strukturerad data för rutan
+  (dagssidorna har `ItemList`). Länktexten är rubriken, som nu.
+- **Utan JS:** som idag, "Mest läst igår" och flikarna `hidden`.
+- **Förval i JS:** Igår före kl 10 (Europe/Stockholm), sedan Idag. Ett val
+  användaren själv gjort sparas i `localStorage` (try/catch) och går före.
+  Startsidan cachas i nginx, så valet kan inte göras på servern.
+- **Samma höjd:** lika många rader i varje flik (5 på mobil, 8 från
+  1180 px), och en min-höjd, så att sidorna bredvid och under inte hoppar.
+  Idag med färre än ~3 rader: visa det som finns plus "Fler läses under
+  dagen → Dagens nyheter".
+- **Länkraden följer fliken:** Idag → `/nyheter/idag`, `/sport/idag`; Igår →
+  som nu. Raden är kvar synlig (den ger länkkraft till dagssidorna).
+- **Mätning:** GA4 `most_read_tab` `{tab, default}` vid byte och
+  `select_content` `{tab, position}` vid klick i listan.
+- **7 dagar (steg 3):** som flik är det ok för SEO, med veckodag i
+  `tt-list__meta`. Ingen egen indexerbar `/nyheter/vecka` förrän GSC eller
+  klicken visar efterfrågan (ingen veckofråga syns i #16; GSC-sökningen på
+  "vecka" inte gjord).
+
 ## Status
 
 - [ ] Beslut från Pär: bygga steg 1?

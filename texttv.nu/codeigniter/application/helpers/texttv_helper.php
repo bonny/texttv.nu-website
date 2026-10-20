@@ -265,37 +265,44 @@ function get_most_read_pages_for_period($time_from = null, $time_to = null, $typ
 define("DELAT_FORSTA_DAG", "2015-07-04");
 
 function get_shared_pages_for_period($time_from, $time_to) {
-	$time_from_ymd = date("Y-m-d H:i", $time_from);
-	$time_to_ymd = date("Y-m-d H:i", $time_to);
+	// Till men inte med $time_to, så att en delning kl 00:00 inte räknas på
+	// två dygn ("today 24:00" är nästa dygns 00:00).
+	$time_from_ymd = date("Y-m-d H:i:s", $time_from);
+	$time_to_ymd = date("Y-m-d H:i:s", $time_to);
 
 	$ci =& get_instance();
     $ci->load->database();
 
+	// Bara det tt_lista_rader() använder: inget UNCOMPRESS av sidinnehållet.
+	// LIMIT med marginal för rubriker som sorteras bort som brus och dubbletter.
 	$sql = "
 		SELECT 
 			id,
 			DATE_FORMAT(date_added, '%H:%i') as date_added_formatted, 
-			UNIX_TIMESTAMP(date_added) as date_added_unix, 
-			date_added, 
-			page_num, title, is_shared, 
-			UNCOMPRESS(page_content) AS page_content,
-			LENGTH( UNCOMPRESS(page_content) ) AS page_length,
-			is_shared AS num_shares
+			page_num, title, is_shared
 		FROM texttv
 		WHERE 
-			date_added BETWEEN '$time_from_ymd' and '$time_to_ymd'
+			date_added >= '$time_from_ymd' AND date_added < '$time_to_ymd'
 			AND is_shared <> 0
 			AND page_num BETWEEN 106 AND 199
 			# no nyhetsrullen
 			AND page_num <> 188
 		ORDER BY is_shared DESC, date_added DESC
-		LIMIT 1000
+		LIMIT 200
 	";
 	
 	$result = $ci->db->query($sql);
 	
 	return $result;
 } // end get shared pages for period
+
+/**
+ * Raderna i en lista på /sida/delat: högst tio, sorterade på antal
+ * delningar, så av samma nyhet på två sidor visas den som delats mest.
+ */
+function get_shared_rader($time_from, $time_to) {
+	return tt_lista_rader(get_shared_pages_for_period($time_from, $time_to)->result(), 10);
+}
 
 /**
  * Sajtens 404-sida: status 404 med sidhuvud, meny och senaste nyheterna.

@@ -9,13 +9,7 @@
 	Antalet delningar visas inte, det är för få (ofta 1).
 */
 
-if ( ! function_exists("output_shared_pages")) {
-
-	// Högst tio. Raderna kommer sorterade på antal delningar, så av samma
-	// nyhet på två sidor visas den som delats mest (texttv_helper.php).
-	function output_shared_pages($result, $tom_text) {
-		output_tt_lista(tt_lista_rader($result->result(), 10), $tom_text);
-	}
+if ( ! function_exists("output_shared_pages_date_form")) {
 
 	// Välj en dag. Telefonens egen kalender, från första mätdagen till idag.
 	function output_shared_pages_date_form($datum) {
@@ -68,7 +62,7 @@ $idag = date("Y-m-d");
 		<?php
 		// $delat_rader från controllers/textsida.php (avgör noindex).
 		output_tt_lista(
-			$delat_rader,
+			isset($delat_rader) ? $delat_rader : [],
 			$delat_datum === $idag ? "Inga sidor har delats än idag." : "Inga sidor delades den här dagen."
 		);
 
@@ -86,12 +80,12 @@ $idag = date("Y-m-d");
 
 		<div class="most-shared-section most-shared-section--today">
 			<h2>Mest delat idag</h2>
-			<?php output_shared_pages(get_shared_pages_for_period(strtotime("today"), time()), "Inga sidor har delats än idag."); ?>
+			<?php output_tt_lista(get_shared_rader(strtotime("today"), time()), "Inga sidor har delats än idag."); ?>
 		</div>
 
 		<div class="most-shared-section most-shared-section--yesterday">
 			<h2>Mest delat igår</h2>
-			<?php output_shared_pages(get_shared_pages_for_period(strtotime("yesterday 00:00"), strtotime("yesterday 24:00")), "Inga sidor delades igår."); ?>
+			<?php output_tt_lista(get_shared_rader(strtotime("yesterday 00:00"), strtotime("today 00:00")), "Inga sidor delades igår."); ?>
 			<p class="tt-linkrow">
 				<a rel="prev" href="/sida/delat?datum=<?php echo date("Y-m-d", strtotime("-2 days")) ?>">← <?php echo ucfirst(date_sv("D j M", strtotime("-2 days"))) ?></a>
 			</p>

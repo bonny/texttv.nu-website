@@ -38,7 +38,6 @@ return [
 		["/600,650-656", "TV-tablåer", "600", []],
 		["/700", "Innehåll", "700", []],
 		["/sida/senast-uppdaterat", "Senast uppdaterat", null, []],
-		["/sida/delat", "Mest delat", null, []],
 	],
 	"fler" => [
 		["/336", "Premier League", "336"],
@@ -48,6 +47,9 @@ return [
 		["/379", "Matchfakta", "379"],
 		["/551", "Stryktipset", "551"],
 		["/571", "V75-resultat", "571"],
+		// Inte i menyn: Mest läst på startsidan och dagssidorna svarar på
+		// samma fråga med mycket mer underlag (2026-10-20).
+		["/sida/delat", "Mest delat", null],
 	],
 	"populara" => ["377", "100", "358", "300", "330", "101"],
 ];

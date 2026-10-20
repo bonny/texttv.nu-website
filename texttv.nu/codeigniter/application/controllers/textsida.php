@@ -79,6 +79,13 @@ class Textsida extends CI_Controller {
 						return;
 					}
 					$data["delat_datum"] = $datum;
+					// Listan hämtas här och inte i vyn, så att headern vet om den
+					// är tunn. Efter 2019-09-28 räknades bara webbens delningar
+					// (todo #24) och de flesta dagar har 1–4 rader: noindex under
+					// fem. Bläddringen och länkarna finns kvar (follow).
+					$dag_unix = strtotime($datum);
+					$data["delat_rader"] = tt_lista_rader(get_shared_pages_for_period(strtotime("today 00:00", $dag_unix), strtotime("today 24:00", $dag_unix))->result(), 10);
+					$data["robots_noindex"] = count($data["delat_rader"]) < 5;
 					$data["custom_page_title"] = "Mest delat " . date_sv("l j F Y", strtotime($datum)) . " - SVT Text TV";
 					$data["custom_meta_description"] = "De mest delade nyheterna från SVT Text TV " . date_sv("l j F Y", strtotime($datum)) . ", delade från texttv.nu och TextTV.nu-appen.";
 					$data["custom_canonical"] = $canonical . "delat?datum=" . $datum;

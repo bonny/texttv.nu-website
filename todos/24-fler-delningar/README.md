@@ -1,7 +1,7 @@
 # 24. Fler delningar, och räkna dem som finns
 
 **Status:** aktiv
-**Senast uppdaterad:** 2026-10-19
+**Senast uppdaterad:** 2026-10-20
 
 ## Bakgrund
 
@@ -58,6 +58,35 @@ Skriptet tar backup av berörda rader (`id`, gamla `is_shared`) i
 par hundra UPDATE på primärnyckel. Ångra med backupfilen (raden skrivs ut
 sist). Provkört mot den lokala databasen. Kör det innan städningen tar bort
 de äldsta dagarna (10 dagar).
+
+## Överlappar Mest läst (granskning 2026-10-20)
+
+`/sida/delat` och Mest läst (startsidan, `/nyheter/idag`, `/nyheter/igar`)
+svarar på samma fråga, "vad är viktigast idag och igår", med samma form.
+Mest läst bygger på tusentals visningar om dagen, delat på cirka 40
+delningar.
+
+- GSC jul–18 okt: 2 visningar för alla `/sida/delat`-adresser, 0 klick.
+- GA4 28 dagar: 15–40 visningar om dagen. Toppen 1–7 okt (~200/dag) var
+  nya Chrome-desktop-användare med en visning var, alltså botar.
+- Dagarna efter 2019-09-28 har oftast 1–4 rader (stickprov 2024-06-01: 1,
+  2025-11-01: 4), mot 10 före. Tunt innehåll på ett par tusen adresser,
+  och det konkurrerar med `/nyheter/{datum}` om "text-tv nyheter [datum]".
+
+**Gjort 2026-10-20:**
+
+- En dag med färre än fem rader har `noindex, follow`
+  (`$robots_noindex` från `controllers/textsida.php` till `header.php`).
+  Bläddringen mellan dagarna finns kvar. Gäller även nya dagar, så när
+  delningarna blir fler indexeras de av sig själva.
+- "Mest delat" är borta ur sidomenyn och sidfoten
+  (`views/sidlista_data.php`), men finns kvar i sökförslagen, i sitemapen
+  och som länk från Senast uppdaterat.
+
+**Steg 3, efter mätningen 2026-10-25:** om delningarna fortfarande är runt
+50 om dagen, visa dem som en markering i Mest läst-listan i stället för
+en egen lista, och skicka `/sida/delat` (utan datum) vidare med 301 till
+`/nyheter/idag`. Dagarna 2015–2019 kan vara kvar som arkiv.
 
 ## Uppföljning
 

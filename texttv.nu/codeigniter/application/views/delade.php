@@ -3,7 +3,7 @@
 /*
 	/sida/delat: de mest delade nyheterna idag och igår, eller en dag
 	(?datum=2015-08-24). Datumet kontrolleras i controllers/textsida.php,
-	som skickar $delat_datum (null utan datum).
+	som skickar $delat_datum (null utan datum) och för en dag $delat_rader.
 
 	Raderna ser ut som en Text-TV-sida: sidnummer i cyan och rubriken.
 	Antalet delningar visas inte, det är för få (ofta 1).
@@ -66,8 +66,9 @@ $idag = date("Y-m-d");
 		</nav>
 
 		<?php
-		output_shared_pages(
-			get_shared_pages_for_period(strtotime("today 00:00", $dag_unix), strtotime("today 24:00", $dag_unix)),
+		// $delat_rader från controllers/textsida.php (avgör noindex).
+		output_tt_lista(
+			$delat_rader,
 			$delat_datum === $idag ? "Inga sidor har delats än idag." : "Inga sidor delades den här dagen."
 		);
 

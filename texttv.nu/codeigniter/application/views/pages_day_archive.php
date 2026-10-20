@@ -16,6 +16,29 @@ $final_time = substr($d["final_date_added"], 11, 5);
 $final_is_other_day = $version_count === 0;
 $final_date_human = date_sv("l j F", strtotime(substr($d["final_date_added"], 0, 10) . " 12:00"));
 
+// Strukturerad data: sidan med datum och brödsmulor Hem → 377 → dagen.
+// Dagslistorna har CollectionPage (day_headlines.php); här är det en
+// enskild sida. date_added är svensk tid.
+$final_iso = (new DateTime($d["final_date_added"], new DateTimeZone("Europe/Stockholm")))->format("c");
+$json_ld = [
+	"@context" => "https://schema.org",
+	"@type" => "WebPage",
+	"name" => $d["headline"],
+	"url" => $d["canonical"],
+	"description" => $d["meta_description"],
+	"inLanguage" => "sv",
+	"dateModified" => $final_iso,
+	"isPartOf" => ["@type" => "WebSite", "name" => "TextTV.nu", "url" => "https://texttv.nu/"],
+	"breadcrumb" => [
+		"@type" => "BreadcrumbList",
+		"itemListElement" => [
+			["@type" => "ListItem", "position" => 1, "name" => "TextTV.nu", "item" => "https://texttv.nu/"],
+			["@type" => "ListItem", "position" => 2, "name" => "SVT Text TV " . $num, "item" => "https://texttv.nu/" . $num],
+			["@type" => "ListItem", "position" => 3, "name" => $d["is_yesterday_url"] ? "Igår" : $d["date_human"], "item" => $d["canonical"]],
+		],
+	],
+];
+
 ?>
 <main id="pages" class="day-archive">
 	<div class="tt-sidbredd tt-dag">
@@ -71,3 +94,4 @@ $final_date_human = date_sv("l j F", strtotime(substr($d["final_date_added"], 0,
 		</ul>
 	</section>
 <?php } ?>
+<script type="application/ld+json"><?php echo json_encode($json_ld, JSON_HEX_TAG | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?></script>

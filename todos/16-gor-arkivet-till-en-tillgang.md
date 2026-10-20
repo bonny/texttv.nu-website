@@ -422,6 +422,23 @@ Obs: navigeringar via service workern får referer
 `https://texttv.nu/service-worker.js` i `access.log`, så den riktiga
 hänvisningen syns bara i GA4.
 
+### SEO-koll 2026-10-20
+
+- Alla nya sidor indexerade utom datumsidorna för 377 (`/377/2026-10-15`
+  okänd för Google). Nästan inga sökklick än.
+- `/377/igar` får visningar på `/377`:s huvudfrågor ("377 målservice") på
+  position 8–9. `/377` oförändrad på 3,3 till och med 17 okt. Kolla igen
+  2026-11-14 (#11 var samma mönster).
+- `/330/igar` ligger kvar i indexet på "svt text 330" trots 301 sedan 14 okt.
+  Försvinner när Google hämtar om den.
+- **Rättat:** `/377/igar` och datumsidorna har `WebPage` med `dateModified`
+  och `BreadcrumbList` (Hem → 377 → dagen). `/sida/delat/…` med snedstreck
+  (det gamla formuläret, cirka 1 200 bot-träffar per dygn) skickas med 301
+  till `/sida/delat?datum=…`.
+- Kvar, inte gjort: cirka 4 100 indexerbara datumsidor på `/sida/delat`
+  sedan 2015, tio rubriker var. Förslag `noindex, follow` på dagar äldre än
+  30 dagar.
+
 ## Relaterat
 
 - [#10](10-retention-raderar-arkivsidor-som-rankar.md): retentionen, pausad.

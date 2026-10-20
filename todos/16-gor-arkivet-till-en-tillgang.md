@@ -1,5 +1,5 @@
 **Status:** aktiv — canonical och dagsarkiv för 377/330 deployade 2026-10-14. Gårdagens mest lästa på startsidan 2026-10-16. Mät 2026-11-14
-**Senast uppdaterad:** 2026-10-16
+**Senast uppdaterad:** 2026-10-20
 
 # Todo #16 — Gör arkivet till en tillgång: idéer för användare, Google och AI
 
@@ -390,6 +390,37 @@ Som tidigare: GSC, samma period året innan, `/377` som kontroll (se
 minnesanteckningen om YoY). För nya URL:er: indexering (URL-inspektion) efter
 en vecka, klick och visningar efter 30 och 90 dagar. För canonical: antalet
 indexerade URL:er med `utm_` i GSC ska gå mot noll.
+
+### Första veckan (GA4, 2026-10-14 – 10-20)
+
+| Sida | Visningar | Användare |
+| --- | ---: | ---: |
+| `/377/igar` | 222 | 136 |
+| `/nyheter/igar` | 97 | 69 |
+| `/sport/igar` | 92 | 68 |
+| `/nyheter/idag` (från 10-18) | 23 | 16 |
+| `/sport/idag` (från 10-18) | 22 | 17 |
+| Datumsidor (`/377/2026-10-14` m.fl.) | ~25 | några få |
+
+Nästan allt är internt: startsidan (även `?homescreen=1`), `/377` och
+sportsidorna. Google 6 visningar till `/377/igar`, 2 till `/nyheter/idag`.
+Några visningar är Pärs egna tester (`texttv.test`, `/377/2099-01-01`).
+`/377/igar` är 2–3 % av `/377`.
+
+**`/377/igar` föll 2026-10-19:** 28–40 per dag 16–18 okt (GA4, mest
+återkommande användare), sedan 7 på måndagen och 0 i GA4 till kl 14 på
+tisdagen. `access.log` bekräftar: cirka 75 → 21 → 9 träffar. Sidan svarar
+200 och länkarna finns i HTML:en. Två orsaker:
+
+1. Måndag: `/377` själv föll till hälften (2 311 → 1 294 navigeringar via
+   service workern). `/377/igar` föll mer än så.
+2. Från 2026-10-19 20:14 (#25): efter kl 10 visar "Mest läst" fliken Idag,
+   vars länkrad har `/377` i stället för `/377/igar`. Startsidan var
+   ungefär hälften av hänvisningarna. Se #25.
+
+Obs: navigeringar via service workern får referer
+`https://texttv.nu/service-worker.js` i `access.log`, så den riktiga
+hänvisningen syns bara i GA4.
 
 ## Relaterat
 

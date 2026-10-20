@@ -1,3 +1,6 @@
+**Status:** aktiv — deployat 2026-10-19, mät 2026-10-24
+**Senast uppdaterad:** 2026-10-20
+
 # #25 Mest läst: växla mellan idag, igår och senaste 7 dagarna
 
 Ny 2026-10-19, från inboxen (Obsidian).
@@ -82,9 +85,39 @@ Sammanvägt, så som steg 1 ska byggas:
 - [x] Steg 1 deployat 2026-10-19: flikarna Idag och Igår (se git log).
 - [x] 7 dagar deployat samma kväll, på Pärs begäran direkt i stället för
   efter mätningen. `week_top_news()` summerar visningarna per nyhet över
-  sju dygn (idag inräknat), matchade mot alla sju dygnens nyheter, cache
-  10 min. Passerade dygn läses ur most_read-filen utan timgräns
-  (`most_read_pages_settled()`), annars hade den tunga frågan körts för sex
-  dygn i timmen (#12). Veckodag i listan inte gjord.
-- [ ] Mät 2026-10-24 med #16: `most_read_tab` per flik och
-  `select_content` per flik i GA4.
+  sju dygn (idag inräknat), cache 10 min. En sida matchas mot sin dags och
+  föregående dags nyheter. Passerade dygn läses med
+  `most_read_pages_cached()`, som inte räknar om ett avslutat dygn varje
+  timme (#12). Veckodag i listan inte gjord.
+- [x] Rättelser efter kodgranskningen (`9d98327`): dagens lista har en egen
+  cachefil (`idag-…`), annars hade "Igår" visat dagens ögonblicksbild nästa
+  dag.
+- [x] `/377/igar` tillbaka i Idag-raden 2026-10-20 (se nedan).
+- [ ] Mät 2026-10-24 med #16: `most_read_tab` och `select_content` i GA4.
+
+## Första dygnet (GA4, 2026-10-19 20:14 – 10-20)
+
+- `most_read_tab`: 43 byten från 3 användare på söndagskvällen (troligen
+  Pärs egna tester), 6 från 2 användare på tisdagen.
+- `select_content`: 10 + 11 klick från 9 + 11 användare.
+
+**Parametern `tab` går inte att läsa ut.** Den är inte registrerad som
+anpassad dimension i GA4 (`customEvent:tab` ger 400), så klicken kan inte
+delas per flik. Pär: lägg till anpassade dimensioner (händelseomfattning)
+för `tab` och `position` i GA4 382798575, Admin → Anpassade definitioner.
+Gäller bara data från och med registreringen, så gör det före mätningen
+2026-10-24. Bara Mest läst skickar `select_content` idag, så antalet klick
+går att läsa även utan dimensionerna.
+
+## Länkraden i fliken Idag tar bort `/377/igar`
+
+Länkraden följer fliken: Idag → `/nyheter/idag`, `/sport/idag`, `/377`;
+Igår → `/nyheter/igar`, `/sport/igar`, `/377/igar`. Efter kl 10 är Idag
+förval, så de flesta ser inte länken till `/377/igar` på startsidan längre.
+Startsidan var ungefär hälften av hänvisningarna till `/377/igar`
+(GA4 14–20 okt), som föll till nästan noll 19–20 okt (se #16, Mätning).
+`/377` finns redan överallt, så länken dit i Idag-raden tillför lite.
+
+**Ändrat 2026-10-20:** Idag-raden (även under 7 dagar) har `/377/igar`
+("Resultat igår") i stället för `/377`. Följ upp 2026-10-24 att
+`/377/igar` är tillbaka på 25–40 per dag.

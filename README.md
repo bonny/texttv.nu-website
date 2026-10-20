@@ -27,6 +27,9 @@ Några av de saker som utmärker texttv.nu är:
   - [Inrikesnyheter, sid 101 till 103](https://texttv.nu/101-103)
   - [Startsida 100 och sportnyheterna på sidan 300](https://texttv.nu/100,300)
   - [På TV Svt 1 & Svt 2, dvs. sidorna 601-604](https://texttv.nu/601-604)
+- Gårdagen finns kvar: [gårdagens resultat på 377](https://texttv.nu/377/igar), [gårdagens nyheter](https://texttv.nu/nyheter/igar) och [sportnyheter](https://texttv.nu/sport/igar), och alla nyheter [hittills idag](https://texttv.nu/nyheter/idag)
+- Mest läst idag, igår och senaste 7 dagarna på [startsidan](https://texttv.nu/)
+- [Senast uppdaterat](https://texttv.nu/sida/senast-uppdaterat) och [mest delat](https://texttv.nu/sida/delat), dag för dag sedan 2015
 - Hjälp oss göra TextTV.nu ännu bättre!
 - Har du förslag på hur man kan göra texttv.nu ännu bättre?
 
@@ -42,7 +45,7 @@ Enklaste sättet är **Docker** – `make up` så snurrar hela sajten lokalt. Kr
 make up
 ```
 
-Det bygger allt och startar fyra saker: webben (CodeIgniter), importern (Laravel), databasen (MariaDB) och ett engångsjobb som hämtar några startsidor direkt från SVT. Efter ~10 sekunder:
+Det bygger allt och startar webben (CodeIgniter), importern (Laravel), databasen (MariaDB), ett engångsjobb som hämtar några startsidor direkt från SVT och lokalimporten, som hämtar nyheter och sport var 15:e minut och övriga sidor en gång i timmen. Efter ~10 sekunder:
 
 - **Sajten:** http://texttv.test:8380/100
 - **Startsidan:** http://texttv.test:8380/
@@ -69,7 +72,7 @@ Bygger inte om något – startar bara. Redigerar du PHP-kod syns ändringarna d
 | `make logs` | Se vad som händer |
 | `make import RANGE=110-115` | Hämta fler sidor från SVT |
 | `make mysql` | Öppna databasen |
-| `make scheduler` | Starta auto-import från SVT (av som standard) |
+| `make scheduler` | Starta hela prod-schemat för importen (av som standard; lokalimporten räcker oftast) |
 | `make destroy` | Nollställ allt inkl. databasen |
 
 `make help` listar alla kommandon. Detaljer och fallgropar finns i [`CLAUDE.md`](CLAUDE.md).

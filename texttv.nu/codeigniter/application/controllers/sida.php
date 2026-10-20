@@ -493,10 +493,13 @@ class Sida extends CI_Controller {
 		// listor. Bara när gårdagens lista finns, annars rutan som förut.
 		$today_top = $pagedescription === "startpage" && $yesterday_top ? today_top_news(self::STARTPAGE_YESTERDAY_COUNT) : [];
 		$week_top = $pagedescription === "startpage" && $yesterday_top ? week_top_news(self::STARTPAGE_YESTERDAY_COUNT) : [];
+		// Gårdagens 377 även här: Idag är förval efter kl 10, och utan den
+		// länken föll /377/igar från 28–40 till 7 visningar per dag. /377
+		// länkas redan överallt (todo #25).
 		$today_links = [
 			["/nyheter/idag", "Nyheter"],
 			["/sport/idag", "Sport"],
-			["/377", "Resultat 377"],
+			["/377/igar", "Resultat igår"],
 		];
 		// Skapa array med data att skicka med till vyerna
 		$data = array();

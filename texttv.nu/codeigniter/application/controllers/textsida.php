@@ -59,25 +59,34 @@ class Textsida extends CI_Controller {
 
 			case "delat":
 
-				// Formuläret skickade förut till /sida/delat/?datum=…, och gamla
-				// länkar har /sida/delat/2015-08-24. Botar hämtar dem fortfarande
-				// (cirka 1 200 om dagen i oktober 2026), så en adress per dag.
-				if (parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH) !== "/sida/delat") {
-					$datum = $this->input->get("datum") ?: $third_level;
-					redirect("/sida/delat" . ($datum ? "?datum=" . rawurlencode($datum) : ""), "location", 301);
+				// En dag: ?datum=2015-08-24. Annat än ett riktigt datum mellan
+				// första mätdagen och idag ger 404; förut blev det "torsdag 1
+				// januari 1970" och en tom lista. En array (?datum[]=x) eller
+				// fler delar i adressen (/sida/delat/2015-08-24/x) är också 404.
+				$fran_get = $this->input->get("datum");
+				if (func_num_args() > 2 || is_array($fran_get)) {
+					show_texttv_404();
 					return;
 				}
-
-				// En dag: ?datum=2015-08-24 eller /sida/delat/2015-08-24. Annat än
-				// ett riktigt datum mellan första mätdagen och idag ger 404; förut
-				// blev det "torsdag 1 januari 1970" och en tom lista.
-				$datum = $this->input->get("datum") ?: $third_level;
-				if ($datum) {
-					$d = DateTime::createFromFormat("!Y-m-d", (string) $datum);
+				$datum = (string) ($fran_get ?: $third_level);
+				if ($datum !== "") {
+					$d = DateTime::createFromFormat("!Y-m-d", $datum);
 					if (!$d || $d->format("Y-m-d") !== $datum || $datum < DELAT_FORSTA_DAG || $datum > date("Y-m-d")) {
 						show_texttv_404();
 						return;
 					}
+				}
+
+				// Formuläret skickade förut till /sida/delat/?datum=…, och gamla
+				// länkar har /sida/delat/2015-08-24. Botar hämtar dem fortfarande
+				// (cirka 1 200 om dagen i oktober 2026), så en adress per dag.
+				// Först efter kontrollen, så att ett felaktigt datum ger 404
+				// direkt och inte en permanent 301 till en 404. redirect() avslutar.
+				if (parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH) !== "/sida/delat") {
+					redirect("/sida/delat" . ($datum !== "" ? "?datum=" . rawurlencode($datum) : ""), "location", 301);
+				}
+
+				if ($datum !== "") {
 					$data["delat_datum"] = $datum;
 					// Listan hämtas här och inte i vyn, så att headern vet om den
 					// är tunn. Efter 2019-09-28 räknades bara webbens delningar

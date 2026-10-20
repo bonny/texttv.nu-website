@@ -37,6 +37,7 @@ services:
       MARIADB_DATABASE: ${DB_DATABASE:-texttv_nu}
       MARIADB_USER: ${DB_USERNAME:-texttv}
       MARIADB_PASSWORD: ${DB_PASSWORD:-texttv}
+      TZ: Europe/Stockholm           # som prod; NOW() och CURDATE() i svensk tid, som PHP (website)
     volumes:
       - mariadb-data:/var/lib/mysql
       - ./deploy/mariadb/init:/docker-entrypoint-initdb.d:ro

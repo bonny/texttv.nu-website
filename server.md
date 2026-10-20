@@ -9,7 +9,7 @@ Detaljer om hur prod-servern är uppsatt. Läs när du jobbar med deploy, cache-
 - **PHP 8.2.31** runtime (NTS, med Zend OPcache 8.2.31).
   - OBS: `.github/workflows/deploy-website.yml` använder PHP 7.4 — det är **bara** för CI-build-stegen (composer/phpunit), inte runtime.
   - Importerns `composer.json` kräver `^8.1` sedan 2026-10-14 (todo #06).
-- **Tidszon: `Europe/Stockholm`** både för servern (`timedatectl`) och PHP (`date.timezone` i `/etc/php/8.2/fpm/php.ini` och `cli/php.ini`), verifierat 2026-10-20. `date_added` sparas i svensk tid, och dygnsgränserna i listorna (`/sida/delat`, Mest läst, `/nyheter/idag`) räknas med PHP:s `strtotime("today")`, så de två måste vara samma. Den lokala Docker-stacken sätter samma zon (`PHP_DATE_TIMEZONE` i `compose.yaml`).
+- **Tidszon: `Europe/Stockholm`** både för servern (`timedatectl`) och PHP (`date.timezone` i `/etc/php/8.2/fpm/php.ini` och `cli/php.ini`), verifierat 2026-10-20. `date_added` sparas i svensk tid, och dygnsgränserna i listorna (`/sida/delat`, Mest läst, `/nyheter/idag`) räknas med PHP:s `strtotime("today")`, så de två måste vara samma. MariaDB följer systemets zon (`NOW()`, `CURDATE()`). Den lokala Docker-stacken sätter samma zon för PHP och MariaDB (`compose.yaml`).
 - **MariaDB 10.11.18** (inte MySQL — service-alias `mysql` finns men det är MariaDB som körs). Verifierad version 2026-08-09.
 - **nginx + php-fpm + MariaDB** (LEMP). Systemd-enheterna heter exakt `nginx`, `php8.2-fpm`, `mariadb`.
 - **Server paths:**

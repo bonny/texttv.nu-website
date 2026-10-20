@@ -56,7 +56,7 @@ trap cleanup EXIT
 NETWORK=$(docker inspect -f '{{range $k, $v := .NetworkSettings.Networks}}{{$k}}{{end}}' "$(docker compose ps -q website)")
 docker run -d --name "$BASE_CONTAINER" --network "$NETWORK" \
 	-p 127.0.0.1:8382:8080 \
-	-e SSL_MODE=off -e NGINX_WEBROOT=/var/www/html \
+	-e SSL_MODE=off -e NGINX_WEBROOT=/var/www/html -e PHP_DATE_TIMEZONE=Europe/Stockholm \
 	-e PHP_OPCACHE_ENABLE=1 -e PHP_OPCACHE_VALIDATE_TIMESTAMPS=1 -e PHP_OPCACHE_REVALIDATE_FREQ=0 \
 	-v "$OUT/base-code/texttv.nu:/var/www/html" \
 	texttv-website:local >/dev/null

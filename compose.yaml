@@ -159,6 +159,7 @@ services:
     environment:
       SSL_MODE: "off"
       NGINX_WEBROOT: /var/www/html         # CI:s index.php ligger i roten, inte /public
+      PHP_DATE_TIMEZONE: Europe/Stockholm  # som php.ini i prod; date_added sparas i svensk tid
     depends_on:
       mariadb:
         condition: service_healthy

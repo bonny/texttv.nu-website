@@ -87,8 +87,7 @@ if ($headline) {
 } else if (isset($pagenum) && $pagenum) {
 	// Fallback: sr-only h1 för crawlers + screenreaders på sidor utan visuell rubrik.
 	// Med ämnet när sidan har ett, som <title>: "SVT Text TV 343 – Allsvenskan tabell".
-	// Inte 202, av samma skäl som den saknas i $arr_page_headlines ovan.
-	$subject_name = sizeof($arr_pages) == 1 && (int) $pagenum !== 202 ? $arr_pages[0]->get_subject_name() : false;
+	$subject_name = sizeof($arr_pages) == 1 ? $arr_pages[0]->get_subject_name() : false;
 	$out .= sprintf(
 		'<h1 class="sr-only">SVT Text TV %d%s</h1>',
 		(int) $pagenum,

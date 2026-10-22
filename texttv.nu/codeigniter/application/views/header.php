@@ -74,11 +74,10 @@ if (isset($is_archive_overview)) {
 		if (($page_name = $one_page->get_page_name())) {
 			// Look for manually entered name
 			$page_title .= trim($page_name);
-		} elseif (isset($is_archive) && sizeof($pages) == 1 && $one_page->has_subject_title()) {
-			// Arkivversion av en sida med fast ämne, där rubriken är t.ex.
-			// tabellens första rad: "Allsvenskan tabell, 20 okt 2026". Bara
-			// en sida, med flera hade datumet stått en gång per sida.
-			$page_title .= $one_page->get_archive_title();
+		} elseif (isset($is_archive) && sizeof($pages) == 1 && ($subject_title = $one_page->get_subject_archive_title())) {
+			// "Allsvenskan tabell, 20 okt 2026". Bara en sida, med flera hade
+			// datumet stått en gång per sida.
+			$page_title .= $subject_title;
 		} elseif (trim($one_page->title)) {
 			// Else see if we found a title when loading the page
 			$page_title .= trim($one_page->title);
@@ -187,30 +186,16 @@ if (!isset($is_archive)) {
 		// 1 page and specific number
 		$first_page_num = $pages[0]->num;
 
-		// Sidor med fast ämne får "NNN - SVT Text TV - <ämne>". Namnen finns
-		// i Texttv_page::get_subject_name(), beskrivningarna nedan.
+		// Sidor med fast ämne får "NNN - SVT Text TV - <ämne>". Ämnena (och
+		// historiken bakom dem) står i Texttv_page::get_subject_name(),
+		// beskrivningarna nedan.
 		if (($subject_name = $pages[0]->get_subject_name())) {
 			$meta_title = sprintf("%d - SVT Text TV - %s", $first_page_num, $subject_name);
 		}
 
-		// (Titlarna till posterna nedan står numera i get_subject_name(),
-		// här finns bara beskrivningarna.)
-		//
-		// De tre posterna nedan skrevs före "NNN - SVT Text TV - <ämne>"-
-		// konventionen (#04 Fas 1) och saknade ämnesord. Utan whitelist-post
-		// hade automatiken ovan gett "330 Resultatbörsen - SVT Text TV" —
-		// posterna gjorde alltså titeln sämre än ingen post alls.
-		//
-		// Verifierat 2026-08-02: levande /330 fanns inte på sida 1 för
-		// "resultatbörsen", medan två av dess egna arkivsnapshots låg på
-		// plats 4 och 9 — de har ämnesordet i titeln eftersom arkivgrenen
-		// (början av filen) hoppar över sidnumret och använder sidans rubrik.
-		// Google skriver inte om titeln på de här sidorna. Se todos/11.
 		if (376 == $first_page_num) {
 			$meta_description = "Målservice från SVT Text TV 376";
 		} else if (377 == $first_page_num) {
-			// Titeln (i get_subject_name()) ändrades för konsekvens, inte för effekt: Google skriver om
-			// titeln här och hämtar sin egen från <h1>. Se todos/09.
 			$meta_description = "På SVT Text TV 377 finns dagens sportresultat & målservice. ⚽️️ 377 – sportnördens bästa vän!";
 		} else if (330 == $first_page_num) {
 			$meta_description = "Resultatbörsen på SVT Text TV 330";
@@ -235,6 +220,7 @@ if (!isset($is_archive)) {
 			$meta_title = "Text TV 571 med V75-resultat";
 			$meta_description = "Se dagens V75-resultat med vinnare, odds/proc och värde på SVT Text TV 571.";
 		} else if (202 == $first_page_num) {
+			$meta_title = "202 - SVT Text TV - Börsen";
 			$meta_description = "Följ omsättningen för stockholmsbörsen varje dag på SVT Text TV sid 202. Omsättning large cap och sammanfattning OMX Stockholm.";
 		} else if (101 == $first_page_num) {
 			$meta_description = "Dagens inrikesnyheter i korthet på SVT Text TV 101. Rubrikerna från Sverige uppdateras löpande genom dagen.";
@@ -485,10 +471,10 @@ if (isset($day_archive)) {
 
 			$meta_title = "";
 
-			if (sizeof($pages) == 1 && $pages[0]->has_subject_title()) {
-				// "Allsvenskan tabell, 20 okt 2026", som <title>, i stället för
-				// tabellens första rad i og:title och twitter:title.
-				$meta_title .= $pages[0]->get_archive_title();
+			if (sizeof($pages) == 1 && ($subject_title = $pages[0]->get_subject_archive_title())) {
+				// Som <title>, i stället för tabellens första rad i og:title
+				// och twitter:title.
+				$meta_title .= $subject_title;
 			} elseif (trim($pages[0]->title)) {
 				$meta_title .= trim($pages[0]->title);
 			} else {
@@ -636,19 +622,17 @@ if (isset($day_archive)) {
 				// Rubriken till "Senast besökta" i förslagen (js/tt-sok.js).
 				"title" => $one_page->get_page_title(),
 			];
-			// En nyhet byts ut på sitt sidnummer, så "Senast besökta" länkar
-			// till versionen man läste. Samma intervall som "Mest läst"
-			// (get_most_read_pages_for_period). Bara när en enda sida visas,
-			// det är bara då förslagen sparar besöket.
-			$num = (int) $one_page->num;
-			$is_news = ($num >= 106 && $num <= 199) || ($num >= 303 && $num <= 329);
-			if ($is_news && count($pages) == 1 && $one_page->id && trim($pageData["title"]) !== "") {
-				$pageData["permalink"] = $one_page->get_permalink();
-			}
-			// Namnet i "Senast besökta": "Allsvenskan tabell" i stället för
-			// tabellens första rad.
-			if (count($pages) == 1 && ($subject_name = $one_page->get_subject_name())) {
-				$pageData["name"] = $subject_name;
+			// Till "Senast besökta", som bara sparar enskilda sidor.
+			if (count($pages) == 1) {
+				// En nyhet byts ut på sitt sidnummer, så länken går till
+				// versionen man läste.
+				if ($one_page->is_news() && $one_page->id && trim($pageData["title"]) !== "") {
+					$pageData["permalink"] = $one_page->get_permalink();
+				}
+				// "Allsvenskan tabell" i stället för tabellens första rad.
+				if (($subject_name = $one_page->get_subject_name())) {
+					$pageData["name"] = $subject_name;
+				}
 			}
 			$bodyPagesDataAttr[] = $pageData;
 		}

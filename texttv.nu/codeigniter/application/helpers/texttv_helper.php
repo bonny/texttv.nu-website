@@ -143,11 +143,9 @@ function get_most_read_pages_for_period($time_from = null, $time_to = null, $typ
 	$time_to_ymd = date("Y-m-d H:i", $time_to);
 		
 	if ($type == 'news') {
-		// type=news default, visa endast sidor 106 - 199
-		$type_and = 'AND tt.page_num BETWEEN 106 AND 199';
+		$type_and = vsprintf('AND tt.page_num BETWEEN %d AND %d', Texttv_page::NEWS_RANGE);
 	} elseif ($type == 'sport') {
-		// type=news default, visa endast sidor 106 - 199
-		$type_and = 'AND tt.page_num BETWEEN 303 AND 329';
+		$type_and = vsprintf('AND tt.page_num BETWEEN %d AND %d', Texttv_page::SPORT_NEWS_RANGE);
 	} else {
 		// type=, visa allt förutom startsidor, översiktssidor osv.
 		$type_and = '';

@@ -2,6 +2,11 @@
 
 class Texttv_page extends CI_Model {
 
+	// Nyhetssidorna, där sidnumret byter nyhet: "Mest läst" (texttv_helper.php)
+	// och permalänken i "Senast besökta" (views/header.php).
+	const NEWS_RANGE = [106, 199];
+	const SPORT_NEWS_RANGE = [303, 329];
+
 	var
 		// the id of this entry in db
 		$id,
@@ -956,12 +961,35 @@ class Texttv_page extends CI_Model {
 
 
     /**
+     * Om sidan är en nyhetssida (NEWS_RANGE, SPORT_NEWS_RANGE).
+     *
+     * @return bool
+     */
+    function is_news() {
+		$num = (int) $this->num;
+		foreach ([self::NEWS_RANGE, self::SPORT_NEWS_RANGE] as $range) {
+			if ($num >= $range[0] && $num <= $range[1]) {
+				return true;
+			}
+		}
+		return false;
+    }
+
+    /**
      * Sidans ämne när sidnumret har ett fast innehåll: "Allsvenskan tabell"
-     * på 343. Tabellsidornas egen rubrik är tabellens första rad. Används i
-     * titeln (views/header.php), i arkivversionernas titel och rubrik, i
-     * delningen och i "Senast besökta". 106 och 130 ("Inrikes nyhet",
-     * "Utrikes nyhet") saknas med flit: där är nyhetens rubrik bättre. 328
-     * (NHL-matchfakta) har sitt ämne som rubrik, så där spelar det ingen roll.
+     * på 343, där sidans egen rubrik är tabellens första rad. Titeln blir
+     * "NNN - SVT Text TV - <ämne>" (views/header.php).
+     *
+     * 106 och 130 ("Inrikes nyhet", "Utrikes nyhet") och 202 ("Börsen") har
+     * sina titlar kvar i header.php: på nyhetssidorna är nyhetens rubrik
+     * bättre, och 202 hör till de nerlagda ekonomisidorna där ett ämnesord i
+     * rubriken vore missvisande. 328 (NHL-matchfakta) har ämnet som rubrik.
+     *
+     * 330, 376 och 377 fick titlar med ämnesord 2026-08-02; utan dem hade
+     * den automatiska titeln blivit sämre. Levande /330 fanns då inte på sida
+     * 1 för "resultatbörsen", men två av dess arkivversioner gjorde det, med
+     * ämnesordet i titeln. 377 ändrades för konsekvens: Google skriver om
+     * titeln där och tar sin egen från <h1>. Se todos/09 och todos/11.
      *
      * @return string|false
      */
@@ -973,7 +1001,6 @@ class Texttv_page extends CI_Model {
 		551 => "Stryktipset",
 		552 => "Stryktipset",
 		383 => "Målservice fotboll",
-		202 => "Börsen",
 		101 => "Inrikes",
 		104 => "Utrikes",
 		127 => "Börsindex",
@@ -1017,31 +1044,29 @@ class Texttv_page extends CI_Model {
     }
 
     /**
-     * Rubriken för en viss version av sidan: arkivsidans titel och <h1>,
-     * delningen och oEmbed. Som get_page_title(), men en sida med fast
-     * ämne och utan eget namn får ämnet och dagen i stället för sin
-     * rubrik, som på tabellsidor är tabellens första rad:
-     * "Allsvenskan tabell, 20 okt 2026".
+     * Rubrik för en viss version av en sida med fast ämne:
+     * "Allsvenskan tabell, 20 okt 2026" i stället för tabellens första rad.
+     * false för sidor med eget namn (330 "Resultatbörsen" är orörd), utan
+     * ämne, eller "Sidan ej i sändning", där finns ingen tabell att döpa.
+     *
+     * @return string|false
+     */
+    function get_subject_archive_title() {
+		if ($this->get_page_name() || !$this->get_subject_name() || $this->is_not_broadcasted()) {
+			return false;
+		}
+		// Samma datum som arkivsidans synliga rubrik.
+		return $this->get_subject_name() . ", " . date_sv("j M Y", (int) $this->date_updated_unix);
+    }
+
+    /**
+     * Som get_page_title(), men med get_subject_archive_title() när sidan
+     * har en sådan.
      *
      * @return string
      */
     function get_archive_title() {
-		if ($this->has_subject_title()) {
-			// Samma datum som arkivsidans synliga rubrik.
-			return $this->get_subject_name() . ", " . date_sv("j M Y", (int) $this->date_updated_unix);
-		}
-		return $this->get_page_title();
-    }
-
-    /**
-     * Om get_archive_title() ger ämne och dag i stället för sidans rubrik.
-     * Inte för sidor med eget namn (330 "Resultatbörsen" är orörd) eller
-     * för "Sidan ej i sändning", där finns ingen tabell att döpa.
-     *
-     * @return bool
-     */
-    function has_subject_title() {
-		return !$this->get_page_name() && $this->get_subject_name() && !$this->is_not_broadcasted();
+		return $this->get_subject_archive_title() ?: $this->get_page_title();
     }
 
     /**

@@ -4,13 +4,12 @@ Index över förbättringsarbete. Varje todo har en egen fil under
 [`todos/`](todos/) med fullständig analys. Konvention och
 mappstruktur: [`todos/README.md`](todos/README.md).
 
-Senast uppdaterad: 2026-10-22 (#26 nytt: blogginlägg om live-uppdateringen på resultatsidorna.)
+Senast uppdaterad: 2026-10-22 (#26 klar: blogginlägget om live-uppdateringen publicerat.)
 
 ## Aktiva
 
 | #   | Titel | Status | Fil |
 | --- | ----- | ------ | --- |
-| 26  | Blogginlägg: resultaten uppdaterar sig själva | ny 2026-10-22. Utkast och skript klara (backup bara av bloggtabellen). Väntar på deploy av live-uppdateringen på resultatsidorna, sedan publicerar Pär | [todos/26-blogginlagg-live-resultat/README.md](todos/26-blogginlagg-live-resultat/README.md) |
 | 25  | Mest läst på startsidan: flikar för idag, igår, 7 dagar | **Deployat 2026-10-19** (Idag, Igår och 7 dagar, GA4 `most_read_tab`/`select_content`). Kvar: Pär registrerar `tab` och `position` som anpassade dimensioner i GA4 före mätningen 2026-10-24. Fynd: fliken Idag (förval efter kl 10) tog bort länken till `/377/igar`, som föll från 28–40 till 7 per dag. Länken tillbaka i Idag-raden 2026-10-20 | [todos/25-mest-last-idag-igar-vecka.md](todos/25-mest-last-idag-igar-vecka.md) |
 | 24  | Fler delningar, och räkna dem som finns | ny 2026-10-18. Appens delningar räknades inte sedan 2019 (bara i `page_actions`); nu räknas de, "Dela sidan" är en knapp även på arkivsidor, webben mäts i GA4. Efterräkningen körd 2026-10-18 20:11 (234 sidor). Kvar: mätningen 2026-10-25 | [todos/24-fler-delningar/README.md](todos/24-fler-delningar/README.md) |
 | 22  | Granskningen 2026-10-18: det som mäts en ändring åt gången | ny 2026-10-18. Säkra fixar deployade (annonsblocket som aldrig fylldes, tryckbara rader, `/nyheter/idag`). Ad intents avstängda av Pär 2026-10-18. Kvar: AdSense-inställningar för Pär (vinjettfallet 11–14 okt, ankaret, GA4-länkning) och fem ändringar som mäts en åt gången (toppannonsens höjd på mobil först) | [todos/22-granskning-2026-10-18-matas-en-at-gangen.md](todos/22-granskning-2026-10-18-matas-en-at-gangen.md) |
@@ -65,6 +64,7 @@ eller markera todon som klar.
 
 | #   | Titel | Datum | Fil |
 | --- | ----- | ----- | --- |
+| 26  | Blogginlägg: resultaten uppdaterar sig själva | 2026-10-22 | [todos/done/26-blogginlagg-live-resultat/README.md](todos/done/26-blogginlagg-live-resultat/README.md) |
 | 23  | Blogginlägg om nya utseendet | 2026-10-18 | [todos/done/23-blogginlagg-nya-utseendet.md](todos/done/23-blogginlagg-nya-utseendet.md) |
 | 21  | Tydligare koppling till Brottsplatskartan | 2026-10-18 | [todos/done/21-brottsplatskartan-integration.md](todos/done/21-brottsplatskartan-integration.md) |
 | 20  | "Tidigare i dag" på sportsidorna | 2026-10-18 | [todos/done/20-tidigare-i-dag-pa-sportsidorna.md](todos/done/20-tidigare-i-dag-pa-sportsidorna.md) |

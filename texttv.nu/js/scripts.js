@@ -481,10 +481,64 @@ document.querySelectorAll(".controls-topnav-search-input").forEach(function (inp
 		clearInterval(timer);
 	}
 
-	// Hämtar sidan igen och byter ut Text TV-rutan. En rad vars text inte
-	// fanns i förra versionen (ett nytt resultat) får tt-rad-ny en stund.
-	// Annonserna och scrollpositionen rörs inte.
+	// Hämtar sidan igen och byter ut Text TV-rutan. En rad som inte fanns i
+	// förra versionen (ett nytt resultat) får tt-rad-ny en stund. Annonserna
+	// och scrollpositionen rörs inte.
+	//
+	// Ett nätverksfel eller en cachad sida från innan uppdateringen försöks
+	// igen vid nästa fråga. Efter MAX_MISSAR i rad visas rutan i stället, så
+	// att en flik inte hämtar hela sidan var femte sekund i all evighet. Har
+	// sidan ändrat form (fler sidor, "sänds inte"-rutan kommit eller gått)
+	// visas rutan direkt.
+	var MAX_MISSAR = 4;
+	var missar = 0;
 	var hamtar = false;
+
+	function miss() {
+		missar++;
+		if (missar >= MAX_MISSAR) {
+			visaRuta();
+		}
+	}
+
+	// Byter gammal mot ny om båda finns.
+	function bytUt(selector, doc) {
+		var gammal = document.querySelector(selector);
+		var ny = doc.querySelector(selector);
+		if (gammal && ny) {
+			gammal.replaceWith(document.importNode(ny, true));
+		}
+	}
+
+	function bytSida(gammal, ny, andrade) {
+		// Raderna i förra versionen, räknade, så att en rad som står två
+		// gånger bara räknas som oförändrad så många gånger den fanns.
+		var forut = {};
+		gammal.querySelectorAll(".line").forEach(function (l) {
+			forut[l.textContent] = (forut[l.textContent] || 0) + 1;
+		});
+		ny = document.importNode(ny, true);
+		ny.querySelectorAll(".line:not(.toprow)").forEach(function (l) {
+			var text = l.textContent;
+			if (forut[text]) {
+				forut[text]--;
+			} else if (text.trim()) {
+				l.classList.add("tt-rad-ny");
+				andrade.push(l);
+			}
+		});
+		// Står fokus på en länk i sidan flyttas det till samma länk i den nya.
+		var fokus = gammal.contains(document.activeElement) && document.activeElement.getAttribute("href");
+		gammal.replaceWith(ny);
+		ttMarkeraRader(ny.parentNode);
+		if (fokus) {
+			var lank = ny.querySelector('a[href="' + fokus + '"]');
+			if (lank) {
+				lank.focus({ preventScroll: true });
+			}
+		}
+	}
+
 	function uppdateraPaPlats() {
 		if (hamtar) {
 			return;
@@ -501,37 +555,25 @@ document.querySelectorAll(".controls-topnav-search-input").forEach(function (inp
 			.then(function (html) {
 				var doc = new DOMParser().parseFromString(html, "text/html");
 				var nyaPages = JSON.parse(doc.body.getAttribute("data-pages")) || [];
-				// En cachad sida från innan uppdateringen: försök igen nästa gång.
 				if (!nyaPages.length || senasteVersion(nyaPages) <= latestUpdate) {
+					miss();
 					return;
 				}
 				var gamla = document.querySelectorAll(".one-page[data-sida]");
 				var nya = doc.querySelectorAll(".one-page[data-sida]");
-				if (!nya.length || nya.length !== gamla.length) {
-					throw new Error("Sidan har ändrat form");
+				var sands = !document.querySelector(".not-broadcasted-notice") === !doc.querySelector(".not-broadcasted-notice");
+				if (!nya.length || nya.length !== gamla.length || !sands) {
+					visaRuta();
+					return;
 				}
+				missar = 0;
 				var andrade = [];
 				nya.forEach(function (ny, i) {
-					var forut = {};
-					gamla[i].querySelectorAll(".line").forEach(function (l) {
-						forut[l.textContent] = true;
-					});
-					ny = document.importNode(ny, true);
-					ny.querySelectorAll(".line:not(.toprow)").forEach(function (l) {
-						if (!forut[l.textContent] && l.textContent.trim()) {
-							l.classList.add("tt-rad-ny");
-							andrade.push(l);
-						}
-					});
-					gamla[i].replaceWith(ny);
-					ttMarkeraRader(ny.parentNode);
+					bytSida(gamla[i], ny, andrade);
 				});
-				// "Uppdaterad 22:40" under sidan.
-				var tid = document.querySelector(".pageshare__updated");
-				var nyTid = doc.querySelector(".pageshare__updated");
-				if (tid && nyTid) {
-					tid.replaceWith(document.importNode(nyTid, true));
-				}
+				// "Uppdaterad 22:40" och "Tidigare i dag" under sidan.
+				bytUt(".pageshare__updated", doc);
+				bytUt(".tt-tidigare", doc);
 				setTimeout(function () {
 					andrade.forEach(function (l) {
 						l.classList.remove("tt-rad-ny");
@@ -542,15 +584,17 @@ document.querySelectorAll(".controls-topnav-search-input").forEach(function (inp
 				pages = nyaPages;
 				document.body.setAttribute("data-pages", JSON.stringify(nyaPages));
 				latestUpdate = senasteVersion(nyaPages);
-				status.textContent = "Sidan uppdaterad, " + andrade.length + (andrade.length === 1 ? " rad ändrad" : " rader ändrade");
 
-				if (typeof gtag === "function") {
-					gtag("event", "live_update", { page_num: pageNums, changed_rows: andrade.length });
+				// Bara när något syns ha ändrats, t.ex. inte när bara datumet i
+				// översta raden bytts vid midnatt.
+				if (andrade.length) {
+					status.textContent = "Sidan uppdaterad, " + andrade.length + (andrade.length === 1 ? " rad ändrad" : " rader ändrade");
+					if (typeof gtag === "function") {
+						gtag("event", "live_update", { page_num: pageNums, changed_rows: andrade.length });
+					}
 				}
 			})
-			.catch(function () {
-				visaRuta();
-			})
+			.catch(miss)
 			.then(function () {
 				hamtar = false;
 			});

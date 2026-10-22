@@ -36,6 +36,7 @@
 	var mestLast = null; // null = inte hämtat, [] = hämtat men tomt eller fel
 	var options = [];
 	var active = -1;
+	var nuvarande = null; // länken som sparades för sidan man står på
 
 	// Läs och skriv senast besökta. localStorage kan saknas eller kasta
 	// (privat läge), då blir listan bara tom.
@@ -62,15 +63,23 @@
 			return;
 		}
 		var num = String(pages[0].num);
+		// En nyhet länkar till versionen man läste (permalänken skickas bara
+		// för nyhetssidor, se views/header.php). Andra sidor länkar till
+		// numret och visar det som står där nu.
+		var url = pages[0].permalink || "/" + num;
+		nuvarande = url;
+		// En tidigare nyhet på samma nummer får ligga kvar.
 		var senaste = lasSenaste().filter(function (s) {
-			return s.num !== num;
+			return s.url !== url;
 		});
 		// En sida som står i sidlistan med exakt det numret (358 "SHL tabell")
 		// får det namnet; sidans egen titel kan på tabellsidor vara
-		// tabellhuvudet ("S  V  F VÖ FÖ"). Annars titeln ("Inrikes" på 101).
+		// tabellhuvudet ("S  V  F VÖ FÖ"). Därefter namnet från sidans titel
+		// ("Allsvenskan tabell" på 343, se views/header.php) och sist sidans
+		// rubrik ("Inrikes" på 101).
 		var kand = sidaMedNum(num, true);
-		var namn = kand ? kand.namn : String(pages[0].title || "").replace(/\s+/g, " ").trim();
-		senaste.unshift({ num: num, namn: namn || "Sida " + num, url: "/" + num });
+		var namn = kand ? kand.namn : String(pages[0].name || pages[0].title || "").replace(/\s+/g, " ").trim();
+		senaste.unshift({ num: num, namn: namn || "Sida " + num, url: url });
 		try {
 			localStorage.setItem(SENASTE_KEY, JSON.stringify(senaste.slice(0, SENASTE_MAX)));
 		} catch (e) {}
@@ -87,8 +96,11 @@
 				return r.json();
 			})
 			.then(function (json) {
+				// Rubriken är från en viss version av sidan, och sidnumret kan
+				// ha bytt nyhet sedan dess. Permalänken går till den versionen.
 				mestLast = (json.pages || []).slice(0, 3).map(function (p) {
-					return { num: String(p.page_num), namn: p.title, url: "/" + p.page_num };
+					var url = String(p.permalink || "").replace(/^https?:\/\/[^\/]+/, "") || "/" + p.page_num;
+					return { num: String(p.page_num), namn: p.title, url: url };
 				});
 				if (!panel.hidden && input.value === "") {
 					rita();
@@ -120,9 +132,10 @@
 	function sektioner(q) {
 		if (q === "") {
 			var s = [];
-			// Sidan man redan står på är inget förslag.
+			// Sidan man redan står på är inget förslag. En äldre nyhet på
+			// samma nummer är det.
 			var senaste = lasSenaste().filter(function (s) {
-				return s.url !== location.pathname;
+				return s.url !== location.pathname && s.url !== nuvarande;
 			});
 			if (senaste.length) {
 				s.push({ rubrik: "Senast besökta", rader: senaste });

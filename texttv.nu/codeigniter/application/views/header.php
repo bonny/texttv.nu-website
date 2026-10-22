@@ -357,6 +357,13 @@ if (!isset($is_archive)) {
 			$meta_description = "Formel 1 på SVT Text TV 744. 🏎️ Resultat och placeringar från F1-loppen – Grand Prix för Grand Prix.";
 		}
 
+		// Sidans namn i "Senast besökta" (js/tt-sok.js), från en egen post
+		// ovan: "Allsvenskan tabell" på 343. Tabellsidornas rubrik är annars
+		// tabellens första rad. Blockreserven nedan ger bara "Sport" o.d.
+		if (preg_match('/^\d{3} - SVT Text TV - (.+)$/u', $meta_title, $m)) {
+			$suggestion_name = $m[1];
+		}
+
 		// Blockbaserad fallback för sidor utan specifik whitelist-entry.
 		// Sidnummer-blocken följer SVT Text TV:s indelning (se även breadcrumbs.php
 		// som har samma mappning). Ger keyword-rik description som är stabil per
@@ -656,13 +663,26 @@ if (isset($day_archive)) {
 	if (isset($pages)) {
 		foreach ($pages as $one_page) {
 			//printf("pages.push({num:%d,id:%d,added:%d});", $one_page->num, $one_page->id, $one_page->date_added_unix);
-			$bodyPagesDataAttr[] = [
+			$pageData = [
 				"num" => (int) $one_page->num,
 				"id" => (int) $one_page->id,
 				"added" => (int) ($one_page->polling_added_unix ? $one_page->polling_added_unix : $one_page->date_added_unix),
 				// Rubriken till "Senast besökta" i förslagen (js/tt-sok.js).
 				"title" => $one_page->get_page_title(),
 			];
+			// En nyhet byts ut på sitt sidnummer, så "Senast besökta" länkar
+			// till versionen man läste. Samma intervall som "Mest läst"
+			// (get_most_read_pages_for_period). Bara när en enda sida visas,
+			// det är bara då förslagen sparar besöket.
+			$num = (int) $one_page->num;
+			$is_news = ($num >= 106 && $num <= 199) || ($num >= 303 && $num <= 329);
+			if ($is_news && count($pages) == 1 && $one_page->id && trim($pageData["title"]) !== "") {
+				$pageData["permalink"] = $one_page->get_permalink();
+			}
+			if (isset($suggestion_name) && count($pages) == 1) {
+				$pageData["name"] = $suggestion_name;
+			}
+			$bodyPagesDataAttr[] = $pageData;
 		}
 	}
 	?>

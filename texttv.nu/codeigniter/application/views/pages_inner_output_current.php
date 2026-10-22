@@ -239,5 +239,11 @@ if (!empty($polis_handelser)) {
 	$out .= $this->load->view('polis_handelser', ['polis_handelser' => $polis_handelser], TRUE);
 }
 
+// Mest läst efter annonsen och polisrutan (granskning 2026-10-22). Sätts
+// bara av Sida::visa().
+if (!empty($mest_last) && !$this->input->get("apiAppShare")) {
+	$out .= $this->load->view('mest_last_under_sidan', ['mest_last' => $mest_last, 'placement' => 'sida'], TRUE);
+}
+
 
 echo $out;

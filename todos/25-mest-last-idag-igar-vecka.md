@@ -1,5 +1,5 @@
 **Status:** aktiv — deployat 2026-10-19, mät 2026-10-24
-**Senast uppdaterad:** 2026-10-20
+**Senast uppdaterad:** 2026-10-22
 
 # #25 Mest läst: växla mellan idag, igår och senaste 7 dagarna
 
@@ -121,3 +121,32 @@ Startsidan var ungefär hälften av hänvisningarna till `/377/igar`
 **Ändrat 2026-10-20:** Idag-raden (även under 7 dagar) har `/377/igar`
 ("Resultat igår") i stället för `/377`. Följ upp 2026-10-24 att
 `/377/igar` är tillbaka på 25–40 per dag.
+
+## Mest läst under nyhetssidorna (2026-10-22)
+
+Pär ville ha rutan på fler ställen. SEO- och AdSense-granskning (subagenter)
+samma dag, sammanvägt och byggt direkt:
+
+- **Var:** enskilda sidor 100–199 och deras arkivsidor. Inte sport
+  (300–399): där bläddrar man mellan resultatsidor, och /377 blir kontroll.
+- **Hur:** fem rader, inga flikar, server-renderat
+  (`views/mest_last_under_sidan.php`, `mest_last_under_sidan()` i
+  `texttv_helper.php`). Hela rutan (~33 länkar, 170 ord) hade varit större än
+  själva sidan (/101 ~437 ord).
+- **Vilken lista:** levande sida igår före kl 10, annars idag (sidan
+  renderas om var fjärde sekund, så servern kan välja). Arkivsida: samma
+  dags lista, som inte ändras och hör till sidan; inom most_read-cachens
+  14 dagar, annars dagens. Sidans egen nyhet tas bort. Färre än tre kvar →
+  igår.
+- **Placering:** efter annonsen och polisrutan, med 2em luft mot annonsen
+  (felklick). På arkivsidor efter Dela-knappen.
+- **Mätning:** `select_content` har nu `placement` (`startsida`, `sida`,
+  `arkiv`). Registrera `placement` som anpassad dimension i GA4 tillsammans
+  med `tab` och `position`. Jämför sidor per session och avvisning för
+  sessioner som landar på arkivsidor (1,33 sidor/90 % avvisning på desktop
+  8–21 okt) före/efter, mot samma veckor året innan och /377 som kontroll.
+
+Även från AdSense-granskningen, inte gjort: annonsrubriken "Fler nyheter
+efter annonsen" (`ad--before-latest`) är ingen godkänd etikett; AdSense vill
+ha "Annons"/"Annonser". Och kanske en flik "Senaste | Mest läst" i
+"Senaste nyheterna" i stället för två listor efter varandra.

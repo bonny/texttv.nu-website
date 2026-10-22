@@ -117,6 +117,12 @@ if (!empty($polis_handelser) && !$this->input->get("apiAppShare")) {
 			'<div class="pageshare tt-sidbredd"><button type="button" class="pageshare__sharebutton">Dela sidan</button></div>'
 		);
 
+		// Samma dags mest lästa, så att den som kommer från Google eller en
+		// delad länk har något att läsa vidare (granskning 2026-10-22).
+		if (!empty($mest_last)) {
+			$this->output->append_output($this->load->view('mest_last_under_sidan', ['mest_last' => $mest_last, 'placement' => 'arkiv'], TRUE));
+		}
+
 		// Längst ner: tillbaka till den levande sidan.
 		$this->output->append_output( sprintf(
 			'<p class="tt-sidbredd tt-arkiv__slut">Du tittar på en arkiverad version. <a class="tt-link" href="%2$s">SVT Text TV %1$s just nu →</a></p>',

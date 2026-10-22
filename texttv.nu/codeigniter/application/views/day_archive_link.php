@@ -145,7 +145,7 @@ $lankrad = function ($links) {
 				return;
 			}
 			var rader = Array.prototype.slice.call(p.querySelectorAll(".tt-list a"));
-			ga("select_content", { content_type: "most_read", tab: p.dataset.flik, position: rader.indexOf(a) + 1 });
+			ga("select_content", { content_type: "most_read", tab: p.dataset.flik, position: rader.indexOf(a) + 1, placement: "startsida" });
 		});
 	});
 })();

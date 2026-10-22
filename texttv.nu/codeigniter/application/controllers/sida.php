@@ -81,6 +81,10 @@ class Sida extends CI_Controller {
 				$data["polis_handelser"] = (sizeof($arr_pages) === 1 && (int) $page->num >= 100 && (int) $page->num <= 199)
 					? bpk_handelser_for_titel($page->title, $page->date_added_unix)
 					: [];
+				// "Mest läst" samma dag under arkiverade nyheter.
+				$data["mest_last"] = (sizeof($arr_pages) === 1 && (int) $page->num >= 100 && (int) $page->num <= 199)
+					? mest_last_under_sidan($page->title, (int) $page->num, date("Y-m-d", $page->date_added_unix))
+					: null;
 
 				$this->load->view('header', $data);
 				$this->load->view('pages_inner_output_archive', $data);
@@ -519,6 +523,12 @@ class Sida extends CI_Controller {
 		$data["polis_handelser"] = (sizeof($arr_page_objs) === 1 && !$not_broadcasted && (int) $page->num >= 100 && (int) $page->num <= 199)
 			? bpk_handelser_for_titel($page->title, $page->date_added_unix)
 			: [];
+
+		// "Mest läst" under nyhetssidorna, efter annonsen. Inte på startsidan,
+		// som har den stora rutan med flikar.
+		$data["mest_last"] = ($pagedescription !== "startpage" && sizeof($arr_page_objs) === 1 && (int) $page->num >= 100 && (int) $page->num <= 199)
+			? mest_last_under_sidan($page->title, (int) $page->num)
+			: null;
 
 		// Ladda vyer för sidhuvud och kontroller
 		$this->load->view('header', $data);

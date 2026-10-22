@@ -1017,6 +1017,125 @@ function week_top_news($count)
 }
 
 /**
+ * En dags mest lästa nyheter, för "Mest läst" under nyhetssidorna och deras
+ * arkivsidor. Idag och igår är startsidans filer. Äldre dagar räknas fram
+ * en gång och sparas, som gårdagen. Dagar som most_read-cachen inte täcker
+ * (14 dagar, som Dagsnyheter::MOST_READ_DAYS_BACK) ger en tom lista: där
+ * skulle den tunga queryn köras vid varje visning.
+ *
+ * @param string $day_ymd Datum, Y-m-d.
+ * @param int    $count   Antal nyheter.
+ * @return array Nyheter i samma form som get_day_stories(), eller tom.
+ */
+function news_top_for_day($day_ymd, $count)
+{
+	$tz = new DateTimeZone("Europe/Stockholm");
+	$today = new DateTime("today", $tz);
+	$yesterday = new DateTime("yesterday", $tz);
+	$oldest = new DateTime("today -14 days", $tz);
+
+	if ($day_ymd === $today->format("Y-m-d")) {
+		return today_top_news($count);
+	}
+	if ($day_ymd === $yesterday->format("Y-m-d")) {
+		return yesterday_top_news($count);
+	}
+	if ($day_ymd > $today->format("Y-m-d") || $day_ymd < $oldest->format("Y-m-d")) {
+		return [];
+	}
+	// Samma fil som yesterday_top_news() skrev när dagen var igår.
+	$valid_from = (new DateTime($day_ymd . " +1 day", $tz))->getTimestamp();
+	return startpage_top_news($day_ymd, $count, 0, function () use ($day_ymd) {
+		return day_top_news($day_ymd);
+	}, $valid_from);
+}
+
+/**
+ * Tar bort nyheten man redan läser ur en Mest läst-lista.
+ *
+ * @param array  $items    Nyheter ur news_top_for_day().
+ * @param string $title    Sidans rubrik.
+ * @param int    $page_num Sidans nummer.
+ * @param int    $count    Antal att behålla.
+ * @return array
+ */
+function news_top_without_page($items, $title, $page_num, $count)
+{
+	$key = day_story_key($title);
+	$items = array_filter($items, function ($item) use ($key, $page_num) {
+		return $key === "" || !day_same_story($key, day_story_key($item["title"]), (int) $item["page_num"] === (int) $page_num);
+	});
+	return array_slice(array_values($items), 0, $count);
+}
+
+/**
+ * "Mest läst" under en nyhetssida (views/mest_last_under_sidan.php), så att
+ * den som läst klart har något att gå vidare till.
+ *
+ * Levande sida: igår före kl 10, annars idag, som startsidans förval
+ * (todo #25). Sidan renderas om var fjärde sekund, så valet kan göras här.
+ * Arkivsida: samma dags lista, som inte ändras och hör till sidan. Finns
+ * den inte (äldre än most_read-cachen) visas dagens i stället.
+ *
+ * @param string      $title    Sidans rubrik; den nyheten tas bort ur listan.
+ * @param int         $page_num Sidans nummer.
+ * @param string|null $day_ymd  Arkivsidans datum, null för en levande sida.
+ * @return array|null ["rubrik", "items", "link" => [url, text], "dag"], eller null.
+ */
+function mest_last_under_sidan($title, $page_num, $day_ymd = null)
+{
+	$count = 5;
+	$tz = new DateTimeZone("Europe/Stockholm");
+	$now = new DateTime("now", $tz);
+	$today_ymd = $now->format("Y-m-d");
+	$yesterday_ymd = (new DateTime("yesterday", $tz))->format("Y-m-d");
+
+	// Hämtar en till, eftersom sidans egen nyhet kan försvinna.
+	$hamta = function ($ymd) use ($title, $page_num, $count) {
+		return news_top_without_page(news_top_for_day($ymd, $count + 1), $title, $page_num, $count);
+	};
+
+	$items = [];
+	$dag = null;
+	if ($day_ymd !== null) {
+		$items = $hamta($day_ymd);
+		$dag = $day_ymd;
+	}
+	if (count($items) < 3) {
+		$dag = (int) $now->format("G") < 10 ? $yesterday_ymd : $today_ymd;
+		$items = $hamta($dag);
+		// Tidigt på dagen finns bara några få.
+		if (count($items) < 3 && $dag === $today_ymd) {
+			$dag = $yesterday_ymd;
+			$items = $hamta($dag);
+		}
+	}
+	if (count($items) < 3) {
+		return null;
+	}
+
+	if ($dag === $today_ymd) {
+		$rubrik = "Mest läst idag";
+		$link = ["/nyheter/idag", "Alla dagens nyheter"];
+	} elseif ($dag === $yesterday_ymd) {
+		$rubrik = "Mest läst igår";
+		$link = ["/nyheter/igar", "Alla gårdagens nyheter"];
+	} else {
+		// Mitt på dagen, så att date_sv() ger rätt datum oavsett tidszon.
+		$mitt = strtotime($dag . " 12:00");
+		$rubrik = "Mest läst " . date_sv("l j F", $mitt);
+		$link = ["/nyheter/" . $dag, "Alla nyheter " . date_sv("j F", $mitt)];
+	}
+
+	return [
+		"rubrik" => $rubrik,
+		"items" => $items,
+		"link" => $link,
+		"dag" => $dag === $today_ymd ? "idag" : ($dag === $yesterday_ymd ? "igar" : "dag"),
+	];
+}
+
+/**
  * En dags mest lästa nyheter, i samma ordning som most_read.
  *
  * @param string $day_ymd Datum, Y-m-d.

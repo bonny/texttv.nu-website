@@ -239,6 +239,13 @@ button.tt-link {
 	margin-bottom: 1em;
 }
 
+/* "Mest läst" under nyhetssidorna (views/mest_last_under_sidan.php), efter
+   annonsen. Extra luft ovanför, så att listan inte ligger tätt intill
+   annonsen (felklick på mobil). */
+.mest-last-under {
+	margin-top: 2em;
+}
+
 .day-archive-link--inline {
 	display: inline-block;
 	vertical-align: top;

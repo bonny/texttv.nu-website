@@ -7,6 +7,25 @@ class Texttv_page extends CI_Model {
 	const NEWS_RANGE = [106, 199];
 	const SPORT_NEWS_RANGE = [303, 329];
 
+	// Resultatsidor som byts ut på plats när de uppdateras, utan att man
+	// behöver ladda om (js/scripts.js, klassen page-is-live i header.php).
+	const LIVE_RESULT_PAGES = [330, 343, 344, 358, 359, 376, 377, 378, 379, 380, 381, 382, 383];
+
+	// Flikarna överst på målservicesidorna (views/malservice_flikar.php):
+	// sidnummer => namn för skärmläsare. Synligt står bara numret, så att
+	// alla ryms på en rad i mobilen.
+	const MALSERVICE_TABS = [
+		376 => "Målserviceindex",
+		377 => "Målservice",
+		378 => "Målservice",
+		379 => "Målservice",
+		380 => "Målservice",
+		381 => "Målservice",
+		382 => "Målservice",
+		383 => "Målservice",
+		330 => "Resultatbörsen",
+	];
+
 	var
 		// the id of this entry in db
 		$id,
@@ -959,6 +978,15 @@ class Texttv_page extends CI_Model {
 		
 	}*/
 
+
+    /**
+     * Om sidan är en resultatsida som uppdateras på plats (LIVE_RESULT_PAGES).
+     *
+     * @return bool
+     */
+    function is_live_results() {
+		return in_array((int) $this->num, self::LIVE_RESULT_PAGES, true);
+    }
 
     /**
      * Om sidan är en nyhetssida (NEWS_RANGE, SPORT_NEWS_RANGE).

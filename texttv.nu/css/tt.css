@@ -1465,6 +1465,53 @@ html:not(.appShare) .TextTVPage .tt-rad a::after {
 	}
 }
 
+/* Rader som ändrats sedan förra versionen på resultatsidorna (live-
+   uppdateringen i js/scripts.js). En gul ton över raden som bleknar, ungefär
+   som ett mål i TV-rutan. Ovanpå, eftersom radens spans har egna
+   bakgrundsfärger. */
+.TextTVPage .tt-rad-ny {
+	position: relative;
+}
+
+.TextTVPage .tt-rad-ny::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background: var(--tt-yellow);
+	opacity: 0;
+	pointer-events: none;
+	animation: tt-rad-ny 10s ease-out;
+}
+
+@keyframes tt-rad-ny {
+	0%, 30% {
+		opacity: .45;
+	}
+	100% {
+		opacity: 0;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.TextTVPage .tt-rad-ny::before {
+		animation: none;
+		opacity: .35;
+	}
+}
+
+/* Flikarna mellan målservicesidorna (views/malservice_flikar.php). */
+.tt-flikar {
+	margin-top: .5em;
+	margin-bottom: .5em;
+	column-gap: 1ch;
+}
+
+.tt-flikar a[aria-current="page"] {
+	background: var(--tt-yellow);
+	color: var(--tt-black);
+	text-decoration: none;
+}
+
 /* "Sidan sänds inte just nu" (views/not_broadcasted_notice.php). Sidor
    utan brödsmulor (t.ex. 550) har inget annat som trycker ner den under
    ramen. */

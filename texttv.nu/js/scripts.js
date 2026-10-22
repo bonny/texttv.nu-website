@@ -10,7 +10,9 @@
 	- "Dela sidan": telefonens egen delning om den finns, annars en ruta med
 	  Facebook, X, e-post och länken.
 	- Ny version av sidan: frågar /api/updated var femte sekund och visar
-	  .pages-updated när en nyare version finns.
+	  .pages-updated när en nyare version finns. Resultatsidorna
+	  (html.page-is-live) byts i stället ut på plats, och raderna som
+	  ändrats lyser upp en stund.
 */
 
 // Sidorna på den här sidvisningen, från <body data-pages>.
@@ -262,11 +264,14 @@ document.addEventListener("keydown", function (e) {
 // Rader i Text-TV-sidan med exakt en länk ("Ambulansförare dödad … 130")
 // får klassen tt-rad, och CSS gör då hela raden tryckbar. Rader med flera
 // länkar ("Utrikes 104 Sport 300") behåller små ytor per nummer.
-document.querySelectorAll(".TextTVPage .line").forEach(function (line) {
-	if (line.querySelectorAll("a").length === 1) {
-		line.classList.add("tt-rad");
-	}
-});
+function ttMarkeraRader(root) {
+	root.querySelectorAll(".TextTVPage .line").forEach(function (line) {
+		if (line.querySelectorAll("a").length === 1) {
+			line.classList.add("tt-rad");
+		}
+	});
+}
+ttMarkeraRader(document);
 
 // "Gå till sida": tre siffror skickar formuläret (GET /?number=377).
 document.querySelectorAll(".controls-topnav-search-input").forEach(function (input) {
@@ -442,10 +447,19 @@ document.querySelectorAll(".controls-topnav-search-input").forEach(function (inp
 	var pageNums = pages.map(function (p) {
 		return p.num;
 	}).join(",");
-	var latestUpdate = Math.max.apply(null, pages.map(function (p) {
-		return p.added;
-	}));
-	var apiUrl = "/api/updated/" + pageNums + "/" + latestUpdate + "?app=texttvnu.web";
+	function senasteVersion(p) {
+		return Math.max.apply(null, p.map(function (page) {
+			return page.added;
+		}));
+	}
+	var latestUpdate = senasteVersion(pages);
+	var isLive = document.documentElement.classList.contains("page-is-live");
+
+	// Läser upp uppdateringen för skärmläsare.
+	var status = document.createElement("div");
+	status.className = "sr-only";
+	status.setAttribute("role", "status");
+	document.body.appendChild(status);
 
 	document.querySelectorAll(".pages-updated-reload").forEach(function (b) {
 		b.addEventListener("click", function () {
@@ -457,20 +471,107 @@ document.querySelectorAll(".controls-topnav-search-input").forEach(function (inp
 		});
 	});
 
+	function visaRuta() {
+		document.querySelectorAll(".pages-updated").forEach(function (e) {
+			e.classList.add("is-updated");
+		});
+		if (!/\(1\)/.test(document.title)) {
+			document.title = "(1) " + document.title;
+		}
+		clearInterval(timer);
+	}
+
+	// Hämtar sidan igen och byter ut Text TV-rutan. En rad vars text inte
+	// fanns i förra versionen (ett nytt resultat) får tt-rad-ny en stund.
+	// Annonserna och scrollpositionen rörs inte.
+	var hamtar = false;
+	function uppdateraPaPlats() {
+		if (hamtar) {
+			return;
+		}
+		hamtar = true;
+		var url = new URL(window.location.href);
+		// Samma adress för alla som tittar inom tio sekunder, så att de delar
+		// nginx-cachen i stället för att rendera sidan var för sig.
+		url.searchParams.set("live", Math.floor(Date.now() / 10000));
+		fetch(url)
+			.then(function (r) {
+				return r.ok ? r.text() : Promise.reject(r.status);
+			})
+			.then(function (html) {
+				var doc = new DOMParser().parseFromString(html, "text/html");
+				var nyaPages = JSON.parse(doc.body.getAttribute("data-pages")) || [];
+				// En cachad sida från innan uppdateringen: försök igen nästa gång.
+				if (!nyaPages.length || senasteVersion(nyaPages) <= latestUpdate) {
+					return;
+				}
+				var gamla = document.querySelectorAll(".one-page[data-sida]");
+				var nya = doc.querySelectorAll(".one-page[data-sida]");
+				if (!nya.length || nya.length !== gamla.length) {
+					throw new Error("Sidan har ändrat form");
+				}
+				var andrade = [];
+				nya.forEach(function (ny, i) {
+					var forut = {};
+					gamla[i].querySelectorAll(".line").forEach(function (l) {
+						forut[l.textContent] = true;
+					});
+					ny = document.importNode(ny, true);
+					ny.querySelectorAll(".line:not(.toprow)").forEach(function (l) {
+						if (!forut[l.textContent] && l.textContent.trim()) {
+							l.classList.add("tt-rad-ny");
+							andrade.push(l);
+						}
+					});
+					gamla[i].replaceWith(ny);
+					ttMarkeraRader(ny.parentNode);
+				});
+				// "Uppdaterad 22:40" under sidan.
+				var tid = document.querySelector(".pageshare__updated");
+				var nyTid = doc.querySelector(".pageshare__updated");
+				if (tid && nyTid) {
+					tid.replaceWith(document.importNode(nyTid, true));
+				}
+				setTimeout(function () {
+					andrade.forEach(function (l) {
+						l.classList.remove("tt-rad-ny");
+					});
+				}, 10000);
+
+				// Delningen och nästa fråga ska gälla den nya versionen.
+				pages = nyaPages;
+				document.body.setAttribute("data-pages", JSON.stringify(nyaPages));
+				latestUpdate = senasteVersion(nyaPages);
+				status.textContent = "Sidan uppdaterad, " + andrade.length + (andrade.length === 1 ? " rad ändrad" : " rader ändrade");
+
+				if (typeof gtag === "function") {
+					gtag("event", "live_update", { page_num: pageNums, changed_rows: andrade.length });
+				}
+			})
+			.catch(function () {
+				visaRuta();
+			})
+			.then(function () {
+				hamtar = false;
+			});
+	}
+
 	var timer = setInterval(function () {
-		fetch(apiUrl)
+		// Ingen fråga när fliken inte syns; nästa fråga kommer när den gör det.
+		if (document.hidden) {
+			return;
+		}
+		fetch("/api/updated/" + pageNums + "/" + latestUpdate + "?app=texttvnu.web")
 			.then(function (r) {
 				return r.json();
 			})
 			.then(function (data) {
 				if (data.update_available) {
-					document.querySelectorAll(".pages-updated").forEach(function (e) {
-						e.classList.add("is-updated");
-					});
-					if (!/\(1\)/.test(document.title)) {
-						document.title = "(1) " + document.title;
+					if (isLive) {
+						uppdateraPaPlats();
+					} else {
+						visaRuta();
 					}
-					clearInterval(timer);
 				}
 			})
 			.catch(function () {});

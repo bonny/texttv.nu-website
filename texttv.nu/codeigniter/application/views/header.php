@@ -160,6 +160,10 @@ if (isset($is_archive) || isset($day_archive)) {
 if (isset($day_archive)) {
 	$arr_html_classes[] = "page-is-day-archive";
 }
+// Resultatsidan byts ut på plats när den uppdateras (js/scripts.js).
+if (!isset($is_archive) && !isset($day_archive) && isset($pages) && sizeof($pages) == 1 && $pages[0]->is_live_results()) {
+	$arr_html_classes[] = "page-is-live";
+}
 
 // If page is retrieved with phantomjs, via the share function in the app
 if ($this->input->get("apiAppShare")) {

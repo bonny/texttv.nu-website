@@ -545,6 +545,7 @@ class Sida extends CI_Controller {
 		if ($not_broadcasted) {
 			$this->load->view("not_broadcasted_notice", $data);
 		}
+		$this->load->view("malservice_flikar", $data);
 		$this->load->view("pages_inner_output_current", $data);
 		$this->load->view('pages-latest-updated', $data);
 		$this->load->view('controls', $data);

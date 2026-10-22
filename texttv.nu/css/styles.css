@@ -423,7 +423,8 @@ body {
  */
 
 .breadcrumbs + #pages,
-.breadcrumbs + .ad--beforeMainText + #pages {
+.breadcrumbs + .ad--beforeMainText + #pages,
+.tt-flikar + #pages {
   margin-top: 5px;
 }
 

@@ -959,6 +959,82 @@ class Texttv_page extends CI_Model {
      * Typ prefered page title
      */
     /**
+     * Sidans ämne när sidnumret har ett fast innehåll: "Allsvenskan tabell"
+     * på 343. Tabellsidornas egen rubrik är tabellens första rad. Används i
+     * titeln (views/header.php), i arkivversionernas titel och rubrik, i
+     * delningen och i "Senast besökta". Nyhetssidor (106, 130) saknas med
+     * flit: där är nyhetens rubrik bättre.
+     *
+     * @return string|false
+     */
+    function get_subject_name() {
+		$names = array(
+		376 => "Målserviceindex",
+		377 => "Målservice",
+		330 => "Resultatbörsen",
+		551 => "Stryktipset",
+		552 => "Stryktipset",
+		383 => "Målservice fotboll",
+		202 => "Börsen",
+		101 => "Inrikes",
+		104 => "Utrikes",
+		127 => "Börsindex",
+		300 => "Sport",
+		336 => "Premier League",
+		339 => "La Liga",
+		343 => "Allsvenskan tabell",
+		344 => "Allsvenskan resultat",
+		345 => "Superettan",
+		349 => "Damallsvenskan",
+		358 => "SHL tabell",
+		364 => "Hockeyettan slutspel",
+		365 => "SHL poängliga",
+		374 => "Beijer Hockey Games",
+		399 => "TV-tider sport",
+		402 => "Temperaturer Sverige",
+		601 => "TV-tablå SVT1",
+		700 => "Innehåll",
+		328 => "Ishockey NHL",
+		337 => "Engelska Championship",
+		346 => "Fotboll Ettan",
+		347 => "Division 2 fotboll",
+		348 => "Division 2 fotboll",
+		359 => "SHL spelschema",
+		375 => "Ishockey VM",
+		378 => "Målservice fotboll",
+		379 => "Målservice fotboll",
+		380 => "Målservice fotboll",
+		381 => "Målservice fotboll",
+		400 => "Väder",
+		404 => "Varmast och kallast",
+		600 => "TV-tablåer",
+		602 => "TV-tablå SVT1",
+		621 => "TV-tablå TV4",
+		730 => "Cykel",
+		731 => "Tennis ATP",
+		732 => "Tennis WTA",
+		744 => "Formel 1",
+		);
+		return isset($names[(int) $this->num]) ? $names[(int) $this->num] : false;
+    }
+
+    /**
+     * Rubriken för en viss version av sidan: arkivsidans titel och <h1>,
+     * delningen och oEmbed. Som get_page_title(), men en sida med fast
+     * ämne och utan eget namn får ämnet och dagen i stället för sin
+     * rubrik, som på tabellsidor är tabellens första rad:
+     * "Allsvenskan tabell, 20 okt 2026".
+     *
+     * @return string
+     */
+    function get_archive_title() {
+		if (!$this->get_page_name() && ($subject = $this->get_subject_name())) {
+			return $subject . ", " . date_sv("j M Y", (int) $this->date_added_unix);
+		}
+		return $this->get_page_title();
+    }
+
+    /**
      * Om sidan är "Sidan ej i sändning". Importern sparar sådana med tom
      * titel och bara den raden som innehåll (Importer::cleanup()).
      */

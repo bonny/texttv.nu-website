@@ -156,7 +156,7 @@ class Oembed extends CI_Controller {
 		$json = array(
 			"type" => "rich",
 			"version" => "1.0",
-			"title" => $arr_pages[0]->title,
+			"title" => $arr_pages[0]->get_archive_title(),
 			"author_name" => "texttv.nu",
 			"author_url" => "http://texttv.nu/",
 			"provider_name" => "texttv.nu",

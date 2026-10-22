@@ -71,7 +71,11 @@ foreach ($arr_pages as $one_page) {
 // Nyhetsarkiven saknade <h1> (granskning 2026-10-18). Rubriken för
 // skärmläsare och sökmotorer, samma grepp som på de levande sidorna.
 if (stripos($pages_html, "<h1") === false && !$this->input->get("apiAppShare")) {
-	$rubrik = trim((string) $arr_pages[0]->title);
+	// "Allsvenskan tabell, 20 okt 2026" i stället för tabellens första rad,
+	// som i <title> (views/header.php). Sidor med eget namn (330) är orörda.
+	$rubrik = !$arr_pages[0]->get_page_name() && $arr_pages[0]->get_subject_name()
+		? $arr_pages[0]->get_archive_title()
+		: trim((string) $arr_pages[0]->title);
 	$text .= sprintf(
 		'<h1 class="sr-only">%s</h1>',
 		html_escape($rubrik !== "" && sizeof($arr_pages) == 1 ? $rubrik : sprintf("SVT Text TV %s", $pagenum))

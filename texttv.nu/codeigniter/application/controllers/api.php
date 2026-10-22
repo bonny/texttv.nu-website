@@ -509,7 +509,9 @@ class Api extends CI_Controller
 			"permalink" => "https://texttv.nu" . $permalink,
 			"pagenums" => $arr_pagenums,
 			"ids" => $arr_archive_ids,
-			"title" => $arr_pages[0]->get_page_title(),
+			// "Allsvenskan tabell, 20 okt 2026" i stället för tabellens första
+			// rad. Bara webbens delningsknapp (js/scripts.js) anropar den här.
+			"title" => $arr_pages[0]->get_archive_title(),
 			"screenshot" => $screenshotURL
 		);
 

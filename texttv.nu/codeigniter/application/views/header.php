@@ -74,9 +74,10 @@ if (isset($is_archive_overview)) {
 		if (($page_name = $one_page->get_page_name())) {
 			// Look for manually entered name
 			$page_title .= trim($page_name);
-		} elseif (isset($is_archive) && $one_page->has_subject_title()) {
+		} elseif (isset($is_archive) && sizeof($pages) == 1 && $one_page->has_subject_title()) {
 			// Arkivversion av en sida med fast ämne, där rubriken är t.ex.
-			// tabellens första rad: "Allsvenskan tabell, 20 okt 2026".
+			// tabellens första rad: "Allsvenskan tabell, 20 okt 2026". Bara
+			// en sida, med flera hade datumet stått en gång per sida.
 			$page_title .= $one_page->get_archive_title();
 		} elseif (trim($one_page->title)) {
 			// Else see if we found a title when loading the page
@@ -203,7 +204,7 @@ if (!isset($is_archive)) {
 		// Verifierat 2026-08-02: levande /330 fanns inte på sida 1 för
 		// "resultatbörsen", medan två av dess egna arkivsnapshots låg på
 		// plats 4 och 9 — de har ämnesordet i titeln eftersom arkivgrenen
-		// på rad 67-70 hoppar över sidnumret och använder sidans rubrik.
+		// (början av filen) hoppar över sidnumret och använder sidans rubrik.
 		// Google skriver inte om titeln på de här sidorna. Se todos/11.
 		if (376 == $first_page_num) {
 			$meta_description = "Målservice från SVT Text TV 376";
@@ -484,7 +485,11 @@ if (isset($day_archive)) {
 
 			$meta_title = "";
 
-			if (trim($pages[0]->title)) {
+			if (sizeof($pages) == 1 && $pages[0]->has_subject_title()) {
+				// "Allsvenskan tabell, 20 okt 2026", som <title>, i stället för
+				// tabellens första rad i og:title och twitter:title.
+				$meta_title .= $pages[0]->get_archive_title();
+			} elseif (trim($pages[0]->title)) {
 				$meta_title .= trim($pages[0]->title);
 			} else {
 				$meta_title .= "SVT Text TV sid ";

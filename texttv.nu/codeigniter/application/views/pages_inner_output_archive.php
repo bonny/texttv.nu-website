@@ -73,7 +73,7 @@ foreach ($arr_pages as $one_page) {
 if (stripos($pages_html, "<h1") === false && !$this->input->get("apiAppShare")) {
 	// "Allsvenskan tabell, 20 okt 2026" i stället för tabellens första rad,
 	// som i <title> (views/header.php). Sidor med eget namn (330) är orörda.
-	$rubrik = !$arr_pages[0]->get_page_name() && $arr_pages[0]->get_subject_name()
+	$rubrik = $arr_pages[0]->has_subject_title()
 		? $arr_pages[0]->get_archive_title()
 		: trim((string) $arr_pages[0]->title);
 	$text .= sprintf(

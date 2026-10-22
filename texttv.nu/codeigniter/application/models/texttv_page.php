@@ -956,19 +956,17 @@ class Texttv_page extends CI_Model {
 
 
     /**
-     * Typ prefered page title
-     */
-    /**
      * Sidans ämne när sidnumret har ett fast innehåll: "Allsvenskan tabell"
      * på 343. Tabellsidornas egen rubrik är tabellens första rad. Används i
      * titeln (views/header.php), i arkivversionernas titel och rubrik, i
-     * delningen och i "Senast besökta". Nyhetssidor (106, 130) saknas med
-     * flit: där är nyhetens rubrik bättre.
+     * delningen och i "Senast besökta". 106 och 130 ("Inrikes nyhet",
+     * "Utrikes nyhet") saknas med flit: där är nyhetens rubrik bättre. 328
+     * (NHL-matchfakta) har sitt ämne som rubrik, så där spelar det ingen roll.
      *
      * @return string|false
      */
     function get_subject_name() {
-		$names = array(
+		static $names = array(
 		376 => "Målserviceindex",
 		377 => "Målservice",
 		330 => "Resultatbörsen",
@@ -1028,10 +1026,22 @@ class Texttv_page extends CI_Model {
      * @return string
      */
     function get_archive_title() {
-		if (!$this->get_page_name() && ($subject = $this->get_subject_name())) {
-			return $subject . ", " . date_sv("j M Y", (int) $this->date_added_unix);
+		if ($this->has_subject_title()) {
+			// Samma datum som arkivsidans synliga rubrik.
+			return $this->get_subject_name() . ", " . date_sv("j M Y", (int) $this->date_updated_unix);
 		}
 		return $this->get_page_title();
+    }
+
+    /**
+     * Om get_archive_title() ger ämne och dag i stället för sidans rubrik.
+     * Inte för sidor med eget namn (330 "Resultatbörsen" är orörd) eller
+     * för "Sidan ej i sändning", där finns ingen tabell att döpa.
+     *
+     * @return bool
+     */
+    function has_subject_title() {
+		return !$this->get_page_name() && $this->get_subject_name() && !$this->is_not_broadcasted();
     }
 
     /**
@@ -1046,6 +1056,9 @@ class Texttv_page extends CI_Model {
 		return mb_stripos(strip_tags($content), "ej i sändning") !== false;
     }
 
+    /**
+     * Typ prefered page title
+     */
     function get_page_title() {
 
 		$page_title = "";

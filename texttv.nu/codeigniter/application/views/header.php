@@ -74,7 +74,7 @@ if (isset($is_archive_overview)) {
 		if (($page_name = $one_page->get_page_name())) {
 			// Look for manually entered name
 			$page_title .= trim($page_name);
-		} elseif (isset($is_archive) && $one_page->get_subject_name()) {
+		} elseif (isset($is_archive) && $one_page->has_subject_title()) {
 			// Arkivversion av en sida med fast ämne, där rubriken är t.ex.
 			// tabellens första rad: "Allsvenskan tabell, 20 okt 2026".
 			$page_title .= $one_page->get_archive_title();
@@ -192,6 +192,9 @@ if (!isset($is_archive)) {
 			$meta_title = sprintf("%d - SVT Text TV - %s", $first_page_num, $subject_name);
 		}
 
+		// (Titlarna till posterna nedan står numera i get_subject_name(),
+		// här finns bara beskrivningarna.)
+		//
 		// De tre posterna nedan skrevs före "NNN - SVT Text TV - <ämne>"-
 		// konventionen (#04 Fas 1) och saknade ämnesord. Utan whitelist-post
 		// hade automatiken ovan gett "330 Resultatbörsen - SVT Text TV" —
@@ -205,7 +208,7 @@ if (!isset($is_archive)) {
 		if (376 == $first_page_num) {
 			$meta_description = "Målservice från SVT Text TV 376";
 		} else if (377 == $first_page_num) {
-			// 377 ändras för konsekvens, inte för effekt: Google skriver om
+			// Titeln (i get_subject_name()) ändrades för konsekvens, inte för effekt: Google skriver om
 			// titeln här och hämtar sin egen från <h1>. Se todos/09.
 			$meta_description = "På SVT Text TV 377 finns dagens sportresultat & målservice. ⚽️️ 377 – sportnördens bästa vän!";
 		} else if (330 == $first_page_num) {

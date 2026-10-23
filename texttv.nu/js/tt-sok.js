@@ -190,6 +190,7 @@
 				opt.setAttribute("role", "option");
 				opt.setAttribute("aria-selected", "false");
 				opt.dataset.url = rad.url;
+				opt.dataset.sektion = sektion.rubrik;
 
 				var num = document.createElement("span");
 				num.className = "tt-sok__num";
@@ -234,7 +235,20 @@
 		}
 	}
 
+	// GA4: hur många som öppnar listan och vad de väljer i den. Tre siffror
+	// rakt in i fältet (js/scripts.js) fanns före listan och räknas inte.
+	var oppnadMatt = false;
+	function mat(namn, params) {
+		if (typeof gtag === "function") {
+			gtag("event", namn, params);
+		}
+	}
+
 	function oppna() {
+		if (!oppnadMatt) {
+			oppnadMatt = true;
+			mat("search_open", {});
+		}
 		hamtaMestLast();
 		rita();
 		panel.hidden = false;
@@ -248,7 +262,14 @@
 		active = -1;
 	}
 
-	function ga(url) {
+	function ga(opt) {
+		var url = opt.dataset.url;
+		mat("search_select", {
+			section: opt.dataset.sektion,
+			page_path: url,
+			search_term: input.value.trim(),
+			transport_type: "beacon",
+		});
 		stang();
 		document.documentElement.classList.add("is-loading");
 		location.href = url;
@@ -304,7 +325,7 @@
 			}
 			e.preventDefault();
 			if (active >= 0 && options[active]) {
-				ga(options[active].dataset.url);
+				ga(options[active]);
 			}
 		});
 	}
@@ -315,7 +336,7 @@
 		var opt = e.target.closest(".tt-sok__rad");
 		e.preventDefault();
 		if (opt) {
-			ga(opt.dataset.url);
+			ga(opt);
 		}
 	});
 

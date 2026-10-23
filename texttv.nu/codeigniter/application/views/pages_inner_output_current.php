@@ -167,12 +167,21 @@ if ( true || $this->input->get("enable-share") ) {
 	// Tid i cyan som metadata och "Dela sidan" som gul knapp, så att den
 	// syns (todo #18, fler delningar 2026-10-18). Klassen
 	// pageshare__sharebutton används av js/scripts.js.
+	//
+	// Resultatsidorna byts ut på plats (js/scripts.js). Det ska synas, annars
+	// ser "Uppdaterad 19:37" gammal ut och man letar efter en ladda om-knapp.
+	// Tiden är när SVT senast ändrade sidan. Markören blinkar som på Text TV
+	// och stannar när uppdateringen gett upp (granskning 2026-10-23).
+	$is_live = sizeof($arr_pages) === 1 && $arr_pages[0]->is_live_results();
 	$text_archive .= sprintf('
-		<p class="pageshare__updated">Uppdaterad <time datetime="%2$s">%1$s</time></p>
+		<p class="pageshare__updated%3$s">%4$s <time datetime="%2$s">%1$s</time>%5$s</p>
 		<button type="button" class="pageshare__sharebutton">Dela sidan</button>
 		',
 		date("H:i", $one_page_obj->date_added_unix),
-		date("c", $one_page_obj->date_added_unix)
+		date("c", $one_page_obj->date_added_unix),
+		$is_live ? " pageshare__updated--live" : "",
+		$is_live ? "Uppdateras live ·" : "Uppdaterad",
+		$is_live ? '<span class="tt-markor" aria-hidden="true"></span>' : ""
 	);
 
 	$text_archive .= "</div>"; // .pageshare
@@ -189,6 +198,8 @@ if (!isset($not_broadcasted) || !$not_broadcasted || $not_broadcasted["page"]) {
 
 // Dagens tidigare versioner av sportsidorna (todo #20). Sätts bara av
 // Sida::visa(), inte av api/get_html som också laddar den här vyn.
+// Rubriken som ett blått band, som "Mest läst", och tiderna i ett fast
+// rutnät. Gårdagens version sist, som "Igår →" (Sida::visa()).
 if (!empty($today_versions)) {
 	$num_label = (int) $arr_pages[0]->num;
 	$items = array_map(function ($v) use ($num_label) {
@@ -196,11 +207,18 @@ if (!empty($today_versions)) {
 			'<li><a href="%1$s" aria-label="%3$s">%2$s</a></li>',
 			html_escape($v["permalink"]),
 			html_escape($v["time"]),
-			html_escape($num_label . " kl " . $v["time"])
+			html_escape("Sida " . $num_label . " som den såg ut kl " . $v["time"])
 		);
 	}, $today_versions);
-	$out .= '<nav class="tt-sidbredd tt-tidigare" aria-label="Tidigare versioner i dag">'
-		. '<p class="tt-tidigare__rubrik">Tidigare i dag</p>'
+	if (!empty($today_versions_yesterday)) {
+		$items[] = sprintf(
+			'<li class="tt-tidigare__igar"><a class="tt-pil" href="%1$s" aria-label="%2$s"><span class="tt-u">Igår</span>&nbsp;→</a></li>',
+			html_escape($today_versions_yesterday),
+			html_escape("Gårdagens resultat " . $num_label)
+		);
+	}
+	$out .= '<nav class="tt-sidbredd tt-tidigare" aria-labelledby="tt-tidigare-rubrik">'
+		. '<h2 class="tt-band tt-tidigare__rubrik" id="tt-tidigare-rubrik">Sida ' . $num_label . ' tidigare i dag</h2>'
 		. '<ul class="tt-linkrow">' . implode("", $items) . '</ul>'
 		. '</nav>';
 }

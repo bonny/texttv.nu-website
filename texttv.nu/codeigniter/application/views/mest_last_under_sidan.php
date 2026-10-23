@@ -25,7 +25,7 @@
 		<?php } ?>
 	</ol>
 	<div class="tt-linkrow">
-		<a href="<?php echo html_escape($mest_last["link"][0]) ?>"><?php echo html_escape($mest_last["link"][1]) ?> →</a>
+		<a class="tt-pil" href="<?php echo html_escape($mest_last["link"][0]) ?>"><span class="tt-u"><?php echo html_escape($mest_last["link"][1]) ?></span>&nbsp;→</a>
 	</div>
 </nav>
 <script>

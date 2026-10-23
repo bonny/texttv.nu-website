@@ -45,7 +45,7 @@ $lankrad = function ($links) {
 	?>
 	<div class="tt-linkrow">
 		<?php foreach ($links as $link) { ?>
-			<a href="<?php echo html_escape($link[0]) ?>"><?php echo html_escape($link[1]) ?> →</a>
+			<a class="tt-pil" href="<?php echo html_escape($link[0]) ?>"><span class="tt-u"><?php echo html_escape($link[1]) ?></span>&nbsp;→</a>
 		<?php } ?>
 	</div>
 	<?php

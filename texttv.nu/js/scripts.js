@@ -471,13 +471,22 @@ document.querySelectorAll(".controls-topnav-search-input").forEach(function (inp
 		});
 	});
 
-	function visaRuta() {
+	// misslyckad: live-uppdateringen gav upp, rutan säger det i stället för
+	// att det finns en ny version.
+	function visaRuta(misslyckad) {
 		document.querySelectorAll(".pages-updated").forEach(function (e) {
 			e.classList.add("is-updated");
+			var text = e.querySelector(".pages-updated-reload").firstChild;
+			if (misslyckad === true && text && text.nodeType === 3) {
+				text.nodeValue = "Sidan kunde inte uppdateras automatiskt. ";
+			}
 		});
 		if (!/\(1\)/.test(document.title)) {
 			document.title = "(1) " + document.title;
 		}
+		// Markören "Uppdateras live" ska inte blinka när inget uppdateras.
+		document.documentElement.classList.add("tt-live-pausad");
+		stoppad = true;
 		clearInterval(timer);
 	}
 
@@ -494,20 +503,32 @@ document.querySelectorAll(".controls-topnav-search-input").forEach(function (inp
 	var missar = 0;
 	var hamtar = false;
 
+	var stoppad = false;
+
 	function miss() {
 		missar++;
 		if (missar >= MAX_MISSAR) {
-			visaRuta();
+			visaRuta(true);
 		}
 	}
 
-	// Byter gammal mot ny om båda finns.
+	// Byter gammal mot ny om båda finns. Står fokus på en länk i den gamla
+	// flyttas det till samma länk i den nya, som i bytSida().
 	function bytUt(selector, doc) {
 		var gammal = document.querySelector(selector);
 		var ny = doc.querySelector(selector);
 		if (gammal && ny) {
-			gammal.replaceWith(document.importNode(ny, true));
+			var fokus = gammal.contains(document.activeElement) && document.activeElement.getAttribute("href");
+			ny = document.importNode(ny, true);
+			gammal.replaceWith(ny);
+			if (fokus) {
+				var lank = ny.querySelector('a[href="' + fokus + '"]');
+				if (lank) {
+					lank.focus({ preventScroll: true });
+				}
+			}
 		}
+		return ny;
 	}
 
 	function bytSida(gammal, ny, andrade) {
@@ -572,8 +593,14 @@ document.querySelectorAll(".controls-topnav-search-input").forEach(function (inp
 					bytSida(gamla[i], ny, andrade);
 				});
 				// "Uppdaterad 22:40" och "Tidigare i dag" under sidan.
-				bytUt(".pageshare__updated", doc);
+				var tid = bytUt(".pageshare__updated", doc);
 				bytUt(".tt-tidigare", doc);
+				if (tid && tid.querySelector) {
+					var time = tid.querySelector("time");
+					if (time) {
+						time.classList.add("tt-tid-ny");
+					}
+				}
 				setTimeout(function () {
 					andrade.forEach(function (l) {
 						l.classList.remove("tt-rad-ny");
@@ -600,9 +627,9 @@ document.querySelectorAll(".controls-topnav-search-input").forEach(function (inp
 			});
 	}
 
-	var timer = setInterval(function () {
+	function kolla() {
 		// Ingen fråga när fliken inte syns; nästa fråga kommer när den gör det.
-		if (document.hidden) {
+		if (document.hidden || stoppad) {
 			return;
 		}
 		fetch("/api/updated/" + pageNums + "/" + latestUpdate + "?app=texttvnu.web")
@@ -619,7 +646,13 @@ document.querySelectorAll(".controls-topnav-search-input").forEach(function (inp
 				}
 			})
 			.catch(function () {});
-	}, 5000);
+	}
+
+	var timer = setInterval(kolla, 5000);
+	// Fråga direkt när fliken syns igen (skärmen tänds, man byter tillbaka),
+	// i stället för att vänta upp till fem sekunder. Det är då man annars
+	// letar efter en ladda om-knapp.
+	document.addEventListener("visibilitychange", kolla);
 })();
 
 // Annonsskriptet blockerat (annonsblockerare): göm annonsrutorna, annars står

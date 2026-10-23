@@ -35,6 +35,14 @@ html:not(.appShare) #pages {
 	container-type: inline-size;
 }
 
+/* Blocken under sidan (tid, "Tidigare i dag", dagslistorna) står utanför
+   #pages. Med .wrap som container räknas de mot samma bredd som sidan och
+   får samma teckenstorlek; mot skärmen kom rullningslisten med och gjorde
+   dem större än sidan ovanför. */
+html:not(.appShare) .wrap {
+	container-type: inline-size;
+}
+
 /* Reserv för webbläsare utan container queries eller clamp() (7 % av
    sidvisningarna 2026-10): samma räkning mot skärmen, tak 22 px. */
 html:not(.appShare) #pages .one-page,
@@ -224,6 +232,18 @@ button.tt-link {
 	column-gap: 2ch;
 }
 
+/* Länk med pil: bara texten är understruken, inte mellanslaget och pilen.
+   Markup: <a class="tt-pil"><span class="tt-u">Text</span>&nbsp;→</a>
+   (&nbsp;, eftersom länken är flex och tar bort vanliga mellanslag). */
+.tt-linkrow a.tt-pil {
+	text-decoration: none;
+}
+
+.tt-pil .tt-u {
+	text-decoration: underline;
+	text-underline-offset: .2em;
+}
+
 /* Startsidans "Mest läst igår": åtta när rutan står bredvid 100 (två sidor i
    bredd från 1180 px), annars fem. */
 @media only screen and (max-width: 1179px) {
@@ -237,6 +257,13 @@ button.tt-link {
 .day-archive-link {
 	margin-top: 1em;
 	margin-bottom: 1em;
+}
+
+/* Under en enskild sida: lika mycket luft mellan grupperna (tid, tidigare
+   versioner, dagslistor) som behövs för att de ska läsas som grupper.
+   Inuti dem står raderna 44 px isär för fingret. */
+.pageshare ~ .day-archive-link {
+	margin-top: 1.25em;
 }
 
 /* "Mest läst" under nyhetssidorna (views/mest_last_under_sidan.php), efter
@@ -324,13 +351,15 @@ button.tt-link {
 	color: var(--tt-cyan);
 }
 
-/* Raden under sidan: tid i cyan till vänster, "Dela →" till höger. */
+/* Raden under sidan: tid i cyan till vänster, "Dela sidan" till höger,
+   kant i kant med sidan. */
 .pageshare {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
-	margin-top: .5em;
-	margin-bottom: .5em;
+	justify-content: space-between;
+	margin-top: .75em;
+	margin-bottom: 0;
 }
 
 /* Hopplänk för tangentbordet: första tabbstoppet, syns bara med fokus. */
@@ -354,9 +383,9 @@ button.tt-link {
 /* "Dela sidan": gul knapp, som "Visa" på /sida/delat. Som textlänk syntes
    den knappt under sidan. */
 .pageshare__sharebutton {
-	min-height: 36px;
-	margin: .25em 0;
-	padding: 0 1.5ch;
+	min-height: 44px;
+	margin: 0;
+	padding: 0 1ch;
 	border: 0;
 	border-radius: 0;
 	background: var(--tt-yellow);
@@ -374,31 +403,84 @@ button.tt-link {
 	outline-offset: 2px;
 }
 
-/* "Dela sidan" direkt efter tiden. margin i stället för gap (äldre webbläsare). */
+/* margin i stället för gap (äldre webbläsare). */
 .pageshare__updated {
 	margin: 0 2ch 0 0;
 	color: var(--tt-cyan);
 }
 
-/* "Tidigare i dag" under sportsidorna: dagens äldre versioner (todo #20). */
-/* Rubriken och tiderna på samma rad, som "Uppdaterad 15:05  Dela →". */
+/* Resultatsidorna: en gul markör som blinkar som på Text TV, så att det
+   syns att sidan uppdateras av sig själv. Stannar när uppdateringen gett
+   upp (js/scripts.js sätter tt-live-pausad). */
+.tt-markor {
+	display: inline-block;
+	width: 1ch;
+	height: 1em;
+	margin-left: 1ch;
+	vertical-align: -.15em;
+	background: var(--tt-yellow);
+	animation: tt-markor 1s steps(1) infinite;
+}
+
+@keyframes tt-markor {
+	50% {
+		opacity: 0;
+	}
+}
+
+.tt-live-pausad .tt-markor {
+	display: none;
+}
+
+/* Tiden blinkar till när sidan bytts ut på plats (js/scripts.js). */
+.pageshare__updated time.tt-tid-ny {
+	animation: tt-tid-ny 3s ease-out;
+}
+
+@keyframes tt-tid-ny {
+	0%, 40% {
+		background: var(--tt-yellow);
+		color: var(--tt-black);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.tt-markor,
+	.pageshare__updated time.tt-tid-ny {
+		animation: none;
+	}
+}
+
+/* "Tidigare i dag" under sportsidorna: dagens äldre versioner (todo #20).
+   Rubriken som band, tiderna i ett fast rutnät så att de står i kolumner
+   (5 × 5ch + 4 × 3ch = 37ch av 40). */
 .tt-tidigare {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	margin-top: 0;
-	margin-bottom: .5em;
+	margin-top: 1.25em;
+	margin-bottom: 0;
 }
 
 .tt-tidigare__rubrik {
-	margin: 0 2ch 0 0;
-	color: var(--tt-cyan);
+	display: block;
+	margin: 0;
+	font-size: inherit;
 }
 
 .tt-tidigare .tt-linkrow {
 	margin: 0;
 	padding: 0;
 	list-style: none;
+}
+
+@supports (display: grid) {
+	.tt-tidigare .tt-linkrow {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, 5ch);
+		column-gap: 3ch;
+	}
+
+	.tt-tidigare__igar {
+		grid-column: span 2;
+	}
 }
 
 /* Annonser utan fyllning, och alla annonser när annonsskriptet är

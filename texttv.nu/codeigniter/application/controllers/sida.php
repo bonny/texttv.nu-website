@@ -505,6 +505,16 @@ class Sida extends CI_Controller {
 			["/sport/idag", "Sport"],
 			["/377/igar", "Resultat igår"],
 		];
+		// "Gårdagens resultat 377" hör till sidans egen historik och står då
+		// sist bland dagens tidigare versioner, som "Igår →", i stället för
+		// bland dagslistorna (granskning 2026-10-23).
+		$today_versions = $this->_today_versions($arr_page_objs, $not_broadcasted);
+		$today_versions_yesterday = "";
+		if ($today_versions && $yesterday_links && $yesterday_links[0][0] === "/" . (int) $arr_page_objs[0]->num . "/igar") {
+			$today_versions_yesterday = $yesterday_links[0][0];
+			array_shift($yesterday_links);
+		}
+
 		// Skapa array med data att skicka med till vyerna
 		$data = array();
 		$data["not_broadcasted"] = $not_broadcasted;
@@ -518,7 +528,8 @@ class Sida extends CI_Controller {
 		$data["today_top"] = $today_top;
 		$data["today_links"] = $today_links;
 		$data["week_top"] = $week_top;
-		$data["today_versions"] = $this->_today_versions($arr_page_objs, $not_broadcasted);
+		$data["today_versions"] = $today_versions;
+		$data["today_versions_yesterday"] = $today_versions_yesterday;
 		// "Polisen rapporterade" under nyhetssidor (todo #21).
 		$data["polis_handelser"] = (sizeof($arr_page_objs) === 1 && !$not_broadcasted && (int) $page->num >= 100 && (int) $page->num <= 199)
 			? bpk_handelser_for_titel($page->title, $page->date_added_unix)

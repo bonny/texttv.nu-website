@@ -474,18 +474,27 @@ document.querySelectorAll(".controls-topnav-search-input").forEach(function (inp
 	// misslyckad: live-uppdateringen gav upp, rutan säger det i stället för
 	// att det finns en ny version.
 	function visaRuta(misslyckad) {
+		misslyckad = misslyckad === true;
 		document.querySelectorAll(".pages-updated").forEach(function (e) {
 			e.classList.add("is-updated");
 			var text = e.querySelector(".pages-updated-reload").firstChild;
-			if (misslyckad === true && text && text.nodeType === 3) {
+			if (misslyckad && text && text.nodeType === 3) {
 				text.nodeValue = "Sidan kunde inte uppdateras automatiskt. ";
 			}
 		});
-		if (!/\(1\)/.test(document.title)) {
+		// "(1)" i fliken betyder att det finns en ny version, inte att
+		// uppdateringen gett upp.
+		if (!misslyckad && !/\(1\)/.test(document.title)) {
 			document.title = "(1) " + document.title;
 		}
-		// Markören "Uppdateras live" ska inte blinka när inget uppdateras.
+		// "Uppdateras live" stämmer inte längre: markören stannar och texten
+		// blir "Uppdaterad".
 		document.documentElement.classList.add("tt-live-pausad");
+		document.querySelectorAll(".pageshare__updated--live").forEach(function (p) {
+			if (p.firstChild && p.firstChild.nodeType === 3) {
+				p.firstChild.nodeValue = "Uppdaterad ";
+			}
+		});
 		stoppad = true;
 		clearInterval(timer);
 	}
@@ -512,22 +521,30 @@ document.querySelectorAll(".controls-topnav-search-input").forEach(function (inp
 		}
 	}
 
-	// Byter gammal mot ny om båda finns. Står fokus på en länk i den gamla
-	// flyttas det till samma länk i den nya, som i bytSida().
+	// Ersätter gammal med ny (redan importerad). Står fokus på en länk i
+	// den gamla flyttas det till samma länk i den nya.
+	function ersattBehallFokus(gammal, ny) {
+		var fokus = gammal.contains(document.activeElement) && document.activeElement.getAttribute("href");
+		gammal.replaceWith(ny);
+		if (fokus) {
+			var lank = Array.prototype.find.call(ny.querySelectorAll("a[href]"), function (a) {
+				return a.getAttribute("href") === fokus;
+			});
+			if (lank) {
+				lank.focus({ preventScroll: true });
+			}
+		}
+	}
+
+	// Byter gammal mot ny om båda finns. Ger den nya, eller null.
 	function bytUt(selector, doc) {
 		var gammal = document.querySelector(selector);
 		var ny = doc.querySelector(selector);
-		if (gammal && ny) {
-			var fokus = gammal.contains(document.activeElement) && document.activeElement.getAttribute("href");
-			ny = document.importNode(ny, true);
-			gammal.replaceWith(ny);
-			if (fokus) {
-				var lank = ny.querySelector('a[href="' + fokus + '"]');
-				if (lank) {
-					lank.focus({ preventScroll: true });
-				}
-			}
+		if (!gammal || !ny) {
+			return null;
 		}
+		ny = document.importNode(ny, true);
+		ersattBehallFokus(gammal, ny);
 		return ny;
 	}
 
@@ -548,16 +565,8 @@ document.querySelectorAll(".controls-topnav-search-input").forEach(function (inp
 				andrade.push(l);
 			}
 		});
-		// Står fokus på en länk i sidan flyttas det till samma länk i den nya.
-		var fokus = gammal.contains(document.activeElement) && document.activeElement.getAttribute("href");
-		gammal.replaceWith(ny);
+		ersattBehallFokus(gammal, ny);
 		ttMarkeraRader(ny.parentNode);
-		if (fokus) {
-			var lank = ny.querySelector('a[href="' + fokus + '"]');
-			if (lank) {
-				lank.focus({ preventScroll: true });
-			}
-		}
 	}
 
 	function uppdateraPaPlats() {
@@ -595,7 +604,7 @@ document.querySelectorAll(".controls-topnav-search-input").forEach(function (inp
 				// "Uppdaterad 22:40" och "Tidigare i dag" under sidan.
 				var tid = bytUt(".pageshare__updated", doc);
 				bytUt(".tt-tidigare", doc);
-				if (tid && tid.querySelector) {
+				if (tid) {
 					var time = tid.querySelector("time");
 					if (time) {
 						time.classList.add("tt-tid-ny");
@@ -627,11 +636,16 @@ document.querySelectorAll(".controls-topnav-search-input").forEach(function (inp
 			});
 	}
 
+	// En fråga i taget: timern och visibilitychange kan annars fråga
+	// samtidigt med samma gamla tid, och den andra räknas då som en miss.
+	var fragar = false;
+
 	function kolla() {
 		// Ingen fråga när fliken inte syns; nästa fråga kommer när den gör det.
-		if (document.hidden || stoppad) {
+		if (document.hidden || stoppad || fragar || hamtar) {
 			return;
 		}
+		fragar = true;
 		fetch("/api/updated/" + pageNums + "/" + latestUpdate + "?app=texttvnu.web")
 			.then(function (r) {
 				return r.json();
@@ -645,7 +659,10 @@ document.querySelectorAll(".controls-topnav-search-input").forEach(function (inp
 					}
 				}
 			})
-			.catch(function () {});
+			.catch(function () {})
+			.then(function () {
+				fragar = false;
+			});
 	}
 
 	var timer = setInterval(kolla, 5000);

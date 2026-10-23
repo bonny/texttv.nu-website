@@ -452,6 +452,12 @@ class Sida extends CI_Controller {
 			}
 		}
 
+		// Dagens tidigare versioner (todo #20). Före gårdagslänkarna, eftersom
+		// "Gårdagens resultat 377" då står sist bland dem, som "Igår →", i
+		// stället för bland dagslistorna (granskning 2026-10-23).
+		$today_versions = $this->_today_versions($arr_page_objs, $not_broadcasted);
+		$today_versions_yesterday = "";
+
 		// Länkar till gårdagen (todo #16): startsidan får alla, en enskild sida
 		// får sitt eget dagsarkiv och sin avdelnings dagslista.
 		$yesterday_links = [];
@@ -469,7 +475,11 @@ class Sida extends CI_Controller {
 			if (isset(self::DAY_ARCHIVE[$num])) {
 				$yesterday = new DateTime("yesterday", new DateTimeZone("Europe/Stockholm"));
 				if (get_page_version_at_end_of_day($num, $yesterday->format("Y-m-d"))) {
-					$yesterday_links[] = ["/{$num}/igar", "Gårdagens resultat {$num}"];
+					if ($today_versions) {
+						$today_versions_yesterday = "/{$num}/igar";
+					} else {
+						$yesterday_links[] = ["/{$num}/igar", "Gårdagens resultat {$num}"];
+					}
 				}
 			}
 			// Dagens lista först: "nyheten jag läste i morse" (granskning
@@ -505,16 +515,6 @@ class Sida extends CI_Controller {
 			["/sport/idag", "Sport"],
 			["/377/igar", "Resultat igår"],
 		];
-		// "Gårdagens resultat 377" hör till sidans egen historik och står då
-		// sist bland dagens tidigare versioner, som "Igår →", i stället för
-		// bland dagslistorna (granskning 2026-10-23).
-		$today_versions = $this->_today_versions($arr_page_objs, $not_broadcasted);
-		$today_versions_yesterday = "";
-		if ($today_versions && $yesterday_links && $yesterday_links[0][0] === "/" . (int) $arr_page_objs[0]->num . "/igar") {
-			$today_versions_yesterday = $yesterday_links[0][0];
-			array_shift($yesterday_links);
-		}
-
 		// Skapa array med data att skicka med till vyerna
 		$data = array();
 		$data["not_broadcasted"] = $not_broadcasted;
@@ -530,6 +530,10 @@ class Sida extends CI_Controller {
 		$data["week_top"] = $week_top;
 		$data["today_versions"] = $today_versions;
 		$data["today_versions_yesterday"] = $today_versions_yesterday;
+		// "Uppdateras live" under sidan. Bara här, inte i api/get_html som
+		// laddar samma vy utan live-uppdateringen (samma villkor som
+		// page-is-live i header.php).
+		$data["is_live"] = sizeof($arr_page_objs) === 1 && $arr_page_objs[0]->is_live_results();
 		// "Polisen rapporterade" under nyhetssidor (todo #21).
 		$data["polis_handelser"] = (sizeof($arr_page_objs) === 1 && !$not_broadcasted && (int) $page->num >= 100 && (int) $page->num <= 199)
 			? bpk_handelser_for_titel($page->title, $page->date_added_unix)

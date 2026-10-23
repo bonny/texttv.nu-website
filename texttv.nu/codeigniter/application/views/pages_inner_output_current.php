@@ -172,7 +172,8 @@ if ( true || $this->input->get("enable-share") ) {
 	// ser "Uppdaterad 19:37" gammal ut och man letar efter en ladda om-knapp.
 	// Tiden är när SVT senast ändrade sidan. Markören blinkar som på Text TV
 	// och stannar när uppdateringen gett upp (granskning 2026-10-23).
-	$is_live = sizeof($arr_pages) === 1 && $arr_pages[0]->is_live_results();
+	// $is_live sätts bara av Sida::visa().
+	$is_live = !empty($is_live);
 	$text_archive .= sprintf('
 		<p class="pageshare__updated%3$s">%4$s <time datetime="%2$s">%1$s</time>%5$s</p>
 		<button type="button" class="pageshare__sharebutton">Dela sidan</button>
@@ -189,6 +190,11 @@ if ( true || $this->input->get("enable-share") ) {
 }
 
 
+
+// Blocken under sidan (tid, tidigare versioner, dagslistor) i en egen
+// container, så att de räknar teckenstorleken mot samma bredd som sidan
+// (css/tt.css). På startsidan står dagslistorna bland sidorna i stället.
+$out .= '<div class="tt-under-sidan">';
 
 // En sida som inte sänts på länge visar bara "ej i sändning"; tiden den
 // "uppdaterades" säger då inget. Se not_broadcasted_notice.php.
@@ -228,6 +234,8 @@ if (!empty($today_versions)) {
 if ($yesterday_links_html && !$is_startpage) {
 	$out .= $yesterday_links_html;
 }
+
+$out .= '</div>'; // .tt-under-sidan
 
 // ad after text tv page, before "nyaste sidorna"
 if ( $this->input->get("apiAppShare") ) {

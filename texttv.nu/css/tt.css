@@ -36,10 +36,11 @@ html:not(.appShare) #pages {
 }
 
 /* Blocken under sidan (tid, "Tidigare i dag", dagslistorna) står utanför
-   #pages. Med .wrap som container räknas de mot samma bredd som sidan och
-   får samma teckenstorlek; mot skärmen kom rullningslisten med och gjorde
-   dem större än sidan ovanför. */
-html:not(.appShare) .wrap {
+   #pages. Som egen container räknas de mot samma bredd som sidan och får
+   samma teckenstorlek; mot skärmen kom rullningslisten med och gjorde dem
+   större än sidan ovanför. Inte på .wrap: där finns position: fixed
+   (.controls, .pages-updated) som inte får hamna i en container. */
+html:not(.appShare) .tt-under-sidan {
 	container-type: inline-size;
 }
 

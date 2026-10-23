@@ -530,10 +530,11 @@ class Sida extends CI_Controller {
 		$data["week_top"] = $week_top;
 		$data["today_versions"] = $today_versions;
 		$data["today_versions_yesterday"] = $today_versions_yesterday;
-		// "Uppdateras live" under sidan. Bara här, inte i api/get_html som
-		// laddar samma vy utan live-uppdateringen (samma villkor som
-		// page-is-live i header.php).
-		$data["is_live"] = sizeof($arr_page_objs) === 1 && $arr_page_objs[0]->is_live_results();
+		// Resultatsidan byts ut på plats (page-is-live i header.php, js/scripts.js)
+		// och säger "Uppdateras live" under sidan. Bara här, inte i
+		// api/get_html som laddar samma vy utan live-uppdateringen. Inte när
+		// sidan inte sänds: då visas en gammal version som inte uppdateras.
+		$data["is_live"] = sizeof($arr_page_objs) === 1 && !$not_broadcasted && $arr_page_objs[0]->is_live_results();
 		// "Polisen rapporterade" under nyhetssidor (todo #21).
 		$data["polis_handelser"] = (sizeof($arr_page_objs) === 1 && !$not_broadcasted && (int) $page->num >= 100 && (int) $page->num <= 199)
 			? bpk_handelser_for_titel($page->title, $page->date_added_unix)

@@ -161,7 +161,8 @@ if (isset($day_archive)) {
 	$arr_html_classes[] = "page-is-day-archive";
 }
 // Resultatsidan byts ut på plats när den uppdateras (js/scripts.js).
-if (!isset($is_archive) && !isset($day_archive) && isset($pages) && sizeof($pages) == 1 && $pages[0]->is_live_results()) {
+// $is_live sätts av Sida::visa().
+if (!empty($is_live)) {
 	$arr_html_classes[] = "page-is-live";
 }
 

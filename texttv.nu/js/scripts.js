@@ -489,13 +489,13 @@ document.querySelectorAll(".controls-topnav-search-input").forEach(function (inp
 		}
 		// "Uppdateras live" stämmer inte längre: markören stannar och texten
 		// blir "Uppdaterad".
+		document.removeEventListener("visibilitychange", vidSynlig);
 		document.documentElement.classList.add("tt-live-pausad");
 		document.querySelectorAll(".pageshare__updated--live").forEach(function (p) {
 			if (p.firstChild && p.firstChild.nodeType === 3) {
 				p.firstChild.nodeValue = "Uppdaterad ";
 			}
 		});
-		stoppad = true;
 		clearInterval(timer);
 	}
 
@@ -511,8 +511,6 @@ document.querySelectorAll(".controls-topnav-search-input").forEach(function (inp
 	var MAX_MISSAR = 4;
 	var missar = 0;
 	var hamtar = false;
-
-	var stoppad = false;
 
 	function miss() {
 		missar++;
@@ -546,6 +544,44 @@ document.querySelectorAll(".controls-topnav-search-input").forEach(function (inp
 		ny = document.importNode(ny, true);
 		ersattBehallFokus(gammal, ny);
 		return ny;
+	}
+
+	// Blocken under sidan i den ordning de står. "Tidigare i dag" finns
+	// bara när det finns fler versioner i dag, och "Gårdagens resultat"
+	// flyttar dit när den gör det (Sida::visa()). Ett block kan alltså
+	// komma eller gå mellan två versioner, t.ex. vid midnatt.
+	var UNDER_SIDAN = [".pageshare", ".tt-tidigare", ".day-archive-link"];
+
+	function bytBlockUnderSidan(doc) {
+		var ruta = document.querySelector(".tt-under-sidan");
+		if (!ruta || !doc.querySelector(".tt-under-sidan")) {
+			return;
+		}
+		UNDER_SIDAN.forEach(function (selector, i) {
+			var s = ".tt-under-sidan > " + selector;
+			if (selector === ".pageshare") {
+				return; // Bara tiden byts, se nedan. Dela-knappen har sin lyssnare.
+			}
+			var gammal = document.querySelector(s);
+			var ny = doc.querySelector(s);
+			if (gammal && ny) {
+				ersattBehallFokus(gammal, document.importNode(ny, true));
+			} else if (gammal) {
+				gammal.remove();
+			} else if (ny) {
+				// Efter närmaste block före som finns, annars först.
+				var fore = null;
+				for (var j = i - 1; j >= 0 && !fore; j--) {
+					fore = document.querySelector(".tt-under-sidan > " + UNDER_SIDAN[j]);
+				}
+				ny = document.importNode(ny, true);
+				if (fore) {
+					fore.after(ny);
+				} else {
+					ruta.prepend(ny);
+				}
+			}
+		});
 	}
 
 	function bytSida(gammal, ny, andrade) {
@@ -603,7 +639,7 @@ document.querySelectorAll(".controls-topnav-search-input").forEach(function (inp
 				});
 				// "Uppdaterad 22:40" och "Tidigare i dag" under sidan.
 				var tid = bytUt(".pageshare__updated", doc);
-				bytUt(".tt-tidigare", doc);
+				bytBlockUnderSidan(doc);
 				if (tid) {
 					var time = tid.querySelector("time");
 					if (time) {
@@ -638,14 +674,18 @@ document.querySelectorAll(".controls-topnav-search-input").forEach(function (inp
 
 	// En fråga i taget: timern och visibilitychange kan annars fråga
 	// samtidigt med samma gamla tid, och den andra räknas då som en miss.
+	// En fråga som hängt sig (skärmen släckt, nätbyte) släpps efter 15 s, så
+	// att den inte stoppar alla kommande.
+	var fragadeSenast = 0;
 	var fragar = false;
 
 	function kolla() {
 		// Ingen fråga när fliken inte syns; nästa fråga kommer när den gör det.
-		if (document.hidden || stoppad || fragar || hamtar) {
+		if (document.hidden || hamtar || (fragar && Date.now() - fragadeSenast < 15000)) {
 			return;
 		}
 		fragar = true;
+		fragadeSenast = Date.now();
 		fetch("/api/updated/" + pageNums + "/" + latestUpdate + "?app=texttvnu.web")
 			.then(function (r) {
 				return r.json();
@@ -668,8 +708,15 @@ document.querySelectorAll(".controls-topnav-search-input").forEach(function (inp
 	var timer = setInterval(kolla, 5000);
 	// Fråga direkt när fliken syns igen (skärmen tänds, man byter tillbaka),
 	// i stället för att vänta upp till fem sekunder. Det är då man annars
-	// letar efter en ladda om-knapp.
-	document.addEventListener("visibilitychange", kolla);
+	// letar efter en ladda om-knapp. Inte oftare än timern: snabba flikbyten
+	// inom samma cachefönster (?live=, 10 s) skulle annars hämta en gammal
+	// sida och räknas som missar.
+	function vidSynlig() {
+		if (Date.now() - fragadeSenast >= 5000) {
+			kolla();
+		}
+	}
+	document.addEventListener("visibilitychange", vidSynlig);
 })();
 
 // Annonsskriptet blockerat (annonsblockerare): göm annonsrutorna, annars står

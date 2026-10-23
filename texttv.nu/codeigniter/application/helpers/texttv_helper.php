@@ -2082,3 +2082,18 @@ function bpk_lank($url, $medium)
 	}
 	return $url . (strpos($url, '?') === false ? '?' : '&') . 'utm_source=texttv.nu&utm_medium=' . rawurlencode($medium);
 }
+
+/**
+ * Gul länk med pil efter, där bara texten är understruken (.tt-pil i
+ * css/tt.css). &nbsp; eftersom länken är flex och tar bort vanliga
+ * mellanslag. En aria-label ska innehålla den synliga texten (WCAG 2.5.3).
+ */
+function tt_pil_link($href, $text, $aria_label = "")
+{
+	return sprintf(
+		'<a class="tt-pil" href="%1$s"%3$s><span class="tt-u">%2$s</span>&nbsp;→</a>',
+		html_escape($href),
+		html_escape($text),
+		$aria_label !== "" ? ' aria-label="' . html_escape($aria_label) . '"' : ""
+	);
+}

@@ -172,7 +172,7 @@ if ( true || $this->input->get("enable-share") ) {
 	// ser "Uppdaterad 19:37" gammal ut och man letar efter en ladda om-knapp.
 	// Tiden är när SVT senast ändrade sidan. Markören blinkar som på Text TV
 	// och stannar när uppdateringen gett upp (granskning 2026-10-23).
-	// $is_live sätts bara av Sida::visa().
+	// $is_live sätts bara av Sida::visa(), samma som page-is-live i header.php.
 	$is_live = !empty($is_live);
 	$text_archive .= sprintf('
 		<p class="pageshare__updated%3$s">%4$s <time datetime="%2$s">%1$s</time>%5$s</p>
@@ -217,11 +217,9 @@ if (!empty($today_versions)) {
 		);
 	}, $today_versions);
 	if (!empty($today_versions_yesterday)) {
-		$items[] = sprintf(
-			'<li class="tt-tidigare__igar"><a class="tt-pil" href="%1$s" aria-label="%2$s"><span class="tt-u">Igår</span>&nbsp;→</a></li>',
-			html_escape($today_versions_yesterday),
-			html_escape("Gårdagens resultat " . $num_label)
-		);
+		$items[] = '<li class="tt-tidigare__igar">'
+			. tt_pil_link($today_versions_yesterday, "Igår", "Igår, gårdagens resultat " . $num_label)
+			. '</li>';
 	}
 	$out .= '<nav class="tt-sidbredd tt-tidigare" aria-labelledby="tt-tidigare-rubrik">'
 		. '<h2 class="tt-band tt-tidigare__rubrik" id="tt-tidigare-rubrik">Sida ' . $num_label . ' tidigare i dag</h2>'

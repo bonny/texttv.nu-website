@@ -29,7 +29,8 @@
 	tecken är 20 em. 10px = sidans egen padding (.li, 5px per sida).
 	Taket i rem gör att användarens textstorlek respekteras.
 	Delningsbilderna (html.appShare) behåller sina fasta storlekar.
-	Utanför #pages finns ingen container, och då räknas cqi mot skärmen.
+	Blocken direkt under sidan har en egen container (.tt-under-sidan,
+	nedan). Utanför dem finns ingen, och då räknas cqi mot skärmen.
 */
 html:not(.appShare) #pages {
 	container-type: inline-size;

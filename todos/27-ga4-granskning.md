@@ -1,4 +1,4 @@
-**Status:** ny 2026-10-24
+**Status:** mest gjort 2026-10-24; kvar för Pär: samtyckesläget och filtret för intern trafik (se nedan)
 **Senast uppdaterad:** 2026-10-24
 
 # #27 Granskning av hur webben använder GA4
@@ -82,9 +82,11 @@ den som dimension). Då går hemskärmsanvändarna att jämföra hela vägen.
 
 ### Mindre saker
 
-- `/343?embed=true` hade 2 848 visningar: någon bäddar in tabellen.
-  `document.referrer` skickas inte med, så det syns inte var. Värt att ta
-  reda på (access.log).
+- `/343?embed=true` hade 2 848 visningar. Utrett 2026-10-24 i
+  `access.log`: en digital skylt (Philips BDL4550D, SmartSign ADAPI,
+  enhetsnamn "Kinnarps Test", IP 194.237.14.0/24) som visar Allsvenskans
+  tabell 07–17 på vardagar och laddar om ungefär var fjärde minut. En
+  användare i GA4, ingen hänvisning. Troligen en tv-skärm på Kinnarps.
 - Utgående klick (förbättrad mätning) fungerar: Play Store 31, App Store 9
   klick på 28 dagar.
 - `live_update` skickas en gång per uppdatering, inte per besök (475
@@ -96,8 +98,39 @@ den som dimension). Då går hemskärmsanvändarna att jämföra hela vägen.
   året innan i Utforska, bara i standardrapporterna. Kolla under Admin →
   Datainsamling och modifiering → Datalagring.
 
-## Redan gjort 2026-10-24
+## Gjort 2026-10-24
 
 - `search_open` räknas inte när en siffertangent öppnar listan (`e29acec`).
 - `tab`, `placement`, `position` och `section` registrerade som anpassade
   dimensioner (se #25).
+- **Punkt 3, 4 och 7 i koden** (`header.php`, deployat): gtag.js och
+  `config` bara när värden är `texttv.nu`; `page_location` utan
+  `uppdaterad`, `live`, `number`, `numbe` och `cb`; `display_mode`
+  (`standalone`/`browser`) på alla händelser, registrerad som dimensionen
+  "Visningsläge".
+- **Punkt 5:** Brottsplatskartan skickar `utm_medium=referral` och
+  `utm_campaign=newslist` (brottsplatskartan-web `9892baac`, deployat).
+  `brottsplatskartan / newslist` slutar alltså växa i rapporterna och
+  ersätts av `brottsplatskartan / referral`.
+- **Punkt 6:** `share`, `search_select` och `select_content` är viktiga
+  händelser.
+- **Datalagring:** var 2 månader för händelsedata, nu 14. Gäller data
+  framåt; Utforska kan alltså jämföra med året innan först hösten 2027.
+- **Intern trafik:** regeln "Pär hemma" (155.4.219.33/32, `internal`) i
+  Google-taggens inställningar.
+
+## Kvar för Pär
+
+- **Samtyckesläget (punkt 1).** AdSense "Integritet och meddelanden" →
+  Europeiska förordningar har redan samtyckesläge för annonser och
+  analys påslaget, så Googles CMP skickar uppdateringar. Det som saknas
+  är grundläget: GA4 → Dataflöden → webbflödet → Konfigurera
+  tagginställningar → Visa mer → "Åsidosätt standardinställningar för
+  samtyckesläge" → Analysinställningar på, Specifika regioner =
+  "Geographic region - Europe" → Spara. Ifyllt men inte sparat (auto mode
+  får inte ändra stående kontoregler). Annonsinställningarna där lämnas
+  av: AdSense sköter annonserna via TCF. Lägg en annotering i GA4 samma
+  dag, siffrorna sjunker.
+- **Aktivera filtret "Internal Traffic"** under Datainsamling och
+  modifiering → Datafilter. Det står i läget Testar tills det aktiveras.
+  Bärbara datorn borta hemifrån har en annan IP och räknas fortfarande.

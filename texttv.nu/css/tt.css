@@ -646,6 +646,20 @@ button.tt-link {
 	padding-right: .5ch; /* 39 tecken ryms: "SVT Text TV - Nyheter och Sportresultat" */
 }
 
+/* Rubrik över varje sida i en vy med flera sidor (/376,377), länk till den
+   enskilda sidan. Ligger i .one-page, där texttvpage.css gör h2 inline och
+   länkarna grå. Samma marginal på alla, så att två sidor i bredd står i jämnhöjd. */
+.TextTVPage .tt-sidrubrik {
+	display: block;
+	margin-top: .5em;
+	font-size: inherit;
+}
+
+.TextTVPage .tt-sidrubrik a {
+	color: var(--tt-yellow);
+	text-decoration: none;
+}
+
 /*
 	Flera sidor (startsidan, /100,300): från 900 px i #pages står två sidor
 	bredvid varandra utan mellanrum, 2 × (40ch + 10px) vid 22 px. Bandet och

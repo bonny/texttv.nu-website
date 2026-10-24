@@ -2097,3 +2097,37 @@ function tt_pil_link($href, $text, $aria_label = "")
 		$aria_label !== "" ? ' aria-label="' . html_escape($aria_label) . '"' : ""
 	);
 }
+
+/**
+ * Sidnumren i en vy med flera sidor som text: följder blir intervall med
+ * tankstreck, resten skiljs med komma. [376, 377] blir "376–377" och
+ * [101, 102, 103, 106] blir "101–103, 106". Används i <title>, h1 och
+ * brödsmulan, som annars bara visade första sidan.
+ *
+ * @param array $pages texttv_page-objekt eller sidnummer
+ */
+function tt_sidnummer_text($pages)
+{
+	$nums = array();
+	foreach ($pages as $page) {
+		$nums[] = (int) (is_object($page) ? $page->num : $page);
+	}
+
+	$delar = array();
+	$start = $forra = null;
+	foreach ($nums as $num) {
+		if ($forra !== null && $num === $forra + 1) {
+			$forra = $num;
+			continue;
+		}
+		if ($start !== null) {
+			$delar[] = $start === $forra ? (string) $start : $start . "–" . $forra;
+		}
+		$start = $forra = $num;
+	}
+	if ($start !== null) {
+		$delar[] = $start === $forra ? (string) $start : $start . "–" . $forra;
+	}
+
+	return implode(", ", $delar);
+}

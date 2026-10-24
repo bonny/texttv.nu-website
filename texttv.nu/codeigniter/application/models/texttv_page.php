@@ -892,7 +892,10 @@ class Texttv_page extends CI_Model {
     /**
       * ger li-output för en sida
       */
-    function get_output() {
+    // $heading_html: rubrik först i sidan, när flera sidor visas
+    // (pages_inner_output_current.php). Inuti .one-page så att den följer
+    // med när sidorna står bredvid varandra och när js/scripts.js byter sidan.
+    function get_output($heading_html = "") {
 
 	    $out = "";
 
@@ -900,6 +903,7 @@ class Texttv_page extends CI_Model {
 		$page_num_data_attr = sprintf("data-sida=%d", $this->num);
 		
 		$out .= "<div $page_num_data_attr class='one-page TextTVPage li'>";
+		$out .= $heading_html;
 		
 		//$out .= sprintf('<div style="display:none" class="page-swipe-wrap page-swipe-wrap-prev">Föregående sida: %1$s:</div>', $this->prev_page);
 

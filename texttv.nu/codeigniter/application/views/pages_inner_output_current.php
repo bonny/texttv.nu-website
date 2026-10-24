@@ -87,10 +87,11 @@ if ($headline) {
 } else if (isset($pagenum) && $pagenum) {
 	// Fallback: sr-only h1 för crawlers + screenreaders på sidor utan visuell rubrik.
 	// Med ämnet när sidan har ett, som <title>: "SVT Text TV 343 – Allsvenskan tabell".
+	// Flera sidor: "SVT Text TV 376–377", inte bara första sidan.
 	$subject_name = sizeof($arr_pages) == 1 ? $arr_pages[0]->get_subject_name() : false;
 	$out .= sprintf(
-		'<h1 class="sr-only">SVT Text TV %d%s</h1>',
-		(int) $pagenum,
+		'<h1 class="sr-only">SVT Text TV %s%s</h1>',
+		sizeof($arr_pages) > 1 ? html_escape(tt_sidnummer_text($arr_pages)) : (int) $pagenum,
 		$subject_name ? " – " . html_escape($subject_name) : ""
 	);
 }
@@ -112,8 +113,23 @@ if (!empty($yesterday_links)) {
 	], TRUE);
 }
 
+// Flera sidor (/376,377): en rubrik över varje sida med länk till den
+// enskilda sidan. Utan den flöt sidorna ihop, och 377 har ingen egen
+// rubrikrad (granskning 2026-10-24). Inte på startsidan, som har egna band,
+// och inte i skärmdumpen för delning.
+$show_page_headings = sizeof($arr_pages) > 1 && !$is_startpage && !$this->input->get("apiAppShare");
+
 foreach ($arr_pages as $page_index => $one_page_obj) {
-	$out .= $one_page_obj->get_output();
+	$page_heading_html = "";
+	if ($show_page_headings) {
+		$heading_name = $one_page_obj->get_page_name() ?: trim($one_page_obj->title);
+		$heading_text = trim($one_page_obj->num . " " . $heading_name);
+		$page_heading_html = sprintf(
+			'<h2 class="tt-band tt-sidrubrik">%s</h2>',
+			tt_pil_link("/" . (int) $one_page_obj->num, $heading_text)
+		);
+	}
+	$out .= $one_page_obj->get_output($page_heading_html);
 	// Startsidan visar sju sidor efter varandra. Gårdagens länkar direkt
 	// efter den första (100), annars hamnar de fyra skärmar ner på mobil.
 	if ($is_startpage && $page_index === 0 && $yesterday_links_html) {

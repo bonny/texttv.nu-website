@@ -2108,26 +2108,19 @@ function tt_pil_link($href, $text, $aria_label = "")
  */
 function tt_sidnummer_text($pages)
 {
-	$nums = array();
+	// Följder som [första, sista], sedan formaterade på ett ställe.
+	$foljder = array();
 	foreach ($pages as $page) {
-		$nums[] = (int) (is_object($page) ? $page->num : $page);
+		$num = (int) (is_object($page) ? $page->num : $page);
+		$sista = count($foljder) - 1;
+		if ($sista >= 0 && $num === $foljder[$sista][1] + 1) {
+			$foljder[$sista][1] = $num;
+		} else {
+			$foljder[] = array($num, $num);
+		}
 	}
 
-	$delar = array();
-	$start = $forra = null;
-	foreach ($nums as $num) {
-		if ($forra !== null && $num === $forra + 1) {
-			$forra = $num;
-			continue;
-		}
-		if ($start !== null) {
-			$delar[] = $start === $forra ? (string) $start : $start . "–" . $forra;
-		}
-		$start = $forra = $num;
-	}
-	if ($start !== null) {
-		$delar[] = $start === $forra ? (string) $start : $start . "–" . $forra;
-	}
-
-	return implode(", ", $delar);
+	return implode(", ", array_map(function ($foljd) {
+		return $foljd[0] === $foljd[1] ? (string) $foljd[0] : $foljd[0] . "–" . $foljd[1];
+	}, $foljder));
 }

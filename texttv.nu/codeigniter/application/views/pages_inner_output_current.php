@@ -122,8 +122,7 @@ $show_page_headings = sizeof($arr_pages) > 1 && !$is_startpage && !$this->input-
 foreach ($arr_pages as $page_index => $one_page_obj) {
 	$page_heading_html = "";
 	if ($show_page_headings) {
-		$heading_name = $one_page_obj->get_page_name() ?: trim($one_page_obj->title);
-		$heading_text = trim($one_page_obj->num . " " . $heading_name);
+		$heading_text = trim($one_page_obj->num . " " . $one_page_obj->get_page_title());
 		$page_heading_html = sprintf(
 			'<h2 class="tt-band tt-sidrubrik">%s</h2>',
 			tt_pil_link("/" . (int) $one_page_obj->num, $heading_text)

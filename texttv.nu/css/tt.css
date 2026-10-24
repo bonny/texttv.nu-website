@@ -648,16 +648,32 @@ button.tt-link {
 
 /* Rubrik över varje sida i en vy med flera sidor (/376,377), länk till den
    enskilda sidan. Ligger i .one-page, där texttvpage.css gör h2 inline och
-   länkarna grå. Samma marginal på alla, så att två sidor i bredd står i jämnhöjd. */
+   länkarna grå. Alltid en rad (lång nyhetsrubrik kortas med …, pilen står
+   kvar), så att två sidor i bredd står i jämnhöjd. */
+/* width: 0 + min-width: 100 %: rubriken tar sidans bredd men gör inte
+   .one-page (inline-block) bredare, annars knuffar en lång rubrik ner
+   sidan bredvid. */
 .TextTVPage .tt-sidrubrik {
 	display: block;
+	box-sizing: border-box;
+	width: 0;
+	min-width: 100%;
 	margin-top: .5em;
 	font-size: inherit;
 }
 
 .TextTVPage .tt-sidrubrik a {
+	display: flex;
+	justify-content: center;
 	color: var(--tt-yellow);
 	text-decoration: none;
+	white-space: nowrap;
+}
+
+.TextTVPage .tt-sidrubrik .tt-u {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 /*

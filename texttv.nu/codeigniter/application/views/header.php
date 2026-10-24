@@ -66,26 +66,25 @@ if (isset($is_archive_overview)) {
 
 	$title_names = array();
 	foreach ($pages as $one_page) {
-		if (($page_name = $one_page->get_page_name())) {
-			// Look for manually entered name
-			$title_names[] = trim($page_name);
-		} elseif (isset($is_archive) && sizeof($pages) == 1 && ($subject_title = $one_page->get_subject_archive_title())) {
+		if (isset($is_archive) && sizeof($pages) == 1 && ($subject_title = $one_page->get_subject_archive_title())) {
 			// "Allsvenskan tabell, 20 okt 2026". Bara en sida, med flera hade
-			// datumet stått en gång per sida.
+			// datumet stått en gång per sida. get_subject_archive_title() ger
+			// false för sidor med get_page_name(), så ordningen spelar ingen roll.
 			$title_names[] = $subject_title;
-		} elseif (trim($one_page->title)) {
-			// Else see if we found a title when loading the page
-			$title_names[] = trim($one_page->title);
+		} elseif (($page_title_one = $one_page->get_page_title())) {
+			// Namnet om sidan har ett, annars titeln från importen.
+			$title_names[] = $page_title_one;
 		}
 	}
 	// Samma namn bara en gång: /376,377 gav "Målservice, Målservice".
 	$page_title = implode(", ", array_unique($title_names));
 
-	if (isset($is_archive)) {
-		// inget sidnummer först på arkiverade sidor
-	} elseif (sizeof($pages) > 1) {
-		// "376–377 Målservice". Förut stod adressens "376,377" här.
+	if (sizeof($pages) > 1) {
+		// "376–377 Målservice", även för delade arkiv med flera sidor. Förut
+		// stod adressens "376,377" här, och inget nummer alls i arkiven.
 		$page_title = trim(tt_sidnummer_text($pages) . " " . $page_title);
+	} elseif (isset($is_archive)) {
+		// inget sidnummer först på arkiverade sidor
 	} else {
 		$page_title = trim($pagenum . " " . $page_title);
 	}
@@ -126,10 +125,13 @@ if (isset($is_archive_overview)) {
 		$is_start = true;
 		// 12 tkn använder ios för hemskärmsikonen
 
+	} else if (isset($is_archive) && sizeof($pages) == 1 && $pages[0]->num == 377) {
+		// Bara enskilda arkivversioner av 377 (noindex). Gällde förut allt som
+		// slutade på 377, vilket gav /376,377 och /370-377 den här titeln.
+		// Levande /377 får sin titel från get_subject_name() längre ner.
+		$page_title = "SVT Text 377 - arkivsida"; // title som handlar på arkiv
+
 	} else {
-		// "SVT Text 377 - arkivsida" för allt som slutade på 377 togs bort
-		// 2026-10-24: den gav /376,377 och /370-377 fel titel, och levande
-		// /377 får sin titel från get_subject_name() längre ner.
 
 		$page_title .= " - SVT Text TV";
 	}

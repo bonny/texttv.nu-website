@@ -25,7 +25,17 @@ if (isset($pages) && is_array($pages)) {
 		100, 101, 102, 103, 104, 105
 	);
 
-	if (in_array($pagenum, $arr_pagenums_to_skip)) {
+	// Översikterna (/101, /101-105) hoppas över, och flera sidor bara när
+	// alla är översikter: /104,130 ska få sin brödsmula. Startsidan och
+	// /100,300 hoppas över eftersom 100 står först.
+	$is_multiple = sizeof($pages) > 1;
+	$all_skipped = true;
+	foreach ($pages as $one_page) {
+		if (!in_array((int) $one_page->num, $arr_pagenums_to_skip)) {
+			$all_skipped = false;
+		}
+	}
+	if ($pagenum == 100 || $all_skipped) {
 		return;
 	}
 
@@ -104,7 +114,6 @@ if (isset($pages) && is_array($pages)) {
 
 	// Flera sidor (/376,377): föräldern bara om alla sidor har samma. Annars
 	// "Hem › 106, 132". Förut visades bara första sidan (granskning 2026-10-24).
-	$is_multiple = sizeof($pages) > 1;
 	$arr_parent = $get_parent($pagenum);
 	foreach ($pages as $one_page) {
 		if ($get_parent((int) $one_page->num) !== $arr_parent) {
@@ -118,27 +127,12 @@ if (isset($pages) && is_array($pages)) {
 		return;
 	}
 
-	$arr_extra_breadcrumb_html = "";
-
 	// If page below målservice, ie 377 - 380. Med flera sidor bara om alla är det.
 	$all_below_malservice = true;
 	foreach ($pages as $one_page) {
 		if ($one_page->num < 377 || $one_page->num > 380) {
 			$all_below_malservice = false;
 		}
-	}
-
-	if ($all_below_malservice) {
-
-		$arr_extra_breadcrumb_html = sprintf(
-			'
-				<li class="breadcrumbs__item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
-					<a class="breadcrumbs__link" href="/%1$d" itemprop="item"><span itemprop="name">%2$s</span><meta itemprop="position" content="3" /></a> › 
-				</li>
-			',
-			376, // 1 link pagenum
-			"Målservice" // 2 name of link
-		);
 	}
 
 	if ($is_multiple) {
@@ -162,7 +156,7 @@ if (isset($pages) && is_array($pages)) {
 				$arr_parent["title"]
 			);
 		}
-		if ($arr_extra_breadcrumb_html) {
+		if ($all_below_malservice) {
 			$parent_html .= '<li class="breadcrumbs__item"><a class="breadcrumbs__link" href="/376">Målservice</a> › </li>';
 		}
 
@@ -180,8 +174,18 @@ if (isset($pages) && is_array($pages)) {
 		return;
 	}
 
+	$arr_extra_breadcrumb_html = "";
 	$lastitem_position = 3;
-	if ($arr_extra_breadcrumb_html) {
+	if ($all_below_malservice) {
+		$arr_extra_breadcrumb_html = sprintf(
+			'
+				<li class="breadcrumbs__item" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+					<a class="breadcrumbs__link" href="/%1$d" itemprop="item"><span itemprop="name">%2$s</span><meta itemprop="position" content="3" /></a> › 
+				</li>
+			',
+			376, // 1 link pagenum
+			"Målservice" // 2 name of link
+		);
 		$lastitem_position = 4;
 	}
 

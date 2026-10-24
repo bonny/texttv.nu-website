@@ -790,16 +790,42 @@ if (isset($day_archive)) {
 			}
 		</script>
 
+		<?php
+		// GA4 bara på riktiga sajten, så att texttv.test och localhost inte
+		// hamnar i statistiken (todo #27). gtag() finns ändå lokalt: händelserna
+		// hamnar i dataLayer och går att se där, men skickas ingenstans.
+		$ga4_aktiv = ($_SERVER['HTTP_HOST'] ?? '') === 'texttv.nu';
+		if ($ga4_aktiv) {
+		?>
 		<!-- Google tag (gtag.js) -->
 		<script async src="https://www.googletagmanager.com/gtag/js?id=G-J9BM4E3WHD"></script>
+		<?php } ?>
 		<script>
 			window.dataLayer = window.dataLayer || [];
 
 			function gtag() {
 				dataLayer.push(arguments);
 			}
+			<?php if ($ga4_aktiv) { ?>
 			gtag('js', new Date());
-			gtag('config', 'G-J9BM4E3WHD');
+			(function () {
+				// Adressen utan parametrar som bara finns för att komma förbi
+				// nginx-cachen (?uppdaterad= från "Ladda om") eller kommer från
+				// ett tomt formulär (?number=). Annars blir varje omladdning en
+				// egen adress i GA4.
+				var url = new URL(location.href);
+				["uppdaterad", "live", "number", "numbe", "cb"].forEach(function (p) {
+					url.searchParams.delete(p);
+				});
+				// Hemskärmsappen (PWA) mot vanlig webbläsare, på alla
+				// händelser och inte bara första sidan (?homescreen=1).
+				var hemskarm = (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true;
+				gtag('config', 'G-J9BM4E3WHD', {
+					page_location: url.href,
+					display_mode: hemskarm ? "standalone" : "browser"
+				});
+			})();
+			<?php } ?>
 		</script>
 		<?php
 	}

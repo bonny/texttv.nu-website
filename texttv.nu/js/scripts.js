@@ -254,9 +254,12 @@ document.addEventListener("keydown", function (e) {
 			// Siffran skrivs i fältet. keyup kommer i fältet, så tre siffror
 			// skickar formuläret som vanligt, och input visar förslagen.
 			e.preventDefault();
+			// Säger till js/tt-sok.js att inte räkna det som öppnad lista.
+			sok.dataset.franSiffra = "1";
 			sok.focus();
 			sok.value = e.key;
 			sok.dispatchEvent(new Event("input", { bubbles: true }));
+			delete sok.dataset.franSiffra;
 		}
 	});
 })();

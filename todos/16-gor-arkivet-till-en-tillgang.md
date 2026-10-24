@@ -422,6 +422,14 @@ Obs: navigeringar via service workern får referer
 `https://texttv.nu/service-worker.js` i `access.log`, så den riktiga
 hänvisningen syns bara i GA4.
 
+### Andra veckan (GA4, 2026-10-19 – 10-23)
+
+`/sport/idag` 61, `/nyheter/idag` 47, `/sport/igar` 29, `/nyheter/igar` 26,
+`/377/igar` 34 visningar. `/377/igar` ligger kvar på 5–11 per dag, trots
+"Resultat igår" i Idag-raden från 20 okt (se #25). `/sida/delat` 268
+visningar 17–24 okt (240 användare), trots att sidan togs bort ur menyn
+20 okt.
+
 ### SEO-koll 2026-10-20
 
 - Alla nya sidor indexerade utom datumsidorna för 377 (`/377/2026-10-15`

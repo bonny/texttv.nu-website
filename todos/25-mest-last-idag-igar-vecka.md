@@ -1,5 +1,5 @@
 **Status:** aktiv — deployat 2026-10-19, mät 2026-10-24
-**Senast uppdaterad:** 2026-10-22
+**Senast uppdaterad:** 2026-10-24
 
 # #25 Mest läst: växla mellan idag, igår och senaste 7 dagarna
 
@@ -93,7 +93,9 @@ Sammanvägt, så som steg 1 ska byggas:
   cachefil (`idag-…`), annars hade "Igår" visat dagens ögonblicksbild nästa
   dag.
 - [x] `/377/igar` tillbaka i Idag-raden 2026-10-20 (se nedan).
-- [ ] Mät 2026-10-24 med #16: `most_read_tab` och `select_content` i GA4.
+- [x] Mätt 2026-10-24 med #16, se "Första veckan" nedan.
+- [x] Anpassade dimensioner registrerade i GA4 2026-10-24 (se nedan).
+- [ ] `/377/igar` kom inte tillbaka efter ändringen 2026-10-20. Ta ställning.
 
 ## Första dygnet (GA4, 2026-10-19 20:14 – 10-20)
 
@@ -101,7 +103,8 @@ Sammanvägt, så som steg 1 ska byggas:
   Pärs egna tester), 6 från 2 användare på tisdagen.
 - `select_content`: 10 + 11 klick från 9 + 11 användare.
 
-**Parametern `tab` går inte att läsa ut.** Den är inte registrerad som
+**Parametern `tab` gick inte att läsa ut** (löst 2026-10-24, se "Första
+veckan"). Den är inte registrerad som
 anpassad dimension i GA4 (`customEvent:tab` ger 400), så klicken kan inte
 delas per flik. Pär: lägg till anpassade dimensioner (händelseomfattning)
 för `tab` och `position` i GA4 382798575, Admin → Anpassade definitioner.
@@ -150,3 +153,39 @@ samma dag, sammanvägt och byggt direkt:
 efter annonsen" (`ad--before-latest`) är ingen godkänd etikett; AdSense vill
 ha "Annons"/"Annonser". Och kanske en flik "Senaste | Mest läst" i
 "Senaste nyheterna" i stället för två listor efter varandra.
+
+## Första veckan (GA4, 2026-10-19 – 10-23)
+
+| Dag | `select_content` (användare) | `most_read_tab` (användare) |
+| --- | ---: | ---: |
+| 19 okt | 10 (9) | 43 (3) |
+| 20 okt | 50 (43) | 17 (2) |
+| 21 okt | 69 (58) | 10 (5) |
+| 22 okt | 84 (59) | 16 (2) |
+| 23 okt | 83 (56) | 6 (3) |
+
+Webben hade 1 500–1 700 användare per dag. Från 22 okt räknas även
+klicken i rutan under nyhetssidorna och arkivsidorna.
+
+- **Klicken i listorna ökar:** 50 → 84 per dag. Ökningen 22 okt kom med
+  rutan under nyhetssidorna, men det går inte att säga hur mycket den
+  stod för (se nedan).
+- **Nästan ingen byter flik:** 2–5 användare per dag, troligen till stor
+  del Pär själv. Förvalet (Igår före kl 10, sedan Idag) räcker. Flikarna
+  skadar inte, men 7 dagar behöver inte fler funktioner.
+- **`/377/igar` kom inte tillbaka:** 7, 6, 5, 11 och 5 visningar 19–23 okt,
+  mot 28–40 per dag 16–18 okt. "Resultat igår" i Idag-raden (2026-10-20)
+  gav ingen märkbar skillnad. `/377` hade lika många visningar som veckan
+  innan (12 378 mot 13 025), så trafiken finns. Fallet beror troligen mest på
+  att Igår-fliken inte längre visas efter kl 10. Länken behöver synas där
+  folk tittar på resultat, alltså på `/377`, men där finns den redan. Möjligt
+  att 28–40 per dag var nyfikenhet första veckan.
+- **Dagssidorna 19–23 okt:** `/sport/idag` 61, `/nyheter/idag` 47,
+  `/sport/igar` 29, `/nyheter/igar` 26 visningar.
+
+**Anpassade dimensioner registrerade 2026-10-24** i GA4 382798575
+(händelseomfattning): `tab` ("Mest läst flik"), `placement` ("Placering"),
+`position` ("Position i listan") och `section` ("Sektion i Gå till sida",
+för `search_select`). De gäller bara data från och med 24 okt. I Data API
+heter de `customEvent:tab` osv. Följ upp klick per placering och flik
+omkring 2026-11-07.

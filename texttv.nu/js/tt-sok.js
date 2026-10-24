@@ -236,7 +236,9 @@
 	}
 
 	// GA4: hur många som öppnar listan och vad de väljer i den. Tre siffror
-	// rakt in i fältet (js/scripts.js) fanns före listan och räknas inte.
+	// rakt in i fältet (js/scripts.js) fanns före listan och räknas inte:
+	// en siffra var som helst på sidan flyttar fokus hit och öppnar listan,
+	// och scripts.js märker det med data-fran-siffra.
 	var oppnadMatt = false;
 	function mat(namn, params) {
 		if (typeof gtag === "function") {
@@ -245,7 +247,7 @@
 	}
 
 	function oppna() {
-		if (!oppnadMatt) {
+		if (!oppnadMatt && input.dataset.franSiffra !== "1") {
 			oppnadMatt = true;
 			mat("search_open", {});
 		}

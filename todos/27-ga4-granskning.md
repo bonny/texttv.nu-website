@@ -119,6 +119,17 @@ den som dimension). Då går hemskärmsanvändarna att jämföra hela vägen.
 - **Intern trafik:** regeln "Pär hemma" (155.4.219.33/32, `internal`) i
   Google-taggens inställningar.
 
+### Efter granskningen (subagent, 2026-10-24)
+
+- `search_select` har `via`: `siffra` när listan öppnades med en
+  siffertangent (den öppningen räknas inte som `search_open`), annars
+  `lista`. Räkna val per öppning som `search_select` med `via = lista`
+  delat med `search_open`. Registrerad som dimensionen "Sökval via".
+- `ios/index.php` och `android/index.php` (appsidorna) laddar gtag.js bara
+  på `texttv.nu`, som `header.php`.
+- Medvetet: HTML via `api.texttv.nu` (samma vhost) mäts inte längre. Bara
+  `texttv.nu` räknas.
+
 ## Kvar för Pär
 
 - **Samtyckesläget (punkt 1).** AdSense "Integritet och meddelanden" →

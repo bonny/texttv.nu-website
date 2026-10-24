@@ -43,8 +43,11 @@
         }
     </script>
 
+    <?php // GA4 bara på riktiga sajten, som views/header.php (todo #27). ?>
+    <?php if (($_SERVER['HTTP_HOST'] ?? '') === 'texttv.nu') { ?>
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-J9BM4E3WHD"></script>
+    <?php } ?>
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag() { dataLayer.push(arguments); }

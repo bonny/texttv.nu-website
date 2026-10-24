@@ -238,8 +238,11 @@
 	// GA4: hur många som öppnar listan och vad de väljer i den. Tre siffror
 	// rakt in i fältet (js/scripts.js) fanns före listan och räknas inte:
 	// en siffra var som helst på sidan flyttar fokus hit och öppnar listan,
-	// och scripts.js märker det med data-fran-siffra.
+	// och scripts.js märker det med data-fran-siffra. Val i en sådan lista
+	// får via: "siffra" i search_select, så att valen per öppning går att
+	// räkna på de öppningar som räknas (via: "lista").
 	var oppnadMatt = false;
+	var viaSiffra = false;
 	function mat(namn, params) {
 		if (typeof gtag === "function") {
 			gtag("event", namn, params);
@@ -247,7 +250,10 @@
 	}
 
 	function oppna() {
-		if (!oppnadMatt && input.dataset.franSiffra !== "1") {
+		if (panel.hidden) {
+			viaSiffra = input.dataset.franSiffra === "1";
+		}
+		if (!oppnadMatt && !viaSiffra) {
 			oppnadMatt = true;
 			mat("search_open", {});
 		}
@@ -270,6 +276,7 @@
 			section: opt.dataset.sektion,
 			page_path: url,
 			search_term: input.value.trim(),
+			via: viaSiffra ? "siffra" : "lista",
 			transport_type: "beacon",
 		});
 		stang();

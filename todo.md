@@ -4,13 +4,14 @@ Index över förbättringsarbete. Varje todo har en egen fil under
 [`todos/`](todos/) med fullständig analys. Konvention och
 mappstruktur: [`todos/README.md`](todos/README.md).
 
-Senast uppdaterad: 2026-10-22 (#26 klar: blogginlägget om live-uppdateringen publicerat.)
+Senast uppdaterad: 2026-10-24 (#25 mätt, #27 GA4-granskning ny.)
 
 ## Aktiva
 
 | #   | Titel | Status | Fil |
 | --- | ----- | ------ | --- |
-| 25  | Mest läst på startsidan: flikar för idag, igår, 7 dagar | **Deployat 2026-10-19** (Idag, Igår och 7 dagar, GA4 `most_read_tab`/`select_content`). Kvar: Pär registrerar `tab` och `position` som anpassade dimensioner i GA4 före mätningen 2026-10-24. Fynd: fliken Idag (förval efter kl 10) tog bort länken till `/377/igar`, som föll från 28–40 till 7 per dag. Länken tillbaka i Idag-raden 2026-10-20 | [todos/25-mest-last-idag-igar-vecka.md](todos/25-mest-last-idag-igar-vecka.md) |
+| 27  | Granskning av hur webben använder GA4 | ny 2026-10-24. Viktigast: GA sätter kakor före samtycket (Consent Mode saknas, Pärs beslut), botar från Singapore/Kina är 15–20 % av användarna, utvecklingstrafik och `?uppdaterad=` i prod-egendomen, inga viktiga händelser | [todos/27-ga4-granskning.md](todos/27-ga4-granskning.md) |
+| 25  | Mest läst på startsidan: flikar för idag, igår, 7 dagar | **Mätt 2026-10-24:** klick i listorna 50 → 84 per dag, flikbyten bara 2–5 användare per dag. `/377/igar` kom inte tillbaka (5–11 per dag) trots länken i Idag-raden. Anpassade dimensioner `tab`, `placement`, `position`, `section` registrerade 2026-10-24; följ upp omkring 2026-11-07 | [todos/25-mest-last-idag-igar-vecka.md](todos/25-mest-last-idag-igar-vecka.md) |
 | 24  | Fler delningar, och räkna dem som finns | ny 2026-10-18. Appens delningar räknades inte sedan 2019 (bara i `page_actions`); nu räknas de, "Dela sidan" är en knapp även på arkivsidor, webben mäts i GA4. Efterräkningen körd 2026-10-18 20:11 (234 sidor). Kvar: mätningen 2026-10-25 | [todos/24-fler-delningar/README.md](todos/24-fler-delningar/README.md) |
 | 22  | Granskningen 2026-10-18: det som mäts en ändring åt gången | ny 2026-10-18. Säkra fixar deployade (annonsblocket som aldrig fylldes, tryckbara rader, `/nyheter/idag`). Ad intents avstängda av Pär 2026-10-18. Kvar: AdSense-inställningar för Pär (vinjettfallet 11–14 okt, ankaret, GA4-länkning) och fem ändringar som mäts en åt gången (toppannonsens höjd på mobil först) | [todos/22-granskning-2026-10-18-matas-en-at-gangen.md](todos/22-granskning-2026-10-18-matas-en-at-gangen.md) |
 | 12  | php-fpm-poolen slår i taket i normaldrift | **`most_read`-filcachen mätt 2026-10-16:** slowloggen 400–1 100 → 184 per dygn (15 okt), varningarna 5. **`pm.max_children` höjd 5 → 10 2026-10-16 20:15** (backup i `/root/config-backups-2026-10-16/`). Väntar på mätning till 2026-10-23, sedan stäng. Kvar: omräkningen av `most_read` tar fortfarande över 3 s på kvällar (`page_actions`-storlek/queryplan) | [todos/12-php-fpm-poolen-slar-i-taket.md](todos/12-php-fpm-poolen-slar-i-taket.md) |

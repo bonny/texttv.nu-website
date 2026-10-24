@@ -427,8 +427,9 @@ hänvisningen syns bara i GA4.
 `/sport/idag` 61, `/nyheter/idag` 47, `/sport/igar` 29, `/nyheter/igar` 26,
 `/377/igar` 34 visningar. `/377/igar` ligger kvar på 5–11 per dag, trots
 "Resultat igår" i Idag-raden från 20 okt (se #25). `/sida/delat` 268
-visningar 17–24 okt (240 användare), trots att sidan togs bort ur menyn
-20 okt.
+visningar 17–24 okt, men 211 av dem var botar från Kina (en visning per
+session, inget engagemang, se #27). Riktiga: cirka 44 visningar från 13
+användare i Sverige.
 
 ### SEO-koll 2026-10-20
 

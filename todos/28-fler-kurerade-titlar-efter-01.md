@@ -135,6 +135,15 @@ börjar med skälet att välja texttv.nu och därefter säger vad sidan har.
 Mät 30 dagar YoY mot `/377` och `/343` som kontroll. Om CTR går upp, gör
 likadant på /343 och /100.
 
+**Deployat 2026-10-25:** ny description på /300, "Snabbare och
+mobilanpassad SVT Text TV 300. ⚽️ Dagens sportrubriker och en snabb väg
+till resultat, tabeller och målservice." Baslinje 90 dagar
+(2026-07-26 → 10-23): 726 klick, 120 503 visningar, CTR 0,60 %, pos 4,1.
+`svt text 300` för sig: 0,36 % CTR, pos 4,3. **Mät 2026-11-25** (30 dagar
+från 2026-10-26): CTR för /300 och för `svt text 300`, mot samma fönster
+2025 och mot kontrollerna `/377` och `/343`. Titta på CTR och inte på
+visningar.
+
 /101 har låg CTR trots position 3,7. Kontrollera om den rankar på frågor
 där SVT:s egen sida vinner, eftersom det kan förklara siffrorna.
 

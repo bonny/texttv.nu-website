@@ -242,7 +242,7 @@ if (!isset($is_archive)) {
 			$meta_title = "130 - SVT Text TV - Utrikes nyhet";
 			$meta_description = "Dagens topp-utrikesnyhet i sin helhet på SVT Text TV 130. Uppdateras varje dag med det viktigaste från världen.";
 		} else if (300 == $first_page_num) {
-			$meta_description = "Sportens startsida på SVT Text TV 300. ⚽️ Dagens sportrubriker + snabb väg till resultat, tabeller och målservice.";
+			$meta_description = "Snabbare och mobilanpassad SVT Text TV 300. ⚽️ Dagens sportrubriker och en snabb väg till resultat, tabeller och målservice.";
 		} else if (336 == $first_page_num) {
 			$meta_description = "Premier League på SVT Text TV 336. ⚽️ Resultat från senaste omgången, kommande matcher och färsk tabell.";
 		} else if (339 == $first_page_num) {

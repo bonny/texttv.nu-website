@@ -47,6 +47,7 @@ eller markera todon som klar.
 | 2026-11-14 | #20: klick från "Tidigare i dag" under 3xx-sidorna till arkivsidorna (referer `/377` m.fl. i `access.log`), ihop med mätningen av #16. | [#20](todos/done/20-tidigare-i-dag-pa-sportsidorna.md) |
 | 2026-11-14 | #16: kolla i GSC att arkiv-URL:er med `utm_` försvinner ur indexet efter canonical-deployen, och hur `/377/igar`, `/330/igar` och datumsidorna indexeras och får klick (deployade 2026-10-14). | [#16](todos/16-gor-arkivet-till-en-tillgang.md) |
 | 2026-11-15 | #18: GSC fyra veckor efter designbytet. Klick och CTR för `/377` och startsidan YoY med `/377` som kontroll, och CLS i Core Web Vitals. | [#18](todos/done/18-text-tv-designsystem.md) |
+| 2026-11-25 | #28: ny description på /300 (deployad 2026-10-25). CTR för /300 och `svt text 300`, 30 dagar mot samma fönster 2025, med `/377` och `/343` som kontroll. Baslinje 90d: 0,60 % (sidan), 0,36 % (frågan). | [#28](todos/28-fler-kurerade-titlar-efter-01.md) |
 | 2026-11-16 | MariaDB uppgraderas för hand sedan 2026-10-16 (blacklistad i `/etc/apt/apt.conf.d/51unattended-upgrades-local` efter att auto-uppgraderingen 10.11.18 → .19 hängde och gav 502 06:54–08:36). Månadsvis: `apt list --upgradable 2>/dev/null \| grep -i mariadb`, finns något → uppgradera i lågtrafik (kräver ok), verifiera `dpkg --audit` tomt och att appens `api/get?cb=` svarar 200. Lägg sedan in nästa månad här. | – |
 
 ### Avklarade uppföljningar

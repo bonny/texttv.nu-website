@@ -160,8 +160,15 @@ ssh texttv.nu 'journalctl -u cron --since "-10 min" --no-pager | grep schedule:r
 ### Säkerhetsuppdateringar och automatisk omstart
 
 `unattended-upgrades` är installerat och kör Debians säkerhetsuppdateringar dagligen via
-`apt-daily-upgrade.timer` (06:00 + upp till 60 min slump, alltså ~06:00–07:00 lokal tid).
+`apt-daily-upgrade.timer`. Sedan 2026-10-25 går timrarna på natten via drop-ins i
+`/etc/systemd/system/apt-daily.timer.d/` och `apt-daily-upgrade.timer.d/` (Debians default var
+06:00 + upp till 60 min): paketlistorna 01:30 och uppdateringarna 02:30, båda + upp till 30 min.
 Loggen är `/var/log/unattended-upgrades/unattended-upgrades.log`.
+
+**`needrestart`** (sedan 2026-10-25, läge `a` i `/etc/needrestart/conf.d/50-auto.conf`) körs efter
+varje apt-körning och startar om tjänster som fortfarande kör gamla bibliotek, t.ex. php-fpm efter en
+libexpat-uppdatering. Utan den gällde en biblioteksfix först vid nästa omstart. `needrestart -b`
+visar läget utan att starta om något.
 
 **Automatisk omstart sedan 2026-09-05**, i `/etc/apt/apt.conf.d/51unattended-upgrades-local`:
 
@@ -176,8 +183,8 @@ Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";
   ~175 k i rusningen kl 08 (mätt 2026-09-04/05). En omstart tar under en minut och nginx,
   php-fpm, mariadb och cron är alla `enabled`.
 - Omstarten sker bara när `/var/run/reboot-required` finns efter en körning (kernel, libc
-  o.dyl.). Eftersom uppdateringen går ~06:30 schemaläggs omstarten till **nästa** 03:30,
-  alltså ca 21 timmar senare. Medvetet val — samma upplägg som eskapism-prod-hel1 (04:30).
+  o.dyl.). Uppdateringen går 02:30–03:00, så omstarten 03:30 sker samma natt. Före 2026-10-25
+  gick uppdateringen ~06:30 och omstarten väntade till **nästa** 03:30, ca 21 timmar senare.
 - Servern har **ingen mailtransport**, så `Unattended-Upgrade::Mail` är inte satt. Kolla
   `last -x reboot -F` eller uptime om du vill se när den startat om.
 - Innan 2026-09-05 fanns ingen automatisk omstart alls: kernel 6.1.0-52 låg installerad

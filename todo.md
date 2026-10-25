@@ -4,12 +4,13 @@ Index över förbättringsarbete. Varje todo har en egen fil under
 [`todos/`](todos/) med fullständig analys. Konvention och
 mappstruktur: [`todos/README.md`](todos/README.md).
 
-Senast uppdaterad: 2026-10-24 (#25 mätt, #27 GA4-granskning ny, #12 mätt.)
+Senast uppdaterad: 2026-10-25 (#28 ny: fler kurerade titlar efter #01.)
 
 ## Aktiva
 
 | #   | Titel | Status | Fil |
 | --- | ----- | ------ | --- |
+| 28  | Fler kurerade titlar och descriptions, efter vinsten i #01 | ny 2026-10-25. #01-kohorten +88 % YoY (846 mot 451 klick på 28 dagar) mot kontrollen `/377` −1 %; H1-ändringarna i augusti syns inte. **Spår B först:** andra varvet på /300 och /343 (120 k och 95 k visningar per 90 dagar, CTR 0,6 %). Spår A: 14 sportsidor som bara har blockfallbacken, liten volym (+20–25 klick i månaden) | [todos/28-fler-kurerade-titlar-efter-01.md](todos/28-fler-kurerade-titlar-efter-01.md) |
 | 27  | Granskning av hur webben använder GA4 | ny 2026-10-24, mest gjort samma dag (bara prod-värden, rena adresser, `display_mode`, viktiga händelser, 14 mån lagring, intern IP, utm från Brottsplatskartan). **Kvar för Pär:** spara samtyckesläget för analys (Europa) på Google-taggen, aktivera filtret Internal Traffic. Botar från Singapore/Kina är 15–20 % av användarna | [todos/27-ga4-granskning.md](todos/27-ga4-granskning.md) |
 | 25  | Mest läst på startsidan: flikar för idag, igår, 7 dagar | **Mätt 2026-10-24:** klick i listorna 50 → 84 per dag, flikbyten bara 2–5 användare per dag. `/377/igar` kom inte tillbaka (5–11 per dag) trots länken i Idag-raden. Anpassade dimensioner `tab`, `placement`, `position`, `section` registrerade 2026-10-24; följ upp omkring 2026-11-07 | [todos/25-mest-last-idag-igar-vecka.md](todos/25-mest-last-idag-igar-vecka.md) |
 | 24  | Fler delningar, och räkna dem som finns | ny 2026-10-18. Appens delningar räknades inte sedan 2019 (bara i `page_actions`); nu räknas de, "Dela sidan" är en knapp även på arkivsidor, webben mäts i GA4. Efterräkningen körd 2026-10-18 20:11 (234 sidor). Kvar: mätningen 2026-10-25 | [todos/24-fler-delningar/README.md](todos/24-fler-delningar/README.md) |

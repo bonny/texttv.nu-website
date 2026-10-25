@@ -36,6 +36,7 @@ varning eller en slowlog på ~100 per dygn är normalläge, inte en incident.
 | `fpm`                    | php-fpm-poolen: workers, mättnadsvarningar, socket-kö   |
 | `importer`               | Levererar importern färska sidor? Felfrekvens?          |
 | `http`                   | Statuskod, responstid, `X-Cache` utifrån                |
+| `updates`                | Senaste apt-ändringarna, väntande paket, needrestart    |
 
 ## Kommandon
 
@@ -247,6 +248,40 @@ cachad kopia och siffran säger inget om verklig renderingstid. **Använd alltid
 tvingar fram en äkta render. TTL är bara 4 s, så utan buster mäter du ofta
 ingenting alls.
 
+### updates
+
+Vad som har uppdaterats, vad som väntar och om något behöver startas om. Read-only.
+
+```bash
+ssh texttv.nu '
+  echo "--- apt-ändringar senaste 7 dagarna (auto = unattended-upgrades, hand = manuellt):"
+  zcat -f /var/log/apt/history.log.1.gz /var/log/apt/history.log 2>/dev/null \
+    | awk -v s="$(date -d "-7 days" +%F)" "/^Start-Date:/{d=\$2} /^Commandline:/{c=(\$0 ~ /unattended-upgrade/) ? \"auto\" : \"hand\"} /^(Install|Upgrade|Remove):/ && d>=s {print d, c, substr(\$0,1,200)}"
+  echo "--- väntande paket (installeras inte automatiskt):"
+  apt list --upgradable 2>/dev/null | grep upgradable | cut -d/ -f1 | tr "\n" " "; echo
+  echo "--- needrestart (KSTA 1 = rätt kernel kör):"; needrestart -b | grep -E "KSTA|SVC"
+  [ -f /var/run/reboot-required ] && echo "OMSTART KRÄVS: $(tr "\n" " " < /var/run/reboot-required.pkgs)" || echo "ingen omstart krävs"
+  echo "--- senaste omstarter:"; last -x reboot -F | head -2
+  echo "--- nästa automatiska körning:"; systemctl list-timers apt-daily-upgrade.timer --no-pager --no-legend
+'
+```
+
+Tolka:
+
+- **Nattschemat** (sedan 2026-10-25): uppdateringarna och needrestart körs i natt-fönstret, och
+  en omstart som krävs sker samma natt. Unattended-upgrades installerar Debians huvudrelease,
+  `-security` och `-updates` (tzdata m.m.).
+- **needrestart** startar om tjänster som kör gamla bibliotek efter varje apt-körning. `dbus` och
+  `unattended-upgrades` står kvar i `SVC`-listan med flit, de undantas i standardkonfigen. Andra
+  tjänster där betyder att apt inte har kört sedan biblioteket byttes. `KSTA` 2 eller 3 = en nyare
+  kernel är installerad men inte bootad; omstarten sker natten efter om `reboot-required` finns.
+- **MariaDB är undantagen** från automatiska uppdateringar (`Package-Blacklist` i
+  `51unattended-upgrades-local`, efter att uppgraderingen hängde sig 2026-10-16). Säkerhetsfixar
+  för MariaDB dyker därför upp under "väntande" och ska installeras för hand, se `server.md`.
+- ⚠️ **`unattended-upgrade --dry-run` lämnar falska rader i `history.log`** (med `Requested-By`)
+  som här syns som `auto`. Hände 2026-10-25 med tzdata. Står paketet samtidigt under "väntande",
+  eller visar `dpkg-query -W <paket>` gamla versionen, är raden en torrkörning.
+
 ## all / (tomt)
 
 Kör allt i **en enda SSH-anslutning** (~0.6 s totalt, verifierat).
@@ -280,7 +315,7 @@ ssh texttv.nu '
 '
 ```
 
-Komplettera med `importer`- och `http`-kollarna ovan (de går över HTTP utifrån,
+Komplettera med `updates`, `importer` och `http` ovan (de går över HTTP utifrån,
 inte via SSH, så de kan köras parallellt med SSH-anropet).
 
 Tolka `misslyckade enheter`: allt annat än 0 är en avvikelse även om sajten mår bra —

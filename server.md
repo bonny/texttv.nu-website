@@ -94,7 +94,8 @@ pm.max_spare_servers = 3
 - **`pm.max_children = 10` är taket för samtidiga PHP-requests** (5 fram till
   2026-10-16 20:15). Med 5 slog poolen i taket regelbundet i normaldrift (~var
   tionde minut 2026-08-09, 2–15 gånger per dygn efter fixarna, mätt
-  2026-10-14). Varje träff betyder att requests köade. Inte högre än 10: 2 vCPU,
+  2026-10-14). Med 10: 2 träffar på 8 dygn (17–24 okt, mätt 2026-10-24).
+  Varje träff betyder att requests köade. Inte högre än 10: 2 vCPU,
   och importern tar 50–70 % CPU per körning. Se todo **#12**.
 - **Ingen status-sida — och den går inte att sätta upp.** `pm.status_path`
   provades 2026-08-10 och gav `File not found.` även med korrekt inläst config.
@@ -119,6 +120,10 @@ pm.max_spare_servers = 3
 > `/etc/nginx/`, t.ex. `/root/config-backups-YYYY-MM-DD/`.
 - Workers drar ~28 MB RES i snitt (max 37 MB), så minnet är inte den
   begränsande faktorn — 5 workers = ~110 MB av 7,6 GB.
+
+## Systemstatistik (`sar`)
+
+`sysstat` installerat 2026-10-25: sampel var 10:e minut via `sysstat-collect.timer`, `HISTORY=28` i `/etc/sysstat/sysstat` (Debian-default är 7), filer i `/var/log/sysstat/saDD`. `sar -q` ger load, `sar -u` CPU, `sar -r` minne, `sar -d` disk. Läsning i `/prod-health`, avsnittet cpu.
 
 ## Deploy-flöde
 
@@ -180,14 +185,15 @@ Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";
 
 ## Loggar
 
-| Path                                | Innehåll                       | Storlek (2026-08-09)               |
+| Path                                | Innehåll                       | Storlek (2026-10-24)               |
 | ----------------------------------- | ------------------------------ | ---------------------------------- |
-| `/var/log/nginx/access.log`         | HTTP access (alla requests)    | **1,3 GB** (hela `/var/log/nginx` 3,3 GB inkl. roterade) |
-| `/var/log/nginx/error.log`          | nginx-fel                      | 287 KB                             |
-| `/var/log/php8.2-fpm.log`           | php-fpm-fel + PHP `error_log`  | 6,6 KB (rotateras veckovis)        |
-| `/var/log/php8.2-fpm.log.N.gz`      | Roterade php-fpm-loggar        | ~3-12 KB / vecka                   |
+| `/var/log/nginx/access.log`         | HTTP access (alla requests)    | **0,75–1,1 GB per dygn**, roteras dagligen, 14 generationer (gz 46–76 MB). Hela `/var/log/nginx` ~2,5 GB. 3–4,5 M requests per dygn |
+| `/var/log/nginx/error.log`          | nginx-fel                      | ~200 KB                            |
+| `/var/log/php8.2-fpm.log`           | php-fpm-fel + PHP `error_log`  | ~1,3 MB per vecka (rotateras veckovis), nästan bara slowloggens trace-rader. Var 6,6 KB 2026-08-09, före slowloggen |
+| `/var/log/php8.2-fpm.log.N.gz`      | Roterade php-fpm-loggar        | ~75–140 KB / vecka sedan slowloggen |
+| `/var/log/php8.2-fpm.slow.log`      | Stacktrace per request över 3 s | ~1,2 MB, roteras veckovis         |
 | MariaDB error log                   | _Ej i `/var/log/mysql/`_ — troligen via `journalctl -u mariadb` |                                    |
-| Laravel app-log (importer)          | `/usr/share/nginx/l.texttv.nu/importer/storage/logs/laravel.log` | 13 MB — roteras dagligen via `/etc/logrotate.d/texttv-importer` (verifierat 2026-09-05, se nedan) |
+| Laravel app-log (importer)          | `/usr/share/nginx/l.texttv.nu/importer/storage/logs/laravel.log` | 5–20 KB per dygn (var 13 MB innan rotationen fungerade) — roteras dagligen via `/etc/logrotate.d/texttv-importer` (verifierat 2026-09-05, se nedan) |
 | CodeIgniter app-log (website)       | `/usr/share/nginx/texttv.nu/codeigniter/application/logs/` | Tomt (bara `index.html`) — CI-logging avstängd eller inte konfigurerad |
 
 > ✅ **8 GB-problemet med `laravel.log` är löst** — men rotationen fungerade inte förrän 2026-09-05.
@@ -210,7 +216,7 @@ Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";
 
 **`access.log` har responstid sedan 2026-08-10.** `log_format anonymized` i `/etc/nginx/conf.d/general.conf` avslutas sedan dess med `rt=$request_time urt=$upstream_response_time cache=$upstream_cache_status`. Innan dess loggades ingen tid alls, så historik före 2026-08-10 saknas.
 
-Första baslinjen (2026-08-10 kl 09, 6 484 requests): **p50 0,002 s · p95 0,006 s · p99 0,037 s · max 1,93 s.** `urt=-` betyder att svaret kom ur nginx-cachen utan att php-fpm rördes.
+Första baslinjen (2026-08-10 kl 09, 6 484 requests): **p50 0,002 s · p95 0,006 s · p99 0,037 s · max 1,93 s.** Kvällsbaslinje kl 21–22, 16–23 okt 2026 (480–800 k requests per timme): **p50 0,002 s · p95 0,007–0,008 s · p99 0,019–0,026 s**, max 6–60 s. `urt=-` betyder att svaret kom ur nginx-cachen utan att php-fpm rördes.
 
 > ✅ **Dubbelloggningen är åtgärdad 2026-08-10.** Fram till dess fanns två `access_log`-direktiv mot samma fil — `nginx.conf:40` (default `combined`-format, **oanonymiserad ip**) och `general.conf:33` (`anonymized`). Båda låg på http-nivå, så nginx skrev en rad per direktiv och ip-maskeringen var verkningslös. `nginx.conf:40` är utkommenterad; loggning sker nu enbart via `general.conf`. Verifierat: 300/300 rader anonymiserade, 0 dubbletter. Detaljer i todo **#13**.
 >

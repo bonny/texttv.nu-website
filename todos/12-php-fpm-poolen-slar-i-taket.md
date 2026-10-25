@@ -1,7 +1,39 @@
 # 12 – php-fpm-poolen slår i taket i normaldrift
 
-**Status:** aktiv — `most_read`-filcachen mätt 2026-10-16: slowloggen 400–1 100 → 184 per dygn (15 okt), `max_children`-varningar 2 utanför MariaDB-incidenten. **`pm.max_children` höjd 5 → 10 2026-10-16 20:15.** Nästa: mät 2026-10-23, sedan stäng. Kvar efter det: den enda omräkningen per minut av `most_read` tar fortfarande över 3 s på kvällar.
-**Senast uppdaterad:** 2026-10-16
+**Status:** aktiv — **höjningen till `pm.max_children = 10` (2026-10-16) håller:** 2 varningar på 8 dygn (mätt 2026-10-24), p99 kl 21–22 oförändrad 0,019–0,026 s. Redo att stängas om Pär vill. Kvar: den enda omräkningen per minut av `most_read` tar fortfarande över 3 s på kvällar (75–350 slowlog-rader per dygn).
+**Senast uppdaterad:** 2026-10-24
+
+## Mätning 2026-10-24: en vecka med `max_children = 10`
+
+Bara läsning, kl 21:45–22:00 en lördag. Uppföljningen var planerad till
+2026-10-23 och gjordes en dag sent, så veckan inkluderar två lördagar (18 och
+24 okt).
+
+| Dygn | Requests | Slowlog | `max_children`-varningar | p95 kl 21–22 | p99 kl 21–22 |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 16 okt (höjt 20:15) | 3,1 M | – | 12 | 0,007 | 0,022 |
+| 17 okt | 4,5 M | – | 0 | 0,007 | 0,025 |
+| 18 okt (lör) | 4,2 M | 355 | 1 (16:57) | 0,008 | 0,026 |
+| 19 okt | 2,9 M | 124 | 1 (04:07) | 0,007 | 0,019 |
+| 20 okt | 3,0 M | 75 | 0 | 0,008 | 0,020 |
+| 21 okt | 3,1 M | 103 | 0 | 0,007 | 0,019 |
+| 22 okt | 3,1 M | 117 | 0 | 0,007 | 0,023 |
+| 23 okt | 3,1 M | 75 | 0 | 0,008 | 0,023 |
+| 24 okt (lör, t.o.m. 21:50) | 4,3 M | 204 | 0 | – | 0,025 (kl 21) |
+
+Slowloggen för 16–17 okt är bortroterad. Requests är rader i `access.log`.
+
+- **Mättnaden är i praktiken borta:** 2 varningar på 8 dygn, mot 2–15 per
+  dygn med 5 (mätt 2026-10-14). Ingen sedan 19 okt 04:07.
+- **Besökarna märker ingenting av höjningen åt något håll:** p99 kl 21–22 är
+  0,019–0,026 s, samma som 0,019–0,022 s före (16 okt kl 17–19).
+- **Slowloggen föll inte**, som väntat. Nästan alla rader är `most_read`
+  (`texttv_helper.php:257`, raden flyttade från `:259`), kl 16–23, flest
+  på lördagar med sport (355 och 204).
+- **Load:** ingen historik fanns (`sar` installerades först 2026-10-25). Lördag 24 okt kl 21:46 var
+  load 2,10 / 1,76 / 1,67, alltså inom det kända normalläget 1–2 där
+  importern står för grunden. Inget tyder på att kön flyttats till CPU:n.
+  Minne: 6,4 GB tillgängligt av 7,6.
 
 ## Höjt 2026-10-16 20:15: `pm.max_children` 5 → 10
 

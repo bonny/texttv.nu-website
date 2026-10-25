@@ -14,17 +14,15 @@ Paths: website `/usr/share/nginx/texttv.nu/`, importer
 
 Allt i denna skill är read-only. Djupare bakgrund om stacken (cache-lager,
 deploy-flöde, nginx-config) finns i [`server.md`](../../../server.md), synkad
-mot samma mätning 2026-08-09.
+mot samma mätningar (2026-08-09, delvis 2026-10-24).
 
-**Känt normaltillstånd:** `pm.max_children` höjdes 5 → 10 2026-10-16 20:15;
-nytt normalläge mäts 2026-10-23. Med 5 slog poolen i taket 2–15 gånger per
-dygn, upp till ~40 på lördagar med mycket sport (mätt 2026-10-14), och 5 per
-dygn efter `most_read`-filcachen (15 okt). Slowloggen gick från 400–1 100 till
-~180 requests per dygn över 3 s efter filcachen, nästan alla `most_read` på
-kvällen. Det är
-dokumenterat i todo
-[#12](../../../todos/12-php-fpm-poolen-slar-i-taket.md) — rapportera det som
-stående kapacitetsbrist, inte som en färsk incident.
+**Känt normaltillstånd (mätt 2026-10-24):** `pm.max_children` höjdes 5 → 10
+2026-10-16 20:15. Veckan efter slog poolen i taket **2 gånger på 8 dygn**
+(18 okt 16:57 och 19 okt 04:07), mot 2–15 per dygn med 5. Slowloggen ligger
+på 75–125 requests per dygn över 3 s, 200–350 på lördagar med mycket sport,
+nästan alla `most_read` kl 16–23. p99 kl 21–22 är 0,019–0,026 s. Detaljer i
+todo [#12](../../../todos/12-php-fpm-poolen-slar-i-taket.md). En enstaka
+varning eller en slowlog på ~100 per dygn är normalläge, inte en incident.
 
 ## Tolka argumentet
 
@@ -56,6 +54,19 @@ Schedulern kör `texttv:import` varje minut, och de processerna drar regelbundet
 50–70 % CPU var (verifierat 2026-08-09). Det är alltså importen, inte
 besökstrafiken, som sätter grundlasten på den här servern. Se `php-fpm8.2`-
 och `www-data`-processer för det som faktiskt är webbtrafik.
+
+**Historik med `sar`** (sysstat, installerat 2026-10-25, sampel var 10:e
+minut, 28 dygn i `/var/log/sysstat/saDD`):
+
+```bash
+ssh texttv.nu 'sar -q'                              # load per 10 min idag
+ssh texttv.nu 'sar -q -f /var/log/sysstat/sa18'     # load den 18:e
+ssh texttv.nu 'sar -u -s 21:00:00 -e 23:00:00'      # CPU user/sys/iowait på kvällen
+ssh texttv.nu 'sar -r'                              # minne
+```
+
+Använd det för att svara på "hur såg det ut i går kväll", inte bara nu.
+Servern loggar i svensk tid.
 
 ### mem
 
@@ -130,7 +141,7 @@ ssh texttv.nu '
   grep -E "^\[[0-9]{2}-" /var/log/php8.2-fpm.slow.log | cut -c2-12 | sort | uniq -c'
 ```
 
-`texttv_helper.php:259` = `most_read`-queryn (todo #12, #14). Den körs nästan
+`texttv_helper.php:257` (var `:259` före 2026-10-24) = `most_read`-queryn (todo #12, #14). Den körs nästan
 alltid som nginx bakgrundsregenerering, så besökarna väntar inte på den, men
 den håller en worker.
 
@@ -148,15 +159,17 @@ Tolka:
 - **`pm.max_children = 10`, `pm = dynamic`** (5 fram till 2026-10-16). Med 5
   slog poolen i taket regelbundet: 2026-08-09 ungefär var tionde minut, efter
   fixarna i #14 och #12 2–15 varningar per dygn med toppar på lördagskvällar
-  (mätt 2026-10-14). Normalläget med 10 mäts 2026-10-23. Enstaka varningar
-  per dygn är en kapacitetsbrist, inte ett larm.
+  (mätt 2026-10-14). Med 10: 2 varningar på 8 dygn (mätt 2026-10-24). Flera
+  varningar per dygn igen är en avvikelse värd att titta på.
 - `workers nu` nära 10 = poolen jobbar för fullt just nu. Siffran räknar
   även master-processen.
 - **Varje varning betyder att requests köade.** Slår den i taket flera gånger
   i timmen under en incident är det förklaringen till trögheten.
 - **`/var/log/php8.2-fpm.log` roteras veckovis** (`/etc/logrotate.d/php8.2-fpm`),
   så antalet varningar är "sedan senaste rotation" — inte sedan tidernas
-  begynnelse. Jämför med tidsstämplarna, inte bara antalet.
+  begynnelse. Jämför med tidsstämplarna, inte bara antalet. Filen växer
+  ~1,3 MB per vecka, nästan bara slowloggens `about to trace`/`finished
+  trace`-rader. Storleken säger alltså inget; räkna `max_children`-raderna.
 - Socket: `/run/php/php8.2-fpm.sock`, backlog 4096. Stigande `Recv-Q` i
   `ss -lx` = anslutningar hinner inte plockas upp.
 
@@ -292,12 +305,20 @@ load + de 3 tyngsta processerna, inte hela `top`. Nämn bara tjänster som
 
 ## Loggar
 
-| Path                                                              | Roteras | Normalstorlek |
-| ----------------------------------------------------------------- | ------- | ------------- |
-| `/var/log/nginx/access.log`                                        | ja      | **1.3 GB**    |
-| `/var/log/nginx/error.log`                                         | ja      | ~300 KB       |
-| `/var/log/php8.2-fpm.log`                                          | veckovis| ~7 KB         |
-| `/usr/share/nginx/l.texttv.nu/importer/storage/logs/laravel.log`   | ja      | ~13 MB        |
+Storlekar verifierade 2026-10-24:
+
+| Path                                                              | Roteras  | Normalstorlek |
+| ----------------------------------------------------------------- | -------- | ------------- |
+| `/var/log/nginx/access.log`                                        | dagligen, 14 gen. | **0,75–1,1 GB per dygn** (gz 46–76 MB), hela katalogen ~2,5 GB |
+| `/var/log/nginx/error.log`                                         | ja       | ~200–300 KB   |
+| `/var/log/php8.2-fpm.log`                                          | veckovis | **~1,3 MB per vecka** (slowloggens trace-rader) |
+| `/var/log/php8.2-fpm.slow.log`                                     | veckovis | ~1,2 MB       |
+| `/usr/share/nginx/l.texttv.nu/importer/storage/logs/laravel.log`   | dagligen | 5–20 KB (några tiotal rader) |
+
+**Trafiken är 3–4,5 miljoner requests per dygn**, 150–800 k per timme
+(lördagar och kvällar högst). Nästan allt är appens polling
+(`/api/last_updated/*`, `/api/get/*`, `/api/most_read/news`). Hundratusentals
+requests i timmen är alltså normalt, inte en bot.
 
 **`access.log` har responstid sedan 2026-08-10.** `log_format anonymized`
 (`/etc/nginx/conf.d/general.conf`) avslutas med tre fält:
@@ -317,9 +338,13 @@ Percentiler för en timme:
 ssh texttv.nu 'grep "$(date +%d/%b/%Y:%H)" /var/log/nginx/access.log | grep -oE "rt=[0-9.]+" | cut -d= -f2 | sort -n | awk "{a[NR]=\$1} END {printf \"n=%d p50=%.3fs p95=%.3fs p99=%.3fs max=%.3fs\n\", NR, a[int(NR*0.50)], a[int(NR*0.95)], a[int(NR*0.99)], a[NR]}"'
 ```
 
-Baslinje 2026-08-10 kl 09 (6 484 requests): **p50 0,002 s · p95 0,006 s ·
-p99 0,037 s · max 1,93 s.** Sajten är alltså mycket snabb i normalfallet —
-en p95 som kryper uppåt är en tidig signal långt innan besökare hör av sig.
+Baslinje kl 21–22, 16–23 okt 2026 (480–800 k requests per timme):
+**p50 0,002 s · p95 0,007–0,008 s · p99 0,019–0,026 s · max 6–60 s.**
+Enstaka requests på tiotals sekunder finns varje kväll; titta på p95/p99,
+inte max. Sajten är alltså mycket snabb i normalfallet, och en p95 som kryper
+uppåt är en tidig signal långt innan besökare hör av sig. Den första
+baslinjen (2026-08-10 kl 09) räknade bara 6 484 requests och är inte
+jämförbar i volym.
 
 > **Loggrader före 2026-08-10 saknar `rt=`** och är dessutom dubbletter — fram
 > till dess loggade nginx varje request två gånger (se todo #13, åtgärdad).
@@ -359,8 +384,9 @@ en p95 som kryper uppåt är en tidig signal långt innan besökare hör av sig.
 
 ## Håll siffrorna färska
 
-Tröskelvärdena ovan är mätta 2026-08-09. `server.md` är synkad mot samma
-mätning. Servrar driver — när du märker att en siffra här inte stämmer
+Tröskelvärdena ovan är mätta 2026-08-09 där inget annat datum står; php-fpm,
+slowlog, loggstorlekar, trafik och percentiler är uppdaterade 2026-10-24.
+`server.md` är synkad mot samma mätningar. Servrar driver — när du märker att en siffra här inte stämmer
 längre, **uppdatera både denna fil och `server.md`** i samma veva, och skriv
 ut datumet du verifierade. En hälsokoll med föråldrade trösklar är värre än
 ingen, för den larmar på fel saker och tiger om rätt.

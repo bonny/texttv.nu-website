@@ -93,6 +93,48 @@ mer än hela spår A. Gör så här:
 3. Ändra en sida åt gången, eller som en kohort med fast mätdatum. Mät
    YoY med `/377` som kontroll (se memory om GSC-mätning).
 
+### Sökfrågor och SERP, 2026-10-25
+
+GSC 90 dagar (2026-07-26 → 10-23). Nästan allt är navigerande sökningar
+efter SVT:s egen sida:
+
+| Sida | Fråga | Visningar | CTR | Pos |
+| --- | --- | --- | --- | --- |
+| 300 | `svt text 300` | 61 490 | 0,36 % | 4,3 |
+| 300 | `text tv 300` | 16 289 | 0,42 % | 3,7 |
+| 300 | `300` | 10 631 | 0,40 % | 7,0 |
+| 300 | `texttv300` | 2 516 | 3,50 % | 2,0 |
+| 343 | `343` | 23 273 | 1,16 % | 3,2 |
+| 343 | `svt text 343` | 21 412 | 0,49 % | 2,8 |
+| 343 | `text tv 343` | 11 365 | 0,40 % | 2,9 |
+
+`allsvenskan tabell` finns inte bland frågorna för /343 (bara
+`text tv allsvenskan`, 67 visningar). Ämnesfrågor ger alltså nästan inget,
+och det stämmer med slutsatsen i #09.
+
+SERP för `svt text 300` (google.se, hl=sv, gl=se, inte inloggad,
+2026-10-25):
+
+1. AI-översikt överst (laddades).
+2. svt.se `Sida 307 - SVT Text`, sedan "Fler frågor du kan ställa".
+3. svt.se `SVT Text - Sida 308`.
+4. **texttv.nu/ (startsidan, inte /300)**, `SVT Text TV`, med snippet
+   "snabbare och mobilanpassad SVT Text TV".
+5. svt.se 309, hemmakanalen.se, svt.se 260, 301, 380, 417.
+
+**Slutsats:** Den som söker `svt text 300` vill till SVT, och SVT har
+platserna ovanför oss. En bättre beskrivning av innehållet hjälper inte,
+eftersom sökaren redan vet vad 300 är. Det som kan få fler att klicka är
+skälet att välja oss i stället för SVT, och det är just det startsidans
+snippet säger ("snabbare och mobilanpassad"). Startsidan har dessutom
+1,13 % CTR mot 0,60 % för /300. Google visade startsidan i stället för /300
+på den här sökningen, så de två sidorna konkurrerar delvis om samma fråga.
+
+**Förslag, en ändring åt gången:** byt description på /300 så att den
+börjar med skälet att välja texttv.nu och därefter säger vad sidan har.
+Mät 30 dagar YoY mot `/377` och `/343` som kontroll. Om CTR går upp, gör
+likadant på /343 och /100.
+
 /101 har låg CTR trots position 3,7. Kontrollera om den rankar på frågor
 där SVT:s egen sida vinner, eftersom det kan förklara siffrorna.
 

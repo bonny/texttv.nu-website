@@ -1,5 +1,5 @@
 **Status:** aktiv
-**Senast uppdaterad:** 2026-10-25
+**Senast uppdaterad:** 2026-10-26
 
 # Fler kurerade titlar och descriptions, efter vinsten i #01
 
@@ -146,6 +146,31 @@ visningar.
 
 /101 har låg CTR trots position 3,7. Kontrollera om den rankar på frågor
 där SVT:s egen sida vinner, eftersom det kan förklara siffrorna.
+
+### GEO-analys av /300, 2026-10-25
+
+Gjord med `/claude-seo:seo-geo`, poäng 54/100. Tekniken är i ordning (allt
+finns i HTML:en, alla AI-crawlare får 200, `llms.txt` finns). Google
+AI-översikten för `svt text 300` listar sidans rubriker och citerar bara
+svt.se. Det enda texttv.nu har som SVT saknar är historiken: tidigare
+versioner i dag, `/sport/igar` och permalänkar.
+
+**Görs efter mätningen 2026-11-25, en ändring åt gången, med eget datum:**
+
+1. Nytt textblock på /300 (`texttv_page_text` i prod-DB:n, kräver Pärs ok).
+   Utkast, kontrollera sidnumren först:
+   > Text TV 300 är sportens startsida, med dagens sportrubriker på 303–310.
+   > Resultaten finns i resultatbörsen på 330 och målservice på 376–395, där
+   > 377 har dagens matchresultat. Allsvenskans tabell ligger på 343 och SHL
+   > på 358–359. På texttv.nu sparas tidigare versioner av sidan, så du kan
+   > se hur 300 såg ut tidigare i dag och läsa gårdagens sportnyheter.
+2. Brödsmulor på /300 (Hem › Sport 300), som på /376 och /377
+   (`views/breadcrumbs.php`).
+3. `Organization.sameAs` med App Store (`id607998045`) och Google Play
+   (`com.mufflify.TextTVnu`) i JSON-LD:n i `header.php`.
+
+Ändra inget i `nosnippet`/`max-snippet` och behåll "Search generative AI"
+på inkludera i Search Console.
 
 ## Plan
 

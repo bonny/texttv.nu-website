@@ -1,7 +1,7 @@
 # 24. Fler delningar, och räkna dem som finns
 
-**Status:** aktiv
-**Senast uppdaterad:** 2026-10-20
+**Status:** klar
+**Senast uppdaterad:** 2026-10-26
 
 ## Bakgrund
 
@@ -49,8 +49,8 @@ deployen av `07e98b0` (15:52:08 UTC 2026-10-18) kan läggas till i efterhand.
 Auto mode nekar läsning och skrivning i prod-DB:n, så Pär kör:
 
 ```bash
-ssh texttv.nu 'bash -s' < todos/24-fler-delningar/efterrakna.sh          # visa
-ssh texttv.nu 'APPLY=1 bash -s' < todos/24-fler-delningar/efterrakna.sh  # skriv
+ssh texttv.nu 'bash -s' < todos/done/24-fler-delningar/efterrakna.sh          # visa
+ssh texttv.nu 'APPLY=1 bash -s' < todos/done/24-fler-delningar/efterrakna.sh  # skriv
 ```
 
 Skriptet tar backup av berörda rader (`id`, gamla `is_shared`) i
@@ -83,15 +83,57 @@ delningar.
   (`views/sidlista_data.php`), men finns kvar i sökförslagen, i sitemapen
   och som länk från Senast uppdaterat.
 
-**Steg 3, efter mätningen 2026-10-25:** om delningarna fortfarande är runt
-50 om dagen, visa dem som en markering i Mest läst-listan i stället för
-en egen lista, och skicka `/sida/delat` (utan datum) vidare med 301 till
-`/nyheter/idag`. Dagarna 2015–2019 kan vara kvar som arkiv.
+~~**Steg 3:** markering i Mest läst och `/sida/delat` med 301 till
+`/nyheter/idag`.~~ Struket 2026-10-26, se SEO-granskningen nedan.
+
+## Mätt 2026-10-26 (veckan 18–25 okt)
+
+| Källa | Före (20/9–17/10, 28 d) | Efter (18–25/10, 8 d) |
+| --- | --- | --- |
+| Appen, Firebase `share` | 1 149, **41 per dag** (470 användare) | 235, **29 per dag** (118 användare) |
+| Webben, GA4 `share` | mättes inte | 21, **2,6 per dag**, alla `webbläsarens delning` |
+| Appens skärmvisningar | 201 000 per dag | 199 000 per dag |
+
+- Delningarna är ungefär **32 per dag** sammanlagt, alltså färre än de 50
+  som steg 3 räknade med. Appens delningar sjönk från 41 till 29 per dag
+  trots att appen används lika mycket. Appen har inte ändrats, så det är
+  troligen variation (14 okt hade 77, 19–23 okt 19–35).
+- På webben används bara webbläsarens delning. Kopiera länk, Facebook, X och
+  e-post har inte använts en enda gång på åtta dagar.
+- `/sida/delat` visar nu 10 nyheter de flesta dagar (21 okt: 6), mot 1–4
+  före. Listan är alltså full, men på 30 delningar om dagen.
+
+Steg 3 stryktes efter SEO-granskningen nedan.
+
+## SEO-granskning av steg 3, 2026-10-26
+
+- **Inget att förlora i Google.** `/sida/delat` hade 121 633 visningar och
+  0 klick från juni 2025 till 2026-01-04 (frågor som `300 text`, position
+  7). Det ser ut som sajtlänkar. Sedan 2026-01-05 har sidan inga visningar.
+  Dagsidorna har 1–3 visningar var och 4 klick på 16 månader.
+- **Nytt problem sedan efterräkningen:** dagarna har nu 10 rader, så
+  gränsen på fem rader släpper igenom dem och varje ny dag blir
+  indexerbar (20–24 okt har ingen robots-meta). 6 av 10 rubriker 24/10
+  finns också på `/nyheter/2026-10-24`, men med andra versions-id.
+  Det blir en nästan-dubblett om dagen.
+- **Dagarna 2015–2019 ska vara kvar.** `/nyheter/{datum}` finns bara
+  ungefär ett år bakåt (2015-08-24, 2017-03-01, 2019-06-01 och 2024-06-01
+  ger 404), så de gamla dagsidorna är enda vägen in till de delade
+  arkivsidorna som städningen sparar.
+
+**Beslut 2026-10-26:** ingen redirect. Den ger ingenting i Google, eftersom
+sidan inte har några klick, och `/sida/delat` är ingången till dagsidorna:
+där bläddrar man bakåt, och det är den enda adressen i sitemapen. En 301
+skulle göra dagarna 2015–2019 till föräldralösa sidor. Steg 3 stryks.
+
+**Gjort 2026-10-26:** alla dagar efter 2019-09-28 har `noindex, follow`
+(`controllers/textsida.php`). Dagarna före är indexerbara om de har minst fem
+rader, som förut. Räkningen av `is_shared` är kvar, eftersom den hindrar
+städningen från att radera delade permalänkar.
 
 ## Uppföljning
 
-- 2026-10-25: GA4 för webben (`properties/382798575`, händelsen `share`
-  per `method`) mot Firebase för appen. Hur många delningar per dag på
-  `/sida/delat` nu (mot 1–3)?
+- ~~2026-10-25: GA4 för webben mot Firebase för appen.~~ Mätt 2026-10-26,
+  se ovan.
 - Idé, inte påbörjad: "Mest läst" per dag. `page_actions` VIEW finns men
   sparas bara 10 dagar och per sidnummer; kräver en daglig sammanställning.

@@ -89,15 +89,16 @@ class Textsida extends CI_Controller {
 				if ($datum !== "") {
 					$data["delat_datum"] = $datum;
 					// Listan hämtas här och inte i vyn, så att headern vet om den
-					// är tunn. Efter 2019-09-28 räknades bara webbens delningar
-					// (todo #24) och de flesta dagar har 1–4 rader: noindex under
-					// fem. Bläddringen och länkarna finns kvar (follow). Dagens
-					// datum alltid noindex: listan växer under dagen, Google
-					// hämtar sällan om en noindex-sida, och /sida/delat visar
-					// redan idag.
+					// är tunn: noindex under fem rader. Dagar efter 2019-09-28
+					// alltid noindex (todo #24). Då räknades bara webbens
+					// delningar, och sedan appens räknas igen (2026-10-18) har
+					// dagarna tio rader, där de flesta rubrikerna också finns på
+					// /nyheter/{datum}. Dagarna före är enda vägen in till de
+					// delade arkivsidorna som städningen sparar, så de får vara
+					// kvar i indexet. Bläddringen och länkarna finns kvar (follow).
 					$dag_unix = strtotime($datum);
 					$data["delat_rader"] = get_shared_rader(strtotime("today 00:00", $dag_unix), strtotime("tomorrow 00:00", $dag_unix));
-					$data["robots_noindex"] = $datum === date("Y-m-d") || count($data["delat_rader"]) < 5;
+					$data["robots_noindex"] = $datum > "2019-09-28" || count($data["delat_rader"]) < 5;
 					$data["custom_page_title"] = "Mest delat " . date_sv("l j F Y", strtotime($datum)) . " - SVT Text TV";
 					$data["custom_meta_description"] = "De mest delade nyheterna från SVT Text TV " . date_sv("l j F Y", strtotime($datum)) . ", delade från texttv.nu och TextTV.nu-appen.";
 					$data["custom_canonical"] = $canonical . "delat?datum=" . $datum;

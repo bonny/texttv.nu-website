@@ -4,28 +4,34 @@ Index över förbättringsarbete. Varje todo har en egen fil under
 [`todos/`](todos/) med fullständig analys. Konvention och
 mappstruktur: [`todos/README.md`](todos/README.md).
 
-Senast uppdaterad: 2026-10-26 (#28 spår A: titlar för 190 och 13 sportsidor; #12 klar.)
+Senast uppdaterad: 2026-10-26 (#29 ny: importern saknar timeout; #15 stegvis plan, Laravel 9–12 går nu.)
 
 ## Aktiva
 
 | #   | Titel | Status | Fil |
 | --- | ----- | ------ | --- |
+| 29  | Importern hänger: HTTP-anropet saknar timeout | ny 2026-10-26. `Http::get()` i `Importer.php:44` har ingen timeout (Laravel 8 sätter ingen), och jobben saknar `withoutOverlapping()`. Ett cronjobb dödar alla importer var 30:e minut. Förslag: timeout 20 s + connect 5 s, `withoutOverlapping()`, ta bort kill-jobbet efter en tyst vecka | [todos/29-importern-hanger-utan-timeout.md](todos/29-importern-hanger-utan-timeout.md) |
 | 28  | Fler kurerade titlar och descriptions, efter vinsten i #01 | ny 2026-10-25. #01-kohorten +88 % YoY (846 mot 451 klick på 28 dagar) mot kontrollen `/377` −1 %; H1-ändringarna i augusti syns inte. **Spår B först:** andra varvet på /300 och /343 (120 k och 95 k visningar per 90 dagar, CTR 0,6 %). Spår A: 14 sportsidor som bara har blockfallbacken, liten volym (+20–25 klick i månaden) | [todos/28-fler-kurerade-titlar-efter-01.md](todos/28-fler-kurerade-titlar-efter-01.md) |
 | 27  | Granskning av hur webben använder GA4 | ny 2026-10-24, mest gjort samma dag (bara prod-värden, rena adresser, `display_mode`, viktiga händelser, 14 mån lagring, intern IP, utm från Brottsplatskartan). **Kvar för Pär:** spara samtyckesläget för analys (Europa) på Google-taggen, aktivera filtret Internal Traffic. Botar från Singapore/Kina är 15–20 % av användarna | [todos/27-ga4-granskning.md](todos/27-ga4-granskning.md) |
 | 25  | Mest läst på startsidan: flikar för idag, igår, 7 dagar | **Mätt 2026-10-24:** klick i listorna 50 → 84 per dag, flikbyten bara 2–5 användare per dag. `/377/igar` kom inte tillbaka (5–11 per dag) trots länken i Idag-raden. Anpassade dimensioner `tab`, `placement`, `position`, `section` registrerade 2026-10-24; följ upp omkring 2026-11-07 | [todos/25-mest-last-idag-igar-vecka.md](todos/25-mest-last-idag-igar-vecka.md) |
 | 22  | Granskningen 2026-10-18: det som mäts en ändring åt gången | ny 2026-10-18. Säkra fixar deployade (annonsblocket som aldrig fylldes, tryckbara rader, `/nyheter/idag`). Ad intents avstängda av Pär 2026-10-18. Kvar: AdSense-inställningar för Pär (vinjettfallet 11–14 okt, ankaret, GA4-länkning) och fem ändringar som mäts en åt gången (toppannonsens höjd på mobil först) | [todos/22-granskning-2026-10-18-matas-en-at-gangen.md](todos/22-granskning-2026-10-18-matas-en-at-gangen.md) |
 | 16  | Gör arkivet till en tillgång: idéer för användare, Google och AI | ny 2026-10-14, idékatalog. **Deployat 2026-10-14:** canonical på arkivsidor och startsidan, dagsarkiv `/377/igar` med datumsidor (330 borttagen, den är en meny), gårdagens nyheter/sportnyheter `/nyheter/igar` och `/sport/igar`, ny 404-sida i Text-TV-stil. **2026-10-16:** gårdagens tre mest lästa nyheter i startsidans "Igår på Text TV". Första veckan 14–20 okt: `/377/igar` 222 visningar, `/nyheter/igar` 97, `/sport/igar` 92, nästan bara interna klick. Mät 2026-11-14. Nästa: retention (#10). Ämnessidor nedprioriterade (nästan ingen ämnestrafik idag) | [todos/16-gor-arkivet-till-en-tillgang.md](todos/16-gor-arkivet-till-en-tillgang.md) |
-| 15  | Uppgradera EOL-ramverken (CodeIgniter 2, Laravel 8) | **Blockerad av: #17.** Granskad 2026-10-17; småsakerna som gick att göra nu är klara och deployade (oanvända `laravel-short-schedule`, döda `test`/`welcome`-controllers, importerns tester gröna och en länkbugg fixad). Research klar 2026-10-14: **båda apparna fungerar på PHP 8.4** (provat i Docker, prod kör 8.2), så OS/PHP-uppgraderingen blockeras inte. Förslag: Laravel 8 → 13 i samband med Debian 13, CI 2 står kvar tills behov | [todos/15-uppgradera-eol-ramverken.md](todos/15-uppgradera-eol-ramverken.md) |
-| 17  | Uppgradera prod till Debian 13 (trixie) och PHP 8.4 | ny 2026-10-17, utbruten ur #15. Ingen brådska: Debian 12 LTS ger PHP 8.2-fixar till 2028-06-30. Förslag: uppgradera på plats under 2027 med Hetzner-snapshot som rollback och provkörning på en klon först, Laravel 13 i samma veva | [todos/17-uppgradera-prod-till-debian-13.md](todos/17-uppgradera-prod-till-debian-13.md) |
+| 15  | Uppgradera EOL-ramverken (CodeIgniter 2, Laravel 8) | **Stegvis plan 2026-10-26:** Laravel 9, 10, 11 och 12 stöder PHP 8.2 och kan tas en major i taget på nuvarande prod, en deploy per steg. Bara 12 → 13 väntar på #17. Först #29 och byte av `dgoring/dom-query` mot `symfony/dom-crawler`. CI 2 står kvar (angreppsytan granskad i #08) | [todos/15-uppgradera-eol-ramverken.md](todos/15-uppgradera-eol-ramverken.md) |
+| 17  | Uppgradera prod till Debian 13 (trixie) och PHP 8.4 | ny 2026-10-17, utbruten ur #15. Ingen brådska: Debian 12 LTS ger PHP 8.2-fixar till 2028-06-30 (PHP2Shell-fixen kom via LTS samma dag). **Granskad 2026-10-26:** MariaDB:s root-inloggning måste fixas först (annars faller `mariadb-upgrade`), klonen behöver brandväggen, härdningen från 2026-10-25 ska kontrolleras efteråt. Provkörning på klon och prod-uppgradering på olika dagar | [todos/17-uppgradera-prod-till-debian-13.md](todos/17-uppgradera-prod-till-debian-13.md) |
 | 10  | Retention raderar arkivsidor som rankar | **pausad — mätt 2026-08-02: 76 % av arkivsidorna med trafik raderas, men de är färska nyhetssidor vars efterfrågan ändå dör. Ingen åtgärd.** Fyndet som blev kvar: arkivsnapshots från 2016–17 rankar över de levande sidorna på ämnesfrågor (`resultatbörsen`: arkiv 25 klick, live /330 noll) | [todos/10-retention-raderar-arkivsidor-som-rankar.md](todos/10-retention-raderar-arkivsidor-som-rankar.md) |
 
 ### Beroenden
 
-- #15 (Laravel 13) blockeras av #17 (Debian 13, PHP 8.3+ krävs).
+- #15: bara sista steget (Laravel 13) blockeras av #17 (PHP 8.3+ krävs). Laravel 9–12 går nu.
+- #17 blockeras av MariaDB:s root-inloggning (Obsidian `Server-todo.md`, punkten om unix_socket).
 
 ### Föreslagen ordning
 
-_(inga ännu)_
+1. #29 importerns timeout (liten, egen deploy).
+2. #15 steg 1: `dgoring/dom-query` → `symfony/dom-crawler`.
+3. #15 Laravel 9 → 10 → 11 → 12, en major per deploy med några dagar emellan.
+4. MariaDB-rootfixen, sedan #17 (klon en dag, prod en annan morgon).
+5. #15 Laravel 13.
 
 ## Uppföljningar — datum att komma ihåg
 

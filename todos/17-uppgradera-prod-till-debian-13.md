@@ -1,5 +1,5 @@
 **Status:** aktiv
-**Senast uppdaterad:** 2026-10-17
+**Senast uppdaterad:** 2026-10-26
 
 # Todo #17 — Uppgradera prod till Debian 13 (trixie) och PHP 8.4
 
@@ -32,6 +32,36 @@ Först föreslogs en ny server bredvid (i #15). Omvärderat 2026-10-17:
   LEMP-maskin.
 - Ny server hade gett test före byte och noll nertid. Testet får vi billigare
   med en klon från snapshoten. Nertiden (30–60 min i lågtrafik) är acceptabel.
+
+## Tillägg 2026-10-26 (granskning)
+
+- **Fixa MariaDB:s root-inloggning först.** Hoppet till 11.8 kör
+  `mariadb-upgrade`, och det misslyckas redan i dag: `root@localhost` är
+  ställd på enbart lösenord, så Debians socket-inloggning nekas ("FATAL ERROR:
+  Upgrade failed" vid varje start, systemtabellerna står på 10.11.11 fast
+  servern kör 10.11.18). Åtgärden står i Obsidian-noten `Server-todo.md`
+  (punkten om unix_socket) och väntar på att root-lösenordet flyttas till
+  Proton Pass. Den blockerar alltså den här todon.
+- **Klonen saknar brandvägg.** En server skapad från snapshot får ingen
+  Hetzner Cloud Firewall automatiskt. Koppla `texttv-web` direkt
+  (`HCLOUD_CONTEXT=texttv hcloud firewall apply-to-resource texttv-web
+  --type server --server <klon>`), och ge den delete-skydd av.
+- **Kontrollera härdningen från 2026-10-25 efteråt.** Det mesta är drop-ins
+  och bör överleva: `sshd_config.d/99-hardening.conf`, `fail2ban/jail.local`,
+  `journald.conf.d/50-retention.conf`, apt-timrarnas `override.conf`,
+  `needrestart/conf.d/50-auto.conf`, `52unattended-upgrades-updates` (använder
+  `${distro_codename}`), swap och `sysctl.d/99-swappiness.conf`. Svara "behåll
+  din version" på conffile-frågor och kör `sshd -t`, `fail2ban-client status`
+  och `/prod-health updates`.
+- **Deadline bekräftad:** PHP2Shell-fixen (8.2.35) kom via Debian LTS samma dag
+  som releasen, 2026-10-21. LTS-spåret fungerar alltså, och 2028-06-30 står.
+- **Kan delas upp.** Före själva OS-bytet: MariaDB-rootfixen (ovan), och
+  Laravel 9–12 i #15 på nuvarande PHP 8.2. Sedan provkörning på klon en dag,
+  prod-uppgraderingen en annan morgon, och Laravel 13 efter det. Dev-stacken
+  kan gå över till `serversideup/php:8.4` redan nu som parallell kontroll
+  (`make test-api` och `make phpstan` på 8.4), utan att prod ändras.
+- Trixie föredrar deb822-formatet för apt-källor; `apt modernize-sources`
+  efter uppgraderingen.
 
 ## Plan
 

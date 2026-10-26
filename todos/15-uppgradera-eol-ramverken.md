@@ -1,12 +1,42 @@
-**Status:** blockerad
-**Senast uppdaterad:** 2026-10-17
-**Blockerad av:** #17 (Debian 13 och PHP 8.4)
+**Status:** aktiv (Laravel 9–12 går på nuvarande PHP 8.2)
+**Senast uppdaterad:** 2026-10-26
+**Blockerad av:** #17, bara för sista steget till Laravel 13
 
 # Todo #15 — Uppgradera EOL-ramverken (CodeIgniter 2, Laravel 8)
 
 Utbruten ur #08 (fynd M4) 2026-10-14. Webben kör CodeIgniter 2.2.6 (2015) och
 importern Laravel 8.83.27 (sista fixen jan 2023). Inga kända CVE:er träffar
 koden som den används, men inga fixar kommer heller.
+
+## Tillägg 2026-10-26: stegvis plan, Laravel 8 → 12 behöver inte vänta på #17
+
+Laravel 9, 10, 11 och 12 stöder alla PHP 8.2 (L9 8.0–8.2, L10 8.1–8.3, L11
+8.2–8.4, L12 8.2–8.5). Det är bara sista hoppet, 12 → 13, som kräver PHP 8.3
+och därmed Debian 13. Importern kan alltså uppgraderas **en major i taget på
+nuvarande prod**, med en deploy och några dagars observation per steg, i
+stället för allt på en gång ihop med OS-bytet.
+
+1. **Förberedelse (oberoende):** #29 (timeout i importern), sedan byt
+   `dgoring/dom-query` mot `symfony/dom-crawler` (fungerar på 8.2;
+   `Dom\HTMLDocument` kräver 8.4). Ett eget steg med PHPUnit-korpusen som
+   kontroll.
+2. **Laravel 9:** ta bort `fideloper/proxy` och `fruitcake/laravel-cors`
+   (inbyggda). PHPUnit, en import i Docker, `schedule:list` före/efter, deploy.
+3. **Laravel 10.** Samma kontroller.
+4. **Laravel 11:** det stora steget, slimmat skelett. Schemat flyttar till
+   `routes/console.php`; diffa `schedule:list` mot steg 3, cron-tiderna från
+   #12 får inte tappas. Valfritt: behåll gamla strukturen, L11 stöder det.
+5. **Laravel 12.** Säkerhetsfixar till 2027-02-24, vilket räcker fram till
+   Debian 13.
+6. **Laravel 13** efter #17.
+
+Varje steg är en egen branch och deploy; `composer install` på prod löser mot
+8.2, så uppdatera i importer-containern som `CLAUDE.md` beskriver. Rollback =
+revert och deploy.
+
+CodeIgniter 2: angreppsytan granskades i #08 (inga inloggningar, sessioner
+eller uppladdningar; SQL-input via `is_numeric`/`intval`/`escape`). Kvar som
+alternativ 1 nedan.
 
 ## Snabbresearch 2026-10-14
 

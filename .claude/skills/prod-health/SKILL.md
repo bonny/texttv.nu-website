@@ -286,7 +286,8 @@ Tolka:
   unattended-upgrades. Debian följer uppströms 8.2-releaser (8.2.35 = `8.2.35-1~deb12u1`), så
   samma nummer är det normala. Ligger servern efter trots att paketet inte står som väntande,
   har Debian inte släppt än — kolla security-tracker.debian.org. ⚠️ **PHP 8.2 får säkerhetsfixar
-  uppströms bara till 2026-12-31**, därefter bara Debians egna backports (bookworm LTS).
+  uppströms bara till 2026-12-31**, därefter Debians egna backports via bookworm LTS
+  till 2028-06-30 (se todo #17).
 - ⚠️ **`unattended-upgrade --dry-run` lämnar falska rader i `history.log`** (med `Requested-By`)
   som här syns som `auto`. Hände 2026-10-25 med tzdata. Står paketet samtidigt under "väntande",
   eller visar `dpkg-query -W <paket>` gamla versionen, är raden en torrkörning.

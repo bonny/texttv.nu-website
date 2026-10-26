@@ -317,6 +317,36 @@ if (!isset($is_archive)) {
 			$meta_description = "Tennis på SVT Text TV 732. 🎾 Resultat från WTA-touren – damernas turneringar, finaler och matcher.";
 		} else if (744 == $first_page_num) {
 			$meta_description = "Formel 1 på SVT Text TV 744. 🏎️ Resultat och placeringar från F1-loppen – Grand Prix för Grand Prix.";
+
+			// Todo #28 spår A (2026-10-26): sidor som bara hade blockfallbacken.
+		} else if (190 == $first_page_num) {
+			$meta_description = "Nattens nyheter från TT på SVT Text TV 190, klockan 24–06. Under dagen är sidan inte i sändning.";
+		} else if (333 == $first_page_num) {
+			$meta_description = "Champions League på SVT Text TV 333. ⚽️ Resultat från senaste omgången och tabeller från gruppspelet.";
+		} else if (338 == $first_page_num) {
+			$meta_description = "Serie A på SVT Text TV 338. ⚽️ Resultat från Italiens högsta liga och uppdaterad tabell.";
+		} else if (340 == $first_page_num) {
+			$meta_description = "Franska ligan på SVT Text TV 340. ⚽️ Resultat från Ligue 1 och uppdaterad tabell.";
+		} else if (341 == $first_page_num) {
+			$meta_description = "Turkiska ligan på SVT Text TV 341. ⚽️ Resultat från Süper Lig och uppdaterad tabell.";
+		} else if (342 == $first_page_num) {
+			$meta_description = "Danska ligan på SVT Text TV 342. ⚽️ Resultat från Superligaen och uppdaterad tabell.";
+		} else if (350 == $first_page_num) {
+			$meta_description = "Elitettan damer på SVT Text TV 350. ⚽️ Resultat från senaste omgången och uppdaterad tabell.";
+		} else if (354 == $first_page_num) {
+			$meta_description = "Handbollsligan herrar på SVT Text TV 354. 🤾 Resultat från senaste omgången och uppdaterad tabell.";
+		} else if (356 == $first_page_num) {
+			$meta_description = "Allsvenskan i handboll, herrar, på SVT Text TV 356. 🤾 Resultat från senaste omgången och uppdaterad tabell.";
+		} else if (360 == $first_page_num) {
+			$meta_description = "Hockeyallsvenskan på SVT Text TV 360. 🏒 Resultat från senaste omgången och uppdaterad tabell.";
+		} else if (361 == $first_page_num) {
+			$meta_description = "SDHL på SVT Text TV 361. 🏒 Resultat och tabell från Svenska damhockeyligan.";
+		} else if (362 == $first_page_num) {
+			$meta_description = "Champions Hockey League på SVT Text TV 362. 🏒 Resultat och tabeller från CHL.";
+		} else if (733 == $first_page_num) {
+			$meta_description = "Golfens världsranking för herrar på SVT Text TV 733. ⛳ Placeringar och poäng, uppdateras varje vecka.";
+		} else if (745 == $first_page_num) {
+			$meta_description = "Rally-VM på SVT Text TV 745. 🏁 Resultat och sträcktider från VM-rallyt.";
 		}
 
 		// Blockbaserad fallback för sidor utan specifik whitelist-entry.

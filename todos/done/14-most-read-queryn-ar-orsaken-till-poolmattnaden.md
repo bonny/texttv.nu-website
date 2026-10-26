@@ -275,7 +275,7 @@ Punkt 2 och 3 ändrar inte svarets form — men verifiera mot Bruno-collectionen
 
 ## Relaterat
 
-- Todo [#12](../12-php-fpm-poolen-slar-i-taket.md) — poolmättnaden. Detta är
+- Todo [#12](12-php-fpm-poolen-slar-i-taket.md) — poolmättnaden. Detta är
   orsaken; #12 är symptomet.
 - Skillen [`prod-health`](../../.claude/skills/prod-health/SKILL.md) — subkommandot
   `fpm` beskriver hur slowloggen läses.

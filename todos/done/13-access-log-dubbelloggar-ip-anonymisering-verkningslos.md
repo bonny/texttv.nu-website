@@ -97,7 +97,7 @@ komprimerade. Efter fixen bör den dagliga volymen ungefär halveras.
 
 ## Relaterat
 
-- Todo [#12](../12-php-fpm-poolen-slar-i-taket.md) — upptäckten gjordes under
+- Todo [#12](12-php-fpm-poolen-slar-i-taket.md) — upptäckten gjordes under
   dess alternativ B.
 - Todo [#08](../08-sakerhetsgranskning-2026-08-01.md) — säkerhetsgranskningen.
 - [`server.md`](../../server.md) — avsnittet "Loggar".

@@ -1071,6 +1071,23 @@ class Texttv_page extends CI_Model {
 		731 => "Tennis ATP",
 		732 => "Tennis WTA",
 		744 => "Formel 1",
+		// Todo #28 spår A (2026-10-26): sidor som bara hade blockfallbacken.
+		// Arkivet visade samma tävling varje månad det senaste året. 190
+		// har TT:s nattnyheter kl 24–06 och fick förut "Utrikes".
+		190 => "Nattnyheter",
+		333 => "Champions League",
+		338 => "Serie A",
+		340 => "Franska ligan",
+		341 => "Turkiska ligan",
+		342 => "Danska ligan",
+		350 => "Elitettan damer",
+		354 => "Handbollsligan herrar",
+		356 => "Allsvenskan handboll herrar",
+		360 => "Hockeyallsvenskan",
+		361 => "SDHL",
+		362 => "Hockey CHL",
+		733 => "Golf världsranking",
+		745 => "Rally-VM",
 		);
 		return isset($names[(int) $this->num]) ? $names[(int) $this->num] : false;
     }

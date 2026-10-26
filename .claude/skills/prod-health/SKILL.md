@@ -21,7 +21,7 @@ mot samma mätningar (2026-08-09, delvis 2026-10-24).
 (18 okt 16:57 och 19 okt 04:07), mot 2–15 per dygn med 5. Slowloggen ligger
 på 75–125 requests per dygn över 3 s, 200–350 på lördagar med mycket sport,
 nästan alla `most_read` kl 16–23. p99 kl 21–22 är 0,019–0,026 s. Detaljer i
-todo [#12](../../../todos/12-php-fpm-poolen-slar-i-taket.md). En enstaka
+todo [#12](../../../todos/done/12-php-fpm-poolen-slar-i-taket.md). En enstaka
 varning eller en slowlog på ~100 per dygn är normalläge, inte en incident.
 
 ## Tolka argumentet

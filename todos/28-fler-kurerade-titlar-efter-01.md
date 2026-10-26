@@ -65,9 +65,36 @@ från 0,7 % till 1,0 % ger det **bara ungefär +20–25 klick i månaden**. Det
   med.
 
 **Undersök separat:** 190 (3 723 visningar, 0,13 %, pos 3,7) är inte i
-sändning och får titeln `Utrikes`, vilket troligen är fel. Samma gäller 150,
+sändning och får titeln `Utrikes`, vilket troligen är fel. *(Gjort 2026-10-26: TT:s nattnyheter, se nedan.)* Samma gäller 150,
 199 och 112. Ta reda på vad 190 visar när den sänds (arkivet), innan den
 får en titel.
+
+### Gjort 2026-10-26
+
+Ämnen i `Texttv_page::get_subject_name()` (titeln blir `NNN - SVT Text TV -
+<ämne>`, och arkivversionerna får `<ämne>, 20 okt 2026` som rubrik) och en
+description per sida i `header.php`: 190 Nattnyheter, 333 Champions League,
+338 Serie A, 340 Franska ligan, 341 Turkiska ligan, 342 Danska ligan, 350
+Elitettan damer, 354 Handbollsligan herrar, 356 Allsvenskan handboll herrar,
+360 Hockeyallsvenskan, 361 SDHL, 362 Hockey CHL, 733 Golf världsranking, 745
+Rally-VM. 303 är inte med: den byter ämne varje dag.
+
+Alla sökfrågor på sidorna är sidnummer (`text tv 360`, `svt text 354`), så
+titeln hjälper sökaren att välja rätt sida. Den ger inga nya frågor.
+
+**Arkivet, första versionen varje månad okt 2025 → okt 2026**
+([`28-sportsidor-historik.sh`](28-sportsidor-historik.sh), Pär körde den):
+varje sida hade samma tävling alla månader. Utanför säsongen står
+slutspelet eller nästa säsongs spelschema kvar. Avvikelser som inte byter
+ämne: 333 visar CL-kvalet i juli–september, 342 heter "Danmark,
+Mästerskapsserien" i april–juni, och 356 visar "Handbollsligan kval,
+herrar" i april–juni. 190 visar "Nyheter från TT för SVT Text kl 24-06"
+varje månad (oktober 2025: ej i sändning) och fick förut titeln `Utrikes`.
+
+**Mät 2026-11-26** (30 dagar från 2026-10-27): klick och CTR för de 14
+sidorna mot samma fönster 2025, med `/377` och `/` som kontroll. Baslinjen
+i tabellen ovan (90 dagar) är cirka 165 klick på 23 000 visningar, plus
+190 med 3 723 visningar och 0,13 %.
 
 ## Spår B: andra varvet på stora sidor som redan är kurerade
 

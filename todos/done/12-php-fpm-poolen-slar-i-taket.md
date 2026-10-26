@@ -1,7 +1,7 @@
 # 12 – php-fpm-poolen slår i taket i normaldrift
 
-**Status:** aktiv — **höjningen till `pm.max_children = 10` (2026-10-16) håller:** 2 varningar på 8 dygn (mätt 2026-10-24), p99 kl 21–22 oförändrad 0,019–0,026 s. Redo att stängas om Pär vill. Kvar: den enda omräkningen per minut av `most_read` tar fortfarande över 3 s på kvällar (75–350 slowlog-rader per dygn).
-**Senast uppdaterad:** 2026-10-24
+**Status:** klar 2026-10-26 — `pm.max_children = 10` (2026-10-16) håller: 2 varningar på 8 dygn mot 2–15 per dygn med 5, p99 kl 21–22 oförändrad. Kvar utan egen todo: omräkningen av `most_read` tar över 3 s på kvällar.
+**Senast uppdaterad:** 2026-10-26
 
 ## Mätning 2026-10-24: en vecka med `max_children = 10`
 
@@ -572,8 +572,8 @@ finns bara från 2026-08-10 kl 09:06, så natten går inte att analysera än.
 
 ## Relaterat
 
-- Skillen [`prod-health`](../.claude/skills/prod-health/SKILL.md) — subkommandot
+- Skillen [`prod-health`](../../.claude/skills/prod-health/SKILL.md) — subkommandot
   `fpm` visar aktuellt läge. Där står mättnaden dokumenterad som
   **normaltillstånd**, så framtida hälsokollar inte rapporterar den som en
   färsk incident.
-- [`server.md`](../server.md) — avsnittet "php-fpm-poolen" har den faktiska configen.
+- [`server.md`](../../server.md) — avsnittet "php-fpm-poolen" har den faktiska configen.

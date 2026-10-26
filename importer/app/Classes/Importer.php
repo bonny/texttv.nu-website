@@ -41,7 +41,12 @@ class Importer
     public function fromRemote()
     {
         $url = sprintf('https://www.svt.se/text-tv/%d', $this->pageNum);
-        $response = Http::get($url);
+        // Utan timeout väntar Guzzle för evigt när SVT inte svarar, och då
+        // hängde importen tills cron dödade den (todo #29). Ett timeout-fel
+        // fångas per sida i texttv:import, så resten av intervallet körs.
+        $response = Http::timeout(20)
+            ->withOptions(['connect_timeout' => 5])
+            ->get($url);
 
         if ($response->successful()) {
             $this->remoteResponse = $response;

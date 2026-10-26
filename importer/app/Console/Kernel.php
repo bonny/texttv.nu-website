@@ -26,19 +26,26 @@ class Kernel extends ConsoleKernel {
      * @return void
      */
     protected function schedule(Schedule $schedule) {
+        // withoutOverlapping(10) på tvåminutersjobben: ett nytt varv startar
+        // inte medan förra fortfarande går, och låset släpper efter 10 min
+        // om en process dör (todo #29).
+
         // Startsidan, nyheter inrikes & utrikes.
         $schedule->command(texttvimport::class, ['100-105'])
             ->everyTwoMinutes()
+            ->withoutOverlapping(10)
             ->runInBackground();
 
         // Nyhetsartiklarna
         $schedule->command(texttvimport::class, ['106-199'])
             ->everyTwoMinutes()
+            ->withoutOverlapping(10)
             ->runInBackground();
 
         // Sport
         $schedule->command(texttvimport::class, ['300-399'])
             ->everyTwoMinutes()
+            ->withoutOverlapping(10)
             ->runInBackground();
 
         // OS-sidorna

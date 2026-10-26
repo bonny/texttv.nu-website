@@ -36,7 +36,7 @@ varning eller en slowlog på ~100 per dygn är normalläge, inte en incident.
 | `fpm`                    | php-fpm-poolen: workers, mättnadsvarningar, socket-kö   |
 | `importer`               | Levererar importern färska sidor? Felfrekvens?          |
 | `http`                   | Statuskod, responstid, `X-Cache` utifrån                |
-| `updates`                | Senaste apt-ändringarna, väntande paket, needrestart    |
+| `updates`                | apt-ändringar, väntande paket, needrestart, PHP-version |
 
 ## Kommandon
 
@@ -263,7 +263,11 @@ ssh texttv.nu '
   [ -f /var/run/reboot-required ] && echo "OMSTART KRÄVS: $(tr "\n" " " < /var/run/reboot-required.pkgs)" || echo "ingen omstart krävs"
   echo "--- senaste omstarter:"; last -x reboot -F | head -2
   echo "--- nästa automatiska körning:"; systemctl list-timers apt-daily-upgrade.timer --no-pager --no-legend
+  echo "--- PHP:"; php -r "echo PHP_VERSION, PHP_EOL;"; dpkg-query -W php8.2-fpm
 '
+# Senaste 8.2-releasen enligt php.net (körs lokalt, inte på servern)
+curl -s "https://www.php.net/releases/index.php?json&version=8.2" \
+  | python3 -c 'import json,sys; print("senaste 8.2:", json.load(sys.stdin)["version"])'
 ```
 
 Tolka:
@@ -278,6 +282,11 @@ Tolka:
 - **MariaDB är undantagen** från automatiska uppdateringar (`Package-Blacklist` i
   `51unattended-upgrades-local`, efter att uppgraderingen hängde sig 2026-10-16). Säkerhetsfixar
   för MariaDB dyker därför upp under "väntande" och ska installeras för hand, se `server.md`.
+- **PHP mot senaste 8.2:** PHP kommer från Debians `bookworm-security` och uppdateras av
+  unattended-upgrades. Debian följer uppströms 8.2-releaser (8.2.35 = `8.2.35-1~deb12u1`), så
+  samma nummer är det normala. Ligger servern efter trots att paketet inte står som väntande,
+  har Debian inte släppt än — kolla security-tracker.debian.org. ⚠️ **PHP 8.2 får säkerhetsfixar
+  uppströms bara till 2026-12-31**, därefter bara Debians egna backports (bookworm LTS).
 - ⚠️ **`unattended-upgrade --dry-run` lämnar falska rader i `history.log`** (med `Requested-By`)
   som här syns som `auto`. Hände 2026-10-25 med tzdata. Står paketet samtidigt under "väntande",
   eller visar `dpkg-query -W <paket>` gamla versionen, är raden en torrkörning.

@@ -431,6 +431,40 @@ visningar 17–24 okt, men 211 av dem var botar från Kina (en visning per
 session, inget engagemang, se #27). Riktiga: cirka 44 visningar från 13
 användare i Sverige.
 
+### Klick från startsidan i access.log (mätt 2026-10-26)
+
+Requests med referer `https://texttv.nu/` per dygn. Botar (`bot`, `spider`,
+`crawl` i UA) är bortfiltrerade. "Arkiv" är alla arkivsidor
+`/NNN/rubrik-id`, och dit räknas också klicken i Mest läst. Rutans tre
+nyheter går därför inte att skilja från dem.
+
+| Dag | Startsidan | `/nyheter/igar` | `/sport/igar` | `/377/igar` | Arkiv |
+| --- | --- | --- | --- | --- | --- |
+| 13 okt | 4 938 | 0 | 0 | 0 | 105 |
+| 14 okt | 4 817 | 3 | 1 | 3 | 91 |
+| 15 okt | 4 979 | 3 | 1 | 3 | 284 |
+| **16 okt, rutan med nyheter** | 5 345 | 0 | 0 | 3 | 247 |
+| 17 okt | 5 770 | 0 | 2 | 2 | 124 |
+| 18 okt | 6 021 | 0 | 1 | 2 | 87 |
+| 19 okt | 8 728 | 1 | 1 | 0 | 79 |
+| 20 okt | 7 143 | 1 | 0 | 0 | 102 |
+| 21 okt | 5 318 | 1 | 1 | 1 | 148 |
+| 22 okt | 5 391 | 1 | 1 | 1 | cirka 85* |
+| 23 okt | 5 454 | 0 | 0 | 0 | 89 |
+| 24 okt | 6 228 | 1 | 0 | 0 | 210 |
+| 25 okt | 6 667 | 0 | 0 | 0 | 194 |
+
+\* 3 353 i loggen, varav cirka 3 270 från en skrapa på datacenter-IP:er
+(80.241.208.0, 80.241.213.0, 185.222.242.0, 178.238.234.0, 94.250.203.0),
+med vanliga Chrome-UA.
+
+**Slutsats:** knapparna till gårdagens sidor gav 0–3 klick per dygn före
+nyheterna i rutan och 0–3 efter. Klicken till arkivsidor från startsidan
+låg på 90–280 per dygn både före och efter. Rutan syns alltså inte i loggen.
+Det enda som tydligt har ökat är klicken i Mest läst-listorna (GA4, #25:
+50 → 84 per dygn). Nästa mätning är 2026-11-14 i GSC, och Pärs beslut
+från 2026-10-16 står kvar: funktionen ska få tid på sig.
+
 ### SEO-koll 2026-10-20
 
 - Alla nya sidor indexerade utom datumsidorna för 377 (`/377/2026-10-15`

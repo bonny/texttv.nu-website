@@ -4,7 +4,7 @@ Index över förbättringsarbete. Varje todo har en egen fil under
 [`todos/`](todos/) med fullständig analys. Konvention och
 mappstruktur: [`todos/README.md`](todos/README.md).
 
-Senast uppdaterad: 2026-10-26 (#24 klar; AdSense-uppföljningarna #22 och #18 blockerade av utgången token.)
+Senast uppdaterad: 2026-10-26 (#24 klar; #16 startsidans klick mätta; AdSense-uppföljningarna #22 och #18 blockerade av utgången token.)
 
 ## Aktiva
 
@@ -39,7 +39,6 @@ eller markera todon som klar.
 | ----- | ------ | ---- |
 | 2026-10-25 | **Blockerad 2026-10-26: AdSense-MCP:ns refresh-token har gått ut (`invalid_grant`), Pär måste skapa en ny.** #22: blocket 8021374801 ska ha cirka 20 % fler visningar per sidvisning efter rättelsen 2026-10-18 (fylldes inte på `/`, 100–105). Ad intents stängdes av 2026-10-18 (var 2,2 % av intäkten): kolla att formatet är borta ur rapporten och jämför RPM före och efter. | [#22](todos/22-granskning-2026-10-18-matas-en-at-gangen.md) |
 | 2026-10-25 | **Blockerad av samma utgångna AdSense-token.** #18: AdSense en vecka efter designbytet (klart 2026-10-18). RPM per sidvisning (`DOMAIN_NAME==texttv.nu`) mot baslinjen 14,59 kr (2026-09-19–10-16, veckor 15,35 → 13,37, sjunkande redan före) och samma vecka 2025. | [#18](todos/done/18-text-tv-designsystem.md) |
-| 2026-10-24 | #16: en vecka efter "Igår på Text TV"-rubrikerna på startsidan (2026-10-16). Räkna klick per dygn från startsidan (referer `https://texttv.nu/`) till arkivsidor och `/nyheter/igar` i `access.log`, mot 3 per dygn före. | [#16](todos/16-gor-arkivet-till-en-tillgang.md) |
 | 2026-11-07 | #25: Mest läst med de anpassade dimensionerna `tab`, `placement`, `position` och `section` (registrerade 2026-10-24). Vilka platser och positioner som får klicken, och om flikarna ska vara kvar. | [#25](todos/25-mest-last-idag-igar-vecka.md) |
 | 2026-11-14 | #21: trafik från texttv.nu till Brottsplatskartan (Brottsplatskartans GA4 305258979; texttv.nu:s egen är 382798575, `utm_source=texttv.nu` per `utm_medium`: polisruta, dagslista, polisen). | [#21](todos/done/21-brottsplatskartan-integration.md) |
 | 2026-11-14 | #20: klick från "Tidigare i dag" under 3xx-sidorna till arkivsidorna (referer `/377` m.fl. i `access.log`), ihop med mätningen av #16. | [#20](todos/done/20-tidigare-i-dag-pa-sportsidorna.md) |
@@ -52,6 +51,7 @@ eller markera todon som klar.
 
 | Planerat | Utfört | Åtgärd | Todo |
 | -------- | ------ | ------ | ---- |
+| 2026-10-24 | 2026-10-26 | #16 klick från startsidan i `access.log`. Knapparna till `/nyheter/igar`, `/sport/igar` och `/377/igar` gav 0–3 per dygn både före och efter att rutan fick gårdagens nyheter (16 okt), och arkivklicken låg på 90–280 per dygn både före och efter. Ingen effekt syns. En skrapa på datacenter-IP:er gav 3 270 falska klick den 22 oktober. | [#16](todos/16-gor-arkivet-till-en-tillgang.md) |
 | 2026-10-25 | 2026-10-26 | #24 delningar en vecka efter att appens räknas. Appen 29 per dag (41 före, skärmvisningarna oförändrade), webben 2,6 per dag och bara `webbläsarens delning`. `/sida/delat` har nu 10 nyheter per dag mot 1–4. Steg 3 struket efter SEO-granskningen; dagarna efter 2019-09-28 fick noindex i stället. | [#24](todos/done/24-fler-delningar/README.md) |
 | 2026-10-24 | 2026-10-24 | #25 flikarna i Mest läst. Klick i listorna 50 → 84 per dag, flikbyten bara 2–5 användare per dag. `/377/igar` kom inte tillbaka (5–11 per dag). Ny uppföljning omkring 2026-11-07 med de registrerade dimensionerna. | [#25](todos/25-mest-last-idag-igar-vecka.md) |
 | 2026-10-23 | 2026-10-24 | #12 en vecka med `max_children = 10`. Varningar 2 på 8 dygn (18 okt 16:57, 19 okt 04:07), slowlog 75–125 per dygn, 204–355 på lördagar (nästan bara `most_read`), p99 kl 21–22 0,019–0,026 s, load lördag kväll 2,1. Ingen historik för load (`sar` installerat 2026-10-25). | [#12](todos/12-php-fpm-poolen-slar-i-taket.md) |

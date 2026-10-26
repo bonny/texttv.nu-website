@@ -25,6 +25,15 @@ Två saker gör det värre:
 - `kill -9` var 30:e minut slår även mot importer som går som de ska, mitt i
   en skrivning.
 
+## Läge
+
+- **2026-10-26 19:08:** steg 1 och 2 deployade (`5b468bf`). Lokalt provat:
+  `connect_timeout` mot en adress som inte svarar ger `ConnectionException`
+  efter 5 s, som fångas per sida. PHPUnit 78 tester gröna, PHPStan rent.
+  På prod går tvåminutersjobben och `schedule:list` visar alla tre.
+- **Följ upp ~2026-11-02:** inga `texttv:import`-processer äldre än någon
+  minut (`ps -eo etimes=,args= | grep texttv:import`), sedan steg 4.
+
 ## Förslag
 
 1. `Http::timeout(20)->withOptions(['connect_timeout' => 5])->get($url)` i

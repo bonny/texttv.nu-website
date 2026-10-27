@@ -3,7 +3,7 @@
 namespace App\Classes;
 
 use Exception;
-use Dgoring\DomQuery\DomQuery;
+use Symfony\Component\DomCrawler\Crawler;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
@@ -83,9 +83,10 @@ class Importer
      */
     public function parseHTMLToObject($html)
     {
-        $dom = new DomQuery($html);
+        $dom = $this->htmlToCrawler($html);
         $selector = '#__NEXT_DATA__';
-        $element_content = $dom->find($selector)->text();
+        // false = rör inte whitespace, JSON:en ska in orörd.
+        $element_content = $dom->filter($selector)->text('', false);
         $this->pageObject = json_decode($element_content);
 
         return $this;
@@ -511,15 +512,43 @@ class Importer
         return $this;
     }
 
+    /**
+     * Läs in HTML som Crawler. Crawlers egen inläsning gör om å, ä, ö till
+     * numeriska entiteter, och i <script> (JSON:en i __NEXT_DATA__) avkodas
+     * de aldrig. Därför DOMDocument med UTF-8 via en xml-instruktion, och utan
+     * html/body runt fragment, precis som dgoring/dom-query gjorde.
+     */
+    protected function htmlToCrawler(string $html): Crawler
+    {
+        $previousUseErrors = libxml_use_internal_errors(true);
+
+        $document = new \DOMDocument('1.0', 'UTF-8');
+        $document->loadHTML('<?xml encoding="UTF-8">' . $html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+
+        // Ta bort xml-instruktionen igen.
+        foreach ($document->childNodes as $node) {
+            if ($node->nodeType === XML_PI_NODE) {
+                $document->removeChild($node);
+                break;
+            }
+        }
+
+        libxml_clear_errors();
+        libxml_use_internal_errors($previousUseErrors);
+
+        // Alla noder på toppnivå, inte bara den första som Crawler($document) tar.
+        return new Crawler($document->childNodes);
+    }
+
     public function combineElementsOnLine($line)
     {
         // Hämta alla element på raden.
-        $domLine = new DomQuery($line);
+        $domLine = $this->htmlToCrawler($line);
 
         // Hämta alla element på raden. Är 40 element
         // om inte något blivit länkat, då är det färre pga en a ersätter
         // flera span.
-        $lineElements = $domLine->find('*');
+        $lineElements = $domLine->filter('*');
 
         $newLine = '';
         /** @var DOMElement $prevElm */
@@ -528,7 +557,7 @@ class Importer
 
         for ($i = 0; $i < count($lineElements); $i++) {
             /** @var DOMElement $currentElm */
-            $currentElm = $lineElements[$i]->get(0);
+            $currentElm = $lineElements->getNode($i);
 
             // Påbörja nytt element om currentElm har class som skiljer sig från föregående element.
             $currentElmClass = $currentElm->getAttribute('class');

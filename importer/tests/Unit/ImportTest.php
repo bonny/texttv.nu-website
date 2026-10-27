@@ -173,4 +173,36 @@ class ImportTest extends TestCase
         // "Pollenhalt 100 gånger högre" ska inte länka 100.
         $this->assertSame(['/107', '/137', '/115', '/300', '/189'], $matches[1]);
     }
+
+    /**
+     * Ögonblicksbild av hela kedjan (cleanup, colorize, linkify) för varje
+     * sparad sida. Fångar oavsiktliga ändringar i markup, t.ex. vid byte av
+     * DOM-bibliotek i combineElementsOnLine().
+     *
+     * Avsiktlig ändring: kör med UPDATE_SNAPSHOTS=1 och granska diffen.
+     */
+    public function test_pipeline_snapshots()
+    {
+        foreach (['100', '188', '202', '300', '377'] as $pageNum) {
+            $importer = new Importer($pageNum);
+            $importer->fromFile(__DIR__ . "/../TestPages/{$pageNum}.html");
+            $importer->cleanup()->colorize()->linkify();
+
+            $actual = $importer->subPages()->pluck('text')->implode("\n\n=== subpage ===\n\n");
+            // Grafik-URL:erna bakas in med APP_URL, som skiljer mellan miljöer.
+            $actual = str_replace(asset('storage/chars'), '{chars}', $actual);
+            $snapshotFile = __DIR__ . "/../TestPages/snapshots/{$pageNum}_pipeline.html";
+
+            if (getenv('UPDATE_SNAPSHOTS')) {
+                file_put_contents($snapshotFile, $actual);
+                continue;
+            }
+
+            $this->assertStringEqualsFile($snapshotFile, $actual, "Sida {$pageNum}");
+        }
+
+        if (getenv('UPDATE_SNAPSHOTS')) {
+            $this->markTestIncomplete('Ögonblicksbilderna skrevs om. Granska med git diff.');
+        }
+    }
 }

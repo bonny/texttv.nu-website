@@ -1,4 +1,4 @@
-**Status:** aktiv — plan granskad 2026-10-27, kartläggningen klar; steg 1 (förberedelser) näst
+**Status:** aktiv — steg 1–4 klara 2026-10-27 (importern kör som `texttv_importer`); följ upp nattjobben 2026-10-28, sedan steg 5 (webben)
 **Senast uppdaterad:** 2026-10-27
 
 # Todo #30 — Egna databasanvändare för webben och importern
@@ -112,7 +112,8 @@ via unix_socket.
 4. **Byt importern först.**
    - Backup av `.env` till `/root`, `chmod 600`.
    - Byt `DB_USERNAME`, `DB_PASSWORD`, `DB_STATS_USERNAME` och
-     `DB_STATS_PASSWORD` till `texttv_importer`, sedan `php artisan config:cache`.
+     `DB_STATS_PASSWORD` till `texttv_importer`, sedan `php artisan config:cache`
+     med normal umask (filen måste vara 644, www-data läser den).
    - Kontrollera båda anslutningarna:
      `php artisan tinker --execute='dump(DB::select("select current_user() u"), DB::connection("mysql_stats_db")->select("select current_user() u"));'`
    - Följ nästa import, `/importstatus`, `laravel.log` och `USER_STATISTICS`
@@ -156,6 +157,12 @@ via unix_socket.
    ingen app-användare har `FILE`, men stänger dem även för root.
 
 Logga varje prod-steg i Obsidian-noten `Logg - texttv.nu` samma dag.
+
+## Logg
+
+- 2026-10-27: steg 1 (`userstat=1`, `local_infile=0`, båda dynamiska och tillbaka vid omstart tills steg 7). Steg 2–3 för `texttv_importer`: skapad, lösenordet i `/root/texttv_importer.pw` (600, raderas efter steg 4). Provkörd som www-data med PDO: 10 tillåtna satser OK, 7 otillåtna nekade. Importern gör bara `create`/`where`/`delete` på `page_imports_logs`, så UPDATE behövs inte där.
+
+- 2026-10-27 20:06: steg 4. `.env` (båda anslutningarna) → `texttv_importer`, `config:cache`, `current_user()` = `texttv_importer@localhost` på båda. **Lärdom:** kör aldrig `config:cache` med `umask 077` — `bootstrap/cache/config.php` blev 600, importerns webbrutter gav 500 i ~3 min (`chmod 644`). Samtidigt 27 nekade inloggningar och 6 nekade frågor för `texttv_importer`, inga efter 20:10; troligen processer som läste `.env`/cachen mitt i bytet (båda skrevs icke-atomärt), inte bevisat. Importen skriver (970 rader in första 8 min). `/root/texttv_importer.pw` raderad; rollback-kopia `/root/importer.env.bak-20261027` (600, innehåller root-lösenordet → rensas i steg 6).
 
 ## Risker
 

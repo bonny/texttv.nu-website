@@ -211,6 +211,22 @@ if ( true || $this->input->get("enable-share") ) {
 // (css/tt.css). På startsidan står dagslistorna bland sidorna i stället.
 $out .= '<div class="tt-under-sidan">';
 
+// Tom sida (Sida::_empty_page_links()): först, så att den syns direkt under
+// den tomma sidan. Sätts bara av Sida::visa().
+if (!empty($empty_page)) {
+	$items = [];
+	if ($empty_page["last"]) {
+		$items[] = '<li>' . tt_pil_link($empty_page["last"]["permalink"], "Senast med innehåll: " . $empty_page["last"]["human"]) . '</li>';
+	}
+	foreach ($empty_page["links"] as $link) {
+		$items[] = '<li><a href="' . html_escape($link[0]) . '">' . html_escape($link[1]) . '</a></li>';
+	}
+	$out .= '<nav class="tt-sidbredd tt-tidigare tt-tom-sida" aria-labelledby="tt-tom-sida-rubrik">'
+		. '<h2 class="tt-band tt-tidigare__rubrik" id="tt-tom-sida-rubrik">' . html_escape($empty_page["rubrik"]) . '</h2>'
+		. '<ul class="tt-linkrow">' . implode("", $items) . '</ul>'
+		. '</nav>';
+}
+
 // En sida som inte sänts på länge visar bara "ej i sändning"; tiden den
 // "uppdaterades" säger då inget. Se not_broadcasted_notice.php.
 if (!isset($not_broadcasted) || !$not_broadcasted || $not_broadcasted["page"]) {

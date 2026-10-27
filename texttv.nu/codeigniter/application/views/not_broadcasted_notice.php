@@ -4,8 +4,7 @@
 	Förklaring ovanför en sida som inte sänds just nu. Antingen visar
 	Sida::visa() den senast sända versionen i stället för "Sidan ej i
 	sändning" ($nb["page"] satt), eller så har sidan inte sänts på länge och
-	bara datumet visas. Todo #16. $nb["empty"]: sidan sänds men är tom, och
-	den senaste versionen med innehåll visas.
+	bara datumet visas. Todo #16.
 */
 
 $nb = $not_broadcasted;
@@ -33,12 +32,6 @@ if ($this->input->get("apiAppShare")) {
 		<a href="/377">Målservice 377</a>
 		<a href="/401">Väder 401</a>
 		<a href="/nyheter/idag">Dagens nyheter</a>
-	</p>
-	<?php } elseif (!empty($nb["empty"])) { ?>
-	<p>
-		<strong>Sidan är tom just nu.</strong>
-		Här är den senaste versionen med innehåll, från <?php echo html_escape($nb["broadcast_human"]) ?>.
-		Den visas här direkt när SVT fyller sidan igen.
 	</p>
 	<?php } else { ?>
 	<p>

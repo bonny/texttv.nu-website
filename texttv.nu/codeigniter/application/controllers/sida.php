@@ -276,31 +276,26 @@ class Sida extends CI_Controller {
 	 * Senast sända version av en sida som just nu är "ej i sändning", plus
 	 * underlag för texten om när den brukar sändas. Null om ingen version med
 	 * innehåll finns de senaste 60 dygnen.
-	 *
-	 * $empty: sidan sänds men är tom (Texttv_page::is_empty_page()). Då
-	 * hoppas de tomma versionerna över, och veckodagarna säger inget, för
-	 * de tomma versionerna har också en titel.
 	 */
-	private function _latest_broadcast_fallback($current_page, $empty = false) {
-		$row = get_latest_broadcast_version($current_page->num, 60, $empty ? $current_page->title : null);
+	private function _latest_broadcast_fallback($current_page) {
+		$row = get_latest_broadcast_version($current_page->num);
 		if (!$row) {
 			return null;
 		}
 
 		$page = new texttv_page();
 		$page->id = $row->id;
-		if (!$page->load(TRUE) || empty($page->arr_contents) || $page->is_empty_page()) {
+		if (!$page->load(TRUE) || empty($page->arr_contents)) {
 			return null;
 		}
 		// Pollningen ska jämföra mot "ej i sändning"-raden, inte mot den
 		// äldre versionen som visas, annars lyser "ny version" hela tiden.
 		$page->polling_added_unix = $current_page->date_added_unix;
 
-		$weekdays = $empty ? [] : get_page_broadcast_weekdays($current_page->num);
+		$weekdays = get_page_broadcast_weekdays($current_page->num);
 
 		return [
 			"page" => $page,
-			"empty" => $empty,
 			"broadcast_human" => date_sv("l j F", $page->date_added_unix) . " kl " . date("H:i", $page->date_added_unix),
 			"weekdays_human" => $weekdays ? format_broadcast_weekdays($weekdays) : "",
 		];
@@ -319,6 +314,59 @@ class Sida extends CI_Controller {
 	 *
 	 * @return array Med time ("H:i") och permalink, högst TODAY_VERSIONS_COUNT.
 	 */
+	/**
+	 * Underlag för rutan under en tom sida (Texttv_page::is_empty_page()):
+	 * rubrik, senaste versionen med innehåll de senaste 60 dygnen och
+	 * närliggande sidor. De tomma versionerna har navigationsraden som titel
+	 * och hoppas över via den.
+	 */
+	private function _empty_page_links($current_page) {
+		$num = (int) $current_page->num;
+
+		$last = null;
+		$row = get_latest_broadcast_version($num, 60, $current_page->title);
+		if ($row) {
+			$last_page = new Texttv_page();
+			$last_page->id = $row->id;
+			if ($last_page->load(TRUE) && !$last_page->is_empty_page()) {
+				// Kort, så att länken får plats på en rad på mobil.
+				$t = $last_page->date_added_unix;
+				$dag = date("Y-m-d", $t);
+				if ($dag === date("Y-m-d")) {
+					$dag = "idag";
+				} elseif ($dag === date("Y-m-d", strtotime("yesterday"))) {
+					$dag = "igår";
+				} else {
+					$dag = date_sv("j M", $t);
+				}
+				$last = [
+					"permalink" => $last_page->get_permalink(),
+					"human" => $dag . " " . date("H:i", $t),
+				];
+			}
+		}
+
+		if ($num >= 376 && $num <= 399) {
+			$rubrik = "Inga matcher på " . $num . " just nu";
+			$links = [["/376", "Målservice 376"], ["/377", "Resultat 377"], ["/330", "Resultatbörsen 330"]];
+		} elseif ($num >= 300 && $num <= 399) {
+			$rubrik = "Sida " . $num . " är tom just nu";
+			$links = [["/300", "Sport 300"], ["/377", "Resultat 377"], ["/sport/idag", "Dagens sportnyheter"]];
+		} elseif ($num >= 100 && $num <= 199) {
+			$rubrik = "Sida " . $num . " är tom just nu";
+			$links = [["/100", "Nyheter 100"], ["/nyheter/idag", "Dagens nyheter"]];
+		} else {
+			$rubrik = "Sida " . $num . " är tom just nu";
+			$links = [["/100", "Nyheter 100"], ["/300", "Sport 300"], ["/700", "Innehåll 700"]];
+		}
+
+		return [
+			"rubrik" => $rubrik,
+			"last" => $last,
+			"links" => $links,
+		];
+	}
+
 	private function _today_versions($arr_page_objs, $not_broadcasted) {
 		if (sizeof($arr_page_objs) !== 1 || $not_broadcasted) {
 			return [];
@@ -433,18 +481,13 @@ class Sida extends CI_Controller {
 		// sedan när sidan inte sänts. "Ej i sändning"-raden läggs till när
 		// sidan försvinner och ersätts inte förrän den kommer tillbaka, så
 		// dess date_added är tidpunkten då den slutade sändas.
-		//
-		// En sida som sänds men är tom (380 på morgonen utan matcher) visar på
-		// samma sätt senaste versionen med innehåll. Finns ingen visas den
-		// tomma sidan som förut (inbox 2026-10-27).
 		$not_broadcasted = null;
-		$empty = false;
-		if (sizeof($arr_page_objs) == 1 && ($arr_page_objs[0]->is_not_broadcasted() || ($empty = $arr_page_objs[0]->is_empty_page()))) {
-			$not_broadcasted = $this->_latest_broadcast_fallback($arr_page_objs[0], $empty);
+		if (sizeof($arr_page_objs) == 1 && $arr_page_objs[0]->is_not_broadcasted()) {
+			$not_broadcasted = $this->_latest_broadcast_fallback($arr_page_objs[0]);
 			if ($not_broadcasted) {
 				$arr_page_objs[0] = $not_broadcasted["page"];
 				$page = $not_broadcasted["page"];
-			} elseif (!$empty && $arr_page_objs[0]->date_added_unix < strtotime("-14 days")) {
+			} elseif ($arr_page_objs[0]->date_added_unix < strtotime("-14 days")) {
 				$last_row = get_latest_broadcast_version($arr_page_objs[0]->num, null);
 				$last_permalink = null;
 				if ($last_row) {
@@ -460,6 +503,15 @@ class Sida extends CI_Controller {
 					"last_permalink" => $last_permalink,
 				];
 			}
+		}
+
+		// En sida som sänds men är tom (380 på morgonen utan matcher) visas
+		// som SVT sänder den. Under den: länk till senaste versionen med
+		// innehåll och närliggande sidor. Den gamla versionen visas inte i
+		// stället, för på en resultatsida ser gårdagens match ut som dagens.
+		$empty_page = null;
+		if (sizeof($arr_page_objs) == 1 && !$not_broadcasted && $arr_page_objs[0]->is_empty_page()) {
+			$empty_page = $this->_empty_page_links($arr_page_objs[0]);
 		}
 
 		// Dagens tidigare versioner (todo #20). Före gårdagslänkarna, eftersom
@@ -528,6 +580,7 @@ class Sida extends CI_Controller {
 		// Skapa array med data att skicka med till vyerna
 		$data = array();
 		$data["not_broadcasted"] = $not_broadcasted;
+		$data["empty_page"] = $empty_page;
 		$data["page"] = $page;
 		$data["pages"] = $arr_page_objs;
 		$data["pagenum"] = $pagenum;

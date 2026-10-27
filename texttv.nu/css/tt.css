@@ -485,6 +485,18 @@ button.tt-link {
 	}
 }
 
+/* Under en tom sida: länkarna är text, inte tider, så vanlig länkrad.
+   Senaste versionen med innehåll på en egen rad. */
+.tt-tidigare.tt-tom-sida .tt-linkrow {
+	display: flex;
+	flex-wrap: wrap;
+	column-gap: 2ch;
+}
+
+.tt-tom-sida .tt-linkrow li:first-child:has(.tt-pil) {
+	flex-basis: 100%;
+}
+
 /* Annonser utan fyllning, och alla annonser när annonsskriptet är
    blockerat (js/scripts.js sätter .ad--tom): etiketten "Annons" ska inte
    stå kvar ensam (todo #19). */

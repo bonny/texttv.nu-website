@@ -737,6 +737,59 @@ window.addEventListener("load", function () {
 	}, 3000);
 });
 
+// Polishändelserna från Brottsplatskartan (todo #21) till GA4. Länkarnas
+// utm_medium (bpk_lank()) är placeringen: polisruta under nyheten, dagslista
+// ("Karta →") eller polisen (/sida/polisen). police_view en gång per
+// placering när en länk syns, select_content vid klick, så att andelen som
+// klickar går att räkna.
+(function () {
+	if (typeof gtag !== "function") {
+		return;
+	}
+	function placering(a) {
+		var m = /[?&]utm_medium=([a-z]+)/.exec(a.getAttribute("href") || "");
+		return m ? m[1] : "";
+	}
+	var lankar = Array.prototype.filter.call(document.querySelectorAll('a[href^="https://brottsplatskartan.se/"]'), placering);
+	if (!lankar.length) {
+		return;
+	}
+
+	document.addEventListener("click", function (e) {
+		var a = e.target.closest && e.target.closest('a[href^="https://brottsplatskartan.se/"]');
+		if (!a || !placering(a)) {
+			return;
+		}
+		gtag("event", "select_content", {
+			content_type: "police_event",
+			placement: placering(a),
+		});
+	});
+
+	if (!("IntersectionObserver" in window)) {
+		return;
+	}
+	var sedda = {};
+	var obs = new IntersectionObserver(function (poster) {
+		poster.forEach(function (p) {
+			var plats = placering(p.target);
+			if (!p.isIntersecting || sedda[plats]) {
+				return;
+			}
+			sedda[plats] = true;
+			gtag("event", "police_view", { placement: plats });
+			lankar.forEach(function (a) {
+				if (placering(a) === plats) {
+					obs.unobserve(a);
+				}
+			});
+		});
+	}, { threshold: 0.5 });
+	lankar.forEach(function (a) {
+		obs.observe(a);
+	});
+})();
+
 if ("serviceWorker" in navigator) {
 	navigator.serviceWorker.register("/service-worker.js");
 }

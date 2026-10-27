@@ -276,26 +276,31 @@ class Sida extends CI_Controller {
 	 * Senast sända version av en sida som just nu är "ej i sändning", plus
 	 * underlag för texten om när den brukar sändas. Null om ingen version med
 	 * innehåll finns de senaste 60 dygnen.
+	 *
+	 * $empty: sidan sänds men är tom (Texttv_page::is_empty_page()). Då
+	 * hoppas de tomma versionerna över, och veckodagarna säger inget, för
+	 * de tomma versionerna har också en titel.
 	 */
-	private function _latest_broadcast_fallback($current_page) {
-		$row = get_latest_broadcast_version($current_page->num);
+	private function _latest_broadcast_fallback($current_page, $empty = false) {
+		$row = get_latest_broadcast_version($current_page->num, 60, $empty ? $current_page->title : null);
 		if (!$row) {
 			return null;
 		}
 
 		$page = new texttv_page();
 		$page->id = $row->id;
-		if (!$page->load(TRUE) || empty($page->arr_contents)) {
+		if (!$page->load(TRUE) || empty($page->arr_contents) || $page->is_empty_page()) {
 			return null;
 		}
 		// Pollningen ska jämföra mot "ej i sändning"-raden, inte mot den
 		// äldre versionen som visas, annars lyser "ny version" hela tiden.
 		$page->polling_added_unix = $current_page->date_added_unix;
 
-		$weekdays = get_page_broadcast_weekdays($current_page->num);
+		$weekdays = $empty ? [] : get_page_broadcast_weekdays($current_page->num);
 
 		return [
 			"page" => $page,
+			"empty" => $empty,
 			"broadcast_human" => date_sv("l j F", $page->date_added_unix) . " kl " . date("H:i", $page->date_added_unix),
 			"weekdays_human" => $weekdays ? format_broadcast_weekdays($weekdays) : "",
 		];
@@ -428,13 +433,18 @@ class Sida extends CI_Controller {
 		// sedan när sidan inte sänts. "Ej i sändning"-raden läggs till när
 		// sidan försvinner och ersätts inte förrän den kommer tillbaka, så
 		// dess date_added är tidpunkten då den slutade sändas.
+		//
+		// En sida som sänds men är tom (380 på morgonen utan matcher) visar på
+		// samma sätt senaste versionen med innehåll. Finns ingen visas den
+		// tomma sidan som förut (inbox 2026-10-27).
 		$not_broadcasted = null;
-		if (sizeof($arr_page_objs) == 1 && $arr_page_objs[0]->is_not_broadcasted()) {
-			$not_broadcasted = $this->_latest_broadcast_fallback($arr_page_objs[0]);
+		$empty = false;
+		if (sizeof($arr_page_objs) == 1 && ($arr_page_objs[0]->is_not_broadcasted() || ($empty = $arr_page_objs[0]->is_empty_page()))) {
+			$not_broadcasted = $this->_latest_broadcast_fallback($arr_page_objs[0], $empty);
 			if ($not_broadcasted) {
 				$arr_page_objs[0] = $not_broadcasted["page"];
 				$page = $not_broadcasted["page"];
-			} elseif ($arr_page_objs[0]->date_added_unix < strtotime("-14 days")) {
+			} elseif (!$empty && $arr_page_objs[0]->date_added_unix < strtotime("-14 days")) {
 				$last_row = get_latest_broadcast_version($arr_page_objs[0]->num, null);
 				$last_permalink = null;
 				if ($last_row) {

@@ -1131,6 +1131,31 @@ class Texttv_page extends CI_Model {
     }
 
     /**
+     * Om sidan sänds men är tom: varje delsida har bara datumraden och högst
+     * en rad till, navigationsraden längst ner. Så ser 380–398 ut när inga
+     * matcher spelas, och då blir navigationsraden sidans titel
+     * ("Målserviceindex 376 * Resultat 330"). 793–799 har bara datumraden.
+     */
+    function is_empty_page() {
+		if (empty($this->arr_contents) || $this->is_not_broadcasted()) {
+			return false;
+		}
+		foreach ((array) $this->arr_contents as $one_content) {
+			$rader = 0;
+			foreach (explode("\n", strip_tags((string) $one_content)) as $rad) {
+				$rad = trim(html_entity_decode($rad, ENT_QUOTES, "UTF-8"));
+				if ($rad !== "" && !preg_match('/^\d{3}\s+SVT Text\b/u', $rad)) {
+					$rader++;
+				}
+			}
+			if ($rader > 1) {
+				return false;
+			}
+		}
+		return true;
+    }
+
+    /**
      * Typ prefered page title
      */
     function get_page_title() {

@@ -404,10 +404,13 @@ function get_page_version_at_end_of_day($page_num, $day_ymd) {
  * sändning" (tom titel). Högst $max_days dygn bakåt (null = obegränsat).
  * Används när sidan inte sänds, så att den levande adressen visar senast
  * sända version, eller länkar dit om sidan varit borta länge. Todo #16.
+ * $exclude_title hoppar också över versioner med den titeln: en tom sidas
+ * titel är navigationsraden, och den är densamma i alla tomma versioner
+ * (Texttv_page::is_empty_page()).
  *
  * @return object|null Rad med id, title och date_added, eller null.
  */
-function get_latest_broadcast_version($page_num, $max_days = 60) {
+function get_latest_broadcast_version($page_num, $max_days = 60, $exclude_title = null) {
 	$ci =& get_instance();
 	$ci->load->database();
 
@@ -420,6 +423,9 @@ function get_latest_broadcast_version($page_num, $max_days = 60) {
 		$ci->db->where("date_added >=", $from->format("Y-m-d H:i:s"));
 	}
 	$ci->db->where("title <>", "");
+	if ((string) $exclude_title !== "") {
+		$ci->db->where("title <>", (string) $exclude_title);
+	}
 	$ci->db->order_by("date_added", "DESC");
 	$ci->db->limit(1);
 

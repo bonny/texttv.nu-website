@@ -128,7 +128,15 @@ foreach ($arr_pages as $page_index => $one_page_obj) {
 			tt_pil_link("/" . (int) $one_page_obj->num, $heading_text)
 		);
 	}
-	$out .= $one_page_obj->get_output($page_heading_html);
+	$page_html = $one_page_obj->get_output($page_heading_html);
+	// En tom sida (Sida::_empty_page_links()) har 22 tomma rader mellan
+	// datumraden och navigationsraden, så rutan under den hamnade under
+	// skärmkanten. Bara tid och navigation blir kvar. Varje rad är en egen
+	// <span class="line">, så hela tomma rader kan tas bort.
+	if (!empty($empty_page)) {
+		$page_html = preg_replace('#<span class="line">(?:<span class="[^"]*">\s*</span>)*</span>\n?#u', "", $page_html);
+	}
+	$out .= $page_html;
 	// Startsidan visar sju sidor efter varandra. Gårdagens länkar direkt
 	// efter den första (100), annars hamnar de fyra skärmar ner på mobil.
 	if ($is_startpage && $page_index === 0 && $yesterday_links_html) {

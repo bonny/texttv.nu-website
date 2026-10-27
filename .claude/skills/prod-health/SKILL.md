@@ -78,8 +78,9 @@ ssh texttv.nu "free -h"
 Tolka: `available` är det som räknas, inte `free` — Linux räknar buff/cache
 som återanvändbart, och här är buff/cache ~6.6 GB medan `free` visar ~300 MB.
 Det är friskt, inte alarmerande. Normalläge: ~1 GB `used`, ~6.4 GB `available`.
-**Servern har 0 swap** — swap-raden ska vara helt 0. Är den inte det är något
-omkonfigurerat.
+**Servern har en 2 GB swapfil** (`/swapfile`, swappiness 10, tillagd
+2026-10-25 som skyddsnät, samma upplägg som eskapism och brottsplatskartan).
+Några MB använd swap är normalt; flagga om den växer till hundratals MB.
 
 ### disk
 

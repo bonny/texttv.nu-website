@@ -4,7 +4,7 @@ Detaljer om hur prod-servern är uppsatt. Läs när du jobbar med deploy, cache-
 
 ## Stack
 
-- **Hostname:** `TextTV-hetzner`. Enda prod-servern (`current-server` togs bort i 04ea660/795a4f2). **2 vCPU, 7,6 GB RAM, 0 swap.** Disk: 75 GB, 24 % använt 2026-08-09 (var 52 % 2026-05-19 — loggstädningen i logrotate-fixen tog ner den).
+- **Hostname:** `TextTV-hetzner`. Enda prod-servern (`current-server` togs bort i 04ea660/795a4f2). **2 vCPU, 7,6 GB RAM, 2 GB swap** (`/swapfile`, swappiness 10, sedan 2026-10-25). Disk: 75 GB, 24 % använt 2026-08-09 (var 52 % 2026-05-19 — loggstädningen i logrotate-fixen tog ner den).
 - **SSH:** `ssh texttv.nu` loggar in som `root` (alias i `~/.ssh/config`). För löpande hälsokoll finns skillen [`prod-health`](.claude/skills/prod-health/SKILL.md) — den har verifierade kommandon och tröskelvärden för load, minne, php-fpm och importer-färskhet.
 - **PHP 8.2.31** runtime (NTS, med Zend OPcache 8.2.31).
   - OBS: `.github/workflows/deploy-website.yml` använder PHP 7.4 — det är **bara** för CI-build-stegen (composer/phpunit), inte runtime.

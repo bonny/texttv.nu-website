@@ -97,7 +97,7 @@ ssh texttv.nu "systemctl is-active nginx php8.2-fpm mariadb && echo --- && syste
 ```
 
 Tolka: alla tre ska vara `active`. Tjänstnamnen är exakt `nginx`,
-`php8.2-fpm`, `mariadb` (inte `mysql` — MariaDB 10.11.18 kör, service-aliaset
+`php8.2-fpm`, `mariadb` (inte `mysql` — MariaDB 10.11.19 kör (2026-10-27), service-aliaset
 `mysql` finns men använd inte det).
 
 ### fpm

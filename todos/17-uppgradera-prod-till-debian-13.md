@@ -195,7 +195,7 @@ test-api`, importerns PHPUnit; webben och importern på PHP 8.4 i
 
 ### B. Städning före provkörningen
 
-1. **GRUB på EFI** (annars kan servern sluta boota senare): prod bootar via
+1. ✅ 2026-10-28 (debconf satt, `BOOTX64.EFI` oförändrad). **GRUB på EFI** (annars kan servern sluta boota senare): prod bootar via
    fallback-sökvägen `EFI/BOOT/BOOTX64.EFI` (GRUB 2.06, identisk med
    `core.efi`, ingen `debian`-post i NVRAM, ingen Secure Boot). Bookworms
    postinst kör bara `grub-install` om `EFI/debian` finns (den saknas), så
@@ -208,9 +208,9 @@ test-api`, importerns PHPUnit; webben och importern på PHP 8.4 i
    echo 'grub-efi-amd64 grub2/force_efi_extra_removable boolean true' | debconf-set-selections
    echo 'grub-efi-amd64 grub2/update_nvram boolean false' | debconf-set-selections
    ```
-2. `apt install tmux`. Kontrollera att root-lösenordet för Hetzners
+2. ✅ 2026-10-28 (tmux 3.3a; root-lösenordet satt, Pär bekräftar att han har det). `apt install tmux`. Kontrollera att root-lösenordet för Hetzners
    webbkonsol finns.
-3. `apt purge libapache2-mod-php8.2 apache2-bin`, sedan `apt purge '~c'`
+3. ✅ 2026-10-28. `apt purge libapache2-mod-php8.2 apache2-bin`, sedan `apt purge '~c'`
    (granskat 2026-10-28: bara de två paketen; `~c` är 16 gamla
    `linux-image-6.1.0-*` utan conffiles). Görs gärna före B.1. Frivilligt:
    shim-paketen används inte (ingen Secure Boot) och kan tas bort, prova på
@@ -220,7 +220,7 @@ test-api`, importerns PHPUnit; webben och importern på PHP 8.4 i
    `security.debian.org` för trixie-security, `Signed-By:
 /usr/share/keyrings/debian-archive-keyring.gpg` på alla. Inte `apt
 modernize-sources` (ger dubbletter och tom `Signed-By`).
-5. `apt update && apt full-upgrade` på bookworm; omstart om kärnan
+5. ✅ 2026-10-28 (0 väntande, kör 6.1.0-54). `apt update && apt full-upgrade` på bookworm; omstart om kärnan
    uppdaterats.
 
 ### C. Provkörning på klon

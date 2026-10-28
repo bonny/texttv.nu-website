@@ -1,75 +1,148 @@
-# This is a basic workflow to help you get started with Actions
+# Deploy av importern till prod (Hetzner).
+#
+# Härdad 2026-10-28 (todo #15 deploy A och #33). Cron kör schedule:run varje
+# minut, så koden får aldrig bytas medan en import kör eller Laravels gamla
+# cache pekar på paket som inte längre finns (felet 22:07 vid deploy B).
+#
+#   1. Förbered: kontrollera att servern klarar den nya låsfilen, sätt
+#      underhållsläge (schemat hoppar då över alla jobb), vänta tills inga
+#      artisan-jobb kör, spara en kopia av hela importern (utom storage/).
+#   2. Ladda upp koden till importer.incoming/.
+#   3. Installera: rsync --delete till importern, composer install --no-dev,
+#      optimize, rättigheter (#33), röktest, up. Vid fel läggs kopian
+#      tillbaka och importen startas igen.
+#   4. Om något steg misslyckas ändå: artisan up, så att importen inte står
+#      still i underhållsläge.
+#
+# Testa ändringar i den här filen med workflow_dispatch (path-filtret
+# triggar bara på importer/**).
 
 name: Deploy importer
 
-# Controls when the action will run.
 on:
-  # Triggers the workflow on push or pull request events but only for the main branch
   push:
     branches:
       - main
     paths:
       - "importer/**"
-
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+# Två snabba pushar får inte köra down/up omlott.
+concurrency:
+  group: deploy-importer
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
 jobs:
-  # This workflow contains a single job called "deploy"
   deploy:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        server:
-          - name: "hetzner-server"
-            host_secret: "HETZNER_HOST"
-            username_secret: "HETZNER_USERNAME"
-            key_secret: "HETZNER_KEY"
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
+      # Actions låsta till commit, inte @master: de har prods root-nyckel.
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+      - name: Förbered servern
+        uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1.2.5
         with:
-          php-version: "7.4"
-          extensions: mbstring, intl
-          ini-values: post_max_size=256M, max_execution_time=180
-          tools: php-cs-fixer, phpunit
-
-      - name: Test commands (${{ matrix.server.name }})
-        run: |
-          echo "Deploying to ${{ matrix.server.name }}"
-          pwd
-          ls -hal
-
-      - name: Copy files to ${{ matrix.server.name }}
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets[matrix.server.host_secret] }}
-          username: ${{ secrets[matrix.server.username_secret] }}
-          key: ${{ secrets[matrix.server.key_secret] }}
-          source: "importer/"
-          target: "/usr/share/nginx/l.texttv.nu/"
-
-      - name: Execute remote commands on ${{ matrix.server.name }}
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets[matrix.server.host_secret] }}
-          username: ${{ secrets[matrix.server.username_secret] }}
-          key: ${{ secrets[matrix.server.key_secret] }}
+          host: ${{ secrets.HETZNER_HOST }}
+          username: ${{ secrets.HETZNER_USERNAME }}
+          key: ${{ secrets.HETZNER_KEY }}
           script: |
-            # Stanna vid första fel: annars körde ett misslyckat composer
-            # install vidare till artisan optimize mot gammal vendor/ (#17).
-            set -e
+            set -euo pipefail
             cd /usr/share/nginx/l.texttv.nu/importer
-            sudo chown -R root:root .
-            chmod 777 -R /usr/share/nginx/l.texttv.nu/importer/storage/
-            ls -hal
-            composer install --no-interaction --prefer-dist --optimize-autoloader
+
+            php artisan down
+
+            # down stoppar inte jobb som redan kör. Vänta högst 5 min.
+            for i in $(seq 1 60); do
+              pgrep -f 'artisan (schedule:|texttv:|import-status)' >/dev/null || break
+              if [ "$i" -eq 60 ]; then
+                echo "Importjobb kör fortfarande efter 5 min, avbryter."
+                php artisan up
+                exit 1
+              fi
+              sleep 5
+            done
+
+            # Kopia för återställning: kod, vendor, cache och .env, inte storage/.
+            rsync -a --delete --exclude=/storage/ ./ ../importer.prev/
+            echo "Underhållsläge, inga jobb kör, kopia i importer.prev/"
+
+      - name: Ladda upp koden
+        uses: appleboy/scp-action@ff85246acaad7bdce478db94a363cd2bf7c90345 # v1.0.0
+        with:
+          host: ${{ secrets.HETZNER_HOST }}
+          username: ${{ secrets.HETZNER_USERNAME }}
+          key: ${{ secrets.HETZNER_KEY }}
+          source: "importer/"
+          target: "/usr/share/nginx/l.texttv.nu/importer.incoming"
+          strip_components: 1
+          rm: true
+
+      - name: Installera och starta
+        uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1.2.5
+        with:
+          host: ${{ secrets.HETZNER_HOST }}
+          username: ${{ secrets.HETZNER_USERNAME }}
+          key: ${{ secrets.HETZNER_KEY }}
+          script: |
+            set -euo pipefail
+            BAS=/usr/share/nginx/l.texttv.nu
+            cd $BAS/importer
+
+            aterstall() {
+              echo "Fel, lägger tillbaka importer.prev/ och startar importen igen."
+              rsync -a --delete --exclude=/storage/ $BAS/importer.prev/ $BAS/importer/
+              php artisan up || true
+            }
+            trap aterstall ERR
+
+            # Klarar servern den nya låsfilen? Kontrollen körs innan koden rörs.
+            composer check-platform-reqs --lock --no-dev --working-dir=$BAS/importer.incoming
+
+            # Ta bort filer som tagits bort i repot. Det som bara finns på
+            # servern ska vara kvar: storage/ (loggar, grafik), vendor/, .env,
+            # bootstrap/cache/ och symlänken public/storage (annars 404 på all
+            # grafik).
+            rsync -a --delete \
+              --exclude=/storage/ --exclude=/vendor/ --exclude=/.env \
+              --exclude=/bootstrap/cache/ --exclude=/public/storage \
+              --exclude=/node_modules/ --exclude=/.phpunit.result.cache \
+              $BAS/importer.incoming/ $BAS/importer/
+
+            # Gammal cache kan peka på paket som composer tar bort.
+            rm -f bootstrap/cache/*.php
+
+            # Filer som root skapar ska vara skrivbara för gruppen www-data (#33).
+            umask 002
+            composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
             php artisan optimize
+
+            # Rättigheter (#33): koden root, storage/ och cachen gruppen
+            # www-data med setgid, så att både cron (root) och webben
+            # (www-data, /importstatus) kan skriva loggen.
+            chown -R root:root .
+            chown -R root:www-data storage bootstrap/cache
+            find storage bootstrap/cache -type d -exec chmod 2775 {} +
+            find storage bootstrap/cache -type f -exec chmod 664 {} +
+
+            # Röktest innan importen släpps på.
+            php artisan --version
+            php artisan schedule:list >/dev/null
+
+            php artisan up
+            trap - ERR
+            echo "Klart: $(php artisan --version)"
+
+      - name: Starta importen om ett tidigare steg misslyckades
+        if: failure()
+        uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1.2.5
+        with:
+          host: ${{ secrets.HETZNER_HOST }}
+          username: ${{ secrets.HETZNER_USERNAME }}
+          key: ${{ secrets.HETZNER_KEY }}
+          script: |
+            cd /usr/share/nginx/l.texttv.nu/importer && php artisan up

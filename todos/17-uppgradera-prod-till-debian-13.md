@@ -143,7 +143,7 @@ Docker). Fynden är inarbetade; se "Granskningar 2026-10-28" sist.
    `date.timezone`. Ta inte med `error_log = /var/log/php_errors.log`: filen
    har aldrig funnits (www-data kan inte skapa den), allt hamnar i nginx
    `error.log`. Kopiera aldrig 8.2:s `php.ini` till 8.4.
-6. **Versionsoberoende sökvägar:** nginx `fastcgi_pass
+6. ✅ 2026-10-28 (nginx för texttv.nu och l.texttv.nu, reload utan avbrott, backuper `/root/nginx-*.bak-20261028-a6`; `status.php` läser versionen från PHP). **Versionsoberoende sökvägar:** nginx `fastcgi_pass
 unix:/run/php/php-fpm.sock` (Debians alternativlänk, finns redan),
    `status.php:291` med `PHP_MAJOR_VERSION . "." . PHP_MINOR_VERSION`.
 7. ✅ 2026-10-28 (10.11 sparad i `17-explain-baslinje-10.11.txt`). **Plan-baslinje för MariaDB:** kör

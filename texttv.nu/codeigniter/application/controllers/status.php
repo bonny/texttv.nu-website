@@ -288,7 +288,8 @@ class Status extends CI_Controller {
 			"deploy" => is_array($deploy) ? $deploy : null,
 			"server_sedan" => $btime,
 			"nginx_sedan" => $process_start("/run/nginx.pid"),
-			"php_sedan" => $process_start("/run/php/php8.2-fpm.pid"),
+			// Versionen från PHP självt, så att raden klarar bytet till 8.4 (#17 A.6).
+			"php_sedan" => $process_start("/run/php/php" . PHP_MAJOR_VERSION . "." . PHP_MINOR_VERSION . "-fpm.pid"),
 			"mariadb_sedan" => $mariadb_uptime,
 			"load" => $load ? $load : null,
 			"karnor" => $karnor ? $karnor : null,

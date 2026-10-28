@@ -150,7 +150,7 @@ unix:/run/php/php-fpm.sock` (Debians alternativlänk, finns redan),
    `todos/17-explain-baslinje.sql` på prod nu och spara
    utdata; samma på klonen efter 11.8. Kravet: sidvisningsfrågan
    (`texttv_page.php:133`) går på samma index utan ny filesort.
-8. `mariadb-upgrade` på 10.11, så att systemtabellerna står på 10.11.19.
+8. ~~`mariadb-upgrade` på 10.11, så att systemtabellerna står på 10.11.19.~~ Struket 2026-10-28: `mariadb-upgrade --check-if-upgrade-is-needed` svarar att 10.11.11 → 10.11.19 inte behöver det (samma huvudversion, systemtabellerna ändras inte). Behövs efter 11.8 (C/D), där Debians paket kör det och vi kontrollerar `mariadb_upgrade_info`.
 9. **Dev-test:** MariaDB `mariadb:11.8` med samma `70-texttv.cnf`, `make
 test-api`, importerns PHPUnit; webben och importern på PHP 8.4 i
    prod-läge enligt PHP-granskningens procedur (byte-diff 8.2 mot 8.4).

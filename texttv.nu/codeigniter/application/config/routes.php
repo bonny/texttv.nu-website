@@ -103,7 +103,7 @@ $route['feed/(:any)'] = "rssfeed/visa/$1";
 // Super-seo-page for svt text tv
 $route['svt-text-tv'] = "svttexttv";
 
-// Fakta-sidor med mycket info-text ala Wikipedia
+// Gamla fakta-sidor, skickas vidare till /sida/vanliga-fragor (2026-10-28)
 $route['text-tv-fakta'] = "fakta";
 $route['text-tv-fakta/(:any)'] = "fakta/sida/$1";
 

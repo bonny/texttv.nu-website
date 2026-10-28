@@ -276,7 +276,7 @@ false`, och trixie flyttade `fs.protected_*` dit; utan det blir de 0).
 ### E. Efteråt
 
 - Uppdatera `server.md`, `CLAUDE.md`, `prod-health`-skillen och
-  Obsidian-noten (append): 8.2 → 8.4, versioner, sökvägar, Chromium för
+  Obsidian-noten (append): 8.2 → 8.4, versioner, sökvägar, PHP-ritade delningsbilder (#34) för
   delningsbilderna; `last` finns inte i trixie, byt till `journalctl
 --list-boots | tail -2`.
 - fail2ban: lägg till `+ _COMM=sshd-session` i `journalmatch` i
@@ -347,7 +347,7 @@ ofullständig; rollbacken tappade pausläget.
   8.4-stöd, `set -e` i importer-workflowen, `artisan optimize`.
 
 Ett eget test samma dag: wkhtmltox renderar delningsbilderna fel, Chromium
-rätt (A.2).
+rätt men tungt; Pär valde att rita bilderna i PHP (#34, A.2).
 
 ## Confidence
 

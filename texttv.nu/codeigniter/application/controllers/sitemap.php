@@ -36,7 +36,6 @@ class Sitemap extends CI_Controller {
 		"/sida/om-texttv-nu",
 		"/sida/delat",
 		"/sida/polisen",
-		"/text-tv-fakta",
 		"/svt-text-tv",
 		"/blogg",
 	];

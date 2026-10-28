@@ -1,36 +1,35 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
+/**
+ * /text-tv-fakta och dess undersidor.
+ *
+ * Texterna låg i texttv_page_text och var mest skisser ("världen",
+ * "Teknik..."). Sedan 2026-10-28 finns fakta och historik med källor på
+ * /sida/vanliga-fragor, så varje gammal adress skickas dit, till det svar
+ * som passar bäst. Raderna i databasen är orörda.
+ */
 class fakta extends CI_Controller {
+
+	const MAL = [
+		"start" => "",
+		"text-tv-i-sverige" => "#nar-kom-text-tv-till-sverige",
+		"text-tv-i-varlden" => "#vilket-%C3%A5r-kom-text-tv",
+		"tekniken-bakom-text-tv" => "#vad-%C3%A4r-text-tv",
+		"kandisar-som-gillar-text-tv" => "",
+		"statistik" => "",
+	];
 
 	public function index() {
 		$this->sida('start');
-
 	}
-	
+
 	public function sida($slug) {
-
-		$sql = sprintf('SELECT title FROM texttv_page_text WHERE pagedescription=%1$s LIMIT 1', $this->db->escape( "fakta-{$slug}"));
-		$res = $this->db->query($sql);
-		$row = $res->row();
-
-		// En okänd slug gav förut fatalt fel på $row->title. Se L3 i
-		// todos/08-sakerhetsgranskning-2026-08-01.md.
-		if ( ! $row ) {
+		if ( ! array_key_exists($slug, self::MAL) ) {
 			show_texttv_404();
 			return;
 		}
 
-		// Get title and content from db
-		$data["custom_page_title"] = $row->title;
-		$data["slug"] = $slug;
-
-		$this->load->view("header", $data);
-		
-		$this->load->view("fakta", $data);
-
-		$this->load->view('controls', $data);
-		$this->load->view("footer");
-		
+		redirect("/sida/vanliga-fragor" . self::MAL[$slug], "location", 301);
 	}
-	
+
 }

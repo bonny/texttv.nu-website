@@ -45,9 +45,9 @@ class Textsida extends CI_Controller {
 				break;
 
 			case "vanliga-fragor":
-				$data["custom_page_title"] = "Vanliga frågor om Text TV";
+				$data["custom_page_title"] = "Vanliga frågor om text-tv: hjälp och historia";
 				$data["custom_canonical"] = $canonical . "vanliga-fragor";
-				$data["custom_meta_description"] = "Svar på vanliga frågor om Text TV och TextTV.nu: vilka sidor som finns, var du hittar resultat och målservice, och hur appen fungerar.";
+				$data["custom_meta_description"] = "Finns text-tv kvar? Så får du fram text-tv på Samsung, LG och tv-boxar, slår på SVT:s undertexter på sida 199 och läser historien från Ceefax 1974 och SVT:s start 1979.";
 				$this->load->view("header", $data);
 				$this->load->view("textsida-vanliga-fragor");
 				break;

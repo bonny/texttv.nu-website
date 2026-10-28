@@ -2092,3 +2092,18 @@ html.appShare .pageshare {
 	margin-left: auto;
 	margin-right: auto;
 }
+
+/* Källrad under svaren på /sida/vanliga-fragor. */
+.textcontent .kallor {
+	font-size: .875em;
+	color: var(--tt-cyan);
+}
+
+.textcontent .kallor a {
+	color: var(--tt-cyan);
+}
+
+/* Ett hopp till #fråga ska inte hamna under det fasta sidhuvudet. */
+.textcontent [id] {
+	scroll-margin-top: 7em;
+}

@@ -138,7 +138,7 @@ Docker). Fynden är inarbetade; se "Granskningar 2026-10-28" sist.
    `error_reporting(E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR)`.
    Provat: 47/47 svar byte-identiska. Rätta också `CLAUDE.md`, som säger att
    opcache tystar URI.php-varningen.
-5. **PHP-inställningar som drop-ins** att kopiera till 8.4:
+5. ✅ 2026-10-28 (`99-texttv.ini` i `fpm/conf.d` och `cli/conf.d`, bara `date.timezone`; ingen reload behövdes, samma värde). **PHP-inställningar som drop-ins** att kopiera till 8.4:
    `fpm/conf.d/99-texttv.ini` och `cli/conf.d/99-texttv.ini` med
    `date.timezone`. Ta inte med `error_log = /var/log/php_errors.log`: filen
    har aldrig funnits (www-data kan inte skapa den), allt hamnar i nginx

@@ -56,6 +56,7 @@ if (!$this->input->get("apiAppShare")) { ?>
 			<nav class="tt-linkrow site-footer__meta" aria-label="Om webbplatsen">
 				<a href="/sida/integritetspolicy/">Integritetspolicy</a>
 				<a href="/sida/cookies/">Om cookies</a>
+				<a href="/status">Status</a>
 				<!-- href + return false: cookieinställningar är en action, inte navigation, men Lighthouse vill ha href på <a> (crawlable-anchors). Fragment som inte finns på sidan → ingen scroll. -->
 				<a href="#cookieinstallningar" onclick="googlefc.showRevocationMessage(); return false;">Cookieinställningar</a>
 				<a href="#kortkommandon" class="tt-kortkommandon-knapp">Kortkommandon (?)</a>

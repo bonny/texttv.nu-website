@@ -65,7 +65,7 @@ class Status extends CI_Controller {
 
 	private function hamta_data() {
 
-		$cachefil = sys_get_temp_dir() . "/texttv-status-v2.json";
+		$cachefil = sys_get_temp_dir() . "/texttv-status-v3.json";
 		if (is_file($cachefil) && filemtime($cachefil) > time() - self::CACHE_SEKUNDER) {
 			$data = json_decode(file_get_contents($cachefil), true);
 			if (is_array($data)) {
@@ -162,19 +162,95 @@ class Status extends CI_Controller {
 			}
 		}
 
+		// Visningar per timme i dag.
+		$lasning_per_timme = array();
+		for ($timme = 0; $timme <= (int) date("G"); $timme++) {
+			$lasning_per_timme[$timme] = 0;
+		}
+		foreach ($statsdb->query("
+			SELECT HOUR(created_at) AS timme, COUNT(*) AS antal
+			FROM page_actions
+			WHERE created_at >= CURDATE() AND type = 'VIEW'
+			GROUP BY timme
+		")->result_array() as $rad) {
+			if (isset($lasning_per_timme[(int) $rad["timme"]])) {
+				$lasning_per_timme[(int) $rad["timme"]] = (int) $rad["antal"];
+			}
+		}
+
+		// Mest lästa sidor i dag. page_ids är en kommalista med en vys sidor;
+		// joinen jämför som tal och träffar därför den första, precis som
+		// most_read i texttv_helper.php.
+		$mest_lasta = $db->query("
+			SELECT tt.page_num, COUNT(*) AS antal
+			FROM texttv_stats.page_actions AS pa
+			INNER JOIN `texttv.nu`.texttv AS tt ON (tt.id = pa.page_ids)
+			WHERE pa.created_at >= CURDATE() AND pa.type = 'VIEW'
+			GROUP BY tt.page_num
+			ORDER BY antal DESC, tt.page_num
+			LIMIT 10
+		")->result_array();
+		if ($mest_lasta) {
+			$titlar = array();
+			foreach ($db->query("
+				SELECT page_num, title
+				FROM texttv
+				WHERE id IN (
+					SELECT MAX(id) FROM texttv
+					WHERE page_num IN (" . implode(",", array_map("intval", array_column($mest_lasta, "page_num"))) . ")
+					GROUP BY page_num
+				)
+			")->result_array() as $rad) {
+				$titlar[$rad["page_num"]] = $rad["title"];
+			}
+			foreach ($mest_lasta as $i => $rad) {
+				$mest_lasta[$i]["titel"] = isset($titlar[$rad["page_num"]]) ? $titlar[$rad["page_num"]] : "";
+			}
+		}
+
+		// Arkivet per år. Går igenom hela tabellen, så det cachas en timme.
+		$arkiv_per_ar = $this->cachat("texttv-status-arkiv-per-ar", 3600, function () use ($db) {
+			return $db->query("
+				SELECT YEAR(date_added) AS ar, COUNT(*) AS antal
+				FROM texttv
+				WHERE date_added >= '2000-01-01'
+				GROUP BY ar
+				ORDER BY ar
+			")->result_array();
+		});
+
 		$data = array(
 			"beraknad" => date("Y-m-d H:i:s"),
 			"import" => $import,
 			"per_timme" => $per_timme,
 			"mest_andrade" => $mest_andrade,
+			"mest_lasta" => $mest_lasta,
 			"nya_per_dag" => $nya_per_dag,
 			"arkiv" => $arkiv,
+			"arkiv_per_ar" => $arkiv_per_ar,
 			"lasning" => $lasning,
+			"lasning_per_timme" => $lasning_per_timme,
 		);
 
 		@file_put_contents($cachefil, json_encode($data), LOCK_EX);
 
 		return $data;
+	}
+
+	/**
+	 * Värdet från $hamta, cachat i en fil i $sekunder.
+	 */
+	private function cachat($nyckel, $sekunder, $hamta) {
+		$fil = sys_get_temp_dir() . "/$nyckel.json";
+		if (is_file($fil) && filemtime($fil) > time() - $sekunder) {
+			$varde = json_decode(file_get_contents($fil), true);
+			if ($varde !== null) {
+				return $varde;
+			}
+		}
+		$varde = $hamta();
+		@file_put_contents($fil, json_encode($varde), LOCK_EX);
+		return $varde;
 	}
 
 	/**

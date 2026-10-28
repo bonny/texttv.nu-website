@@ -185,72 +185,86 @@ $lasning_i_dag = end($lasning);
 			</details>
 		</section>
 
+		<?php
+		// Topplista med sidnummer, senaste rubrik, antal och stapel.
+		$topplista = function ($rader, $kolumn) use ($h, $tal, $cell) {
+			$max = (int) $rader[0]["antal"];
+			ob_start();
+			?>
+			<table class="status-tabell status-topplista">
+				<thead><tr><th scope="col">Sida</th><th scope="col">Rubrik</th><th scope="col"><?php echo $h($kolumn) ?></th><th scope="col"><span class="sr-only">Stapel</span></th></tr></thead>
+				<tbody>
+				<?php foreach ($rader as $rad):
+					$titel = trim((string) $rad["titel"]);
+					$kort_titel = mb_strlen($titel) > 14 ? rtrim(mb_substr($titel, 0, 13)) . "…" : $titel;
+				?>
+					<tr>
+						<th scope="row"><a href="/<?php echo (int) $rad["page_num"] ?>"><?php echo (int) $rad["page_num"] ?></a></th>
+						<td class="status-titel" title="<?php echo $h($titel) ?>"><?php echo $h($kort_titel) ?></td>
+						<td><?php echo $tal($rad["antal"]) ?></td>
+						<td class="status-stapel" aria-hidden="true"><?php echo $cell("hel", "", max(1, (int) round($rad["antal"] / $max * 8))) ?></td>
+					</tr>
+				<?php endforeach ?>
+				</tbody>
+			</table>
+			<?php
+			return ob_get_clean();
+		};
+		$i_dag_ymd = date("Y-m-d");
+		?>
+
 		<section class="status-kort" aria-labelledby="status-mest-andrade">
 			<h2 id="status-mest-andrade">Mest ändrade sidor i dag</h2>
 			<?php if (!$mest_andrade): ?>
 				<p>Inga sidor har ändrats ännu i dag.</p>
 			<?php else: ?>
-				<table class="status-tabell status-mest-andrade">
-					<thead><tr><th scope="col">Sida</th><th scope="col">Rubrik</th><th scope="col">Nya</th><th scope="col"><span class="sr-only">Stapel</span></th></tr></thead>
-					<tbody>
-					<?php
-					$max_andrad = (int) $mest_andrade[0]["antal"];
-					foreach ($mest_andrade as $rad):
-						$titel = trim((string) $rad["titel"]);
-						$kort_titel = mb_strlen($titel) > 16 ? rtrim(mb_substr($titel, 0, 15)) . "…" : $titel;
-					?>
-						<tr>
-							<th scope="row"><a href="/<?php echo (int) $rad["page_num"] ?>"><?php echo (int) $rad["page_num"] ?></a></th>
-							<td class="status-titel" title="<?php echo $h($titel) ?>"><?php echo $h($kort_titel) ?></td>
-							<td><?php echo $tal($rad["antal"]) ?></td>
-							<td class="status-stapel" aria-hidden="true"><?php echo $cell("hel", "", max(1, (int) round($rad["antal"] / $max_andrad * 10))) ?></td>
-						</tr>
-					<?php endforeach ?>
-					</tbody>
-				</table>
+				<?php echo $topplista($mest_andrade, "Nya") ?>
 			<?php endif ?>
 		</section>
 
-		<section class="status-kort" aria-labelledby="status-arkivet">
-			<h2 id="status-arkivet">Arkivet</h2>
-
-			<table class="status-nyckeltal">
-				<tr><th scope="row">Sparade versioner</th><td><?php echo $tal($arkiv["versioner"]) ?></td></tr>
-				<tr><th scope="row">Olika sidnummer</th><td><?php echo $tal($arkiv["sidor"]) ?></td></tr>
-				<tr><th scope="row">Sparar sedan</th><td><?php echo $arkiv["aldsta"] ? $h(substr($arkiv["aldsta"], 0, 4)) : "–" ?></td></tr>
-			</table>
-
-			<h3>Nya versioner per dag</h3>
-			<?php
-			$staplar = array();
-			$max_dag = 0;
-			$i_dag_ymd = date("Y-m-d");
-			foreach ($nya_per_dag as $ymd => $antal) {
-				$max_dag = max($max_dag, $antal);
-				$staplar[] = array($antal, $ymd === $i_dag_ymd ? "nu" : ($antal === 0 ? "tom" : ""));
-			}
-			$dagar = array_keys($nya_per_dag);
-			?>
-			<p class="status-graf-max">max <?php echo $tal($max_dag) ?>/dag</p>
-			<pre class="status-graf" aria-hidden="true"><?php echo $graf($staplar, 6) . "\n" . '<span class="status-graf-axel">' . $axel(count($staplar), array(0 => $dag($dagar[0], true), count($staplar) - 6 => "i dag")) . "</span>" ?></pre>
-			<p class="status-forklaring"><?php echo $cell("hel", "nu") ?> i dag, hittills</p>
-
-			<details>
-				<summary>Visa som tabell</summary>
-				<table class="status-tabell">
-					<thead><tr><th scope="col">Dag</th><th scope="col">Nya</th></tr></thead>
-					<tbody>
-					<?php foreach (array_reverse($nya_per_dag, true) as $ymd => $antal): ?>
-						<tr><th scope="row"><?php echo $h($dag($ymd, true)) ?></th><td><?php echo $tal($antal) ?></td></tr>
-					<?php endforeach ?>
-					</tbody>
-				</table>
-			</details>
+		<section class="status-kort" aria-labelledby="status-mest-lasta">
+			<h2 id="status-mest-lasta">Mest lästa sidor i dag</h2>
+			<?php if (!$mest_lasta): ?>
+				<p>Inga visningar ännu i dag.</p>
+			<?php else: ?>
+				<?php echo $topplista($mest_lasta, "Visn.") ?>
+				<p class="status-forklaring">I appen. Visar appen flera sidor samtidigt räknas den första.</p>
+			<?php endif ?>
 		</section>
 
 		<section class="status-kort" aria-labelledby="status-lasning">
 			<h2 id="status-lasning">Läsning</h2>
-			<p>Sidvisningar i appen och på webben per dag.</p>
+			<p>Sidvisningar i TextTV.nu-appen för <a href="/ios">iPhone</a> och <a href="/android">Android</a>. Webben räknas inte här.</p>
+
+			<h3>Per timme i dag</h3>
+			<?php
+			$staplar = array();
+			$max_tim = 0;
+			foreach ($lasning_per_timme as $timme => $antal) {
+				$max_tim = max($max_tim, $antal);
+				$staplar[] = array($antal, $timme === $nu_timme ? "nu" : ($antal === 0 ? "tom" : ""));
+			}
+			for ($timme = $nu_timme + 1; $timme < 24; $timme++) {
+				$staplar[] = array(0, "");
+			}
+			?>
+			<p class="status-graf-max">max <?php echo $tal($max_tim) ?>/timme</p>
+			<pre class="status-graf" aria-hidden="true"><?php echo $graf($staplar, 6) . "\n" . '<span class="status-graf-axel">' . $axel(24, array(0 => "00", 6 => "06", 12 => "12", 18 => "18", 22 => "23")) . "</span>" ?></pre>
+			<p class="status-forklaring"><?php echo $cell("hel", "nu") ?> pågående timme</p>
+
+			<details>
+				<summary>Visa som tabell</summary>
+				<table class="status-tabell">
+					<thead><tr><th scope="col">Kl</th><th scope="col">Visningar</th></tr></thead>
+					<tbody>
+					<?php foreach (array_reverse($lasning_per_timme, true) as $timme => $antal): ?>
+						<tr><th scope="row"><?php echo sprintf("%02d", $timme) ?></th><td><?php echo $tal($antal) ?></td></tr>
+					<?php endforeach ?>
+					</tbody>
+				</table>
+			</details>
+
+			<h3>Per dag</h3>
 			<?php
 			$staplar = array();
 			$max_vis = 0;
@@ -277,7 +291,67 @@ $lasning_i_dag = end($lasning);
 				<?php endforeach ?>
 				</tbody>
 			</table>
-			<p class="status-forklaring">Delat = delningar, kopierade länkar och texter.</p>
+			<p class="status-forklaring">Delat = delningar, kopierade länkar och texter och sidor öppnade i webbläsaren.</p>
+			<p>Har du inte appen? Den är gratis: <a href="/ios">hämta för iPhone</a> eller <a href="/android">för Android</a>.</p>
+		</section>
+
+		<section class="status-kort" aria-labelledby="status-arkivet">
+			<h2 id="status-arkivet">Arkivet</h2>
+
+			<table class="status-nyckeltal">
+				<tr><th scope="row">Sparade versioner</th><td><?php echo $tal($arkiv["versioner"]) ?></td></tr>
+				<tr><th scope="row">Olika sidnummer</th><td><?php echo $tal($arkiv["sidor"]) ?></td></tr>
+				<tr><th scope="row">Sparar sedan</th><td><?php echo $arkiv["aldsta"] ? $h(substr($arkiv["aldsta"], 0, 4)) : "–" ?></td></tr>
+			</table>
+
+			<h3>Nya versioner per dag</h3>
+			<?php
+			$staplar = array();
+			$max_dag = 0;
+			foreach ($nya_per_dag as $ymd => $antal) {
+				$max_dag = max($max_dag, $antal);
+				$staplar[] = array($antal, $ymd === $i_dag_ymd ? "nu" : ($antal === 0 ? "tom" : ""));
+			}
+			$dagar = array_keys($nya_per_dag);
+			?>
+			<p class="status-graf-max">max <?php echo $tal($max_dag) ?>/dag</p>
+			<pre class="status-graf" aria-hidden="true"><?php echo $graf($staplar, 6) . "\n" . '<span class="status-graf-axel">' . $axel(count($staplar), array(0 => $dag($dagar[0], true), count($staplar) - 6 => "i dag")) . "</span>" ?></pre>
+			<p class="status-forklaring"><?php echo $cell("hel", "nu") ?> i dag, hittills</p>
+
+			<details>
+				<summary>Visa som tabell</summary>
+				<table class="status-tabell">
+					<thead><tr><th scope="col">Dag</th><th scope="col">Nya</th></tr></thead>
+					<tbody>
+					<?php foreach (array_reverse($nya_per_dag, true) as $ymd => $antal): ?>
+						<tr><th scope="row"><?php echo $h($dag($ymd, true)) ?></th><td><?php echo $tal($antal) ?></td></tr>
+					<?php endforeach ?>
+					</tbody>
+				</table>
+			</details>
+
+			<?php if ($arkiv_per_ar): ?>
+				<h3>Sparade versioner per år</h3>
+				<?php
+				$max_ar = 0;
+				foreach ($arkiv_per_ar as $rad) {
+					$max_ar = max($max_ar, (int) $rad["antal"]);
+				}
+				?>
+				<table class="status-tabell">
+					<thead><tr><th scope="col">År</th><th scope="col">Versioner</th><th scope="col"><span class="sr-only">Stapel</span></th></tr></thead>
+					<tbody>
+					<?php foreach ($arkiv_per_ar as $rad): ?>
+						<tr>
+							<th scope="row"><?php echo (int) $rad["ar"] ?></th>
+							<td><?php echo $tal($rad["antal"]) ?></td>
+							<td class="status-stapel" aria-hidden="true"><?php echo $cell("hel", (int) $rad["ar"] === (int) date("Y") ? "nu" : "", max(1, (int) round($rad["antal"] / $max_ar * 20))) ?></td>
+						</tr>
+					<?php endforeach ?>
+					</tbody>
+				</table>
+				<p class="status-forklaring">Versioner äldre än ett år gallras, utom delade sidor och sidorna 100 och 377. Därför är de äldre åren mindre.</p>
+			<?php endif ?>
 		</section>
 
 	</div>

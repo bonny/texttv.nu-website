@@ -1889,11 +1889,11 @@ html:not(.appShare) .TextTVPage .tt-rad a::after {
 }
 
 .status thead th:first-child,
-.status .status-mest-andrade thead th:nth-child(2) {
+.status .status-topplista thead th:nth-child(2) {
 	text-align: left;
 }
 
-.status .status-mest-andrade td.status-titel {
+.status .status-topplista td.status-titel {
 	overflow: hidden;
 	text-overflow: ellipsis;
 	text-align: left;

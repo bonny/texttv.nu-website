@@ -132,7 +132,7 @@ Docker). Fynden är inarbetade; se "Granskningar 2026-10-28" sist.
    Lägg även `tmpdir = /var/tmp` (annars hamnar MariaDB:s temporära
    tabeller i RAM när `/tmp` blir tmpfs) och, om #30 vill ha det,
    `userstat = 1`.
-4. **Fatala PHP-fel ska loggas:** CodeIgniters `index.php` sätter
+4. ✅ 2026-10-28. **Fatala PHP-fel ska loggas:** CodeIgniters `index.php` sätter
    `error_reporting(0)` i production, så ett 8.4-fel blir en tom 500 utan
    loggrad (och `fastcgi_cache_use_stale http_500` döljer det). Byt till
    `error_reporting(E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR)`.
@@ -146,7 +146,7 @@ Docker). Fynden är inarbetade; se "Granskningar 2026-10-28" sist.
 6. **Versionsoberoende sökvägar:** nginx `fastcgi_pass
 unix:/run/php/php-fpm.sock` (Debians alternativlänk, finns redan),
    `status.php:291` med `PHP_MAJOR_VERSION . "." . PHP_MINOR_VERSION`.
-7. **Plan-baslinje för MariaDB:** kör
+7. ✅ 2026-10-28 (10.11 sparad i `17-explain-baslinje-10.11.txt`). **Plan-baslinje för MariaDB:** kör
    `todos/17-explain-baslinje.sql` på prod nu och spara
    utdata; samma på klonen efter 11.8. Kravet: sidvisningsfrågan
    (`texttv_page.php:133`) går på samma index utan ny filesort.
@@ -157,7 +157,7 @@ test-api`, importerns PHPUnit; webben och importern på PHP 8.4 i
    Byt inte dev-importern till 8.4 i main före prod (en `composer update`
    där kan låsa paket som kräver 8.3+). Laravel 9/10 stöder inte 8.4: kör
    #15 till L11/L12 på 8.2 före OS-bytet, eller hoppa 8→11 direkt efter.
-10. Testa att nattdumpen går att läsa in i en `mariadb:10.11`-container, så
+10. ✅ 2026-10-28: dumpen 2026-10-28 (xz 1 GB) inläst i `mariadb:10.11` på 50 s utan fel; `texttv` 1 575 935 rader, samma som prod före dumptiden. Testa att nattdumpen går att läsa in i en `mariadb:10.11`-container, så
     att reserven är prövad.
 
 ### B. Städning före provkörningen

@@ -49,7 +49,12 @@ if (defined('ENVIRONMENT'))
 	
 		case 'testing':
 		case 'production':
-			error_reporting(0);
+			// Bara fatala fel, och de loggas (display_errors är Off på prod).
+			// Med error_reporting(0) blev ett fatalt fel en tom 500 utan
+			// loggrad, vilket döljer fel efter t.ex. bytet till PHP 8.4 (#17).
+			// Varningar och notiser ska fortfarande inte synas: CI 2 ger
+			// många, och E_COMPILE_WARNING från core/URI.php hör hit.
+			error_reporting(E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR);
 		break;
 
 		default:

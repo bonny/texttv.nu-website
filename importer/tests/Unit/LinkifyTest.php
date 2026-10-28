@@ -37,12 +37,30 @@ class LinkifyTest extends TestCase
 
     /**
      * Länktexterna i en länkad rad, t.ex. ['101', '110-114', '123f'].
+     * En länk som är delad över flera spans ("1" + "30-133", samma href och
+     * bara taggar emellan) räknas som en länk.
      */
     private function links(string $line): array
     {
-        preg_match_all('|<a [^>]*>([^<]+)</a>|', $line, $matches);
+        preg_match_all('|<a href="([^"]*)">([^<]+)</a>|', $line, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
 
-        return $matches[1];
+        $links = [];
+        $previousHref = null;
+        $previousEnd = 0;
+        foreach ($matches as $match) {
+            [$whole, $start] = $match[0];
+            $href = $match[1][0];
+            $between = substr($line, $previousEnd, $start - $previousEnd);
+            if ($href === $previousHref && preg_match('/^(?:<[^>]*>)*$/', $between)) {
+                $links[count($links) - 1] .= $match[2][0];
+            } else {
+                $links[] = $match[2][0];
+            }
+            $previousHref = $href;
+            $previousEnd = $start + strlen($whole);
+        }
+
+        return $links;
     }
 
     public function specProvider(): array
@@ -134,6 +152,25 @@ class LinkifyTest extends TestCase
             // Placering först på raden, men sidnummer längre in länkas.
             ['132. Jesper Svensson       SWE   246,00', []],
             ['Läs mer på 132. ', ['132']],
+
+            // Färgbyte mitt i sidnumret (100, 2026-10-28): länkas ändå.
+            ['<span class="bgBl"> </span><span class="bgBl">1</span><span class="bgBl Y">30-133   </span>', ['130-133']],
+            ['<span class="W">Se 10</span><span class="Y">1</span>', ['101']],
+            // Siffror i blockgrafikens spans (gamla 100.html): "1", "0", "7".
+            ['<span class="bgBl"> 1</span><span class="bgBl Y bgImg" style="background: url({chars}/2218724507.gif) center/cover">0</span><span class="bgBl Y bgImg" style="background: url({chars}/2218724507.gif) center/cover">7</span>', ['107']],
+            ['<span>Se 1</span><span>01 och 102</span>', ['101', '102']],
+            ['<span>Mer på 110-</span><span>114</span>', ['110-114']],
+            ['<span>Se 101,</span><span>102</span>', ['101', '102']],
+            ['<span>Matchfakta 328</span><span>f</span>', ['328f']],
+            ['<span>Se 101</span><span> och 102</span>', ['101', '102']],
+            // Delade över taggar men inga sidnummer: länkas inte heller då.
+            ['<span>Minst 2 </span><span>300 döda</span>', []],
+            ['<span>Minst 1</span><span>00 döda</span>', []],
+            ['<span>Tel 08-784 </span><span>00 00</span>', []],
+            ['<span>Kl 18:</span><span>00</span>', []],
+            ['<span>19</span><span>.30</span>', []],
+            // Siffror i taggarnas attribut räknas inte.
+            ['<span style="background: url({chars}/2218724507.gif)">Se 101</span>', ['101']],
         ];
     }
 
@@ -148,6 +185,19 @@ class LinkifyTest extends TestCase
     public function test_borssidor_lankas_inte()
     {
         $this->assertSame([], $this->links($this->importer(210)->linkifySingleLine('Se 101')));
+        $this->assertSame([], $this->links($this->importer(210)->linkifySingleLine('<span>Se 1</span><span>01</span>')));
+    }
+
+    /**
+     * Exakt HTML: en länk över en tagg blir en länk per textdel, inuti
+     * respektive span, så att taggarna fortfarande är rätt nästlade.
+     */
+    public function test_lank_over_taggar_blir_en_lank_per_textdel()
+    {
+        $this->assertSame(
+            '<span class="bgBl"><a href="/130-133">1</a></span><span class="bgBl Y"><a href="/130-133">30-133</a>   </span>',
+            $this->importer()->linkifySingleLine('<span class="bgBl">1</span><span class="bgBl Y">30-133   </span>')
+        );
     }
 
     public function test_corpus()

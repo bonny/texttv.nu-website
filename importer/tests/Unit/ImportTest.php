@@ -183,7 +183,8 @@ class ImportTest extends TestCase
      */
     public function test_pipeline_snapshots()
     {
-        foreach (['100', '188', '202', '300', '377'] as $pageNum) {
+        // 100-2026-10-28: "130-133" med färgbyte efter första siffran.
+        foreach (['100', '100-2026-10-28', '188', '202', '300', '377'] as $pageNum) {
             $importer = new Importer($pageNum);
             $importer->fromFile(__DIR__ . "/../TestPages/{$pageNum}.html");
             $importer->cleanup()->colorize()->linkify();

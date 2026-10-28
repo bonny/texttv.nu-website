@@ -743,22 +743,24 @@ class Importer
         $sequences = $this->pageNumberSequences($text);
 
         // Lägg in länkarna bakifrån så att tidigare positioner inte flyttas.
+        // En länk som ligger över en tagg (färgbyte mitt i talet, "1" och
+        // "30-133" i olika spans) blir en länk per textdel, med samma href.
         foreach (array_reverse($sequences) as [$start, $length, $links]) {
-            foreach (array_reverse($links) as [$offset, $linkLength, $href, $linkText]) {
+            foreach (array_reverse($links) as [$offset, $linkLength, $href]) {
                 $linkStart = $start + $offset;
-                foreach ($partStarts as $index => $partStart) {
-                    $partEnd = $partStart + strlen($parts[$index]);
-                    if ($linkStart < $partStart || $linkStart + $linkLength > $partEnd) {
+                $linkEnd = $linkStart + $linkLength;
+                foreach (array_reverse($partStarts, true) as $index => $partStart) {
+                    $from = max($linkStart, $partStart);
+                    $to = min($linkEnd, $partStart + strlen($parts[$index]));
+                    if ($from >= $to) {
                         continue;
                     }
-                    // Länken ryms i en textdel. Ligger den över en tagg länkas den inte.
                     $parts[$index] = substr_replace(
                         $parts[$index],
-                        '<a href="' . $this->linkprefix . $href . '">' . $linkText . '</a>',
-                        $linkStart - $partStart,
-                        $linkLength
+                        '<a href="' . $this->linkprefix . $href . '">' . substr($text, $from, $to - $from) . '</a>',
+                        $from - $partStart,
+                        $to - $from
                     );
-                    break;
                 }
             }
         }

@@ -27,3 +27,6 @@ baselines/*/*.report.html
 # CodeIgniters cache (t.ex. /polisen) skrivs vid körning
 /texttv.nu/codeigniter/application/cache/*
 !/texttv.nu/codeigniter/application/cache/index.html
+
+# Skrivs av deploy-website.yml, läses av /status.
+texttv.nu/codeigniter/application/deploy.json

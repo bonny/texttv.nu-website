@@ -20,6 +20,7 @@ class Status extends CI_Controller {
 		$data = $this->hamta_data();
 
 		$data["tyst_minuter"] = self::TYST_MINUTER;
+		$data["drift"] = $this->drift();
 		$data["custom_page_title"] = "Status för TextTV.nu";
 		$data["custom_canonical"] = "https://texttv.nu/status";
 		$data["robots_noindex"] = true;
@@ -235,6 +236,67 @@ class Status extends CI_Controller {
 		@file_put_contents($cachefil, json_encode($data), LOCK_EX);
 
 		return $data;
+	}
+
+	/**
+	 * Senaste deploy och hur länge servern och tjänsterna varit uppe. Billigt
+	 * (några filer i /proc och en statusfråga), så ingen filcache.
+	 */
+	private function drift() {
+
+		$deploy = null;
+		$deployfil = APPPATH . "deploy.json";
+		if (is_file($deployfil)) {
+			$deploy = json_decode(file_get_contents($deployfil), true);
+		}
+
+		// Uppstart som Unix-tid. /proc/stat:s btime är när servern startade,
+		// fält 22 i /proc/<pid>/stat när processen startade (i klockslag om
+		// 1/100 s sedan uppstart).
+		$btime = null;
+		if (preg_match('/^btime (\d+)/m', (string) @file_get_contents("/proc/stat"), $m)) {
+			$btime = (int) $m[1];
+		}
+		$process_start = function ($pidfil) use ($btime) {
+			$pid = (int) @file_get_contents($pidfil);
+			$stat = $pid > 0 ? @file_get_contents("/proc/$pid/stat") : false;
+			if ($btime === null || !$stat) {
+				return null;
+			}
+			// Processnamnet inom parentes kan innehålla mellanslag.
+			$falt = explode(" ", substr($stat, strrpos($stat, ")") + 2));
+			return isset($falt[19]) ? $btime + (int) round($falt[19] / 100) : null;
+		};
+
+		$mariadb_uptime = null;
+		$rad = $this->db->query("SHOW GLOBAL STATUS LIKE 'Uptime'")->row_array();
+		if ($rad && isset($rad["Value"])) {
+			$mariadb_uptime = time() - (int) $rad["Value"];
+		}
+
+		$minne = array();
+		if (preg_match_all('/^(MemTotal|MemAvailable):\s+(\d+)/m', (string) @file_get_contents("/proc/meminfo"), $m, PREG_SET_ORDER)) {
+			foreach ($m as $traff) {
+				$minne[$traff[1]] = (int) $traff[2] * 1024;
+			}
+		}
+
+		$load = function_exists("sys_getloadavg") ? sys_getloadavg() : false;
+		$karnor = preg_match_all('/^processor\s*:/m', (string) @file_get_contents("/proc/cpuinfo"));
+
+		return array(
+			"deploy" => is_array($deploy) ? $deploy : null,
+			"server_sedan" => $btime,
+			"nginx_sedan" => $process_start("/run/nginx.pid"),
+			"php_sedan" => $process_start("/run/php/php8.2-fpm.pid"),
+			"mariadb_sedan" => $mariadb_uptime,
+			"load" => $load ? $load : null,
+			"karnor" => $karnor ? $karnor : null,
+			"minne_totalt" => isset($minne["MemTotal"]) ? $minne["MemTotal"] : null,
+			"minne_ledigt" => isset($minne["MemAvailable"]) ? $minne["MemAvailable"] : null,
+			"disk_totalt" => @disk_total_space("/"),
+			"disk_ledigt" => @disk_free_space("/"),
+		);
 	}
 
 	/**

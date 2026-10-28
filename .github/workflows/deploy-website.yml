@@ -70,6 +70,17 @@ jobs:
         run: |
           echo "REPO_CONTROLLERS=$(ls texttv.nu/codeigniter/application/controllers | tr '\n' ' ')" >> "$GITHUB_ENV"
 
+      # Läses av /status (controllers/status.php). Skrivs här i stället för
+      # på servern, så att commit-meddelandet inte hamnar i ett skalskript.
+      - name: Skriv deploy-info
+        run: |
+          jq -n \
+            --arg sha "$GITHUB_SHA" \
+            --arg subject "$(git log -1 --format=%s)" \
+            --arg at "$(TZ=Europe/Stockholm date -Iseconds)" \
+            '{sha: $sha, short_sha: $sha[0:7], subject: $subject, deployed_at: $at}' \
+            > texttv.nu/codeigniter/application/deploy.json
+
       - name: Copy files to ${{ matrix.server.name }}
         uses: appleboy/scp-action@master
         with:
@@ -88,8 +99,12 @@ jobs:
           script: |
             cd /usr/share/nginx/texttv.nu
             sudo chown -R root:root .
-            chmod 777 -R /usr/share/nginx/texttv.nu/shares
-            chmod 777 /usr/share/nginx/texttv.nu/codeigniter/application/cache/
+            # Kataloger som php-fpm (www-data) skriver i: delningsbilderna och
+            # CI:s cache. Ägs av www-data i stället för 777 (2026-10-28; 777
+            # här gjorde om rättningen av shares/ vid varje deploy).
+            sudo chown -R www-data:www-data shares codeigniter/application/cache
+            sudo chmod 755 shares codeigniter/application/cache
+            sudo find shares -type f -perm /133 -exec chmod 644 {} +
             # scp kopierar bara — raderade filer ligger kvar på servern, och CI:s
             # auto-routing når en controller även utan route-rad. En borttagen
             # controller blir alltså kvar live om den inte raderas här.

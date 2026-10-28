@@ -354,6 +354,53 @@ $lasning_i_dag = end($lasning);
 			<?php endif ?>
 		</section>
 
+		<?php
+		// "12 d 3 h" eller "3 h 12 min" sedan en Unix-tid.
+		$upptid = function ($sedan) {
+			if (!$sedan) {
+				return "–";
+			}
+			$s = max(0, time() - (int) $sedan);
+			$d = intdiv($s, 86400);
+			$t = intdiv($s % 86400, 3600);
+			$m = intdiv($s % 3600, 60);
+			return $d > 0 ? "$d d $t h" : ($t > 0 ? "$t h $m min" : "$m min");
+		};
+		$gb = function ($byte) {
+			return number_format($byte / 1073741824, 1, ",", " ") . " GB";
+		};
+		$deploy = $drift["deploy"];
+		?>
+		<section class="status-kort" aria-labelledby="status-servern">
+			<h2 id="status-servern">Servern</h2>
+
+			<table class="status-nyckeltal">
+				<?php if ($deploy): ?>
+					<tr><th scope="row">Senaste deploy</th><td><?php echo $h($upptid(strtotime($deploy["deployed_at"])) . " sedan") ?></td></tr>
+				<?php endif ?>
+				<tr><th scope="row">Servern uppe</th><td><?php echo $h($upptid($drift["server_sedan"])) ?></td></tr>
+				<tr><th scope="row">Nginx uppe</th><td><?php echo $h($upptid($drift["nginx_sedan"])) ?></td></tr>
+				<tr><th scope="row">PHP uppe</th><td><?php echo $h($upptid($drift["php_sedan"])) ?></td></tr>
+				<tr><th scope="row">MariaDB uppe</th><td><?php echo $h($upptid($drift["mariadb_sedan"])) ?></td></tr>
+				<?php if ($drift["load"]): ?>
+					<tr><th scope="row">Belastning</th><td><?php echo $h(implode(" ", array_map(function ($l) { return number_format($l, 2, ",", ""); }, $drift["load"]))) ?></td></tr>
+				<?php endif ?>
+				<?php if ($drift["minne_totalt"]): ?>
+					<tr><th scope="row">Minne ledigt</th><td><?php echo $h($gb($drift["minne_ledigt"]) . " av " . $gb($drift["minne_totalt"])) ?></td></tr>
+				<?php endif ?>
+				<?php if ($drift["disk_totalt"]): ?>
+					<tr><th scope="row">Disk ledigt</th><td><?php echo $h($gb($drift["disk_ledigt"]) . " av " . $gb($drift["disk_totalt"])) ?></td></tr>
+				<?php endif ?>
+			</table>
+
+			<?php if ($deploy): ?>
+				<p class="status-forklaring">Senaste ändringen: <?php echo $h($deploy["subject"]) ?> (<?php echo $h($deploy["short_sha"]) ?>, <?php echo $h(substr($deploy["deployed_at"], 0, 10) . " " . substr($deploy["deployed_at"], 11, 5)) ?>).</p>
+			<?php endif ?>
+			<?php if ($drift["load"]): ?>
+				<p class="status-forklaring">Belastning är snittet av processer som vill köra de senaste 1, 5 och 15 minuterna<?php if ($drift["karnor"]): ?>. Servern har <?php echo (int) $drift["karnor"] ?> kärnor, så under <?php echo (int) $drift["karnor"] ?> är lugnt<?php endif ?>.</p>
+			<?php endif ?>
+		</section>
+
 	</div>
 
 	<p class="status-fot">Svensk tid. Siffrorna räknas om varje minut och sidan laddas om av sig själv. Maskinläsbart: <a href="/status/health">/status/health</a>.</p>

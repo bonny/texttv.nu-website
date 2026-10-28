@@ -1781,6 +1781,31 @@ html:not(.appShare) .TextTVPage .tt-rad a::after {
 	padding: .2em 1ch .2em 0;
 }
 
+/* Statussidan (/status). Staplarna är blocktecken, som på Text-TV. */
+.status .status-staplar td {
+	padding-top: 0;
+	padding-bottom: 0;
+	text-align: right;
+}
+
+.status .status-staplar td.status-stapel {
+	color: var(--tt-cyan);
+	text-align: left;
+	white-space: nowrap;
+}
+
+.status .status-stapel-ny {
+	color: var(--tt-yellow);
+}
+
+.status .status-ok {
+	color: var(--tt-green);
+}
+
+.status .status-fel {
+	color: var(--tt-red);
+}
+
 /*
 	Delningsbilderna (?apiAppShare=…, html.appShare): sidfoten med logga och
 	nollade marginaler. Låg förut som <style> i views/footer.php och

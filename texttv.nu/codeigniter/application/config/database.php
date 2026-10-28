@@ -76,7 +76,8 @@ if (isset($_SERVER['DB_USERNAME'])) {
 	$db['default']['stricton'] = FALSE;
 
 	// DB för sidvisningar och dela-statistik
-	$db['stats']['hostname'] = 'localhost';
+	// Samma värd som default (Docker lokalt sätter DB_HOSTNAME, prod inte).
+	$db['stats']['hostname'] = $_SERVER['DB_HOSTNAME'] ?? 'localhost';
 	$db['stats']['username'] = $_SERVER['DB_USERNAME'];
 	$db['stats']['password'] = $_SERVER['DB_PASSWORD'];
 	$db['stats']['database'] = $_SERVER['DB_DATABASE_STATS'];

@@ -41,6 +41,7 @@ via unix_socket.
 | webben | `texttv.nu`.`texttv_blogg` | SELECT | `blogg.php`, `rssfeed.php` |
 | webben | `texttv.nu`.`texttv_page_text` | SELECT | |
 | webben | `texttv_stats`.`page_actions` | SELECT, INSERT | `api.php:744`, korsdatabas-query `texttv_helper.php:196` |
+| webben | `texttv.nu`.`page_imports_logs` | SELECT | `controllers/status.php` (/status, /status/health), tillagd 2026-10-28 |
 | importern | `texttv.nu`.`texttv` | SELECT, INSERT, UPDATE, DELETE | `texttvimport.php:189`, `CleanupOldPages.php:54` |
 | importern | `texttv.nu`.`page_imports_logs` | SELECT, INSERT, DELETE | `ImportstatusController.php` |
 | importern | `texttv_stats`.`page_actions` | SELECT, DELETE | `CleanupPageActions.php:42` |

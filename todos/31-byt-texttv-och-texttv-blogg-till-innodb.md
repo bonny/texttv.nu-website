@@ -1,4 +1,4 @@
-**Status:** aktiv
+**Status:** steg 1–5 klara 2026-10-28; kvar nattdump till Mac minin (steg 6) och städning (steg 7)
 **Senast uppdaterad:** 2026-10-28
 
 # Todo #31 — Byt `texttv` och `texttv_blogg` till InnoDB
@@ -48,6 +48,11 @@ Mätt 2026-10-28:
   städjobbet, men städjobbet raderar sammanhängande gamla id:n, så hela sidor
   frigörs och återanvänds; storleken bör hålla sig stabil.
 
+**Lokalt test 2026-10-28** (Mac mini, MariaDB 10.11 i container med 2 CPU,
+buffer pool 2 GB, loggfil 96 MB, dumpen från 10-18): `texttv_blogg` under 1 s,
+`texttv` 13 s. Alla 1 574 950 rader kvar, `CHECK TABLE` OK. Filen blev 1 656 MB
+(MyISAM 1 313 + 115 MB), alltså bara ~16 % större. Räkna med 30–60 s på prod.
+
 ## Förslag
 
 1. **Buffer pool.** `SET GLOBAL innodb_buffer_pool_size = 2G` (dynamisk), och
@@ -63,8 +68,8 @@ Mätt 2026-10-28:
    - Pausa importen (kommentera ut `schedule:run` i root-crontab).
    - `SET SESSION lock_wait_timeout = 10;` så att ALTER ger upp i stället för
      att blockera alla frågor bakom sig när den väntar på metadata-låset.
-   - `ALTER TABLE texttv ENGINE=InnoDB;` (1–3 min, läsningar går, skrivningar
-     väntar).
+   - `ALTER TABLE texttv ENGINE=InnoDB;` (13 s lokalt, troligen 30–60 s på
+     prod; läsningar går, skrivningar väntar).
    - Slå på importen, följ `IMPORT_SUCCESS`, `laravel.log`, php-fpm-poolen.
 5. **Mät efter** samma anrop som i steg 2, och slow-loggen ett dygn.
 6. **Nattlig dump till Mac minin**, mönster `~/Backups/bin/backup-bpk-db.sh`:
@@ -75,6 +80,19 @@ Mätt 2026-10-28:
    `COMPRESS()`-at), `texttv_stats` 28,9 → 11,7 MB.
 7. **Städa** `/root/db-backups-2026-10-18` och `-10-22` på servern när steg 6
    har gått några nätter.
+
+## Logg
+
+- 2026-10-28 11:05–11:15: steg 1–5 på prod. `innodb_buffer_pool_size` 2G
+  dynamiskt och i `/etc/mysql/mariadb.conf.d/70-texttv.cnf` (där även
+  `local_infile = 0` från #30). `texttv_blogg` → InnoDB (dump först,
+  `/root/texttv_blogg-fore-innodb-20261028.sql`, 600), 81 rader. Importen
+  pausad 11:10 (`#PAUSAD-INNODB` i root-crontab, backup
+  `/root/crontab.bak-20261028-innodb`). `ALTER TABLE texttv ENGINE=InnoDB`
+  11:12:46, **32 s**, 1 575 875 rader. Importen igång 11:13, första
+  `IMPORT_SUCCESS` 11:15. Svarstider före/efter oförändrade (±10 ms) för
+  `/api/get`, `most_read`, `last_updated`, arkiv, `/sida/delat`, blogg, sök;
+  `/api/updated/…` var 1,5–3,5 s redan före (1,7 s efter).
 
 ## Risker
 

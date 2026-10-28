@@ -4,12 +4,13 @@ Index över förbättringsarbete. Varje todo har en egen fil under
 [`todos/`](todos/) med fullständig analys. Konvention och
 mappstruktur: [`todos/README.md`](todos/README.md).
 
-Senast uppdaterad: 2026-10-28 (+#31 Byt `texttv` och `texttv_blogg` till InnoDB; #30 steg 5: webben kör som `texttv_web`; importerns exempelroute `/api/user` borttagen.)
+Senast uppdaterad: 2026-10-28 (+#32 Prick för uppdaterade sidor; +#31 Byt `texttv` och `texttv_blogg` till InnoDB; #30 steg 5: webben kör som `texttv_web`; importerns exempelroute `/api/user` borttagen.)
 
 ## Aktiva
 
 | #   | Titel | Status | Fil |
 | --- | ----- | ------ | --- |
+| 32  | En prick när en sida har uppdaterats sedan du såg den | ny 2026-10-28, från inboxen. Prick i "Senast besökta" i "Gå till sida" (103 av 254 val). Allt i webbläsaren: `sedd`-tid i `tt-senaste` mot `/api/updated` (`/api/last_updated` täcker bara 100–200, 300–329, 401). Mät `search_select` med och utan prick | [todos/32-prick-for-uppdaterade-sidor.md](todos/32-prick-for-uppdaterade-sidor.md) |
 | 30  | Egna databasanvändare för webben och importern | ny 2026-10-27, plan granskad och kartläggning klar. Webben och importern kör som DB-`root` (inkl. `FILE`). Användare med rättigheter per tabell, importerns båda anslutningar, bloggkonto för TablePlus, `userstat` som facit, sedan root bara via unix_socket. Steg 1–4 klara 2026-10-27 (importern kör som `texttv_importer`), steg 5 klart 2026-10-28 (webben kör som `texttv_web`). 5b klart 2026-10-28 (`texttv_admin` för bloggen). Nästa: steg 6 efter en lugn vecka | [todos/30-egna-databasanvandare-for-webben-och-importern.md](todos/30-egna-databasanvandare-for-webben-och-importern.md) |
 | 31  | Byt `texttv` och `texttv_blogg` till InnoDB | steg 1–6 klara 2026-10-28: båda tabellerna InnoDB (ALTER 32 s), buffer pool 2 GB, nattlig dump till Mac minin 07:45. Kvar: städa dumparna i `/root` ~2026-10-31 | [todos/31-byt-texttv-och-texttv-blogg-till-innodb.md](todos/31-byt-texttv-och-texttv-blogg-till-innodb.md) |
 | 29  | Importern hänger: HTTP-anropet saknar timeout | **Deployat 2026-10-26** (`5b468bf`): timeout 20 s/connect 5 s och `withoutOverlapping(10)`. Kill-jobbet borttaget 2026-10-27 efter ett tyst dygn. Bakgrund: `Http::get()` i `Importer.php:44` har ingen timeout (Laravel 8 sätter ingen), och jobben saknar `withoutOverlapping()`. Ett cronjobb dödar alla importer var 30:e minut. Förslag: timeout 20 s + connect 5 s, `withoutOverlapping()`, ta bort kill-jobbet efter en tyst vecka | [todos/29-importern-hanger-utan-timeout.md](todos/29-importern-hanger-utan-timeout.md) |

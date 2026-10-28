@@ -4,13 +4,14 @@ Index över förbättringsarbete. Varje todo har en egen fil under
 [`todos/`](todos/) med fullständig analys. Konvention och
 mappstruktur: [`todos/README.md`](todos/README.md).
 
-Senast uppdaterad: 2026-10-28 (#30 steg 5: webben kör som `texttv_web`; importerns exempelroute `/api/user` borttagen.)
+Senast uppdaterad: 2026-10-28 (+#31 Byt `texttv` och `texttv_blogg` till InnoDB; #30 steg 5: webben kör som `texttv_web`; importerns exempelroute `/api/user` borttagen.)
 
 ## Aktiva
 
 | #   | Titel | Status | Fil |
 | --- | ----- | ------ | --- |
 | 30  | Egna databasanvändare för webben och importern | ny 2026-10-27, plan granskad och kartläggning klar. Webben och importern kör som DB-`root` (inkl. `FILE`). Användare med rättigheter per tabell, importerns båda anslutningar, bloggkonto för TablePlus, `userstat` som facit, sedan root bara via unix_socket. Steg 1–4 klara 2026-10-27 (importern kör som `texttv_importer`), steg 5 klart 2026-10-28 (webben kör som `texttv_web`). 5b klart 2026-10-28 (`texttv_admin` för bloggen). Nästa: steg 6 efter en lugn vecka | [todos/30-egna-databasanvandare-for-webben-och-importern.md](todos/30-egna-databasanvandare-for-webben-och-importern.md) |
+| 31  | Byt `texttv` och `texttv_blogg` till InnoDB | ny 2026-10-28 — kraschsäkerhet och backup utan lås; buffer pool först, `texttv_blogg` som generalrepetition, `texttv` en natt, sedan nattlig dump till Mac minin | [todos/31-byt-texttv-och-texttv-blogg-till-innodb.md](todos/31-byt-texttv-och-texttv-blogg-till-innodb.md) |
 | 29  | Importern hänger: HTTP-anropet saknar timeout | **Deployat 2026-10-26** (`5b468bf`): timeout 20 s/connect 5 s och `withoutOverlapping(10)`. Kill-jobbet borttaget 2026-10-27 efter ett tyst dygn. Bakgrund: `Http::get()` i `Importer.php:44` har ingen timeout (Laravel 8 sätter ingen), och jobben saknar `withoutOverlapping()`. Ett cronjobb dödar alla importer var 30:e minut. Förslag: timeout 20 s + connect 5 s, `withoutOverlapping()`, ta bort kill-jobbet efter en tyst vecka | [todos/29-importern-hanger-utan-timeout.md](todos/29-importern-hanger-utan-timeout.md) |
 | 28  | Fler kurerade titlar och descriptions, efter vinsten i #01 | ny 2026-10-25. #01-kohorten +88 % YoY (846 mot 451 klick på 28 dagar) mot kontrollen `/377` −1 %; H1-ändringarna i augusti syns inte. **Spår B först:** andra varvet på /300 och /343 (120 k och 95 k visningar per 90 dagar, CTR 0,6 %). Spår A: 14 sportsidor som bara har blockfallbacken, liten volym (+20–25 klick i månaden) | [todos/28-fler-kurerade-titlar-efter-01.md](todos/28-fler-kurerade-titlar-efter-01.md) |
 | 27  | Granskning av hur webben använder GA4 | ny 2026-10-24, mest gjort samma dag (bara prod-värden, rena adresser, `display_mode`, viktiga händelser, 14 mån lagring, intern IP, utm från Brottsplatskartan). **Kvar för Pär:** spara samtyckesläget för analys (Europa) på Google-taggen, aktivera filtret Internal Traffic. Botar från Singapore/Kina är 15–20 % av användarna | [todos/27-ga4-granskning.md](todos/27-ga4-granskning.md) |

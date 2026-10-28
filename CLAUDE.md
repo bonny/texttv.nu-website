@@ -131,6 +131,9 @@ I Docker-stacken finns ingen `vendor/` på värden. Kör i containern: `docker c
 - `ImportTest::test_pipeline_snapshots`: hela kedjan `cleanup()->colorize()->linkify()` för varje testsida, i `TestPages/snapshots/`. Skrivs om med `-e UPDATE_SNAPSHOTS=1`. En ny testsida hämtas med `curl https://www.svt.se/text-tv/{n}` och läggs till i listan.
 - `LinkifyTest::test_corpus`: 3 259 riktiga rader från 286 sidor (2026-10-17 och 2026-10-28) med de länkar de ska ge. Skrivs om med `-e UPDATE_LINKIFY_CORPUS=1`. Nya rader kan tas ur lokala DB:n med länkarna borttagna (`UNCOMPRESS(page_content)`, unserialize, ta bort `<a>`-taggarna).
 - `CleanupTest`: sidnumren på 100 står i samma kolumn som i SVT:s `imageMap`.
+- `ScheduleTest`: schemat i `app/Console/Kernel.php` som JSON (`TestPages/snapshots/schedule.json`): cron-uttryck, jobb, lås, bakgrund och om `between`/`unlessBetween` släpper igenom klockan 12 och 03. Skrivs om med `-e UPDATE_SNAPSHOTS=1`. Ersätter diff av `schedule:list`, vars format ändras mellan Laravel-versionerna.
+- `CharsStorageTest`: varje `storage/chars/{hash}.gif` som sidan pekar på finns på disk, och ett skrivfel kastar. Flysystem 3 (Laravel 9+) returnerar bara `false`, så `local`-disken behöver `'throw' => true` då.
+- `Feature/DebugRoutesTest`: `/live`, `/db` och `/importstatus` (läser lokala DB:n). `/pagecolors/{n}` ger 500 redan på Laravel 8 och är inte med.
 
 Skriv testerna före ändringen och låt den gamla koden skriva facit. Då visar diffen efter ändringen exakt vad som ändrats.
 

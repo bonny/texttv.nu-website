@@ -14,8 +14,7 @@ use Tests\TestCase;
  * uppgraderingarna. /db och /importstatus läser den lokala databasen,
  * som lokalimporten fyller (make up).
  *
- * /pagecolors/{n} saknas: den ger 500 redan på Laravel 8 (PageColors.php
- * läser 'charAsImgTag', som TeletextCharsExtractor inte längre sätter).
+ * /pagecolors/{n} togs bort 2026-10-28 (gav 500).
  */
 class DebugRoutesTest extends TestCase
 {

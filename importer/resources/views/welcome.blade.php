@@ -20,7 +20,6 @@
             <br />Visa id för bilder + slå inte samman element, används för att lägga till/ta bort grafik-idn.
         </li>
         <li><a href="/db/100">/db/100</a></li>
-        <li><a href="/pagecolors">/pagecolors</a></li>
         <li><a href="/importstatus">Importstatus</a></li>
     </ul>
 </body>

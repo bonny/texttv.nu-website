@@ -49,9 +49,8 @@ Projektet använder Laravel Valet för lokal utveckling. För att sätta upp utv
 
 1. Installera PHP 8.x och nödvändiga tillägg
 2. Installera Composer för PHP-pakethantering
-3. Installera Node.js och npm för frontend-resurshantering
-4. Konfigurera Laravel Valet
-5. Ställ in lokala miljövariabler med `.env`-filer
+3. Konfigurera Laravel Valet
+4. Ställ in lokala miljövariabler med `.env`-filer
 
 ## Databasstruktur
 
@@ -63,7 +62,7 @@ Applikationen använder flera databaser:
 
 ## Driftsättning
 
-Projektet innehåller driftsättningsskript (`server_deploy.sh`) för automatiserad driftsättning.
+Webben och importern driftsätts av GitHub Actions vid push till `main` (`.github/workflows/deploy-website.yml` och `deploy-importer.yml`), se `server.md`.
 
 ## Nyckelteknologier
 
@@ -83,7 +82,6 @@ Projektet innehåller driftsättningsskript (`server_deploy.sh`) för automatise
 
 - **Utvecklingsverktyg**:
   - Laravel Valet
-  - npm för frontend-resurshantering
   - Git för versionshantering
 
 ## API-dokumentation

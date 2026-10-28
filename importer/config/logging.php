@@ -45,7 +45,8 @@ return [
             'driver' => 'single',
             'path' => storage_path('logs/laravel.log'),
             'level' => env('LOG_LEVEL', 'debug'),
-            // Cron skriver som root, webben som www-data (#33).
+            // Cron skriver som root, webben som www-data. Räcker först med
+            // gruppen www-data och setgid på storage/logs (#33, #15 deploy A).
             'permission' => 0664,
         ],
 

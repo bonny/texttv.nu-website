@@ -38,7 +38,6 @@ class TeletextCharsExtractor
         // $numPixelsXForOneChar = $imageWidth / SELF::NUM_COLS;
         // $numPixelsYForOneChar = $imageHeight / SELF::NUM_ROWS;
 
-        #echo $this->gdImgToHTML($image);
         #echo "<br>{$imagePathAndName}<br>";
 
         #echo "<br>Bredd: {$imageWidth} px";
@@ -83,7 +82,6 @@ class TeletextCharsExtractor
                 //     ],
                 //     $charColors,
                 // );
-                // $arrChars['rows'][$rownum]['cols'][$colnum]['charAsImgTag'] = $this->gdImgToHTML($charImage, print_r($inlineImageTitle, true));
 
                 $arrChars['rows'][$rownum]['cols'][$colnum]['charType'] = $charType;
                 $arrChars['rows'][$rownum]['cols'][$colnum]['charImageHash'] = $charImageHash;
@@ -1065,17 +1063,6 @@ class TeletextCharsExtractor
         if (!Storage::disk('local')->exists($charFilename)) {
             Storage::disk('local')->put($charFilename, $charString);
         }
-    }
-
-    // Creates an HTML Img Tag with Base64 Image Data
-    // https://stackoverflow.com/questions/22266402/how-to-encode-an-image-resource-to-base64
-    public function gdImgToHTML($gdImg, string $tooltip = '')
-    {
-        ob_start();
-        imagegif($gdImg);
-        $image_data = ob_get_clean();
-
-        return "<img style='image-rendering:pixelated' src='data:image/gif;base64," . base64_encode($image_data) . "' title='" . htmlentities($tooltip) . "'>";
     }
 
     /**

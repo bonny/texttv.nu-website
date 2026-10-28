@@ -156,7 +156,7 @@ test-api`, importerns PHPUnit; webben och importern på PHP 8.4 i
    prod-läge enligt PHP-granskningens procedur (byte-diff 8.2 mot 8.4).
    Byt inte dev-importern till 8.4 i main före prod (en `composer update`
    där kan låsa paket som kräver 8.3+). Laravel 9/10 stöder inte 8.4: kör
-   #15 till L11/L12 på 8.2 före OS-bytet, eller hoppa 8→11 direkt efter.
+   #15 till L12 på 8.2 före OS-bytet, eller ta OS-bytet först: Laravel 8 på PHP 8.4 fungerade i A.9 nedan (tester, import), bara deprecations. Pär väljer ordning; L9–L11 deployas inte (se #15).
 
    ✅ **Kört 2026-10-28** med prods nattdump (2026-10-28 12:28) i
    `mariadb:10.11` och `mariadb:11.8.9`, båda med kopia av `70-texttv.cnf`,

@@ -1,4 +1,4 @@
-**Status:** aktiv
+**Status:** aktiv — slås ihop med #15 deploy A (härdad importer-deploy), se #15 "Granskning 2026-10-28 kväll"
 **Senast uppdaterad:** 2026-10-28
 
 # Todo #33 — Importerns storage-rättigheter återställs vid varje deploy

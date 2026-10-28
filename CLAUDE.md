@@ -24,6 +24,16 @@ A scheduler (`app/Console/Kernel.php`) runs `texttv:import {pageNumber}` on diff
 - Other commands: `texttv:cleanup-page-actions`, `texttv:cleanup-old-pages`, `import-status:remove-old`. All wired into the schedule.
 - Routes (`routes/web.php`) expose debug views: `/live/{pageNum}` (re-fetches from SVT live), `/db/{pageNum}` (renders newest DB row), `/pagecolors/{pageNum}`, `/importstatus`.
 
+#### SVT:s data och hur importern bygger sidan
+
+Varje undersida i `__NEXT_DATA__` (`props.pageProps.subPages[]`) har tre fält som importern använder. Inget av dem är sidan som den visas:
+
+- **`altText`**: texten, men utan blockgrafiken och ofta med kortare rader än 40 tecken (på 100 blir "▬▬▬ 130-133 ▬▬▬" bara `" 130-133  "`). `cleanup()` fyller ut till 24 rader × 40 tecken. På 100 placeras rader som bara innehåller sidnummer med hjälp av `imageMap`, övriga rader centreras eller fylls ut till höger. Hårdkodade justeringar per sida finns i `alignLineTexts()`.
+- **`gifAsBase64`**: SVT:s renderade bild, 520×400 px, där varje tecken är **13×16 px** (40 kolumner, 25 rader varav importern använder 24). `colorize()` (via `TeletextCharsExtractor`) läser färgen och blockgrafiken för varje cell ur bilden och lägger dem som spans på tecknen från `altText`. Därför måste texten stå i exakt rätt kolumn. Ligger en rad en kolumn fel hamnar siffror i grafikens spans och färgbytena mitt i ord (så blev "1" en egen vit span före "30-133", 2026-10-28).
+- **`imageMap`**: `<AREA COORDS="x1,y1,x2,y2" HREF="130">` för varje sidnummer SVT länkar, i bildens pixlar. Kolumnen är `x1/13` och raden `y1/16`. Det är facit för var sidnumren står (`CleanupTest`).
+
+I text-tv tar en färgändring en egen teckencell, som visas som mellanslag (en "spacing attribute"). Ett färgbyte ligger därför alltid i en tom cell mellan grafiken och texten, aldrig mitt i ett tal hos SVT. Delar våra spans ett tal är texten felplacerad. `linkifySingleLine()` klarar det ändå: talet flyttas till den span som har flest av dess tecken och blir en enda länk.
+
 ### Website (`texttv.nu/`) — reads pages
 
 CodeIgniter routes (`codeigniter/application/config/routes.php`) map URL patterns directly to controllers. The interesting bits:
@@ -115,6 +125,14 @@ vendor/bin/phpunit-watcher watch                      # rerun on file change
 ```
 
 Test fixtures (saved SVT HTML) live in `importer/tests/TestPages/`.
+
+I Docker-stacken finns ingen `vendor/` på värden. Kör i containern: `docker compose exec -T importer php vendor/bin/phpunit`. Ögonblicksbilder och facit skrivs om med miljövariabler, granska sedan `git diff`:
+
+- `ImportTest::test_pipeline_snapshots`: hela kedjan `cleanup()->colorize()->linkify()` för varje testsida, i `TestPages/snapshots/`. Skrivs om med `-e UPDATE_SNAPSHOTS=1`. En ny testsida hämtas med `curl https://www.svt.se/text-tv/{n}` och läggs till i listan.
+- `LinkifyTest::test_corpus`: 3 259 riktiga rader från 286 sidor (2026-10-17 och 2026-10-28) med de länkar de ska ge. Skrivs om med `-e UPDATE_LINKIFY_CORPUS=1`. Nya rader kan tas ur lokala DB:n med länkarna borttagna (`UNCOMPRESS(page_content)`, unserialize, ta bort `<a>`-taggarna).
+- `CleanupTest`: sidnumren på 100 står i samma kolumn som i SVT:s `imageMap`.
+
+Skriv testerna före ändringen och låt den gamla koden skriva facit. Då visar diffen efter ändringen exakt vad som ändrats.
 
 ## Deployment
 

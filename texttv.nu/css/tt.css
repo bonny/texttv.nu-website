@@ -1781,29 +1781,196 @@ html:not(.appShare) .TextTVPage .tt-rad a::after {
 	padding: .2em 1ch .2em 0;
 }
 
-/* Statussidan (/status). Staplarna är blocktecken, som på Text-TV. */
-.status .status-staplar td {
-	padding-top: 0;
-	padding-bottom: 0;
-	text-align: right;
+/*
+	Statussidan (/status, views/status.php). Bredare än textsidorna: korten
+	är var sin Text-TV-ruta på 40 tecken, två i bredd när det får plats,
+	annars under varandra.
+*/
+.textcontent.status {
+	/* + 10px: textcontent har 5px padding på var sida. */
+	width: calc(2 * (40ch + 10px) + 2ch + 10px);
+	max-width: 100%;
 }
 
-.status .status-staplar td.status-stapel {
+.status .status-kort-lista {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, min(100%, calc(40ch + 10px)));
+	gap: 1.5em 2ch;
+	justify-content: start;
+	align-items: start;
+}
+
+/* Statusraden överst, som på en Text-TV-sida: sida, kanal, klocka. */
+.status .status-topp {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	gap: 0 1ch;
+	margin: 0 0 .25em;
+	color: var(--tt-white);
+}
+
+.status .status-topp span:first-child,
+.status .status-topp-tid {
 	color: var(--tt-cyan);
-	text-align: left;
-	white-space: nowrap;
 }
 
-.status .status-stapel-ny {
+.status .status-kort {
+	box-sizing: border-box;
+	min-width: 0;
+	padding: 0 5px;
+}
+
+.status .status-kort h2 {
+	margin-top: 0;
+	padding: .15em .5ch;
+	background: var(--tt-blue-bg);
+	color: var(--tt-white);
+}
+
+/* Lampan: inverterat band som på Text-TV, blinkar bara vid fel. */
+.status .status-lampa {
+	display: inline-block;
+	margin: 0 0 .5em;
+	padding: 0 1ch;
+}
+
+.status .status-lampa-ok {
+	background: var(--tt-green);
+	color: var(--tt-black);
+}
+
+.status .status-lampa-fel {
+	background: var(--tt-red);
+	color: var(--tt-white);
+	animation: status-blink 1s steps(1) infinite;
+}
+
+@keyframes status-blink {
+	50% { visibility: hidden; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.status .status-lampa-fel {
+		animation: none;
+	}
+}
+
+.status .status-sammanfattning {
+	margin-bottom: 1.5em;
 	color: var(--tt-yellow);
 }
 
-.status .status-ok {
-	color: var(--tt-green);
+/* Tabellerna: etiketter cyan (metadata), siffror högerställda. */
+.status table {
+	width: 100%;
+	margin-bottom: .75em;
+}
+
+.status th,
+.status td {
+	padding-top: 0;
+	padding-bottom: 0;
+	white-space: nowrap;
+}
+
+.status tbody th,
+.status .status-nyckeltal th {
+	color: var(--tt-cyan);
+	text-align: left;
+}
+
+.status td {
+	text-align: right;
+}
+
+.status thead th {
+	text-align: right;
+}
+
+.status thead th:first-child,
+.status .status-mest-andrade thead th:nth-child(2) {
+	text-align: left;
+}
+
+.status .status-mest-andrade td.status-titel {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	text-align: left;
+}
+
+.status td.status-stapel {
+	color: var(--tt-cyan);
+	text-align: left;
 }
 
 .status .status-fel {
 	color: var(--tt-red);
+}
+
+/* Blockdiagrammen. line-height 1 så att blocken sluter tätt som mosaik. */
+.status .status-graf {
+	margin: 0 0 .25em;
+	font: inherit;
+	line-height: 1;
+	color: var(--tt-cyan);
+	white-space: pre;
+	overflow: hidden;
+}
+
+/* En blockcell (views/status.php, $cell): 1ch × 1em, som ett tecken. */
+.status .status-c {
+	display: inline-block;
+	width: 1ch;
+	height: 1em;
+	vertical-align: top;
+}
+
+.status .status-c-hel {
+	background: currentColor;
+}
+
+.status .status-c-halv {
+	background: linear-gradient(to top, currentColor 50%, transparent 50%);
+}
+
+.status .status-c-linje {
+	background: linear-gradient(to top, currentColor 15%, transparent 15%);
+}
+
+.status .status-forklaring .status-c,
+.status td .status-c {
+	vertical-align: -.1em;
+}
+
+.status .status-graf-max {
+	margin: 0;
+	color: var(--tt-cyan);
+}
+
+.status .status-graf-axel {
+	color: var(--tt-white);
+}
+
+.status .status-graf-nu {
+	color: var(--tt-yellow);
+}
+
+.status .status-graf-tom {
+	color: var(--tt-red);
+}
+
+.status details {
+	margin-bottom: 1em;
+}
+
+.status summary {
+	color: var(--tt-yellow);
+	cursor: pointer;
+}
+
+.status .status-fot {
+	margin-top: 2em;
 }
 
 /*

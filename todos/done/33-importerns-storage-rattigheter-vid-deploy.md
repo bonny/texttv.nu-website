@@ -1,4 +1,4 @@
-**Status:** aktiv — slås ihop med #15 deploy A (härdad importer-deploy), se #15 "Granskning 2026-10-28 kväll"
+**Status:** klar 2026-10-28 — i den härdade importer-deployen (#15 deploy A, `59482b6`): `umask 002`, `root:www-data` 2775/664 på `storage/` och `bootstrap/cache`, `permission 0664` på loggkanalen. Testdeploy 22:23: rättigheterna stämmer, logrotate (`copytruncate`, `su www-data`) behöver ingen ändring.
 **Senast uppdaterad:** 2026-10-28
 
 # Todo #33 — Importerns storage-rättigheter återställs vid varje deploy

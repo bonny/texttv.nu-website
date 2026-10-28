@@ -730,37 +730,52 @@ class Importer
         // Dela upp i taggar och text. Udda index är taggar.
         $parts = preg_split('/(<[^>]*>)/', $line, -1, PREG_SPLIT_DELIM_CAPTURE);
 
-        // Texten utan taggar, och var i den varje textdel börjar (i bytes).
+        // Texten utan taggar, och var i den varje textdel börjar och slutar (i bytes).
         $text = '';
         $partStarts = [];
+        $partEnds = [];
         foreach ($parts as $index => $part) {
             if ($index % 2 === 0) {
                 $partStarts[$index] = strlen($text);
                 $text .= $part;
+                $partEnds[$index] = strlen($text);
             }
         }
 
         $sequences = $this->pageNumberSequences($text);
 
         // Lägg in länkarna bakifrån så att tidigare positioner inte flyttas.
-        // En länk som ligger över en tagg (färgbyte mitt i talet, "1" och
-        // "30-133" i olika spans) blir en länk per textdel, med samma href.
         foreach (array_reverse($sequences) as [$start, $length, $links]) {
-            foreach (array_reverse($links) as [$offset, $linkLength, $href]) {
+            foreach (array_reverse($links) as [$offset, $linkLength, $href, $linkText]) {
                 $linkStart = $start + $offset;
                 $linkEnd = $linkStart + $linkLength;
-                foreach (array_reverse($partStarts, true) as $index => $partStart) {
+
+                // Textdelarna som länken ligger i: [index => [från, till]].
+                $pieces = [];
+                foreach ($partStarts as $index => $partStart) {
                     $from = max($linkStart, $partStart);
-                    $to = min($linkEnd, $partStart + strlen($parts[$index]));
-                    if ($from >= $to) {
-                        continue;
+                    $to = min($linkEnd, $partEnds[$index]);
+                    if ($from < $to) {
+                        $pieces[$index] = [$from, $to];
                     }
-                    $parts[$index] = substr_replace(
-                        $parts[$index],
-                        '<a href="' . $this->linkprefix . $href . '">' . substr($text, $from, $to - $from) . '</a>',
-                        $from - $partStart,
-                        $to - $from
-                    );
+                }
+
+                // Ligger länken över en tagg (färgbyte mitt i talet: "1" och
+                // "30-133" i olika spans) flyttas hela talet till den del som
+                // har flest av dess tecken, och blir en länk med den delens
+                // färg. Tecknen och deras ordning på raden blir desamma.
+                $target = null;
+                foreach ($pieces as $index => [$from, $to]) {
+                    if ($target === null || $to - $from > $pieces[$target][1] - $pieces[$target][0]) {
+                        $target = $index;
+                    }
+                }
+
+                foreach (array_reverse($pieces, true) as $index => [$from, $to]) {
+                    $replacement = $index === $target
+                        ? '<a href="' . $this->linkprefix . $href . '">' . $linkText . '</a>'
+                        : '';
+                    $parts[$index] = substr_replace($parts[$index], $replacement, $from - $partStarts[$index], $to - $from);
                 }
             }
         }

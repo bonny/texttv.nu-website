@@ -37,30 +37,12 @@ class LinkifyTest extends TestCase
 
     /**
      * Länktexterna i en länkad rad, t.ex. ['101', '110-114', '123f'].
-     * En länk som är delad över flera spans ("1" + "30-133", samma href och
-     * bara taggar emellan) räknas som en länk.
      */
     private function links(string $line): array
     {
-        preg_match_all('|<a href="([^"]*)">([^<]+)</a>|', $line, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
+        preg_match_all('|<a [^>]*>([^<]+)</a>|', $line, $matches);
 
-        $links = [];
-        $previousHref = null;
-        $previousEnd = 0;
-        foreach ($matches as $match) {
-            [$whole, $start] = $match[0];
-            $href = $match[1][0];
-            $between = substr($line, $previousEnd, $start - $previousEnd);
-            if ($href === $previousHref && preg_match('/^(?:<[^>]*>)*$/', $between)) {
-                $links[count($links) - 1] .= $match[2][0];
-            } else {
-                $links[] = $match[2][0];
-            }
-            $previousHref = $href;
-            $previousEnd = $start + strlen($whole);
-        }
-
-        return $links;
+        return $matches[1];
     }
 
     public function specProvider(): array
@@ -189,14 +171,31 @@ class LinkifyTest extends TestCase
     }
 
     /**
-     * Exakt HTML: en länk över en tagg blir en länk per textdel, inuti
-     * respektive span, så att taggarna fortfarande är rätt nästlade.
+     * Exakt HTML: ett sidnummer över en tagg flyttas till den span som har
+     * flest av dess tecken och blir en länk där, i den spanens färg.
+     * En länk, inte två, så att hover och färg gäller hela talet.
      */
-    public function test_lank_over_taggar_blir_en_lank_per_textdel()
+    public function test_lank_over_taggar_blir_en_lank()
     {
+        // 100, 2026-10-28: vit "1", gul "30-133". Länken blir gul.
         $this->assertSame(
-            '<span class="bgBl"><a href="/130-133">1</a></span><span class="bgBl Y"><a href="/130-133">30-133</a>   </span>',
+            '<span class="bgBl"></span><span class="bgBl Y"><a href="/130-133">130-133</a>   </span>',
             $this->importer()->linkifySingleLine('<span class="bgBl">1</span><span class="bgBl Y">30-133   </span>')
+        );
+        // Flest tecken i första delen: talet hamnar där.
+        $this->assertSame(
+            '<span class="W">Se <a href="/101">101</a></span><span class="Y"></span>',
+            $this->importer()->linkifySingleLine('<span class="W">Se 10</span><span class="Y">1</span>')
+        );
+        // Lika många: första delen vinner.
+        $this->assertSame(
+            '<span class="bgBl"> <a href="/107">107</a></span><span class="bgImg"></span><span class="bgImg"></span>',
+            $this->importer()->linkifySingleLine('<span class="bgBl"> 1</span><span class="bgImg">0</span><span class="bgImg">7</span>')
+        );
+        // Två sidnummer över taggar på samma rad, och text runt dem.
+        $this->assertSame(
+            '<span class="W">Se </span><span class="Y"><a href="/101">101</a> och <a href="/102">102</a></span><span class="C"> nu</span>',
+            $this->importer()->linkifySingleLine('<span class="W">Se 1</span><span class="Y">01 och 10</span><span class="C">2 nu</span>')
         );
     }
 

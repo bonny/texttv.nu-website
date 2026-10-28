@@ -111,7 +111,7 @@ Docker). Fynden är inarbetade; se "Granskningar 2026-10-28" sist.
 
 ### A. Förberedelser på bookworm (var för sig, utan nertid)
 
-1. **Importerns låsfil:** `composer install` går inte på PHP 8.4 med dagens
+1. ✅ 2026-10-28 (`ddda08e`, deployad och verifierad). **Importerns låsfil:** `composer install` går inte på PHP 8.4 med dagens
    lock (`nette/schema v1.2.3` och `nette/utils v3.2.8` kräver `<8.3`).
    `composer update nette/schema nette/utils` (→ 1.4.0 / 4.1.6, inget annat
    ändras), PHPUnit, deploya på 8.2. Lägg `set -e` först i importer-workflowens

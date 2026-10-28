@@ -1,4 +1,4 @@
-**Status:** aktiv — plan granskad två varv 2026-10-28 (Linux ×2, DB, PHP/Laravel); A kan göras nu, sedan provkörning på klon
+**Status:** aktiv — A klar 2026-10-28 (A.8 struket), B klar 2026-10-28; nästa C (provkörning på klon), sedan D på prod en tidig morgon. Pär bekräftar root-lösenordet till Hetzners webbkonsol före C.
 **Senast uppdaterad:** 2026-10-28
 
 # Todo #17 — Uppgradera prod till Debian 13 (trixie) och PHP 8.4

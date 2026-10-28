@@ -164,6 +164,12 @@ Logga varje prod-steg i Obsidian-noten `Logg - texttv.nu` samma dag.
 
 - 2026-10-27 20:06: steg 4. `.env` (båda anslutningarna) → `texttv_importer`, `config:cache`, `current_user()` = `texttv_importer@localhost` på båda. **Lärdom:** kör aldrig `config:cache` med `umask 077` — `bootstrap/cache/config.php` blev 600, importerns webbrutter gav 500 i ~3 min (`chmod 644`). Samtidigt 27 nekade inloggningar och 6 nekade frågor för `texttv_importer`, inga efter 20:10; troligen processer som läste `.env`/cachen mitt i bytet (båda skrevs icke-atomärt), inte bevisat. Importen skriver (970 rader in första 8 min). `/root/texttv_importer.pw` raderad; rollback-kopia `/root/importer.env.bak-20261027` (600, innehåller root-lösenordet → rensas i steg 6).
 
+- 2026-10-28 06:56: ett anrop mot importerns exempelroute `/api/user` gav 500 (`texttv_importer` saknar SELECT på `users`). Routen borttagen (`a01cefc`, deploy 07:21), ger nu 404. Nattjobben gick utan fel.
+
+- 2026-10-28 07:25: steg 2, 3 och 5 för webben. `texttv_web` skapad med `MAX_USER_CONNECTIONS 30`, provkörd som www-data med mysqli: 7 tillåtna satser OK (även korsdatabas-joinen i `most_read`), 9 otillåtna nekade (även `LOAD_FILE`). nginx bytt 07:26 (backup `/root/nginx-texttv.nu.bak-20261028-step5`, 600, innehåller root-lösenordet → rensas i steg 6). Kontroll med cache-buster: alla 31 rader i `tests/api/urls.txt` 200 + MISS, startsida, sidor, arkivsida, `/377/igar`, sök, `/sida/delat`, blogg, `/feed/blogg`. `/api/page/100/view` ökar `page_actions`, `/api/share` ökar `is_shared` (sida 377, id 37441998, 0→1 av testet). Root skriver inte längre något. `/root/texttv_web.pw` raderad efter jämförelse mot nginx.
+- **`DENIED_CONNECTIONS` är inte nekade inloggningar:** testanslutningen (en enda, lyckad) gav `texttv_web` 43 i den kolumnen. Räknaren ökar alltså av nekade rättighetskontroller, och importerns 27→29 betyder inget i sig. Följ `ACCESS_DENIED` (texttv_web: 7 från testet).
+- 2026-10-28 07:39: steg 5b. `texttv_admin@localhost` (`MAX_USER_CONNECTIONS 5`) med SELECT/INSERT/UPDATE/DELETE på `texttv_blogg`. Provkörd via TCP 127.0.0.1 (som SSH-tunneln): ser bara `texttv_blogg`, ALTER/DROP och andra tabeller nekade. Lösenordet i `/root/texttv_admin.pw` (600) tills Pär flyttat det till Proton Pass.
+
 ## Risker
 
 - **En missad rättighet** syns först när just den koden körs, och felen syns
@@ -178,8 +184,6 @@ Logga varje prod-steg i Obsidian-noten `Logg - texttv.nu` samma dag.
   `bootstrap/cache/config.php` är läsbara (644). Den som kan köra PHP via
   webben får därför importerns rättigheter. Egen pool/användare för importern
   ligger utanför #30.
-- `routes/api.php:17` (`auth:api` → tabellen `users`) ger 500 i stället för
-  401 om någon skickar `api_token`. Ingen legitim klient gör det.
 - **Lösenord i klartext:** de nya hamnar i `.env` och nginx-confen, som idag,
   men med mycket mindre makt bakom.
 

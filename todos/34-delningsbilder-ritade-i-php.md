@@ -1,4 +1,4 @@
-**Status:** aktiv
+**Status:** aktiv — granskad 2026-10-28, prototyp finns (`34-underlag/`)
 **Senast uppdaterad:** 2026-10-28
 
 # Todo #34 — Delningsbilder ritade i PHP i stället för skärmdump
@@ -34,36 +34,78 @@ och få färger, så ingen webbläsare eller layout behövs. Pär valde detta
 - Lokala testbilder från 2026-10-28 (dagens, wkhtmltox, Chromium) ligger i
   scratchpad, inte i repot.
 
+## Prototyp och granskning 2026-10-28
+
+En granskare (subagent) byggde en prototyp i GD:
+[`34-underlag/prototyp-render.php`](34-underlag/prototyp-render.php),
+jämförelse i
+[`34-underlag/jamforelse-idag-mot-prototyp.jpg`](34-underlag/jamforelse-idag-mot-prototyp.jpg)
+(dagens bild och prototypen för sida 100 i dag och sida 377 från 2019).
+Ritningen tar 10–24 ms och 16 MB; PNG med 64-färgspalett 17 kB, JPEG 85
+101 kB, mot dagens 164 kB.
+
+**Vad renderaren får:** `page_content` är serialiserad HTML, en
+`<div class="root">` per undersida. Importerns format sedan 2021 har
+`span.line` med färgklasser per span (`bgB`, `Y` …), dubbelhöjd som
+`class="line DH"` (raden under är tom). **Blockgrafiken är inga
+mosaiktecken** utan `<span class="bgImg"
+style="background:url(https://l.texttv.nu/storage/chars/<crc32>.gif)">`,
+13 × 16 px GIF:ar klippta ur SVT:s sidbild. De ligger lokalt på prod i
+`importer/storage/app/public/chars/` (2 481 filer, 9,8 MB) och läggs in
+skalade med `imagecopyresized`, pixelrätt. Dubbelhöga rader ritas på en
+tillfällig rad och sträcks med `imagecopyresampled`, sist, så att de täcker
+raden under som `scaleY(2)` i CSS.
+
 ## Förslag
 
-1. Ny klass/hjälpare som tar sidans innehåll (samma data som arkivsidan
-   använder) och ritar med `imagettftext` per tecken på rutnätet:
-   - färgklasserna (text-tv:s åtta färger, förgrund och bakgrund),
-   - dubbelhög text,
-   - blockgrafiken (mosaiktecknen i loggor och rubriker; ritas som
-     rektanglar per cell, som statussidan gör med CSS-celler),
-   - understrukna länkar (sidnummer),
-   - sidhuvud ("100 SVT Text <datum>") och sidfot med TextTV.nu-loggan.
-2. Flera sidor i samma delning: höjden blir antal sidor × sidhöjd.
-3. `api.php` `screenshot()`: rita i stället för `exec`. Låset kan troligen
-   tas bort eller bli kortare (inget HTTP-anrop till sig själv, ingen extra
-   php-fpm-worker).
-4. **Format efter filändelsen** (beslut Pär 2026-10-28):
-   `/api/screenshot/<id>.png` ger PNG (palett, skarpast och minst, ~1/8 av
-   dagens JPEG) och `/api/screenshot/<id>.jpg` ger JPEG, så att adresser i
-   utskickade appar och redan delade länkar fortsätter fungera.
-   `og:image` och JSON-LD-`image` i `views/header.php` byts till `.png`.
-   Båda ritas av samma kod; filen sparas per format i `shares/`.
-   Testa att Facebook, iMessage, Slack och Google visar PNG-varianten.
-5. Jämför nya bilder mot dagens för ett urval sidor (nyheter, sport,
-   börs/tabeller, sidor med blockgrafik, flersidiga delningar) innan
-   `wkhtmltoimage` tas bort.
-6. Gamla bilder i `shares/` ligger kvar; bara nya ritas i PHP.
-7. Låt nginx skicka en befintlig bild direkt från `shares/` och bara anropa
-   PHP när den saknas (i dag läser PHP filen vid varje anrop, ~4 850 per
-   dygn). Bildens filnamn är md5 av arkivadressen, så det kräver att
-   adressen till filen går att räkna ut i nginx, eller att PHP svarar med
-   `X-Accel-Redirect`.
+1. **Renderare** (utgå från prototypen) som går igenom hela DOM-trädet och
+   byter rad vid `\n`, så att även **arkivets gamla format** (före 2021: ingen
+   `span.line`, `<h1>` i toppraden, text utan span, sidor utan sidbild)
+   ritas rätt. Dubbelhöjd bara för `span.line.DH`; gamla `h1.DH` ritas med
+   fet font (de visades aldrig dubbelhöga). Toppraden är `#ddd`.
+   Undersidor (flera `root` per id) staplas; höjden är summan av raderna.
+2. **Adresser:** tolka med regex `^([\d,]+)(?:\.(png|jpg))?$`. `.png` ger PNG
+   (palett), `.jpg` **och utan ändelse** JPEG; `api/share` och
+   `screenshotCurrent` i gamla appar ger adressen utan ändelse. Kontrollera
+   att `.png` når PHP (i dag tar `str_replace(".jpg")` bara bort `.jpg`, och
+   `.png` svarar med HTML).
+3. **Kontrollera sid-id och sätt tak:** `load(true)` per id, 404 utan att
+   skriva fil om någon saknas (i dag sparas 404-sidan som bild för alltid),
+   högst 6 sidor och 12 undersidor per bild.
+4. **Cache-headers:** `Cache-Control: public, max-age=31536000, immutable`
+   och `Last-Modified`; ett arkiv-id ändras aldrig.
+5. **Servera befintliga filer utan att läsa dem i PHP:** `X-Accel-Redirect:
+/shares/<fil>` (nginx `if (!-e) rewrite` gör att en egen location för
+   `/api/screenshot` aldrig nås). Nya filnamn `shares/v2/<id>.png|jpg` för en
+   sida och md5 för flera; `v2` gör att allt kan ritas om genom att byta
+   version.
+6. **Atomär skrivning:** temporär fil + `rename()`. Ta bort flock/503 (93
+   svar 503 per dygn i dag, som botar kan spara som trasig bild); skydda
+   med taket i punkt 3 och gärna `limit_req` för `/api/screenshot`.
+7. Ta bort debug-headers (`X-texttv-cmd_wkhtml`, `memory_*`; visar
+   sökvägar).
+8. GIF-katalogen i config, monterad i dev-stacken; saknas en GIF ritas bara
+   bakgrundsfärgen.
+9. **Typsnitt:** webfonten täcker bara Latin-1 och några tecken (ł, č, ć, ş,
+   ğ, Š blir rutor). Använd fullständiga Ubuntu Mono från `fonts-ubuntu` på
+   servern.
+10. **og:image:** byt till `.png` i `views/header.php` (og:image och JSON-LD),
+    lägg till `og:image:width/height/type`. Överväg en liggande variant 1 200
+    × 630 för `og:image` (Facebook/LinkedIn beskär stående bilder till
+    1,91:1, Discover vill ha ≥ 1 200 px) och `summary_large_image`; behåll
+    hela sidan för appdelning.
+11. **Jämför** ett urval (100, 377 från 2019, tabeller, flersidiga delningar,
+    sidor utan sidbild) mot dagens bilder, och testa Facebook Sharing
+    Debugger, Slack och iMessage, innan `wkhtmltoimage` tas bort.
+12. `shares/` växer utan städning (22 162 filer, 4,2 GB sedan 7 oktober; cron
+    tar bara `*.gif`). Lägg till städning, eller låt v2-filerna leva och
+    städa gamla jpg.
+
+Rubriken "Delad från TextTV.NU / sidorna X / datum" för flersidiga delningar
+används bara av gamla appar och kan bli en enkel textrad.
+
+**Tidsuppskattning:** 1,5–2 dagar (renderare 0,5, controller 0,5,
+jämförelse och delningstester 0,5, nginx och driftsättning några timmar).
 
 ## Risker
 

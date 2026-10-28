@@ -196,15 +196,25 @@ test-api`, importerns PHPUnit; webben och importern på PHP 8.4 i
 ### B. Städning före provkörningen
 
 1. **GRUB på EFI** (annars kan servern sluta boota senare): prod bootar via
-   fallback-sökvägen `EFI/BOOT/BOOTX64.EFI` (GRUB 2.06), och trixies postinst
-   uppdaterar modulerna men inte den filen. Före `full-upgrade`:
+   fallback-sökvägen `EFI/BOOT/BOOTX64.EFI` (GRUB 2.06, identisk med
+   `core.efi`, ingen `debian`-post i NVRAM, ingen Secure Boot). Bookworms
+   postinst kör bara `grub-install` om `EFI/debian` finns (den saknas), så
+   inställningarna nedan gör ingenting på bookworm. Trixies postinst kör
+   `grub-install` eftersom `/boot/grub/x86_64-efi/core.efi` finns; utan
+   `force_efi_extra_removable` blir `BOOTX64.EFI` kvar på 2.06 medan modulerna
+   blir 2.12, och servern kan sluta boota. `update_nvram=false` håller boot
+   via fallback-posten, lika på klon och prod. Före `full-upgrade`:
    ```
    echo 'grub-efi-amd64 grub2/force_efi_extra_removable boolean true' | debconf-set-selections
    echo 'grub-efi-amd64 grub2/update_nvram boolean false' | debconf-set-selections
    ```
 2. `apt install tmux`. Kontrollera att root-lösenordet för Hetzners
    webbkonsol finns.
-3. `apt purge libapache2-mod-php8.2 apache2-bin`, sedan `apt purge '~c'`.
+3. `apt purge libapache2-mod-php8.2 apache2-bin`, sedan `apt purge '~c'`
+   (granskat 2026-10-28: bara de två paketen; `~c` är 16 gamla
+   `linux-image-6.1.0-*` utan conffiles). Görs gärna före B.1. Frivilligt:
+   shim-paketen används inte (ingen Secure Boot) och kan tas bort, prova på
+   klonen först.
 4. En enda `/etc/apt/sources.list.d/debian.sources` (deb822) skrivs för
    hand vid källbytet i D.2: Hetzners spegel för trixie och trixie-updates,
    `security.debian.org` för trixie-security, `Signed-By:
@@ -224,7 +234,9 @@ modernize-sources` (ger dubbletter och tom `Signed-By`).
    Webbkonsolen kräver `hcloud server reset-password`. Nya host-nycklar.
 3. Kör D på klonen med klocka, utom dump, snapshot och `certbot renew
 --dry-run` (bara prod). Torrkör först: `apt -s full-upgrade | grep -E
-'^(Remv|Inst)'`, och anteckna borttagningar.
+'^(Remv|Inst)'`, och anteckna borttagningar. `apt -s full-upgrade | grep -E
+'apache2|libapache2|grub-efi-amd64-signed'` ska vara tomt (trixies `php8.4`
+   har `Depends: libapache2-mod-php8.4 | php8.4-fpm | …`).
 4. **Verifiera:**
    - `curl --resolve texttv.nu:443:<klon-ip>` mot startsidan, `/100`,
      `/arkiv`, `/status` (php_sedan inte null), en ny delningsbild; byte-diff
@@ -271,6 +283,10 @@ mariadb -n 20 | grep "Shutdown complete"` (11.8 vägrar starta på en
 upgrade --without-new-pkgs`, `apt full-upgrade`. Conffile-frågor: behåll
    egna. PHP 8.4 och MariaDB 11.8 installeras och startas här; cron är
    pausad. Stoppa om torrkörningen eller utdata visar oväntade `Remv`.
+   Efteråt: `grep -E "Installing for|core image|shim|Failed: grub-install"
+/root/upgrade-trixie.log` (väntat: "No Secure Boot: installing core
+   image"). tmux uppgraderas 3.3a → 3.5 under körningen; ger `tmux attach`
+   "protocol version mismatch": `/proc/$(pgrep -o tmux)/exe attach`.
 4. **PHP 8.4:** kopiera `99-texttv.ini` och `99-php2shell.ini` till
    `/etc/php/8.4/{fpm,cli}/conf.d/`, poolinställningarna (`pm.*`, `slowlog`,
    `request_slowlog_timeout`) till 8.4:s `www.conf`, logrotate-regeln för
@@ -292,7 +308,9 @@ false`, och trixie flyttade `fs.protected_*` dit; utan det blir de 0).
    samma som deployen), `php artisan optimize` med `umask 022`, kontrollera
    att `bootstrap/cache/*.php` är läsbara för www-data.
 8. **Före omstart:** `cmp /boot/grub/x86_64-efi/core.efi
-/boot/efi/EFI/BOOT/BOOTX64.EFI`, `efibootmgr -v`, `ls
+/boot/efi/EFI/BOOT/BOOTX64.EFI` (väntat: `EFI/BOOT/BOOTX64.EFI` och
+   `EFI/debian/grubx64.efi` finns), `efibootmgr -v` (fortfarande ingen
+   `debian`-post), `ls
 /boot/vmlinuz-6.12*`, `udevadm test-builtin net_setup_link
 /sys/class/net/eth0`, webbkonsolen öppen. Sedan omstart (kärna 6.12,
    `/tmp` blir tmpfs).

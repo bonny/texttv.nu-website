@@ -136,7 +136,7 @@ Docker). Fynden är inarbetade; se "Granskningar 2026-10-28" sist.
    [mariadb-11.8]
    character-set-collations = utf8mb3=utf8mb3_general_ci,utf8mb4=utf8mb4_general_ci
    ```
-   Gruppen `[mariadb-11.8]` läses bara av 11.8 (provat i Docker på båda).
+   Gruppen `[mariadb-11.8]` läses bara av 11.8 (provat i Docker på båda). **Beslut 2026-10-28 (Pär):** vi byter inte till `uca1400` eller `uca1400_swedish_ai_ci`; bara `views/fakta.php` sorterar på text, och det kan få `COLLATE` i frågan om det behövs.
    Lägg även `tmpdir = /var/tmp` (annars hamnar MariaDB:s temporära
    tabeller i RAM när `/tmp` blir tmpfs) och, om #30 vill ha det,
    `userstat = 1`.

@@ -117,7 +117,7 @@ Docker). Fynden är inarbetade; se "Granskningar 2026-10-28" sist.
    ändras), PHPUnit, deploya på 8.2. Lägg `set -e` först i importer-workflowens
    ssh-skript, så att ett composer-fel stoppar deployen i stället för att
    köra `artisan optimize` mot gammal `vendor/`.
-2. **Delningsbilderna ritas i PHP** ([#34](34-delningsbilder-ritade-i-php.md)), beslut 2026-10-28. `wkhtmltopdf` finns inte i trixie; wkhtmltox renderar fel och Chromium är tyngre (~2,6 s och 250–400 MB per bild). Måste vara klart före OS-bytet.
+2. ✅ 2026-10-28 (`11646b9`, deployad, delning testad av Pär). **Delningsbilderna ritas i PHP** ([#34](34-delningsbilder-ritade-i-php.md)), beslut 2026-10-28. `wkhtmltopdf` finns inte i trixie; wkhtmltox renderar fel och Chromium är tyngre (~2,6 s och 250–400 MB per bild). Måste vara klart före OS-bytet.
 3. **Kollationen låses** innan 11.8 byter standard tyst (trixies
    `50-server.cnf` saknar `character-set-server`/`collation-server`, och
    CodeIgniter sätter `utf8` utan kollation). I `70-texttv.cnf`:

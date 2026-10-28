@@ -1,4 +1,4 @@
-**Status:** aktiv — byggd lokalt 2026-10-28, väntar på deploy och jämförelse på prod
+**Status:** aktiv — deployad 2026-10-28 (`11646b9`), delning i Facebook/Slack/iMessage testad av Pär; kvar: städning och småsaker
 **Senast uppdaterad:** 2026-10-28
 
 # Todo #34 — Delningsbilder ritade i PHP i stället för skärmdump
@@ -127,8 +127,9 @@ jämförelse och delningstester 0,5, nginx och driftsättning några timmar).
 - Dev: `gd` i webbimagen, importerns `chars/` monterad på prods sökväg.
 - Mätt lokalt: PNG 18–27 kB och 35–50 ms per sida, cachad ~7 ms; värsta
   fallet 12 undersidor 467 ms, 254 kB.
-- Kvar: jämförelse mot dagens bilder på prod, Facebook/Slack/iMessage,
-  liggande variant (punkt 10), städning av `shares/` (punkt 12),
+- Deployad 2026-10-28 (`11646b9`); Pär testade delning i Facebook, Slack
+  och iMessage samma kväll, OK.
+- Kvar: liggande variant (punkt 10), städning av `shares/` (punkt 12),
   `limit_req`, ta bort `wkhtmltopdf`-paketet efter några dagar.
 
 ## Risker

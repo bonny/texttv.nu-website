@@ -1,5 +1,5 @@
-**Status:** aktiv
-**Senast uppdaterad:** 2026-10-26
+**Status:** klar 2026-10-28 — timeout 20 s/connect 5 s och `withoutOverlapping(10)` deployade 2026-10-26 (`5b468bf`), kill-jobbet borttaget 2026-10-27, lugnt sedan dess
+**Senast uppdaterad:** 2026-10-28
 
 # Todo #29 — Importern hänger: HTTP-anropet saknar timeout
 

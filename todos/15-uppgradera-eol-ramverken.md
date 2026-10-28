@@ -1,5 +1,5 @@
-**Status:** aktiv (Laravel 9–12 går på nuvarande PHP 8.2)
-**Senast uppdaterad:** 2026-10-26
+**Status:** aktiv (granskad 2026-10-28: förberedelser på L8, sedan L9 → L12 på en branch och en deploy av L12, se sista avsnittet)
+**Senast uppdaterad:** 2026-10-28
 **Blockerad av:** #17, bara för sista steget till Laravel 13
 
 # Todo #15 — Uppgradera EOL-ramverken (CodeIgniter 2, Laravel 8)
@@ -10,6 +10,8 @@ koden som den används, men inga fixar kommer heller.
 
 ## Tillägg 2026-10-26: stegvis plan, Laravel 8 → 12 behöver inte vänta på #17
 
+> Ändrad av granskningen 2026-10-28 längst ned: en deploy per major går inte, eftersom L9–L11 inte kan installeras stabilt.
+
 Laravel 9, 10, 11 och 12 stöder alla PHP 8.2 (L9 8.0–8.2, L10 8.1–8.3, L11
 8.2–8.4, L12 8.2–8.5). Det är bara sista hoppet, 12 → 13, som kräver PHP 8.3
 och därmed Debian 13. Importern kan alltså uppgraderas **en major i taget på
@@ -19,7 +21,7 @@ stället för allt på en gång ihop med OS-bytet.
 1. **Förberedelse (oberoende):** #29 (timeout i importern), sedan byt
    `dgoring/dom-query` mot `symfony/dom-crawler` (fungerar på 8.2;
    `Dom\HTMLDocument` kräver 8.4). Ett eget steg med PHPUnit-korpusen som
-   kontroll.
+   kontroll. **Klart:** #29 deployat 2026-10-26, bytet i `b476a54` 2026-10-27.
 2. **Laravel 9:** ta bort `fideloper/proxy` och `fruitcake/laravel-cors`
    (inbyggda). PHPUnit, en import i Docker, `schedule:list` före/efter, deploy.
 3. **Laravel 10.** Samma kontroller.
@@ -199,3 +201,31 @@ Från granskningen 2026-10-17:
 - Uppgradering CI 2.2 → 3.0:
   https://codeigniter.com/userguide3/installation/upgrade_300.html
 - Community-fork för CI 3 på PHP 8.2+: https://github.com/pocketarc/codeigniter
+
+## Granskning 2026-10-28 (subagent, Laravel-perspektiv)
+
+Ändrar den stegvisa planen ovan. Verifierat mot kod och provlösningar i importer-containern om inget annat sägs.
+
+**Hög**
+
+1. **L9–L11 går inte att installera stabilt.** Composer blockerar alla stabila 9.x/10.x/11.x på grund av säkerhetsmeddelanden (bl.a. CVE-2026-48019, `>=9.0.0,<12.0.0`, ingen rättad version). Med `"minimum-stability": "dev"` (`importer/composer.json:60`) väljer Composer då tyst `9.x-dev`. L12 löser rent (v12.70.2, Carbon 3, Flysystem 3, PHPUnit 11.5, audit utan anmärkning). Inget av meddelandena träffar importern. → Sätt `minimum-stability: stable`. Ta L9–L11 som commits på en branch och deploya bara L12.
+2. **Flysystem 3 kastar inte vid skrivfel.** `TeletextCharsExtractor.php:1066` kör `put()` utan att kolla returvärdet. I L8 blir ett skrivfel ett undantag (loggas som `NOT_IMPORTED_EXCEPTION`). I L9+ blir det tyst `false`, och sidan sparas med chars-URL:er som ger 404 (jfr #33). → `'throw' => true` på `local`-disken, plus ett test att varje refererad chars-fil finns på disk.
+3. **Deployen är inte atomär.** `scp` skriver över koden före `composer install`, medan cron kör `schedule:run` varje minut, och rollback kräver en ny Actions-körning. → I deployen: `artisan down` före `scp`, vänta tills inga `texttv:import` kör, spara `vendor.prev` och den gamla lockfilen, `rm -f bootstrap/cache/*.php`, sedan `install`, `optimize`, `up`. Kör `composer check-platform-reqs --lock` på prod först. (Antagande: att nginx serverar `public/storage/chars` statiskt även i down-läge.)
+
+**Medel**
+
+4. `scp-action` raderar inget på servern; borttagna filer blir kvar. Överväg `rsync --delete` (exkludera `storage/`, `vendor/`, `.env`).
+5. Att diffa `schedule:list` duger inte (formatet ändras mellan versioner). → Ett PHPUnit-test med ögonblicksbild i JSON av `Schedule::events()` (uttryck, kommando, overlapping, filter), skrivet på L8 först.
+6. En import på kommandoraden testar inte schemaläggaren. → `make scheduler` 10–15 min per steg, kontrollera `page_imports_logs` och loggen.
+7. Docker: efter varje major `make build` och `docker compose up -d -V scheduler lokalimport`, annars testas gamla vendor. PHPStan-baselinen ändras.
+8. Flytta **inte** schemat till `routes/console.php` i L11: closurerna använder `$this->importRange()`. Behåll L10-strukturen i L11/L12, och höj `php` till `^8.2`.
+9. PHPUnit 10/11: `LinkifyTest::specProvider()` måste bli `static`, `/** @test */` bli attribut, och `phpunit.xml` migreras. `collision` ^6/^7/^8 och `spatie/laravel-ignition` ^2 från L10.
+
+**Låg / kan göras nu på L8**
+
+10. Byt `fideloper/proxy` mot inbyggda `Illuminate\Http\Middleware\TrustProxies`. Ta bort `fruitcake/laravel-cors` och `config/cors.php` (`routes/api.php` har inga routes). Ta bort `laravel/sail`.
+11. `symfony/dom-crawler` och `css-selector` ^5.4 blockerar inget; vidga till ^7.0 vid L12. Inga Carbon 3-fällor (`diffIn*` används inte).
+12. Behåll `config/cache.php`, så att mutex-prefixet inte ändras.
+13. Avsnitten "Rekommendation" (gå direkt till L13) och "Nästa steg (när #17 är på gång)" är inaktuella.
+
+**Ny ordning:** (1) På L8, deploybart nu: punkt 10, härdad deploy (3–4), `minimum-stability: stable`, tester för schema, chars-filer och debug-rutterna. (2) En branch med L9 → L10 → L11 → L12, med full testkörning per commit. (3) En deploy av L12, följd av `/status/health`, `/prod-health importer` och `laravel.log`. Laravel Shift behövs inte.

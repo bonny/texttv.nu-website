@@ -593,10 +593,11 @@ if (isset($day_archive)) {
 		$screenshot_url = "https://texttv.nu/images/texttv-nu-publisher-logo.png";
 		if (isset($is_archive) && isset($pages[0])) {
 			// skapa skärmdump av första sidan
-			$screenshot_url = sprintf('https://texttv.nu/api/screenshot/%d.jpg', $pages[0]->id);
+			$screenshot_url = sprintf('https://texttv.nu/api/screenshot/%d.png', $pages[0]->id);
 		}
 		?>
 		<meta property="og:image" content="<?php echo $screenshot_url ?>" />
+		<meta property="og:image:type" content="image/png" />
 		<?php if ($meta_description) { ?>
 			<meta name="description" content="<?php echo @htmlspecialchars($meta_description, ENT_QUOTES, "UTF-8"); ?>">
 		<?php } ?>
@@ -750,9 +751,7 @@ if (isset($day_archive)) {
 				"headline": <?php echo json_encode($page_title, JSON_HEX_TAG) ?>,
 				"image": {
 					"@type": "ImageObject",
-					"url": <?php echo json_encode($screenshot_url, JSON_HEX_TAG) ?>,
-					"height": 800,
-					"width": 800
+					"url": <?php echo json_encode($screenshot_url, JSON_HEX_TAG) ?>
 				},
 				"datePublished": <?php echo json_encode($archive_date, JSON_HEX_TAG) ?>,
 				"dateModified": <?php echo json_encode($archive_date, JSON_HEX_TAG) ?>,

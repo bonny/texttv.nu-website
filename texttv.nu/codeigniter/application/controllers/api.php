@@ -544,132 +544,89 @@ class Api extends CI_Controller
 	}
 
 	/**
-	 * Generates and returns a screenshot image of the passed comma separated page ids
-	 * 
-	 * @param $str_page_ids comma separated list of page ids
+	 * Delningsbilden för en eller flera arkivsidor, t.ex.
+	 * /api/screenshot/37442923.png eller /api/screenshot/37442923,37442924.jpg.
+	 *
+	 * Sajtens og:image, så den hämtas mest av botar. `.png` ger PNG, `.jpg`
+	 * och adresser utan ändelse (api/share och screenshotCurrent i gamla
+	 * appar) ger JPEG. Bilden ritas i PHP av Share_image (todo #34; tidigare
+	 * wkhtmltoimage, som inte finns i Debian 13) och sparas i shares/v2/. Ett
+	 * arkiv-id ändras aldrig, så bilden kan cachas för alltid.
+	 *
+	 * @param string $str_page_ids kommaseparerade id:n, med eller utan ändelse
 	 */
 	public function screenshot($str_page_ids = null)
 	{
-
-		$str_page_ids = str_replace(".jpg", "", $str_page_ids);
-
-		$out = "";
-
-		$arr_page_ids = texttv_page::extract_pages_from_ranges($str_page_ids);
-
-		if (!$arr_page_ids) {
-			$this->output->set_header("X-texttv-error: NO_PAGE_IDS");
-			exit;
+		if (!preg_match('/^(\d+(?:,\d+)*)(?:\.(png|jpg))?$/', (string) $str_page_ids, $m)) {
+			$this->_screenshot_not_found();
+			return;
 		}
 
-		$screenshotURL = "https://api.texttv.nu/100/arkiv/sida/" . implode(",", $arr_page_ids) . "/?apiAppShare=1";
+		// Taket skyddar mot dyra anrop med påhittade listor.
+		$arr_page_ids = array_map('intval', explode(',', $m[1]));
+		if (count($arr_page_ids) > 6) {
+			$this->_screenshot_not_found();
+			return;
+		}
 
-		$saveFileName = md5($screenshotURL) . ".jpg";
-		$image_file = $_SERVER["DOCUMENT_ROOT"] . "/shares/{$saveFileName}";
+		$format = ($m[2] ?? '') === 'png' ? 'png' : 'jpg';
+		$name = count($arr_page_ids) === 1 ? $arr_page_ids[0] : md5(implode(',', $arr_page_ids));
+		// v2: byt version för att rita om alla bilder. shares/ utan version
+		// är wkhtmltoimage-bilderna.
+		$dir = $_SERVER['DOCUMENT_ROOT'] . '/shares/v2';
+		$image_file = "{$dir}/{$name}.{$format}";
 
-		// check if screenshot already exists
-		if (file_exists($image_file)) {
-
-			$this->output->set_header("X-texttv-image: cached");
-		} else {
-
-			// no existing screenshot, create new
-			#echo $saveFileName;exit;
-
-			// Bara en skärmdump skapas åt gången. wkhtmltoimage hämtar arkivsidan
-			// från den här servern, och den requesten behöver en egen php-fpm-worker.
-			// 2026-10-14 hämtade PerplexityBot tusentals og:image-skärmdumpar samtidigt:
-			// alla fem workers höll var sin wkhtmltoimage som väntade på en sjätte
-			// worker, och hela sajten svarade 502 i över en timme.
-			$lock = fopen(sys_get_temp_dir() . "/texttv-screenshot.lock", "c");
-			if (!$lock || !flock($lock, LOCK_EX | LOCK_NB)) {
-				$this->output->set_status_header(503);
-				$this->output->set_header("Retry-After: 120");
-				$this->output->set_header("X-texttv-image: busy");
-				return;
-			}
-
-			// new since 27 aug 2016
-			// 15 var saveFileName = md5(url) + ".jpg";
-			$destImageName = "/usr/share/nginx/texttv.nu/shares/" . md5($screenshotURL) . ".jpg";
-
-			#$cmd_wkhtml = "/root/wkhtmltopdf/wkhtmltox/bin/wkhtmltoimage --width 650 {$screenshotURL} {$destImageName}";
-			// timeout: en hängande wkhtmltoimage ska inte hålla låset och en worker i minuter.
-			$cmd_wkhtml = "/usr/bin/timeout 20 /usr/bin/wkhtmltoimage --width 650 {$screenshotURL} {$destImageName}";
-
-			$this->output->set_header("X-texttv-cmd_wkhtml: $cmd_wkhtml");
-			$this->output->set_header("X-texttv-saveFileName: $saveFileName");
-
-			$output = null;
-			$return_val = null;
-			$this->output->set_header("X-texttv-before_exec: 1");
-			$this->output->set_header("X-texttv-before_exec_memory_get_usage: " . memory_get_usage());
-			$this->output->set_header("X-texttv-before_exec_memory_get_peak_usage: " . memory_get_peak_usage());
-			exec($cmd_wkhtml, $output, $return_val);
-			flock($lock, LOCK_UN);
-			$this->output->set_header("X-texttv-after_exec: 1");
-
-			// Bail if $destImageName was not created, ie does not exist in filesystem.
-			if (!file_exists($destImageName)) {
-				$this->output->set_header("X-texttv-image: failed-to-create");
-				error_log("texttv: api/screenshot: failed to create image");
-				error_log("texttv: api/screenshot: destImageName: " . $destImageName);
-				error_log("texttv: api/screenshot: screenshotURL: " . $screenshotURL);
-				error_log("texttv: api/screenshot: cmd_wkhtml: " . $cmd_wkhtml);
-				error_log(ob_get_contents());
-				exit;
-			}
-
-			$this->output->set_header("X-texttv-debug_output: " . json_encode($output));
-			$this->output->set_header("X-texttv-debug_return_val: $return_val");
-			$this->output->set_header("X-texttv-dest-image-size: " . filesize($destImageName));
-			$this->output->set_header("X-texttv-after_exec_memory_get_usage: " . memory_get_usage());
-			$this->output->set_header("X-texttv-after_exec_memory_get_peak_usage: " . memory_get_peak_usage());
-			$this->output->set_header("X-texttv-memory_memory_limit: " . ini_get('memory_limit'));
-
-
-			// if $return_val = -1 then this did not work out...
-
-			// output contains one value that begins with "saveFileName". Let's grab that one
-			// [0] => saveFileName texttv-nu-1396184659250-4222389.jpg
-
-			/*$saveFileName = null;
-			foreach ($output as $key => $value) {
-				if ( strpos( $value, "saveFileName" ) !== false) {
-					#echo "\nvalue is: $value";
-					#echo "\n";var_dump(strpos( $value, "saveFileName" ));
-					$saveFileName = str_replace( "saveFileName", "", $value );
-					$saveFileName = trim( $saveFileName );
-					break;
+		if (!is_file($image_file)) {
+			$subpages = [];
+			foreach ($arr_page_ids as $page_id) {
+				$page = new Texttv_page();
+				$page->id = $page_id;
+				// Saknas en sida sparas ingen bild; i dag sparades 404-sidan.
+				if (!$page->load(true) || !$page->arr_contents) {
+					$this->_screenshot_not_found();
+					return;
 				}
+				$subpages = array_merge($subpages, $page->arr_contents);
 			}
-			*/
+			// Högst 12 undersidor, annars blir bilden orimligt lång.
+			$subpages = array_slice($subpages, 0, 12);
 
-			if (!$saveFileName) {
-				exit;
+			require_once APPPATH . 'libraries/Share_image.php';
+			$renderer = new Share_image();
+			$image = $renderer->render($subpages, $format);
+
+			// Temporär fil + rename: en samtidig request ser aldrig en halv bild,
+			// och två som ritar samma bild skriver bara över varandra.
+			if (!is_dir($dir)) {
+				@mkdir($dir, 0775, true);
 			}
-
-			if ($return_val == -1) {
-				$this->output->set_header("X-texttv-image: failed-to-create");
-				error_log("texttv: api/screenshot: failed to create image");
-				error_log(ob_get_contents());
-			} else {
-				$this->output->set_header("X-texttv-image: created");
+			$tmp = "{$image_file}." . getmypid() . '.tmp';
+			if (@file_put_contents($tmp, $image) === false || !@rename($tmp, $image_file)) {
+				@unlink($tmp);
+				error_log("texttv: api/screenshot: kunde inte spara {$image_file}");
 			}
-		} // create new
-
-
-		if (file_exists($image_file)) {
-
-			// set content type and output image
-			$this->output->set_content_type("image/jpeg");
-			$out = file_get_contents($image_file);
-			$this->output->append_output($out);
 		} else {
-
-			// 503 Service Unavailable, because file should be there, but isn't.. :(
-			$this->output->set_status_header(503);
+			$image = file_get_contents($image_file);
 		}
+
+		$mtime = is_file($image_file) ? filemtime($image_file) : time();
+		$this->output
+			->set_content_type($format === 'png' ? 'image/png' : 'image/jpeg')
+			->set_header('Cache-Control: public, max-age=31536000, immutable')
+			->set_header('Last-Modified: ' . gmdate('D, d M Y H:i:s', $mtime) . ' GMT')
+			// nginx fastcgi_cache följer annars Cache-Control och fyller
+			// cachezonen med bilder; filen i shares/v2 är cachen.
+			->set_header('X-Accel-Expires: 60')
+			->set_output($image);
+	}
+
+	private function _screenshot_not_found()
+	{
+		$this->output
+			->set_status_header(404)
+			->set_content_type('text/plain')
+			->set_header('Cache-Control: public, max-age=600')
+			->set_output("Sidan finns inte.\n");
 	}
 
 	/**

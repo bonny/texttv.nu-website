@@ -3,7 +3,7 @@ parameters:
 		-
 			message: '#^Class Texttv_page referenced with incorrect case\: texttv_page\.$#'
 			identifier: class.nameCase
-			count: 5
+			count: 4
 			path: ../../texttv.nu/codeigniter/application/controllers/api.php
 
 		-

@@ -60,3 +60,5 @@ services:
       LOG_OUTPUT_LEVEL: info
     volumes:
       - ./texttv.nu:/var/www/html
+      # Blockgrafiken till delningsbilderna (Share_image), på prods sökväg.
+      - ./importer/storage/app/public/chars:/usr/share/nginx/l.texttv.nu/importer/storage/app/public/chars:ro

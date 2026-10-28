@@ -17,7 +17,8 @@
 FROM serversideup/php:8.2-fpm-nginx
 
 USER root
-RUN install-php-extensions mysqli
+# gd: delningsbilderna ritas med GD och FreeType (todo #34), som på prod.
+RUN install-php-extensions mysqli gd
 
 # CI:s php-location includar /etc/nginx/fastcgi_params. Den location:en
 # definierar egna fastcgi_param, vilket gör att server-nivå-params INTE ärvs

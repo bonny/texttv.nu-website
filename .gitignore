@@ -30,3 +30,6 @@ baselines/*/*.report.html
 
 # Skrivs av deploy-website.yml, läses av /status.
 texttv.nu/codeigniter/application/deploy.json
+
+# Delningsbilder som api/screenshot ritar (todo #34)
+/texttv.nu/shares/v2/

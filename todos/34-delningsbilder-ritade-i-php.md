@@ -1,4 +1,4 @@
-**Status:** aktiv — granskad 2026-10-28, prototyp finns (`34-underlag/`)
+**Status:** aktiv — byggd lokalt 2026-10-28, väntar på deploy och jämförelse på prod
 **Senast uppdaterad:** 2026-10-28
 
 # Todo #34 — Delningsbilder ritade i PHP i stället för skärmdump
@@ -106,6 +106,30 @@ används bara av gamla appar och kan bli en enkel textrad.
 
 **Tidsuppskattning:** 1,5–2 dagar (renderare 0,5, controller 0,5,
 jämförelse och delningstester 0,5, nginx och driftsättning några timmar).
+
+## Byggt 2026-10-28
+
+- `libraries/Share_image.php`: renderaren, fristående från CodeIgniter.
+  Fullständiga Ubuntu Mono (UFL) i `third_party/ubuntu-mono/`, så inget
+  `fonts-ubuntu` behövs på servern.
+- `Api::screenshot()`: regex för adressen, högst 6 id, 404 (text, 10 min
+  cache) för okända id utan att spara något, högst 12 undersidor,
+  `shares/v2/<id>.png|jpg` (md5 för flera id) med temporär fil + `rename()`,
+  `Cache-Control: public, max-age=31536000, immutable`, `Last-Modified`.
+  Lås, 503 och debug-headers borta.
+- **Avvikelse från förslaget:** PHP läser filen själv i stället för
+  `X-Accel-Redirect`. Statiska locationen i nginx sätter 7 dagars cache och
+  skulle behöva en egen location för `shares/v2`; filerna är 20–140 kB och
+  läsningen tar några ms. `X-Accel-Expires: 60` hindrar att nginx
+  fastcgi_cache fylls med bilder enligt årscachen.
+- `og:image` → `.png` med `og:image:type`; JSON-LD:s felaktiga 800 × 800
+  borttaget (bilden är 672 px bred och höjden varierar).
+- Dev: `gd` i webbimagen, importerns `chars/` monterad på prods sökväg.
+- Mätt lokalt: PNG 18–27 kB och 35–50 ms per sida, cachad ~7 ms; värsta
+  fallet 12 undersidor 467 ms, 254 kB.
+- Kvar: jämförelse mot dagens bilder på prod, Facebook/Slack/iMessage,
+  liggande variant (punkt 10), städning av `shares/` (punkt 12),
+  `limit_req`, ta bort `wkhtmltopdf`-paketet efter några dagar.
 
 ## Risker
 

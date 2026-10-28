@@ -1,4 +1,4 @@
-**Status:** aktiv — plan uppdaterad och granskad 2026-10-28; förberedelserna i A kan göras nu, sedan provkörning på klon
+**Status:** aktiv — plan granskad två varv 2026-10-28 (Linux ×2, DB, PHP/Laravel); A kan göras nu, sedan provkörning på klon
 **Senast uppdaterad:** 2026-10-28
 
 # Todo #17 — Uppgradera prod till Debian 13 (trixie) och PHP 8.4
@@ -26,7 +26,7 @@ Först föreslogs en ny server bredvid (i #15). Omvärderat 2026-10-17:
   det som skrivits efter: importerade sidor (fylls på igen) och lite
   `page_actions`-statistik.
 - **Mycket mindre jobb.** All konfig som inte finns i repot (vhost, nginx-cache,
-  Certbot, cron, logrotate, MariaDB-behörigheter och vyn för `most_read`)
+  Certbot, cron, logrotate, MariaDB-behörigheter)
   stannar kvar. Ingen inventering, inget DNS-byte, ingen certflytt.
 - **Debian stöder uppgraderingen officiellt**, och det här är en ren
   LEMP-maskin.
@@ -105,178 +105,259 @@ Först föreslogs en ny server bredvid (i #15). Omvärderat 2026-10-17:
 
 ## Plan
 
-Granskad 2026-10-28 av en Linux-expert (subagent, läsande SSH och test i en
-`debian:trixie`-container). Fynden är inarbetade nedan; se "Granskning
-2026-10-28" sist för det som ändrades och varför.
+Granskad 2026-10-28 i två varv: Linux-expert, sedan Linux-, DB- och
+PHP/Laravel-experter parallellt (subagenter, läsande SSH, tester i
+Docker). Fynden är inarbetade; se "Granskningar 2026-10-28" sist.
 
-### A. Förberedelser på bookworm (små, var för sig, kan göras nu)
+### A. Förberedelser på bookworm (var för sig, utan nertid)
 
-1. **Delningsbilderna till wkhtmltox 0.12.6.1-3** (projektets egen `.deb`,
-   byggd för bookworm). Testat i trixie-container: installerar och renderar,
-   eftersom trixies t64-bibliotek har `Provides: libssl3` och
-   `libpng16-16`. Paketet ersätter Debians `wkhtmltopdf`
-   (`Conflicts/Replaces/Provides`), men lägger binären i
-   `/usr/local/bin/wkhtmltoimage`: ändra sökvägen i `api.php` (rad ~598).
-   Det drar in `xfonts-base`/`xfonts-75dpi`, så jämför en bild före och
-   efter. Gjort här berörs delningsbilderna inte av OS-bytet. Reserv på sikt
-   (projektet är arkiverat): `chromium-headless-shell`, men `--screenshot`
-   tar bara viewporten, så det kräver fast höjd eller puppeteer.
-2. `status.php`: läs php-fpm:s pid-fil för den version nginx använder (eller
-   den nyaste av `/run/php/php*-fpm.pid`), så att `/status` fungerar under
-   och efter bytet.
-3. **Egna PHP-inställningar som drop-ins**, så att de bara behöver kopieras:
-   `/etc/php/8.2/fpm/conf.d/99-texttv.ini` (`date.timezone`, `error_log`) och
-   `/etc/php/8.2/cli/conf.d/99-texttv.ini` (`date.timezone`); återställ
-   `php.ini` till paketets. `99-php2shell.ini` finns redan som drop-in.
-4. `mariadb-upgrade` på 10.11, så att systemtabellerna står på 10.11.19 före
-   hoppet.
-5. nginx: `listen 443 ssl http2;` → `listen 443 ssl;` + `http2 on;` görs
-   efter bytet (1.22 har inte `http2 on`); notera bara här.
-6. **Importern på PHP 8.4 i dev-stacken:** `make test-api`, `make phpstan`,
-   importerns `phpunit` och en riktig `texttv:import 100` i en
-   `serversideup/php:8.4`-container med `composer install` mot nuvarande
-   lock. Laravel 8 på 8.4 är annars otestat. Hellre: gör Laravel ≥ 10 i #15
-   klart före OS-bytet.
+1. **Importerns låsfil:** `composer install` går inte på PHP 8.4 med dagens
+   lock (`nette/schema v1.2.3` och `nette/utils v3.2.8` kräver `<8.3`).
+   `composer update nette/schema nette/utils` (→ 1.4.0 / 4.1.6, inget annat
+   ändras), PHPUnit, deploya på 8.2. Lägg `set -e` först i importer-workflowens
+   ssh-skript, så att ett composer-fel stoppar deployen i stället för att
+   köra `artisan optimize` mot gammal `vendor/`.
+2. **Delningsbilderna till headless Chromium.** wkhtmltox (projektets egen
+   `.deb`) provades 2026-10-28: installerar på trixie men renderar fel
+   (dubbelhög text och blockgrafiken i loggan saknas). Debians
+   `chromium-headless-shell` 156 på trixie gav i stort sett samma bild som
+   dagens wkhtmltoimage (2,8 s, 170 MB). Bookworm har också Chromium, så
+   bytet görs före OS-bytet: kommandot i `api.php` (~rad 598), med fast
+   fönsterbredd 650 och höjd efter antal sidor (en sida = 919 px;
+   flersidiga delningar måste lösas, `--screenshot` tar bara fönstret).
+   Jämför bilder före och efter.
+3. **Kollationen låses** innan 11.8 byter standard tyst (trixies
+   `50-server.cnf` saknar `character-set-server`/`collation-server`, och
+   CodeIgniter sätter `utf8` utan kollation). I `70-texttv.cnf`:
+   ```
+   [mysqld]
+   character-set-server = utf8mb4
+   collation-server = utf8mb4_general_ci
+   [mariadb-11.8]
+   character-set-collations = utf8mb3=utf8mb3_general_ci,utf8mb4=utf8mb4_general_ci
+   ```
+   Gruppen `[mariadb-11.8]` läses bara av 11.8 (provat i Docker på båda).
+   Lägg även `tmpdir = /var/tmp` (annars hamnar MariaDB:s temporära
+   tabeller i RAM när `/tmp` blir tmpfs) och, om #30 vill ha det,
+   `userstat = 1`.
+4. **Fatala PHP-fel ska loggas:** CodeIgniters `index.php` sätter
+   `error_reporting(0)` i production, så ett 8.4-fel blir en tom 500 utan
+   loggrad (och `fastcgi_cache_use_stale http_500` döljer det). Byt till
+   `error_reporting(E_ERROR | E_PARSE | E_CORE_ERROR | E_COMPILE_ERROR)`.
+   Provat: 47/47 svar byte-identiska. Rätta också `CLAUDE.md`, som säger att
+   opcache tystar URI.php-varningen.
+5. **PHP-inställningar som drop-ins** att kopiera till 8.4:
+   `fpm/conf.d/99-texttv.ini` och `cli/conf.d/99-texttv.ini` med
+   `date.timezone`. Ta inte med `error_log = /var/log/php_errors.log`: filen
+   har aldrig funnits (www-data kan inte skapa den), allt hamnar i nginx
+   `error.log`. Kopiera aldrig 8.2:s `php.ini` till 8.4.
+6. **Versionsoberoende sökvägar:** nginx `fastcgi_pass
+unix:/run/php/php-fpm.sock` (Debians alternativlänk, finns redan),
+   `status.php:291` med `PHP_MAJOR_VERSION . "." . PHP_MINOR_VERSION`.
+7. **Plan-baslinje för MariaDB:** kör
+   `todos/17-explain-baslinje.sql` på prod nu och spara
+   utdata; samma på klonen efter 11.8. Kravet: sidvisningsfrågan
+   (`texttv_page.php:133`) går på samma index utan ny filesort.
+8. `mariadb-upgrade` på 10.11, så att systemtabellerna står på 10.11.19.
+9. **Dev-test:** MariaDB `mariadb:11.8` med samma `70-texttv.cnf`, `make
+test-api`, importerns PHPUnit; webben och importern på PHP 8.4 i
+   prod-läge enligt PHP-granskningens procedur (byte-diff 8.2 mot 8.4).
+   Byt inte dev-importern till 8.4 i main före prod (en `composer update`
+   där kan låsa paket som kräver 8.3+). Laravel 9/10 stöder inte 8.4: kör
+   #15 till L11/L12 på 8.2 före OS-bytet, eller hoppa 8→11 direkt efter.
+10. Testa att nattdumpen går att läsa in i en `mariadb:10.11`-container, så
+    att reserven är prövad.
 
 ### B. Städning före provkörningen
 
-1. `apt install tmux`. Kontrollera att root-lösenordet för Hetzners
-   webbkonsol finns (reserv om SSH tappas mitt i uppgraderingen).
-2. `apt purge libapache2-mod-php8.2 apache2-bin` (ingen apache-tjänst; trixies
-   `php8.4` drar annars in `libapache2-mod-php8.4`), sedan `apt purge '~c'`
-   (16 paket i rc-läge).
-3. Behåll en spegel i apt-källorna (de står dubbelt).
-4. `apt update && apt full-upgrade` på bookworm; omstart om kärnan
+1. **GRUB på EFI** (annars kan servern sluta boota senare): prod bootar via
+   fallback-sökvägen `EFI/BOOT/BOOTX64.EFI` (GRUB 2.06), och trixies postinst
+   uppdaterar modulerna men inte den filen. Före `full-upgrade`:
+   ```
+   echo 'grub-efi-amd64 grub2/force_efi_extra_removable boolean true' | debconf-set-selections
+   echo 'grub-efi-amd64 grub2/update_nvram boolean false' | debconf-set-selections
+   ```
+2. `apt install tmux`. Kontrollera att root-lösenordet för Hetzners
+   webbkonsol finns.
+3. `apt purge libapache2-mod-php8.2 apache2-bin`, sedan `apt purge '~c'`.
+4. En enda `/etc/apt/sources.list.d/debian.sources` (deb822) skrivs för
+   hand vid källbytet i D.2: Hetzners spegel för trixie och trixie-updates,
+   `security.debian.org` för trixie-security, `Signed-By:
+/usr/share/keyrings/debian-archive-keyring.gpg` på alla. Inte `apt
+modernize-sources` (ger dubbletter och tom `Signed-By`).
+5. `apt update && apt full-upgrade` på bookworm; omstart om kärnan
    uppdaterats.
 
 ### C. Provkörning på klon
 
-1. Snapshot av prod (`HCLOUD_CONTEXT=texttv hcloud server create-image
---type snapshot`), ny server från den med `--user-data-from-file` där
-   cloud-init kör `systemctl stop cron` vid boot. Koppla brandväggen
-   `texttv-web`. Klonen får nya host-nycklar (varning i known_hosts).
-2. På klonen: `systemctl disable --now apt-daily.timer
-apt-daily-upgrade.timer certbot.timer`, och `127.0.0.1 texttv.nu
-api.texttv.nu` i `/etc/hosts`, annars hämtar `api.php` delningsbildens
-   sida från prod.
-3. Kör steg D på klonen med klocka. Torrkör först efter källbytet:
-   `apt -s full-upgrade | grep -E '^(Remv|Inst)'` och anteckna vad som tas
-   bort.
-4. Verifiera:
+1. Snapshot av prod: `HCLOUD_CONTEXT=texttv hcloud server create-image
+--type snapshot --description "fore-klon $(date +%F)" 65074277`.
+2. Klon: `hcloud server create … --image <id> --firewall texttv-web
+--ssh-key … --user-data-from-file klon.yaml`, där `#cloud-config` i
+   `bootcmd` stoppar cron, stänger av apt- och certbot-timrarna och lägger
+   `127.0.0.1` och `::1` för `texttv.nu api.texttv.nu` i `/etc/hosts`.
+   Webbkonsolen kräver `hcloud server reset-password`. Nya host-nycklar.
+3. Kör D på klonen med klocka, utom dump, snapshot och `certbot renew
+--dry-run` (bara prod). Torrkör först: `apt -s full-upgrade | grep -E
+'^(Remv|Inst)'`, och anteckna borttagningar.
+4. **Verifiera:**
    - `curl --resolve texttv.nu:443:<klon-ip>` mot startsidan, `/100`,
-     `/arkiv`, `/status`, en delningsbild; diffa API-svaren byte för byte mot
-     prod med `tests/api/urls.txt`.
-   - `php artisan texttv:import 100` för hand; `nginx -t`, `sshd -t`,
-     `fail2ban-client status`; `ss -ltn | grep 3306` (bara 127.0.0.1).
-   - MariaDB 11.8: `ANALYZE TABLE` på de stora tabellerna, tidmät
-     `/status`, `/api/most_read/news`, `/arkiv` och dagslistorna mot prod
-     (ny kostnadsmodell i optimeraren), slow log en stund.
-5. Radera klonen och skriv in tidsåtgång och avvikelser här.
+     `/arkiv`, `/status` (php_sedan inte null), en ny delningsbild; byte-diff
+     av `tests/api/urls.txt` mot prod.
+   - PHP: `php -v`, `php-fpm8.4 -i | grep -E
+'^(opcache\.jit|display_errors|error_reporting|date\.timezone)'`,
+     importerns PHPUnit på riktiga libbar, `texttv:import 100`, `grep "PHP
+message" /var/log/nginx/error.log` (bara väntade deprecations).
+   - MariaDB: `@@collation_server`, `@@character_set_collations`, och som
+     `texttv_web` `@@collation_connection` = `utf8mb3_general_ci`;
+     `explain.sql` diffad mot baslinjen; `ANALYZE FORMAT=JSON` på samma
+     frågor; slow log (`long_query_time=0.5`, `log_slow_verbosity`), varje
+     URL två gånger (snapshot-disken är kall).
+   - System: `nginx -t`, `sshd -t`, `ss -ltn | grep 3306` (bara 127.0.0.1),
+     `sysctl fs.protected_regular fs.protected_symlinks` (2 och 1),
+     `cloud-init status --long`, `systemctl --failed`, fail2ban med en
+     misslyckad inloggning från annan IP.
+5. **Boot från färsk NVRAM:** snapshot av den uppgraderade klonen, ny server
+   från den, kontrollera att den bootar (prövar GRUB-fallbacken på riktigt).
+6. Radera klonerna och skriv in tidsåtgång och avvikelser här.
 
 ### D. Uppgraderingen (samma steg på klon och prod)
 
 Prod: en tidig vardagsmorgon i lågtrafik, gärna 05:00. Räkna med 30–60 min.
 
 1. **Paus och konsistent rollback-punkt:**
-   - Kommentera bort importraden i root-crontab (som vid InnoDB-bytet), och
-     `systemctl stop apt-daily.timer apt-daily-upgrade.timer`.
+   - Kommentera bort importraden i root-crontab, `systemctl stop
+apt-daily.timer apt-daily-upgrade.timer`.
    - Färsk dump till Mac minin (`launchctl kickstart … backup-texttv-db`),
      kontrollera `OK` i `backup.log`. Efter 11.8 går datakatalogen inte att
-     nedgradera.
+     nedgradera, och prod har ingen Hetzner-backup påslagen.
    - `tar czf /root/etc-$(date +%F).tgz /etc /var/spool/cron/crontabs
-/root/texttv-tools` och `chmod 600`.
-   - `systemctl stop nginx mariadb.socket mariadb.service` (socketen startar
-     annars databasen igen vid nästa anrop) och kontrollera `journalctl -u
-mariadb -n 20 | grep "Shutdown complete"`.
-   - **Snapshot nu.** Den är rollback-punkten.
-2. Byt `bookworm` → `trixie` i källorna (`sed -i 's/bookworm/trixie/g'
-/etc/apt/sources.list /etc/apt/sources.list.d/*.list`, även security).
+/root/texttv-tools`, `chmod 600`.
+   - `mariadb -e "SET GLOBAL innodb_fast_shutdown=0"`, sedan `systemctl stop
+nginx mariadb.socket mariadb.service` och kontrollera `journalctl -u
+mariadb -n 20 | grep "Shutdown complete"` (11.8 vägrar starta på en
+     datakatalog som behöver crash recovery).
+   - **Snapshot:** `hcloud server create-image --type snapshot --description
+"pre-trixie $(date +%F)" 65074277`; skriv upp ID:t.
+   - `systemctl disable nginx`, annars startar postinst den mitt i
+     `full-upgrade`.
+2. Skriv `debian.sources` för trixie (B.4), ta bort gamla `.list`-filer.
 3. I `tmux`, under `script -a /root/upgrade-trixie.log`: `apt update`, `apt
-upgrade --without-new-pkgs`, sedan `apt full-upgrade`. Conffile-frågor:
-   behåll egna (`nginx.conf` m.fl.). PHP 8.4 installeras här via
-   metapaketen, och `/usr/bin/php` byter till 8.4 direkt; cron är fortfarande
-   pausad.
+upgrade --without-new-pkgs`, `apt full-upgrade`. Conffile-frågor: behåll
+   egna. PHP 8.4 och MariaDB 11.8 installeras och startas här; cron är
+   pausad. Stoppa om torrkörningen eller utdata visar oväntade `Remv`.
 4. **PHP 8.4:** kopiera `99-texttv.ini` och `99-php2shell.ini` till
-   `/etc/php/8.4/{fpm,cli}/conf.d/`, för över poolinställningarna till
-   `/etc/php/8.4/fpm/pool.d/www.conf` och logrotate-regeln för slowloggen
-   (sökvägar `php8.4-fpm.*`). Byt båda `fastcgi_pass` till
-   `php8.4-fpm.sock`, `listen 443 ssl;` + `http2 on;`, `nginx -t`.
-   `update-alternatives --auto php`. När 8.4 svarar: `systemctl disable
---now php8.2-fpm`, `apt purge 'php8.2*'`.
-5. **MariaDB 11.8:** `systemctl start mariadb.socket mariadb`, `dpkg --audit`
-   tomt, `mariadb-upgrade` gått (annars kör den), `SHOW GRANTS` för
-   `texttv_web`, `texttv_importer`, `texttv_admin`, `innodb_buffer_pool_size`
-   och `local_infile`, `ss -ltn | grep 3306`. Kontrollera att
-   `/etc/systemd/system/mariadb.socket.d/local-only.conf` fortfarande gäller.
-6. `composer install --no-dev` i importern på 8.4, `php artisan config:cache`
-   med `umask 022`. Starta nginx.
-7. Omstart (kärna 6.12; `/tmp` blir tmpfs, cachefilerna där är ofarliga att
-   tappa). Sedan importraden tillbaka, apt-timrarna på, `apt
-modernize-sources`, `apt autoremove`.
-8. **Beslut om MariaDB i unattended-upgrades:** `Package-Blacklist`
-   (`mariadb-`, `libmariadb`) påverkar bara unattended-upgrades, inte en
-   manuell uppgradering. Står den kvar kommer 11.8:s säkerhetsfixar aldrig
-   in automatiskt. Förslag: ta bort den efter en vecka utan problem.
-9. Verifiera som i C.4, plus `/status/health` 200, Pulsetic grönt, nästa
-   import i `page_imports_logs`, `certbot renew --dry-run`, `/prod-health`.
+   `/etc/php/8.4/{fpm,cli}/conf.d/`, poolinställningarna (`pm.*`, `slowlog`,
+   `request_slowlog_timeout`) till 8.4:s `www.conf`, logrotate-regeln för
+   slowloggen med nya sökvägar. `update-alternatives --auto php`,
+   `php-fpm.sock` pekar på 8.4. Kvarvarande `php8.2*`: `apt purge`.
+5. **MariaDB 11.8:** `dpkg --audit` tomt; `mariadb-upgrade
+--check-if-upgrade-is-needed` ska ge exitkod 1, annars `mariadb-upgrade
+--verbose`; `journalctl -u mariadb -b | grep -iE
+"error|warn|deprecat|unknown"`; `ANALYZE TABLE` på `texttv`,
+   `page_actions`, `page_imports_logs`. Rättigheter utan hashar: `SELECT
+user,host,db,table_name,table_priv,column_priv FROM mysql.tables_priv` och
+   `SELECT * FROM mysql.columns_priv` (facit: 10 rader + `texttv_web`
+   UPDATE(`is_shared`)); aldrig `SHOW GRANTS` (skriver hashar till loggen).
+   Kollationen enligt C.4, `ss -ltn | grep 3306`.
+6. `apt install linux-sysctl-defaults` (Hetzner har `Install-Recommends
+false`, och trixie flyttade `fs.protected_*` dit; utan det blir de 0).
+   Starta om php-fpm efter MariaDB (CodeIgniter kör `pconnect`).
+7. Importern: `composer install` som workflowen (med eller utan `--no-dev`,
+   samma som deployen), `php artisan optimize` med `umask 022`, kontrollera
+   att `bootstrap/cache/*.php` är läsbara för www-data.
+8. **Före omstart:** `cmp /boot/grub/x86_64-efi/core.efi
+/boot/efi/EFI/BOOT/BOOTX64.EFI`, `efibootmgr -v`, `ls
+/boot/vmlinuz-6.12*`, `udevadm test-builtin net_setup_link
+/sys/class/net/eth0`, webbkonsolen öppen. Sedan omstart (kärna 6.12,
+   `/tmp` blir tmpfs).
+9. `systemctl enable --now nginx`, importraden tillbaka, apt-timrarna på,
+   `apt autoremove`. Slow log på en vecka (`slow_query_log=1`,
+   `long_query_time=1` i `70-texttv.cnf`).
+10. Verifiera som i C.4, plus `/status/health` 200, Pulsetic grönt, nästa
+    import i `page_imports_logs`, `certbot renew --dry-run`, `/prod-health`.
+11. **Beslut om MariaDB i unattended-upgrades:** `Package-Blacklist`
+    påverkar bara automatiken; står den kvar får 11.8 aldrig sina
+    säkerhetsfixar automatiskt. Förslag: ta bort den efter en vecka utan
+    problem.
 
 ### E. Efteråt
 
 - Uppdatera `server.md`, `CLAUDE.md`, `prod-health`-skillen och
-  Obsidian-noten (append, läses inte): 8.2 → 8.4, versioner, sökvägar, att
-  delningsbilderna kommer från wkhtmltox i `/usr/local/bin`.
-- Dev-stacken till PHP 8.4 och MariaDB 11.8 in i main.
-- Kontrollera nästa morgons backup i `backup.log`.
-- Radera snapshotarna efter en vecka utan problem.
-- Avblockera #15 (Laravel 13).
+  Obsidian-noten (append): 8.2 → 8.4, versioner, sökvägar, Chromium för
+  delningsbilderna; `last` finns inte i trixie, byt till `journalctl
+--list-boots | tail -2`.
+- fail2ban: lägg till `+ _COMM=sshd-session` i `journalmatch` i
+  `jail.local` om räknaren inte gick upp på klonen (OpenSSH 10).
+- PHPStan till 8.4 (`phpVersion: 80400`, workflowens `php-version`,
+  `platform.php`), dev-stacken till 8.4 och MariaDB 11.8 i main.
+- Kontrollera nästa morgons backup, radera snapshotarna efter en vecka.
+- Avblockera #15 (Laravel 13). `buffer_pool` till 3G kan övervägas separat.
 - Logga i `Logg - texttv.nu.md` samma dag.
 
 ## Rollback
 
-Före D.3 (inget installerat): ångra källändringen och starta MariaDB, nginx
-och pausade jobb igen. Efter: återställ snapshoten från D.1
-(`hcloud server rebuild --image <snapshot>`, några minuter). Snapshoten är
-tagen i pausläget, så efter återställningen: `systemctl start mariadb.socket
-mariadb nginx`, apt-timrarna på och importraden tillbaka i crontab. Det som
-går förlorat är importerade sidor och `page_actions` sedan snapshoten;
-importen fyller på sidorna igen.
+Före D.3 (inget installerat): återställ källfilerna, `systemctl enable
+--now nginx`, `systemctl start mariadb.socket mariadb`, apt-timrarna på,
+importraden tillbaka. Efter D.3: återställ snapshoten från D.1. Prod har
+delete- och rebuild-skydd, så:
+
+```
+HCLOUD_CONTEXT=texttv hcloud server disable-protection 65074277 delete rebuild
+hcloud server rebuild --image <snapshot-id> 65074277
+hcloud server enable-protection 65074277 delete rebuild
+```
+
+Snapshoten är tagen i pausläget: efter återställningen `systemctl start
+mariadb.socket mariadb nginx`, apt-timrarna på, importraden tillbaka. Det
+som går förlorat är importerade sidor och `page_actions` sedan snapshoten.
 
 ## Risker
 
-- **MariaDB 10.11 → 11.8** är det största hoppet: systemtabeller, ny
-  kostnadsmodell i optimeraren, standardkollationen (`uca1400`) för nya
-  tabeller. Provkörningen ska visa det.
-- **PHP 8.4 och Laravel 8 / CodeIgniter 2.2.6:** CodeIgniter provat i Docker
-  med bara deprecation-notiser; Laravel 8 provas i A.6. `display_errors`
-  måste vara av.
-- **Delningsbilderna** hänger på ett arkiverat projekt (wkhtmltox), men det
-  är löst före bytet i A.1 och fungerar på trixie.
+- **MariaDB 10.11 → 11.8:** ny kostnadsmodell (kan inte stängas av; enda
+  vägen tillbaka för en fråga är `FORCE INDEX`), kollation (låst i A.3),
+  `innodb_snapshot_isolation` på (autocommit, låg risk; bevaka loggarna en
+  vecka). Provkörningen ska visa planerna.
+- **GRUB på EFI:** utan B.1 kan servern sluta boota vid nästa kallstart
+  eller värdflytt.
+- **PHP 8.4:** Laravel 8 fungerar med nette-fixen (provat), Laravel 9–10
+  stöds inte på 8.4; CodeIgniter 2.2.6 gav byte-identiska svar.
+- **Delningsbilderna:** Chromium ersätter wkhtmltoimage före bytet (A.2).
 - **Ingen staging** och appversioner i fält: `/api/*` måste svara som förut
   (byte-diff i C.4).
 - **Nertid 30–60 min.** Pulsetic larmar; det är väntat.
 
-## Granskning 2026-10-28 (Linux-expert)
+## Granskningar 2026-10-28
 
-Inarbetat ovan:
+**Varv 1 (Linux):** MariaDB stoppades inte rent och `mariadb.socket` kunde
+starta den igen; wkhtmltox i `/usr/local/bin`; ingen tmux; ingen färsk
+dump; blacklist-steget verkningslöst; PHP 8.4 kommer med `full-upgrade`;
+Apache-modulen; klonen hämtade bilder från prod; konfigbackupen
+ofullständig; rollbacken tappade pausläget.
 
-- **Blockerare:** MariaDB stoppades inte rent före hoppet, och
-  `mariadb.socket` kunde starta den igen mitt i paketbytet (nu D.1, snapshot
-  efter stoppet). wkhtmltox lägger binären i `/usr/local/bin` (nu A.1, gjort
-  på bookworm). Ingen tmux och inget sparat utdata (B.1, D.3). Ingen färsk
-  dump före prod, eftersom backupen går 07:45 (D.1).
-- **Bör fixas:** blacklist-steget gjorde inget vid manuell uppgradering
-  (struket, beslut i D.8). PHP 8.4 kommer redan med `full-upgrade`, och
-  `/usr/bin/php` byter direkt (D.3, drop-ins i A.3). Apache-modulen och
-  rc-paket rensas (B.2). Klonen hämtade delningsbilden från prod
-  (`/etc/hosts`, C.2). Laravel 8 på 8.4 var otestat (A.6). Frågeplaner med
-  11.8 (C.4). Konfigbackupen var ofullständig (hela `/etc`, D.1). Rollbacken
-  tappade pausläget (Rollback).
-- **Redan i ordning enligt granskningen:** `openssh-server` deb12u10, usrmerge
-  klart, `dpkg --audit` tomt, inga holds, ed25519-nycklar, interfacet `eth0`,
-  Hetzners trixie-speglar svarar, backupskriptet använder `mariadb-dump`.
+**Varv 2:**
+
+- _Linux:_ GRUB-fallbacken på EFI (blockerare), rollback nekas av
+  skyddsflaggorna och `create-image` saknade servern (blockerare), nginx
+  startas av postinst, `fs.protected_*` försvinner utan
+  `linux-sysctl-defaults`, kontroller före omstart, cloud-init-user-data,
+  deb822 för hand, cloud-init 25.1-moduler, fail2ban och `sshd-session`,
+  `last` borta, MariaDB:s `tmpdir` på tmpfs.
+- _DB:_ kollationen byter tyst (blockerare), `SHOW GRANTS` skriver hashar,
+  vyn för `most_read` finns inte på prod (bara i dev), plan-baslinje,
+  slow log och kall disk på klonen, `innodb_fast_shutdown=0`, skarpare
+  kontroller efter start, 11.8 i dev först. `buffer_pool` 2G räcker
+  (träffgrad 99,997 %).
+- _PHP/Laravel:_ nette-låsningen stoppar `composer install` på 8.4
+  (blockerare), fatala fel loggas inte i production, `error_log` pekar på
+  en fil som aldrig funnits, versionsoberoende sökvägar, Laravel 9/10 utan
+  8.4-stöd, `set -e` i importer-workflowen, `artisan optimize`.
+
+Ett eget test samma dag: wkhtmltox renderar delningsbilderna fel, Chromium
+rätt (A.2).
 
 ## Confidence
 
-medel–hög — standarduppgradering med konsistent snapshot och provkörning.
-Delningsbilderna löses före bytet; kvar som okänt är MariaDB-hoppet, och det
-är det klonen ska visa.
+medel–hög — alla blockerare har konkreta åtgärder som görs före bytet, och
+det som återstår som okänt (frågeplaner i 11.8, GRUB-fallbacken) prövas på
+klonen.

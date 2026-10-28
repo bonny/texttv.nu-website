@@ -1,0 +1,15 @@
+USE `texttv.nu`;
+SELECT 'most_read';
+EXPLAIN SELECT agg.count_page_ids, tt.id, UNCOMPRESS(tt.page_content) FROM (SELECT count(pa.page_ids) AS count_page_ids, pa.page_ids, MIN(pa.created_at) AS first_created_at FROM texttv_stats.page_actions AS pa INNER JOIN `texttv.nu`.texttv AS tt ON (tt.id = pa.page_ids) WHERE pa.created_at BETWEEN CONCAT(CURDATE(),' 00:00:00') and CONCAT(CURDATE(),' 23:59:59') AND pa.type in('VIEW','SHARE','COPYLINK','COPYTEXT') AND tt.page_num NOT BETWEEN 100 AND 105 AND tt.page_num NOT BETWEEN 200 AND 299 AND tt.page_num NOT BETWEEN 300 AND 303 AND tt.page_num not in ('377','378','379','330','331','380','344','381') AND tt.page_num NOT BETWEEN 600 AND 699 AND tt.title > '' AND tt.page_num BETWEEN 100 AND 199 GROUP BY pa.page_ids ORDER BY count_page_ids DESC, first_created_at ASC LIMIT 50) AS agg INNER JOIN `texttv.nu`.texttv AS tt ON (tt.id = agg.page_ids) ORDER BY agg.count_page_ids DESC, agg.first_created_at ASC;
+SELECT 'updated';
+EXPLAIN SELECT id, page_num, date_updated, title, date_added FROM texttv WHERE page_num IN (100,101,102) AND date_added > FROM_UNIXTIME(UNIX_TIMESTAMP()-600) GROUP BY page_num ORDER BY date_added DESC LIMIT 10;
+SELECT 'headlines';
+EXPLAIN SELECT title, MIN(date_added) AS first_added, MAX(id) AS id, SUBSTRING_INDEX(GROUP_CONCAT(page_num ORDER BY id DESC), ',', 1) AS page_num FROM texttv WHERE date_added >= CURDATE() AND date_added < CURDATE() + INTERVAL 1 DAY AND page_num BETWEEN 101 AND 199 AND title <> '' GROUP BY title ORDER BY first_added DESC LIMIT 500;
+SELECT 'latest_per_num';
+EXPLAIN SELECT t.id FROM texttv t JOIN (SELECT MAX(id) AS id FROM texttv WHERE date_added >= DATE_SUB(NOW(), INTERVAL 8 HOUR) AND page_num BETWEEN 100 AND 199 AND title <> '' AND page_num NOT IN (188,100,101) AND UNCOMPRESSED_LENGTH(page_content) > 1200 GROUP BY page_num) senaste ON senaste.id = t.id ORDER BY t.date_added DESC, t.page_num;
+SELECT 'status_mest_lasta';
+EXPLAIN SELECT tt.page_num, COUNT(*) AS antal FROM texttv_stats.page_actions AS pa INNER JOIN `texttv.nu`.texttv AS tt ON (tt.id = pa.page_ids) WHERE pa.created_at >= CURDATE() AND pa.type = 'VIEW' GROUP BY tt.page_num ORDER BY antal DESC, tt.page_num LIMIT 10;
+SELECT 'status_titlar';
+EXPLAIN SELECT page_num, title FROM texttv WHERE id IN (SELECT MAX(id) FROM texttv WHERE page_num IN (100,377,300) GROUP BY page_num);
+SELECT 'archive_page';
+EXPLAIN SELECT id, page_num, UNCOMPRESS(page_content), date_updated FROM texttv WHERE page_num = 100 ORDER BY date_updated DESC LIMIT 1;

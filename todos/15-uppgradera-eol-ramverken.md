@@ -136,18 +136,18 @@ Fyra vägar:
 Från granskningen 2026-10-17:
 
 - [x] Ta bort `spatie/laravel-short-schedule` ur importern. Gjort 2026-10-17
-  (939e2af, deployat); bara paketet och `spatie/temporary-directory`
-  försvann ur låsfilen.
+      (939e2af, deployat); bara paketet och `spatie/temporary-directory`
+      försvann ur låsfilen.
 - [x] Ta bort `controllers/test.php` och `controllers/welcome.php` och routen
-  `$route['dev']` (pekar på en controller som inte finns). `/test` och
-  `/welcome` svarar 200 i prod; `/test` skriver ut `<br>start` och sida 100
-  rått. Gjort 2026-10-17, även vyn `welcome_message.php`.
+      `$route['dev']` (pekar på en controller som inte finns). `/test` och
+      `/welcome` svarar 200 i prod; `/test` skriver ut `<br>start` och sida 100
+      rått. Gjort 2026-10-17, även vyn `welcome_message.php`.
 - [x] Fixa de två PHPUnit-tester som redan fallerar, så att testsviten duger
-  som verifiering inför Laravel-hoppet. Gjort 2026-10-17: båda var inaktuell
-  testdata från 2021. `test_linkify` testar nu `linkifySingleLine()`, den
-  metod prod använder, och `test_linkify_pipeline` kör hela kedjan
-  cleanup → colorize → linkify. Det avslöjade att "Minst 2 300 strokefall"
-  länkade 300.
+      som verifiering inför Laravel-hoppet. Gjort 2026-10-17: båda var inaktuell
+      testdata från 2021. `test_linkify` testar nu `linkifySingleLine()`, den
+      metod prod använder, och `test_linkify_pipeline` kör hela kedjan
+      cleanup → colorize → linkify. Det avslöjade att "Minst 2 300 strokefall"
+      länkade 300.
   - Första fixen (5330773) gjorde hela-rad-spärren för tusental bredare, men
     den tog då också bort riktiga länkar på samma rad. Efter code review samma
     dag: spärren är borttagen och ersatt med lookbehinds i sidnummer-regexen
@@ -158,8 +158,7 @@ Från granskningen 2026-10-17:
     länkas inte.
   - Andra code review samma dag: lookbehinds även för tredje gruppen
     (`12 485 725`), smalare spärr efter bindestreck så att `101-102-103`
-    länkar alla tre, och atomiskt intervall så att `100-200 kr` inte länkar
-    100. Samma resultat som förut på alla 16 971 rader i 421 prod-sidor.
+    länkar alla tre, och atomiskt intervall så att `100-200 kr` inte länkar 100. Samma resultat som förut på alla 16 971 rader i 421 prod-sidor.
     Kvar medvetet: `126 450` länkar båda (går inte att skilja från listan
     `101 104`), lookarounds ser inte över spangränser i HTML:en.
   - Tredje code review: lapparna öppnade nya hål (telefonnummer, årtal,
@@ -235,7 +234,51 @@ Från granskningen 2026-10-17:
 **Klart:** testerna från punkt 2, 5 och förberedelsepunkten (`5669ecb`): `ScheduleTest` (schemat som JSON, inkl. underhållsläge och låsnycklar för `call()`), `CharsStorageTest` (grafikfilerna finns, skrivfel kastar från Flysystem) och `Feature/DebugRoutesTest` (`/live`, `/db`, `/importstatus`). Se CLAUDE.md. Fynd på vägen: i Laravel 8 läser `between()` klockan när schemat byggs, inte när filtret körs.
 
 **Kvar av förberedelserna på L8:**
+
 - [ ] `fideloper/proxy` → inbyggda `TrustProxies`; ta bort `fruitcake/laravel-cors`, `config/cors.php`, `laravel/sail`.
 - [ ] `"minimum-stability": "stable"`.
 - [ ] Härdad deploy (punkt 3–4). Ändrar `deploy-importer.yml`, Pär godkänner separat.
 - [ ] `/pagecolors/{n}` ger 500 redan på L8 (`PageColors.php:19` läser `charAsImgTag`, som `TeletextCharsExtractor` inte längre sätter). Laga eller ta bort rutten; Pär bestämmer.
+
+## Granskning 2026-10-28 kväll: paketen och förberedelserna på L8 (subagent)
+
+Provkört i en worktree på `5effc0a`: `minimum-stability: stable`, `composer remove` av fideloper/fruitcake/sail, `Illuminate\Http\Middleware\TrustProxies`, `HandleCors` och `config/cors.php` borta. PHPUnit 104 tester / 370 assertions som i dag, `artisan optimize` (även `route:cache` med closures) OK.
+
+**Paketen**
+
+| Paket                                                               | Används                                                                                 | Rekommendation                                               |
+| ------------------------------------------------------------------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| `laravel/framework` 8.83.27                                         | ja                                                                                      | `^12` vid L12 (8.83.28/29 blockeras av säkerhetsmeddelanden) |
+| `guzzlehttp/guzzle` 7.5.0                                           | ja, `Http::timeout()` i `Importer.php`                                                  | behåll; 9 CVE:er, 7.16.1 går på L8; `^7.8` vid L12           |
+| `symfony/dom-crawler`, `css-selector` ^5.4                          | ja (`filter()` kräver css-selector)                                                     | behåll, `^7.0` vid L12                                       |
+| `laravel/tinker`                                                    | manuellt                                                                                | behåll i `require`, `^2.10` vid L12                          |
+| `fideloper/proxy`                                                   | no-op (`$proxies = null`)                                                               | **ta bort nu**, inbyggda `TrustProxies` finns i 8.83         |
+| `fruitcake/laravel-cors`                                            | no-op (`api/*`, tom `routes/api.php`)                                                   | **ta bort nu** med `config/cors.php` och Kernel-raden        |
+| `laravel/sail` (dev)                                                | nej                                                                                     | **ta bort nu**                                               |
+| `spatie/laravel-ignition` (dev)                                     | registrerar `_ignition/*` på prod (deployen installerar dev; 404 med `APP_DEBUG=false`) | försvinner med `--no-dev`; tas bort vid L12                  |
+| `nunomaduro/collision`, `phpunit/phpunit` (dev)                     | ja                                                                                      | behåll; `^8.6` / `^11.5` vid L12                             |
+| `mockery/mockery`, `fakerphp/faker`, `spatie/phpunit-watcher` (dev) | nej / skelettrest / `npm run watch-tests`                                               | kan tas bort                                                 |
+
+Också oanvänt: `package.json`, `webpack.mix.js`, `resources/js`, `resources/css` (inga `mix()`), `server_deploy.sh` (död, php7.4). Skelettrester (`welcome`, `User`, `routes/api.php` m.fl.) är ofarliga.
+
+**Stegen**
+
+1. `minimum-stability: stable`: ofarligt, låsfilen har inga dev-versioner. Med `stable` misslyckas en full `composer update` på L8 (alla 8.x blockerade); uppdatera riktat. `install` från låsfilen påverkas inte.
+2. fideloper/fruitcake/sail bort: verifierat, säkert även med dagens deploy.
+3. **Härdad deploy + #33:**
+   - `down` i ett eget ssh-steg **före** kopieringen.
+   - Ett fel under `set -e` lämnar appen i `down` (importen står still). `cp -a importer importer.prev` (utan `storage`) före rsync och en `trap` som återställer koden och vendor och kör `up`; `up` i `if: always()` räcker inte.
+   - `rsync --delete` måste undanta `public/storage` (symlänk; annars 404 på all grafik), `vendor/`, `storage/`, `.env`, `bootstrap/cache/`, `.phpunit.result.cache`, `node_modules`.
+   - Vänta på `pgrep -f 'artisan (texttv:|schedule:|import-status)'` med tak (5 min, sedan avbryt och `up`).
+   - `concurrency: deploy-importer`; pinna `appleboy/scp-action` och `ssh-action` (nu `@master`, har prod-nyckeln för root) till SHA; ta bort `setup-php 7.4`.
+   - `check-platform-reqs --lock --no-dev` först, `rm -f bootstrap/cache/*.php` före `install`, `--no-dev`.
+   - `umask 002` före `optimize`, #33:s `root:www-data` 2775/664 efter, `'permission' => 0664` på loggkanalen; ersätter `chown -R root:root .` och `chmod 777`.
+   - Rök-test före `up`: `php artisan --version`, `schedule:list`. Testa med `workflow_dispatch` på oförändrad kod (workflow-ändringen triggar inte path-filtret).
+4. `/pagecolors`: ta bort rutten, `PageColors.php`, `use`-raden och den döda `getImageDebugHtml()`. Att laga kräver bild-HTML per tecken i importen igen.
+5. Saknades:
+   - Säkerhetsuppdateringar inom L8: 47 meddelanden i 12 paket. `composer update "guzzlehttp/*" "symfony/*" league/commonmark psy/psysh phpunit/phpunit nesbot/carbon monolog/monolog -W` ger 55 uppdateringar, PHPUnit grönt; psr/log 2 och psr/http-message 2 följer med. Eget deploy, valfritt.
+   - `'throw' => true` på `local`/`public` redan nu (ignoreras av Flysystem 1).
+   - PHPUnit 10/11-förberedelser som fungerar på 9: `static` dataproviders, `assertObjectHasAttribute` bort, `@test` → `test_`-prefix.
+   - `/live/{n}` hämtar från SVT per anrop och delar fpm-pool med webben; överväg throttle (utanför uppgraderingen).
+
+**Ordning:** (A) deploy av bara workflowen: härdning + #33 + `--no-dev` + `concurrency` + pinnade actions, testad med `workflow_dispatch`. (B) en koddeploy: `minimum-stability`, paketen bort, `/pagecolors` bort, loggrättigheter och `throw`, PHPUnit-förberedelser, npm-filer och `server_deploy.sh` bort (kan gå före A). (C, valfri) säkerhetsuppdateringar inom L8 med `make scheduler` 10–15 min. (D) branch L9 → L12, en deploy, `php` `^8.2`.

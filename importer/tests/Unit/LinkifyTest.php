@@ -45,7 +45,7 @@ class LinkifyTest extends TestCase
         return $matches[1];
     }
 
-    public function specProvider(): array
+    public static function specProvider(): array
     {
         return [
             // Sidnummer som ska länkas.

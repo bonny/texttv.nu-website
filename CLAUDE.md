@@ -22,7 +22,7 @@ A scheduler (`app/Console/Kernel.php`) runs `texttv:import {pageNumber}` on diff
 - `app/Classes/Importer.php` — fetches HTML from `svt.se/text-tv/{n}`, extracts the `__NEXT_DATA__` JSON blob, then runs a fluent pipeline: `fromRemote()->cleanup()->colorize()->linkify()`.
 - `app/Models/TextTV.php` — Eloquent model for the `texttv` table. Page contents are stored **gzcompressed + serialized** in `page_content` (see the `gzuncompress(substr(..., 4))` call in `routes/web.php` for the read shape, and `UNCOMPRESS()` in CodeIgniter's `texttv_page` model).
 - Other commands: `texttv:cleanup-page-actions`, `texttv:cleanup-old-pages`, `import-status:remove-old`. All wired into the schedule.
-- Routes (`routes/web.php`) expose debug views: `/live/{pageNum}` (re-fetches from SVT live), `/db/{pageNum}` (renders newest DB row), `/pagecolors/{pageNum}`, `/importstatus`.
+- Routes (`routes/web.php`) expose debug views: `/live/{pageNum}` (re-fetches from SVT live), `/db/{pageNum}` (renders newest DB row), `/importstatus`.
 
 #### SVT:s data och hur importern bygger sidan
 
@@ -133,7 +133,7 @@ I Docker-stacken finns ingen `vendor/` på värden. Kör i containern: `docker c
 - `CleanupTest`: sidnumren på 100 står i samma kolumn som i SVT:s `imageMap`.
 - `ScheduleTest`: schemat i `app/Console/Kernel.php` som JSON (`TestPages/snapshots/schedule.json`): cron-uttryck, jobb, lås, bakgrund och om `between`/`unlessBetween` släpper igenom klockan 12 och 03. Skrivs om med `-e UPDATE_SNAPSHOTS=1`. Ersätter diff av `schedule:list`, vars format ändras mellan Laravel-versionerna.
 - `CharsStorageTest`: varje `storage/chars/{hash}.gif` som sidan pekar på finns på disk, och ett skrivfel kastar. Flysystem 3 (Laravel 9+) returnerar bara `false`, så `local`-disken behöver `'throw' => true` då.
-- `Feature/DebugRoutesTest`: `/live`, `/db` och `/importstatus` (läser lokala DB:n). `/pagecolors/{n}` ger 500 redan på Laravel 8 och är inte med.
+- `Feature/DebugRoutesTest`: `/live`, `/db` och `/importstatus` (läser lokala DB:n). `/pagecolors/{n}` togs bort 2026-10-28 (gav 500 sedan bildtaggarna per tecken försvann).
 
 Skriv testerna före ändringen och låt den gamla koden skriva facit. Då visar diffen efter ändringen exakt vad som ändrats.
 

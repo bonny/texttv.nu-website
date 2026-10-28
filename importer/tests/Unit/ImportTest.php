@@ -35,8 +35,7 @@ class ImportTest extends TestCase
         });
     }
 
-    /** @test */
-    public function importer_class_exists()
+    public function test_importer_class_exists()
     {
         $this->assertTrue(class_exists('App\Classes\Importer'));
     }
@@ -57,23 +56,23 @@ class ImportTest extends TestCase
 
             $parsedHtmlObject = $importer->pageObject();
 
-            $this->assertObjectHasAttribute('props', $parsedHtmlObject);
-            $this->assertObjectHasAttribute('pageProps', $parsedHtmlObject->props);
-            $this->assertObjectHasAttribute('status', $parsedHtmlObject->props->pageProps);
-            $this->assertObjectHasAttribute('prevPage', $parsedHtmlObject->props->pageProps);
-            $this->assertObjectHasAttribute('nextPage', $parsedHtmlObject->props->pageProps);
-            $this->assertObjectHasAttribute('pageNumber', $parsedHtmlObject->props->pageProps);
-            $this->assertObjectHasAttribute('meta', $parsedHtmlObject->props->pageProps);
-            $this->assertObjectHasAttribute('updated', $parsedHtmlObject->props->pageProps->meta);
-            $this->assertObjectHasAttribute('subPages', $parsedHtmlObject->props->pageProps);
+            $this->assertTrue(property_exists($parsedHtmlObject, 'props'), 'props saknas');
+            $this->assertTrue(property_exists($parsedHtmlObject->props, 'pageProps'), 'pageProps saknas');
+            $this->assertTrue(property_exists($parsedHtmlObject->props->pageProps, 'status'), 'status saknas');
+            $this->assertTrue(property_exists($parsedHtmlObject->props->pageProps, 'prevPage'), 'prevPage saknas');
+            $this->assertTrue(property_exists($parsedHtmlObject->props->pageProps, 'nextPage'), 'nextPage saknas');
+            $this->assertTrue(property_exists($parsedHtmlObject->props->pageProps, 'pageNumber'), 'pageNumber saknas');
+            $this->assertTrue(property_exists($parsedHtmlObject->props->pageProps, 'meta'), 'meta saknas');
+            $this->assertTrue(property_exists($parsedHtmlObject->props->pageProps->meta, 'updated'), 'updated saknas');
+            $this->assertTrue(property_exists($parsedHtmlObject->props->pageProps, 'subPages'), 'subPages saknas');
             $this->assertIsArray($parsedHtmlObject->props->pageProps->subPages);
 
             $firstPage = $parsedHtmlObject->props->pageProps->subPages[0];
             $this->assertIsObject($firstPage);
-            $this->assertObjectHasAttribute('subPageNumber', $firstPage);
-            $this->assertObjectHasAttribute('gifAsBase64', $firstPage);
-            $this->assertObjectHasAttribute('imageMap', $firstPage);
-            $this->assertObjectHasAttribute('altText', $firstPage);
+            $this->assertTrue(property_exists($firstPage, 'subPageNumber'), 'subPageNumber saknas');
+            $this->assertTrue(property_exists($firstPage, 'gifAsBase64'), 'gifAsBase64 saknas');
+            $this->assertTrue(property_exists($firstPage, 'imageMap'), 'imageMap saknas');
+            $this->assertTrue(property_exists($firstPage, 'altText'), 'altText saknas');
 
             $this->assertInstanceOf('Illuminate\Support\Collection', $importer->subpages());
 

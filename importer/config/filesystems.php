@@ -33,6 +33,8 @@ return [
         'local' => [
             'driver' => 'local',
             'root' => storage_path('app'),
+            // Skrivfel ska kasta från Laravel 9 (Flysystem 3); Flysystem 1 ignorerar nyckeln (#15).
+            'throw' => true,
         ],
 
         'public' => [
@@ -40,6 +42,7 @@ return [
             'root' => storage_path('app/public'),
             'url' => env('APP_URL').'/storage',
             'visibility' => 'public',
+            'throw' => true,
         ],
 
         's3' => [

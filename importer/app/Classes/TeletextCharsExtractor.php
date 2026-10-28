@@ -1067,23 +1067,6 @@ class TeletextCharsExtractor
         }
     }
 
-    public function getImageDebugHtml(): string
-    {
-        ob_start();
-
-        foreach ($this->arrChars['rows'] as $rowNum => $row) {
-            echo "Row " . str_pad($rowNum, 2, "0", STR_PAD_LEFT) . ": ";
-
-            foreach ($row['cols'] as $colIndex => $col) {
-                echo $col['charAsImgTag'] . " ";
-            }
-
-            echo "<hr>";
-        }
-
-        return ob_get_clean();
-    }
-
     // Creates an HTML Img Tag with Base64 Image Data
     // https://stackoverflow.com/questions/22266402/how-to-encode-an-image-resource-to-base64
     public function gdImgToHTML($gdImg, string $tooltip = '')

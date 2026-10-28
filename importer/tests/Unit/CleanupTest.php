@@ -38,7 +38,7 @@ class CleanupTest extends TestCase
         return array_map(fn ($m) => [intdiv((int) $m[2], 16), intdiv((int) $m[1], 13), $m[3]], $matches);
     }
 
-    public function fileProvider(): array
+    public static function fileProvider(): array
     {
         return [
             ['100.html'],

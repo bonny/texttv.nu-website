@@ -1,4 +1,4 @@
-**Status:** steg 1–5 klara 2026-10-28; kvar nattdump till Mac minin (steg 6) och städning (steg 7)
+**Status:** steg 1–6 klara 2026-10-28; kvar städning av dumparna i `/root` (steg 7, ~2026-10-31)
 **Senast uppdaterad:** 2026-10-28
 
 # Todo #31 — Byt `texttv` och `texttv_blogg` till InnoDB
@@ -93,6 +93,14 @@ buffer pool 2 GB, loggfil 96 MB, dumpen från 10-18): `texttv_blogg` under 1 s,
   `IMPORT_SUCCESS` 11:15. Svarstider före/efter oförändrade (±10 ms) för
   `/api/get`, `most_read`, `last_updated`, arkiv, `/sida/delat`, blogg, sök;
   `/api/updated/…` var 1,5–3,5 s redan före (1,7 s efter).
+- 2026-10-28 12:28: steg 6. `~/Backups/bin/backup-texttv-db.sh` + LaunchAgent
+  `se.eskapism.backup-texttv-db` (07:45, bara Mac minin). `mariadb-dump
+  --single-transaction --quick --hex-blob --databases texttv.nu texttv_stats`
+  som root via socket med nice/ionice, `gzip --fast` på servern, kontroll av
+  storlek (> 700 MB), gzip och avslutningsraden, sedan `xz -9` och `xz -t`.
+  14 dagars historik i `~/Backups/texttv-db/`, macOS-notis vid fel.
+  Testkörning via launchd: dumpen hemma på ~1 min (1 440 MB gz), xz 1 014 MB,
+  klar 12:45.
 
 ## Risker
 

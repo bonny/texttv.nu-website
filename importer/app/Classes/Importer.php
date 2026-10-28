@@ -1166,10 +1166,26 @@ class Importer
             // Behåll endast de första 24 raderna.
             $pageLines->splice(24);
 
+            // Var SVT har sidnumren, ur bildkartan: [rad => [sidnummer => kolumn]].
+            $imageMapColumns = $this->imageMapColumns($subpage->imageMap ?? '');
+
             // Se till att för korta rader blir 40 rader
             // genom att lägga till mellanslag
             // före och efter omvartannat.
-            $pageLines->transform(function ($line, $key) {
+            $pageLines->transform(function ($line, $key) use ($imageMapColumns) {
+                // Rader med bara sidnummer under rubrikerna på startsidan ("106",
+                // "130-133"): alt-texten saknar blockgrafiken runt talet, så
+                // placera talet i den kolumn där SVT har det.
+                $trimmed = trim($line);
+                if (
+                    $this->pageNum() == 100
+                    && preg_match('/^(\d{3})[\d\s,\-f]*$/', $trimmed, $firstPageNum)
+                    && isset($imageMapColumns[$key][$firstPageNum[1]])
+                    && $imageMapColumns[$key][$firstPageNum[1]] + mb_strlen($trimmed) <= 40
+                ) {
+                    return $this->mb_str_pad(str_repeat(' ', $imageMapColumns[$key][$firstPageNum[1]]) . $trimmed, 40);
+                }
+
                 if ($this->pageNum() == 100 && mb_strlen($line) < 40) {
                     // Sedan sommar 2023 så är inte sifforna under rubrikerna på startsidan centerade,
                     // så vi lägger till ett extra mellanslag i början av raden.
@@ -1318,6 +1334,25 @@ class Importer
         }
 
         return $title;
+    }
+
+    /**
+     * Var sidnumren står hos SVT, ur undersidans bildkarta. Varje sidnummer
+     * har en rektangel i pixlar i GIF:en, 13 px per kolumn och 16 px per rad:
+     * <AREA SHAPE="RECT" COORDS="221,144,260,160" HREF="130"> är rad 9, kolumn 17.
+     *
+     * @return array [rad => [sidnummer => kolumn]]
+     */
+    protected function imageMapColumns(string $imageMap): array
+    {
+        preg_match_all('/COORDS="(\d+),(\d+),\d+,\d+"\s+HREF="(\d+)"/i', $imageMap, $matches, PREG_SET_ORDER);
+
+        $columns = [];
+        foreach ($matches as [, $x, $y, $pageNum]) {
+            $columns[intdiv((int) $y, 16)][$pageNum] ??= intdiv((int) $x, 13);
+        }
+
+        return $columns;
     }
 
     protected function mb_str_pad($str, $pad_len, $pad_str = ' ', $dir = STR_PAD_RIGHT, $encoding = NULL)

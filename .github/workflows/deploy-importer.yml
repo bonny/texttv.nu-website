@@ -64,6 +64,9 @@ jobs:
           username: ${{ secrets[matrix.server.username_secret] }}
           key: ${{ secrets[matrix.server.key_secret] }}
           script: |
+            # Stanna vid första fel: annars körde ett misslyckat composer
+            # install vidare till artisan optimize mot gammal vendor/ (#17).
+            set -e
             cd /usr/share/nginx/l.texttv.nu/importer
             sudo chown -R root:root .
             chmod 777 -R /usr/share/nginx/l.texttv.nu/importer/storage/

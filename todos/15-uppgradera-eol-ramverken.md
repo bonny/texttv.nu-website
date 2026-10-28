@@ -282,3 +282,9 @@ Också oanvänt: `package.json`, `webpack.mix.js`, `resources/js`, `resources/cs
    - `/live/{n}` hämtar från SVT per anrop och delar fpm-pool med webben; överväg throttle (utanför uppgraderingen).
 
 **Ordning:** (A) deploy av bara workflowen: härdning + #33 + `--no-dev` + `concurrency` + pinnade actions, testad med `workflow_dispatch`. (B) en koddeploy: `minimum-stability`, paketen bort, `/pagecolors` bort, loggrättigheter och `throw`, PHPUnit-förberedelser, npm-filer och `server_deploy.sh` bort (kan gå före A). (C, valfri) säkerhetsuppdateringar inom L8 med `make scheduler` 10–15 min. (D) branch L9 → L12, en deploy, `php` `^8.2`.
+
+### Deploy B klar 2026-10-28 (`e7ee028`, deploy 22:07)
+
+`minimum-stability: stable`; fideloper/proxy, fruitcake/laravel-cors (+ asm89/stack-cors) och laravel/sail borta (riktad `composer update` av just dem: låsfilen tar bort fyra paket och ändrar inget annat; `composer remove` drog först med psr/log 2 och 14 Symfony-uppdateringar och gjordes om). `/pagecolors` och `getImageDebugHtml()` borta, `throw` på diskarna, `permission 0664` på loggen, PHPUnit-förberedelserna, npm-filerna och `server_deploy.sh` borta. Lokalt: PHPUnit 104/370, PHPStan OK, import OK.
+
+Prod: `vendor/` utan de fyra paketen, `/importstatus` 200, `/pagecolors` 404, importen loggar som vanligt. **Ett fel i deployfönstret** 22:07:01: `include(…/fideloper/proxy/…TrustedProxyServiceProvider.php)`, när `composer install` hade tagit bort paketet men den gamla `bootstrap/cache/packages.php` ännu inte skrivits om. Precis det glapp deploy A (`rm -f bootstrap/cache/*.php`, `down`) stänger. `scp` raderar inte borttagna filer, så `PageColors.php`, `config/cors.php`, `package.json` m.fl. ligger kvar på servern (ofarligt; rutten och klasserna används inte) tills deploy A med `rsync --delete`.

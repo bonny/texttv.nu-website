@@ -229,3 +229,13 @@ Från granskningen 2026-10-17:
 13. Avsnitten "Rekommendation" (gå direkt till L13) och "Nästa steg (när #17 är på gång)" är inaktuella.
 
 **Ny ordning:** (1) På L8, deploybart nu: punkt 10, härdad deploy (3–4), `minimum-stability: stable`, tester för schema, chars-filer och debug-rutterna. (2) En branch med L9 → L10 → L11 → L12, med full testkörning per commit. (3) En deploy av L12, följd av `/status/health`, `/prod-health importer` och `laravel.log`. Laravel Shift behövs inte.
+
+### Läge 2026-10-28 kväll
+
+**Klart:** testerna från punkt 2, 5 och förberedelsepunkten (`5669ecb`): `ScheduleTest` (schemat som JSON, inkl. underhållsläge och låsnycklar för `call()`), `CharsStorageTest` (grafikfilerna finns, skrivfel kastar från Flysystem) och `Feature/DebugRoutesTest` (`/live`, `/db`, `/importstatus`). Se CLAUDE.md. Fynd på vägen: i Laravel 8 läser `between()` klockan när schemat byggs, inte när filtret körs.
+
+**Kvar av förberedelserna på L8:**
+- [ ] `fideloper/proxy` → inbyggda `TrustProxies`; ta bort `fruitcake/laravel-cors`, `config/cors.php`, `laravel/sail`.
+- [ ] `"minimum-stability": "stable"`.
+- [ ] Härdad deploy (punkt 3–4). Ändrar `deploy-importer.yml`, Pär godkänner separat.
+- [ ] `/pagecolors/{n}` ger 500 redan på L8 (`PageColors.php:19` läser `charAsImgTag`, som `TeletextCharsExtractor` inte längre sätter). Laga eller ta bort rutten; Pär bestämmer.

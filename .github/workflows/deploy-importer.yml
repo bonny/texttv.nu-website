@@ -57,15 +57,23 @@ jobs:
             php artisan down
 
             # down stoppar inte jobb som redan kör. Vänta högst 5 min.
+            start=$(date +%s)
             for i in $(seq 1 60); do
-              pgrep -f 'artisan (schedule:|texttv:|import-status)' >/dev/null || break
+              jobb=$(pgrep -af 'artisan (schedule:|texttv:|import-status)' | grep -v pgrep || true)
+              [ -z "$jobb" ] && break
+              if [ "$i" -eq 1 ]; then
+                echo "Väntar på jobb som kör:"
+                echo "$jobb"
+              fi
               if [ "$i" -eq 60 ]; then
-                echo "Importjobb kör fortfarande efter 5 min, avbryter."
+                echo "Importjobb kör fortfarande efter 5 min, avbryter:"
+                echo "$jobb"
                 php artisan up
                 exit 1
               fi
               sleep 5
             done
+            echo "Inga importjobb kör (väntade $(( $(date +%s) - start )) s)."
 
             # Kopia för återställning: kod, vendor, cache och .env, inte storage/.
             rsync -a --delete --exclude=/storage/ ./ ../importer.prev/

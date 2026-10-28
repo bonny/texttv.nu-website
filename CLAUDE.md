@@ -33,6 +33,7 @@ CodeIgniter routes (`codeigniter/application/config/routes.php`) map URL pattern
 - `default_controller = sida` — root URL renders pages `100,300,401,101-105` as a "startpage" composite.
 - `controllers/api.php` and `routes` `api/*` — JSON API consumed by the **TextTV.nu iOS app** ([App Store id `607998045`](https://apps.apple.com/se/app/texttv-nu/id607998045)) and **Android app** ([Play Store `com.mufflify.TextTVnu`](https://play.google.com/store/apps/details?id=com.mufflify.TextTVnu)). The same API also powers the `appembed` route (webview-friendly HTML wrapper used inside the apps for specific page-types). The apps are **separate codebases** in the sibling repo `../texttv.nu (app)` (Ionic React + Capacitor; see `../CLAUDE.md` for the endpoint-to-app-file map) — and they're live in stores and a backend change that breaks the API will break shipped app versions in users' hands.
 - Service worker (`texttv.nu/service-worker.js`) + `manifest.json` make the site installable as a PWA.
+- `controllers/status.php` — `/status` (public, noindex status page: import health, hourly import results today, archive growth, page views; file cache 60 s in `/tmp/texttv-status.json`) and `/status/health` (JSON, 200, or 503 when `page_imports_logs` has no row in the last 10 min). Pulsetic monitors `/status/health`. Needs `SELECT` on `page_imports_logs` for `texttv_web` (granted 2026-10-28, see todo #30). Locally the import runs every 15 min, so the page shows "står still" between runs.
 
 ### Database config has two environments in one file
 

@@ -177,6 +177,10 @@ Tolka:
 
 ### importer
 
+**Snabbast:** `curl -s https://texttv.nu/status/health` ger `ok` och sekunder
+sedan importen senast loggade något (503 över 10 min). Sidan `/status` visar
+resultat per timme i dag. Pulsetic larmar på health sedan 2026-10-28.
+
 Hela sajtens innehåll hänger på att Laravel-schedulern körs varje minut från
 root-cron. Två kollar, i den här ordningen:
 

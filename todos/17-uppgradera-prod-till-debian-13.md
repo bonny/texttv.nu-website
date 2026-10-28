@@ -117,15 +117,7 @@ Docker). Fynden är inarbetade; se "Granskningar 2026-10-28" sist.
    ändras), PHPUnit, deploya på 8.2. Lägg `set -e` först i importer-workflowens
    ssh-skript, så att ett composer-fel stoppar deployen i stället för att
    köra `artisan optimize` mot gammal `vendor/`.
-2. **Delningsbilderna till headless Chromium.** wkhtmltox (projektets egen
-   `.deb`) provades 2026-10-28: installerar på trixie men renderar fel
-   (dubbelhög text och blockgrafiken i loggan saknas). Debians
-   `chromium-headless-shell` 156 på trixie gav i stort sett samma bild som
-   dagens wkhtmltoimage (2,8 s, 170 MB). Bookworm har också Chromium, så
-   bytet görs före OS-bytet: kommandot i `api.php` (~rad 598), med fast
-   fönsterbredd 650 och höjd efter antal sidor (en sida = 919 px;
-   flersidiga delningar måste lösas, `--screenshot` tar bara fönstret).
-   Jämför bilder före och efter.
+2. **Delningsbilderna ritas i PHP** ([#34](34-delningsbilder-ritade-i-php.md)), beslut 2026-10-28. `wkhtmltopdf` finns inte i trixie; wkhtmltox renderar fel och Chromium är tyngre (~2,6 s och 250–400 MB per bild). Måste vara klart före OS-bytet.
 3. **Kollationen låses** innan 11.8 byter standard tyst (trixies
    `50-server.cnf` saknar `character-set-server`/`collation-server`, och
    CodeIgniter sätter `utf8` utan kollation). I `70-texttv.cnf`:
@@ -292,6 +284,7 @@ false`, och trixie flyttade `fs.protected_*` dit; utan det blir de 0).
 - PHPStan till 8.4 (`phpVersion: 80400`, workflowens `php-version`,
   `platform.php`), dev-stacken till 8.4 och MariaDB 11.8 i main.
 - Kontrollera nästa morgons backup, radera snapshotarna efter en vecka.
+- Flytta `character-set-collations` från `[mariadb-11.8]` till `[mysqld]` i `70-texttv.cnf`, så att den gäller även för framtida versioner (gruppen med versionsnummer läses bara av exakt 11.8).
 - Avblockera #15 (Laravel 13). `buffer_pool` till 3G kan övervägas separat.
 - Logga i `Logg - texttv.nu.md` samma dag.
 
@@ -322,7 +315,7 @@ som går förlorat är importerade sidor och `page_actions` sedan snapshoten.
   eller värdflytt.
 - **PHP 8.4:** Laravel 8 fungerar med nette-fixen (provat), Laravel 9–10
   stöds inte på 8.4; CodeIgniter 2.2.6 gav byte-identiska svar.
-- **Delningsbilderna:** Chromium ersätter wkhtmltoimage före bytet (A.2).
+- **Delningsbilderna:** ritas i PHP före bytet (#34, A.2).
 - **Ingen staging** och appversioner i fält: `/api/*` måste svara som förut
   (byte-diff i C.4).
 - **Nertid 30–60 min.** Pulsetic larmar; det är väntat.

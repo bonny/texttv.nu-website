@@ -48,15 +48,22 @@ och få färger, så ingen webbläsare eller layout behövs. Pär valde detta
 3. `api.php` `screenshot()`: rita i stället för `exec`. Låset kan troligen
    tas bort eller bli kortare (inget HTTP-anrop till sig själv, ingen extra
    php-fpm-worker).
-4. **Format:** PNG med palett är skarpast och minst (~1/8 av dagens JPEG).
-   Adresserna slutar på `.jpg` och står i utskickade appar och delade länkar.
-   Testa hur Facebook, iMessage, Slack och Google hanterar PNG med
-   `Content-Type: image/png` på en `.jpg`-adress. Fungerar det: behåll
-   adressen. Annars JPEG.
+4. **Format efter filändelsen** (beslut Pär 2026-10-28):
+   `/api/screenshot/<id>.png` ger PNG (palett, skarpast och minst, ~1/8 av
+   dagens JPEG) och `/api/screenshot/<id>.jpg` ger JPEG, så att adresser i
+   utskickade appar och redan delade länkar fortsätter fungera.
+   `og:image` och JSON-LD-`image` i `views/header.php` byts till `.png`.
+   Båda ritas av samma kod; filen sparas per format i `shares/`.
+   Testa att Facebook, iMessage, Slack och Google visar PNG-varianten.
 5. Jämför nya bilder mot dagens för ett urval sidor (nyheter, sport,
    börs/tabeller, sidor med blockgrafik, flersidiga delningar) innan
    `wkhtmltoimage` tas bort.
 6. Gamla bilder i `shares/` ligger kvar; bara nya ritas i PHP.
+7. Låt nginx skicka en befintlig bild direkt från `shares/` och bara anropa
+   PHP när den saknas (i dag läser PHP filen vid varje anrop, ~4 850 per
+   dygn). Bildens filnamn är md5 av arkivadressen, så det kräver att
+   adressen till filen går att räkna ut i nginx, eller att PHP svarar med
+   `X-Accel-Redirect`.
 
 ## Risker
 

@@ -16,8 +16,8 @@
 		<h1>Vanliga frågor om text-tv</h1>
 
 		<p>
-			Här svarar vi på det folk oftast undrar om text-tv: om det finns kvar,
-			hur man hittar det på sin tv och hur det hela började.
+			Här svarar vi på det folk oftast undrar om text-tv, från knapparna
+			på fjärrkontrollen till starten 1974.
 			<br>Senast uppdaterad <time datetime="2026-10-28">28 oktober 2026</time>.
 		</p>
 
@@ -29,9 +29,9 @@
 					"id" => "finns-text-tv-kvar-fortfarande",
 					"question" => "Finns text-tv kvar?",
 					"answer" => "
-						<p>Ja. SVT Text sänds varje dag med nyheter, sport, väder och tv-tablåer, och SVT:s sändningstillstånd för 2026–2033 gäller både tv och sökbar text-tv.</p>
-						<p>Du kan läsa text-tv på tre sätt: på tv:n med fjärrkontrollen, på <a href='https://www.svt.se/text-tv/100'>svt.se/text-tv</a>, eller här på <a href='/'>texttv.nu</a>, som visar SVT:s sidor anpassade för mobil och dator.</p>
-						<p>Alla länder har inte behållit sin text-tv. BBC lade ner världens första text-tv, Ceefax, 2012, och norska NRK slutade med sin 20 augusti 2025.</p>
+						<p>Ja, SVT:s text-tv finns kvar och sänds varje dag med nyheter, sport, väder och tv-tablåer. SVT:s sändningstillstånd för 2026–2033 gäller både tv och sökbar text-tv.</p>
+						<p>Du kan läsa text-tv på tre sätt: på tv:n med fjärrkontrollen, på <a href='https://www.svt.se/text-tv/100'>svt.se/text-tv</a>, eller här på <a href='/'>TextTV.nu</a>, som visar SVT:s sidor anpassade för mobil och dator.</p>
+						<p>Andra länder har lagt ner sin text-tv. BBC lade ner världens första text-tv, Ceefax, 2012, och norska NRK slutade med sin 20 augusti 2025.</p>
 					",
 					"sources" => [
 						"Regeringen: sändningstillstånd och uppdrag 2026–2033" => "https://regeringen.se/pressmeddelanden/2025/12/regeringen-beslutar-om-de-narmare-villkoren-for-srs-svts-och-urs-public-service-uppdrag-de-kommande-atta-aren/",
@@ -45,14 +45,35 @@
 					"answer" => "
 						<p>Tryck på text-tv-knappen på fjärrkontrollen när du tittar på en kanal som sänder text-tv, till exempel SVT1. Knappen heter oftast TEXT eller TTX, och på Samsung TTX/MIX.</p>
 						<p>Skriv sedan sidnumret med sifferknapparna: 100 för nyheter, 300 för sport, 377 för målservice och 400 för väder. Tryck på knappen igen för att gå tillbaka till tv-bilden.</p>
-						<p>Text-tv följer med kanalens sändning. Står det att text-tv saknas kan det bero på kanalen, på att din tv-box inte visar text-tv, eller på tv-modellen. Se svaren om Samsung, LG och tv-boxar nedan.</p>
+						<p>Text-tv följer med kanalens sändning. Säger tv:n att text-tv saknas kan det bero på kanalen, på att din tv-box inte visar text-tv, eller på tv-modellen. Se svaren om Samsung, LG och tv-boxar nedan.</p>
 					",
 				],
 				[
-					"id" => "text-tv-samsung",
-					"question" => "Hur får jag text-tv på en Samsung-tv?",
+					"id" => "vilka-sidor-finns-pa-text-tv",
+					"question" => "Vilka sidor finns på text-tv?",
 					"answer" => "
-						<p>Har fjärrkontrollen en TTX/MIX-knapp trycker du på den. På Samsungs nyare smarta fjärrkontroller utan den knappen trycker du på 123-knappen, väljer TTX/MIX och trycker OK.</p>
+						<p>De viktigaste sidorna på SVT Text är 100 för nyheter, 300 för sport, 377 för målservice och 400 för väder. En innehållsförteckning över alla sidor finns på 700.</p>
+						<ul>
+							<li><a href='/100'>100</a>: nyheter, med inrikes på <a href='/101'>101</a> och utrikes på <a href='/104'>104</a></li>
+							<li><a href='/300'>300</a>: sport, med resultatbörsen på <a href='/330'>330</a></li>
+							<li><a href='/377'>377</a>: målservice, som börjar på <a href='/376'>376</a></li>
+							<li><a href='/400'>400</a>: väder</li>
+							<li><a href='/600'>600</a>: tv-tablåer</li>
+							<li>199: SVT:s textning (fungerar bara på tv:n)</li>
+							<li><a href='/700'>700</a>: innehållsförteckning</li>
+						</ul>
+					",
+					"sources" => [
+						"SVT Text sida 100" => "https://www.svt.se/text-tv/100",
+						"SVT Text sida 300" => "https://www.svt.se/text-tv/300",
+						"SVT Text sida 700" => "https://www.svt.se/text-tv/700",
+					],
+				],
+				[
+					"id" => "text-tv-samsung",
+					"question" => "Hur får jag fram text-tv på en Samsung-tv?",
+					"answer" => "
+						<p>På en Samsung-tv får du fram text-tv med TTX/MIX. Har fjärrkontrollen en TTX/MIX-knapp trycker du på den. På Samsungs nyare smarta fjärrkontroller utan den knappen trycker du på 123-knappen, väljer TTX/MIX och trycker OK.</p>
 						<p>Skriv sidnumret med sifferknapparna. För att stänga väljer du TTX/MIX igen.</p>
 						<p>Enligt Samsung finns text-tv bara på kanaler som sänder tjänsten, och hur det fungerar kan skilja sig mellan modeller och länder. Hittar du inget alternativ för TTX/MIX, sök på text-tv eller teletext i tv:ns bruksanvisning (e-manualen i menyn).</p>
 					",
@@ -62,9 +83,9 @@
 				],
 				[
 					"id" => "text-tv-lg",
-					"question" => "Hur får jag text-tv på en LG-tv?",
+					"question" => "Hur får jag fram text-tv på en LG-tv?",
 					"answer" => "
-						<p>Tryck på TEXT på fjärrkontrollen medan du tittar på tv. Knappen T.OPT ger fler val, som att låsa en sida så att den inte bläddrar vidare.</p>
+						<p>På en LG-tv får du fram text-tv med TEXT-knappen på fjärrkontrollen medan du tittar på tv. Knappen T.OPT ger fler val, som att låsa en sida så att den inte bläddrar vidare.</p>
 						<p>LG skriver att text-tv bara finns i vissa länder och att den kan visas fel om tv:n är inställd på fel land. Kontrollera därför att landet är Sverige i inställningarna.</p>
 					",
 					"sources" => [
@@ -75,7 +96,7 @@
 					"id" => "text-tv-tv-box",
 					"question" => "Fungerar text-tv med Telia, Tele2 och Allente?",
 					"answer" => "
-						<p>Det beror på boxen. Telias Play Hub har text-tv förinstallerad, medan Tele2:s Tv Hub och Allente 1 kräver att du laddar ner en text-tv-app från Google Play.</p>
+						<p>Telias Play Hub har text-tv förinstallerad, medan Tele2:s Tv Hub och Allente 1 kräver att du laddar ner en text-tv-app från Google Play.</p>
 						<ul>
 							<li><strong>Telia Play Hub:</strong> öppna appen Text-TV i appöversikten. Byt sida med upp och ner, undersida med höger och vänster. Tryck OK för att skriva ett sidnummer.</li>
 							<li><strong>Tele2 Tv Hub:</strong> sök på Text-tv i Play Store och installera appen. Tele2 påpekar att appen kommer från någon annan och att de inte ger support för den.</li>
@@ -90,11 +111,11 @@
 				],
 				[
 					"id" => "undertexter-sida-199",
-					"question" => "Hur slår jag på undertexter på SVT?",
+					"question" => "Hur får jag textning (undertexter) på SVT?",
 					"answer" => "
-						<p>SVT:s undertexter finns på text-tv sida 199. Tryck på text-tv-knappen och skriv 199 så visas texten över bilden. Gör samma sak för att stänga av den.</p>
+						<p>SVT:s textning finns på text-tv-sidan 199. Tryck på text-tv-knappen och skriv 199 så visas texten över bilden. Gör samma sak för att stänga av den.</p>
 						<p>Det gäller SVT1, SVT2, SVT Barn, SVT24 och Kunskapskanalen. Vilka program som textas den närmaste veckan står på sidorna 601–619. Vissa av SVT:s egna program har danska undertexter på 591 (SVT1) och 592 (SVT2).</p>
-						<p>I SVT Play slår du på undertexter i spelaren. På en smart-tv trycker du nedåt eller paus, sedan uppåt, och väljer Svenska under Undertexter.</p>
+						<p>I SVT Play slår du på undertexter i spelaren. På en smart-tv trycker du nedåt eller på paus och sedan uppåt, och väljer Svenska under Undertexter.</p>
 						<p>Har du tv-box gäller boxens egna inställningar. Hos Telia finns ett val för textning för hörselskadade i menyn, och på Allentes Viasat-box går du till sida 199.</p>
 					",
 					"sources" => [
@@ -107,9 +128,9 @@
 					"id" => "vilken-text-tv-app-är-bäst",
 					"question" => "Kan jag läsa text-tv i mobilen?",
 					"answer" => "
-						<p>Ja. Öppna <a href='/'>texttv.nu</a> i mobilens webbläsare, eller ladda ner vår app TextTV.nu för <a href='https://texttv.nu/ios'>iPhone och iPad</a> eller <a href='https://texttv.nu/android'>Android</a>.</p>
-						<p>Sidorna är desamma som på SVT Text, men länkade, sökbara och lätta att dela. SVT har också text-tv på <a href='https://www.svt.se/text-tv/100'>svt.se/text-tv</a>.</p>
-						<p>Har din smarta tv en webbläsare fungerar texttv.nu där också, om du inte hittar text-tv i tv:ns egen meny.</p>
+						<p>Ja, du kan läsa text-tv i mobilen på <a href='/'>TextTV.nu</a> eller i appen TextTV.nu för <a href='https://texttv.nu/ios'>iPhone och iPad</a> och <a href='https://texttv.nu/android'>Android</a>.</p>
+						<p>Sidorna är desamma som på SVT Text, men sidnumren är länkar och sidorna går att dela. SVT har också text-tv på <a href='https://www.svt.se/text-tv/100'>svt.se/text-tv</a>.</p>
+						<p>Hittar du inte text-tv i tv:ns meny kan du öppna texttv.nu i tv:ns webbläsare.</p>
 					",
 				],
 			],
@@ -131,7 +152,7 @@
 					"question" => "När kom text-tv?",
 					"answer" => "
 						<p>Världens första text-tv startade 23 september 1974, när BBC började sända Ceefax. Ceefax lades ner 23 oktober 2012, samtidigt som de analoga tv-sändningarna i Storbritannien.</p>
-						<p>I Sverige började SVT sända text-tv 12 mars 1979.</p>
+						<p>I Sverige började SVT sända text-tv 12 mars 1979. Läs mer under <a href='#nar-kom-text-tv-till-sverige'>När kom text-tv till Sverige?</a></p>
 					",
 					"sources" => [
 						"SVT: Populära text-tv fyller 40" => "https://www.svt.se/kultur/populara-text-tv-fyller-40",
@@ -155,8 +176,9 @@
 					"id" => "hur-manga-tittar-pa-svt-text-tv",
 					"question" => "Hur många använder text-tv?",
 					"answer" => "
-						<p>Som mest hade SVT Text omkring tre miljoner användare om dagen, enligt SVT:s egen uppskattning för 1990- och 2000-talet. 2019 var siffran cirka 1,3 miljoner om dagen.</p>
-						<p>Andelen svenskar som använde text-tv en vanlig dag var 31 procent år 2000 och 21 procent 2013. Enligt SVT kom det stora genombrottet med Gulfkriget 1991.</p>
+						<p>Omkring 1,3 miljoner använde SVT Text varje dag 2019, enligt SVT.</p>
+						<p>Det stora genombrottet kom med Gulfkriget 1991. Som mest hade SVT Text omkring tre miljoner användare om dagen, enligt SVT:s egen uppskattning för 1990- och 2000-talet.</p>
+						<p>Andelen svenskar som använde text-tv en vanlig dag var 31 procent år 2000 och 21 procent 2013.</p>
 					",
 					"sources" => [
 						"SVT: Hurra! Nu firar text-tv 40 år" => "https://www.svt.se/nyheter/inrikes/hurra-nu-firar-text-tv-40-ar",
@@ -169,7 +191,7 @@
 					"question" => "Varför ligger målservice på sidan 377?",
 					"answer" => "
 						<p>Sidnumret valdes på känsla. Björn Grundel, som SVT kallar text-tv:s grundare, berättade 2019: ”Jag satt och gaggade för mig själv: 365, 366... och så kom 377 och då var det pang!”</p>
-						<p>Exakt när 377 kom vet inte ens Grundel. Han tror att det var i slutet av 1980-talet. Sidan blev så populär att den fick ett eget konto på Twitter, @svt377. Här hittar du <a href='/377'>dagens målservice på 377</a>.</p>
+						<p>Exakt när 377 kom vet inte ens Grundel. Han tror att det var i slutet av 1980-talet. Sidan blev så populär att den fick ett eget konto på Twitter (i dag X), @svt377. Här hittar du <a href='/377'>dagens målservice på 377</a>.</p>
 					",
 					"sources" => [
 						"SVT Sport: Mr text-tv smakade sig fram till 377" => "https://www.svt.se/sport/artikel/text-tv-2",
@@ -180,7 +202,7 @@
 					"id" => "var-har-ekonomisidorna-tagit-vägen",
 					"question" => "Var har börssidorna tagit vägen?",
 					"answer" => "
-						<p>SVT tog bort börs- och ekonomisidorna i september 2022. Enligt SVT var kostnaderna för licensavtalet för höga, så avtalet sades upp.</p>
+						<p>SVT tog bort börs- och ekonomisidorna i september 2022. SVT sade upp licensavtalet för sidorna eftersom det blev för dyrt.</p>
 						<p><a href='https://texttv.nu/blogg/ekonomisidorna-laggs-ner'>Vi skrev om det när det hände</a>, och SVT:s egen förklaring finns på <a href='/200'>sidan 200</a>.</p>
 					",
 					"sources" => [
@@ -194,15 +216,15 @@
 					"id" => "ar-texttv-nu-fran-svt",
 					"question" => "Är TextTV.nu från SVT?",
 					"answer" => "
-						<p>Nej. TextTV.nu är ett fristående projekt som har funnits sedan 2012. Innehållet kommer från SVT Text, men sajten och apparna gör vi själva för att text-tv ska vara lätt att läsa i mobilen och på datorn.</p>
+						<p>Nej, TextTV.nu är ett fristående projekt och inte en del av SVT. Sajten har funnits sedan 2012. Innehållet kommer från SVT Text, men sajten och apparna gör vi själva för att text-tv ska vara lätt att läsa i mobilen och på datorn.</p>
 						<p><a href='/sida/om-texttv-nu'>Läs mer om TextTV.nu</a>.</p>
 					",
 				],
 				[
 					"id" => "varför-är-det-reklam-på-webbsidan-och-i-appen",
-					"question" => "Varför är det reklam på sajten och i appen?",
+					"question" => "Varför finns det reklam på sajten och i appen?",
 					"answer" => "
-						<p>TextTV.nu är ett privat initiativ. Annonserna betalar för domänen, servern och apparnas plats i App Store och Google Play.</p>
+						<p>Reklamen betalar för domänen, servern och apparnas plats i App Store och Google Play, eftersom TextTV.nu drivs privat.</p>
 					",
 				],
 			],

@@ -1,5 +1,6 @@
 **Status:** aktiv (granskad 2026-10-28: förberedelser på L8, sedan L9 → L12 på en branch och en deploy av L12, se sista avsnittet)
-**Senast uppdaterad:** 2026-10-28
+**Senast uppdaterad:** 2026-10-29
+**Ordning (beslut 2026-10-29):** #17 D först, sedan L9 → L12 byggd och testad mot PHP 8.4, sedan L13.
 **Blockerad av:** #17, bara för sista steget till Laravel 13
 
 # Todo #15 — Uppgradera EOL-ramverken (CodeIgniter 2, Laravel 8)

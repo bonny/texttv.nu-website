@@ -1,5 +1,5 @@
-**Status:** aktiv — A klar 2026-10-28 (A.8 struket), B klar 2026-10-28; nästa C (provkörning på klon), sedan D på prod en tidig morgon. Pär bekräftar root-lösenordet till Hetzners webbkonsol före C.
-**Senast uppdaterad:** 2026-10-28
+**Status:** aktiv — A klar 2026-10-28 (A.8 struket), B klar 2026-10-28; nästa C (provkörning på klon), sedan D på prod en tidig morgon. Granskning varv 3 (2026-10-29) införd i C, D, E och Rollback.
+**Senast uppdaterad:** 2026-10-29
 
 # Todo #17 — Uppgradera prod till Debian 13 (trixie) och PHP 8.4
 
@@ -214,7 +214,9 @@ test-api`, importerns PHPUnit; webben och importern på PHP 8.4 i
    (granskat 2026-10-28: bara de två paketen; `~c` är 16 gamla
    `linux-image-6.1.0-*` utan conffiles). Görs gärna före B.1. Frivilligt:
    shim-paketen används inte (ingen Secure Boot) och kan tas bort, prova på
-   klonen först.
+   klonen först. **Varv 3:** purga shim-paketen (`shim-signed`,
+   `shim-helpers-amd64-signed`, `shim-unsigned`, `shim-signed-common`) på
+   klonen i C och på prod före D, så att bara en bootväg finns kvar.
 4. En enda `/etc/apt/sources.list.d/debian.sources` (deb822) skrivs för
    hand vid källbytet i D.2: Hetzners spegel för trixie och trixie-updates,
    `security.debian.org` för trixie-security, `Signed-By:
@@ -225,13 +227,33 @@ modernize-sources` (ger dubbletter och tom `Signed-By`).
 
 ### C. Provkörning på klon
 
-1. Snapshot av prod: `HCLOUD_CONTEXT=texttv hcloud server create-image
---type snapshot --description "fore-klon $(date +%F)" 65074277`.
+Från C till och med D.10: **inga deployer** (ingen push till `main`, eller
+`gh workflow disable` för båda workflows). Deployas Laravel 12 (#15) mellan
+C och D gäller inte klontestet för importern; gör då om importerdelen av
+C.4. Ta aldrig L12/L13 samma morgon som D.
+
+1. Källa: senaste dagliga backup-imagen räcker (prod har Hetzner-backup,
+   fönster 18–22), annars snapshot: `HCLOUD_CONTEXT=texttv hcloud server
+create-image --type snapshot --description "fore-klon $(date +%F)"
+65074277`.
 2. Klon: `hcloud server create … --image <id> --firewall texttv-web
 --ssh-key … --user-data-from-file klon.yaml`, där `#cloud-config` i
-   `bootcmd` stoppar cron, stänger av apt- och certbot-timrarna och lägger
-   `127.0.0.1` och `::1` för `texttv.nu api.texttv.nu` i `/etc/hosts`.
-   Webbkonsolen kräver `hcloud server reset-password`. Nya host-nycklar.
+   `bootcmd` kör `systemctl mask --now cron.service certbot.timer
+apt-daily.timer apt-daily-upgrade.timer` (`stop` är för tidigt i bootcmd
+   och gör ingenting) och lägger `127.0.0.1` och `::1` för `texttv.nu
+api.texttv.nu` i `/etc/hosts`. Efter första boot:
+   - `systemctl is-active cron apt-daily-upgrade.timer` ska ge `inactive`.
+   - **Webbkonsolen med prods eget root-lösenord** (klonen ärver
+     `/etc/shadow`) innan något reset; noVNC har amerikansk
+     tangentbordslayout. Bara om det misslyckas: `hcloud server
+reset-password`, och lös lösenordsfrågan för prod före D.
+   - `debconf-show grub-efi-amd64`: `force_efi_extra_removable: true` och
+     `update_nvram: false` ska finnas kvar (cloud-inits `grub-dpkg` körs per
+     ny instans).
+   - MariaDB 10.11 har startats med A.3-konfigen för första gången:
+     `@@tmpdir` = `/var/tmp` innan uppgraderingen, så att ett konfigfel inte
+     blandas ihop med 11.8.
+   - Purga shim-paketen (B.3).
 3. Kör D på klonen med klocka, utom dump, snapshot och `certbot renew
 --dry-run` (bara prod). Torrkör först: `apt -s full-upgrade | grep -E
 '^(Remv|Inst)'`, och anteckna borttagningar. `apt -s full-upgrade | grep -E
@@ -253,21 +275,39 @@ message" /var/log/nginx/error.log` (bara väntade deprecations).
    - System: `nginx -t`, `sshd -t`, `ss -ltn | grep 3306` (bara 127.0.0.1),
      `sysctl fs.protected_regular fs.protected_symlinks` (2 och 1),
      `cloud-init status --long`, `systemctl --failed`, fail2ban med en
-     misslyckad inloggning från annan IP.
+     misslyckad inloggning från annan IP (räknas den inte: `fail2ban-regex
+systemd-journal sshd`, troligen filtrets prefix `sshd-session`).
+   - Identitet efter omstarten (cloud-init 22.4 → 25.1, `ssh_deletekeys`):
+     `ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub` och `cat
+/var/lib/cloud/data/instance-id` oförändrade mot före uppgraderingen,
+     `/etc/udev/rules.d/70-persistent-net.rules` kvar, `ip -br a` visar
+     `eth0` med IPv4 och IPv6.
+   - `command -v mysql mysqldump` (kan ligga i `mariadb-client-compat`);
+     saknas de, byt till `mariadb` i prod-health-skillen (E).
 5. **Boot från färsk NVRAM:** snapshot av den uppgraderade klonen, ny server
    från den, kontrollera att den bootar (prövar GRUB-fallbacken på riktigt).
-6. Radera klonerna och skriv in tidsåtgång och avvikelser här.
+6. **Prova rollbacken:** `hcloud server rebuild --image <källimage>` på
+   klonen, med klocka. Kontrollera att den bootar bookworm, att host-nyckelns
+   fingeravtryck är oförändrat och att webbkonsolen fungerar.
+7. Radera klonerna och skriv in tidsåtgång och avvikelser här.
 
 ### D. Uppgraderingen (samma steg på klon och prod)
 
 Prod: en tidig vardagsmorgon i lågtrafik, gärna 05:00. Räkna med 30–60 min.
 
 1. **Paus och konsistent rollback-punkt:**
-   - Kommentera bort importraden i root-crontab, `systemctl stop
-apt-daily.timer apt-daily-upgrade.timer`.
+   - `cd …/importer && php artisan down`, sedan samma `pgrep -af 'artisan
+(schedule:|texttv:|import-status)'`-väntan som `deploy-importer.yml`
+     (en import som redan kör stoppas inte av crontab-ändringen).
+   - Kommentera bort importraden i root-crontab, `systemctl disable --now
+apt-daily.timer apt-daily-upgrade.timer` (`stop` räcker inte, omstarten i
+     D.8 slår på dem igen).
+   - `apt-mark manual linux-image-6.1.0-54-amd64`, så att 6.1 finns kvar att
+     välja i GRUB-menyn (`GRUB_TIMEOUT=5`) via webbkonsolen.
    - Färsk dump till Mac minin (`launchctl kickstart … backup-texttv-db`),
      kontrollera `OK` i `backup.log`. Efter 11.8 går datakatalogen inte att
-     nedgradera, och prod har ingen Hetzner-backup påslagen.
+     nedgradera. Hetzner-backupen (dagliga images, fönster 18–22) är äldre
+     än morgonens importer och räcker inte som rollback-punkt.
    - `tar czf /root/etc-$(date +%F).tgz /etc /var/spool/cron/crontabs
 /root/texttv-tools`, `chmod 600`.
    - `mariadb -e "SET GLOBAL innodb_fast_shutdown=0"`, sedan `systemctl stop
@@ -275,7 +315,8 @@ nginx mariadb.socket mariadb.service` och kontrollera `journalctl -u
 mariadb -n 20 | grep "Shutdown complete"` (11.8 vägrar starta på en
      datakatalog som behöver crash recovery).
    - **Snapshot:** `hcloud server create-image --type snapshot --description
-"pre-trixie $(date +%F)" 65074277`; skriv upp ID:t.
+"pre-trixie $(date +%F)" 65074277`; skriv upp ID:t och skydda den:
+     `hcloud image enable-protection <id> delete`.
    - `systemctl disable nginx`, annars startar postinst den mitt i
      `full-upgrade`.
 2. Skriv `debian.sources` för trixie (B.4), ta bort gamla `.list`-filer.
@@ -291,7 +332,9 @@ upgrade --without-new-pkgs`, `apt full-upgrade`. Conffile-frågor: behåll
    `/etc/php/8.4/{fpm,cli}/conf.d/`, poolinställningarna (`pm.*`, `slowlog`,
    `request_slowlog_timeout`) till 8.4:s `www.conf`, logrotate-regeln för
    slowloggen med nya sökvägar. `update-alternatives --auto php`,
-   `php-fpm.sock` pekar på 8.4. Kvarvarande `php8.2*`: `apt purge`.
+   `php-fpm.sock` pekar på 8.4. Kvarvarande 8.2: `apt purge '~i~n^php8\.2'`,
+   läs listan innan du svarar ja. Ta bort
+   `/etc/logrotate.d/php8.2-fpm-slowlog` när 8.4-varianten finns.
 5. **MariaDB 11.8:** `dpkg --audit` tomt; `mariadb-upgrade
 --check-if-upgrade-is-needed` ska ge exitkod 1, annars `mariadb-upgrade
 --verbose`; `journalctl -u mariadb -b | grep -iE
@@ -304,20 +347,29 @@ user,host,db,table_name,table_priv,column_priv FROM mysql.tables_priv` och
 6. `apt install linux-sysctl-defaults` (Hetzner har `Install-Recommends
 false`, och trixie flyttade `fs.protected_*` dit; utan det blir de 0).
    Starta om php-fpm efter MariaDB (CodeIgniter kör `pconnect`).
-7. Importern: `composer install` som workflowen (med eller utan `--no-dev`,
-   samma som deployen), `php artisan optimize` med `umask 022`, kontrollera
-   att `bootstrap/cache/*.php` är läsbara för www-data.
-8. **Före omstart:** `cmp /boot/grub/x86_64-efi/core.efi
-/boot/efi/EFI/BOOT/BOOTX64.EFI` (väntat: `EFI/BOOT/BOOTX64.EFI` och
-   `EFI/debian/grubx64.efi` finns), `efibootmgr -v` (fortfarande ingen
-   `debian`-post), `ls
-/boot/vmlinuz-6.12*`, `udevadm test-builtin net_setup_link
-/sys/class/net/eth0`, webbkonsolen öppen. Sedan omstart (kärna 6.12,
-   `/tmp` blir tmpfs).
-9. `systemctl enable --now nginx`, importraden tillbaka, apt-timrarna på,
-   `apt autoremove`. Slow log på en vecka (`slow_query_log=1`,
-   `long_query_time=1` i `70-texttv.cnf`).
-10. Verifiera som i C.4, plus `/status/health` 200, Pulsetic grönt, nästa
+7. Importern: efter omstarten i D.8 och nginx i D.9, kör `gh workflow run
+deploy-importer.yml` (på klonen: samma skriptsteg för hand). Den gör
+   `composer check-platform-reqs`, `composer install --no-dev`, `optimize`
+   med `umask 002`, rättigheterna från #33 (`root:www-data`, 2775/664),
+   röktest och `artisan up`. Inte `umask 022` för hand: då kan
+   `/importstatus` (www-data) sluta kunna skriva loggen.
+8. **Före omstart:**
+   - `cmp /boot/grub/x86_64-efi/core.efi /boot/efi/EFI/BOOT/BOOTX64.EFI`
+     (väntat: `EFI/BOOT/BOOTX64.EFI` och `EFI/debian/grubx64.efi` finns).
+     Skiljer de: `grub-install --target=x86_64-efi --efi-directory=/boot/efi
+--force-extra-removable --no-nvram` och jämför igen. **Ingen omstart
+     förrän filerna är lika.**
+   - `efibootmgr -v` (fortfarande ingen `debian`-post), `ls
+/boot/vmlinuz-6.12*`, `ls /boot/vmlinuz-6.1.0-54*` (fallbacken kvar).
+   - Notera host-nyckelns fingeravtryck och `instance-id` (jämförs i D.10).
+   - `sshd -t`, sedan en **ny** `ssh texttv.nu true` från Mac minin innan
+     den gamla sessionen stängs (OpenSSH 10).
+   - Webbkonsolen öppen. Sedan omstart (kärna 6.12, `/tmp` blir tmpfs).
+9. `systemctl enable --now nginx`, importraden tillbaka, `systemctl enable
+--now apt-daily.timer apt-daily-upgrade.timer`, sedan D.7 (som kör `artisan
+up`). Ingen `apt autoremove` än (E). Slow log på en vecka
+   (`slow_query_log=1`, `long_query_time=1` i `70-texttv.cnf`).
+10. Verifiera som i C.4 (inklusive identiteten efter omstarten), plus `/status/health` 200, Pulsetic grönt, nästa
     import i `page_imports_logs`, `certbot renew --dry-run`, `/prod-health`.
 11. **Beslut om MariaDB i unattended-upgrades:** `Package-Blacklist`
     påverkar bara automatiken; står den kvar får 11.8 aldrig sina
@@ -330,11 +382,17 @@ false`, och trixie flyttade `fs.protected_*` dit; utan det blir de 0).
   Obsidian-noten (append): 8.2 → 8.4, versioner, sökvägar, PHP-ritade delningsbilder (#34) för
   delningsbilderna; `last` finns inte i trixie, byt till `journalctl
 --list-boots | tail -2`.
-- fail2ban: lägg till `+ _COMM=sshd-session` i `journalmatch` i
-  `jail.local` om räknaren inte gick upp på klonen (OpenSSH 10).
+- fail2ban: om räknaren inte gick upp på klonen (OpenSSH 10), rätta enligt
+  `fail2ban-regex` i C.4. `journalmatch` har redan
+  `_SYSTEMD_UNIT=ssh.service`, så felet ligger troligen i filtrets prefix.
 - PHPStan till 8.4 (`phpVersion: 80400`, workflowens `php-version`,
   `platform.php`), dev-stacken till 8.4 och MariaDB 11.8 i main.
-- Kontrollera nästa morgons backup, radera snapshotarna efter en vecka.
+- Kontrollera nästa morgons backup, radera snapshotarna efter en vecka
+  (ta bort skyddet först).
+- `apt autoremove` efter en vecka utan problem (tar bort 6.1-kärnan;
+  `apt-mark auto` på den först).
+- `mysql` → `mariadb` i prod-health-skillen om `mysql` saknas (C.4).
+- Frivilligt: ta bort de oanvända `/etc/ssh/ssh_host_dsa_key*`.
 - Flytta `character-set-collations` från `[mariadb-11.8]` till `[mysqld]` i `70-texttv.cnf`, så att den gäller även för framtida versioner (gruppen med versionsnummer läses bara av exakt 11.8).
 - Avblockera #15 (Laravel 13). `buffer_pool` till 3G kan övervägas separat.
 - Logga i `Logg - texttv.nu.md` samma dag.
@@ -353,8 +411,20 @@ hcloud server enable-protection 65074277 delete rebuild
 ```
 
 Snapshoten är tagen i pausläget: efter återställningen `systemctl start
-mariadb.socket mariadb nginx`, apt-timrarna på, importraden tillbaka. Det
-som går förlorat är importerade sidor och `page_actions` sedan snapshoten.
+mariadb.socket mariadb nginx`, `systemctl enable --now` på apt-timrarna,
+importraden tillbaka, `php artisan up`. Det som går förlorat är importerade
+sidor och `page_actions` sedan snapshoten. Tidsåtgången mäts i C.6.
+
+**Radera aldrig servern och skapa den på nytt:** båda primary IP:na har
+`auto_delete=yes`, så IPv4 och IPv6 skulle försvinna. Använd alltid
+`rebuild`.
+
+**Bootar servern inte** men disken är hel: rescue i stället för rebuild.
+`hcloud server enable-rescue 65074277 && hcloud server reset 65074277`,
+sedan i rescue: montera roten och `/boot/efi`, bind-montera `/dev /proc
+/sys`, `chroot` och `grub-install --target=x86_64-efi
+--efi-directory=/boot/efi --removable --no-nvram`. Alternativt välj 6.1 i
+GRUB-menyn via webbkonsolen.
 
 ## Risker
 
@@ -397,7 +467,16 @@ ofullständig; rollbacken tappade pausläget.
   en fil som aldrig funnits, versionsoberoende sökvägar, Laravel 9/10 utan
   8.4-stöd, `set -e` i importer-workflowen, `artisan optimize`.
 
-Ett eget test samma dag: wkhtmltox renderar delningsbilderna fel, Chromium
+**Varv 3 (Linux, 2026-10-29, C och D):** inga blockerare för C.
+Hetzner-backup är påslagen (planen sa fel); rollbacken prövas aldrig
+(C.6); webbkonsolen med prods eget lösenord (C.2); `bootcmd` stoppar inte
+cron och timrarna (`mask`); shim kan byta `BOOTX64.EFI` och `cmp` saknade
+åtgärd; D.7 krockade med workflowen och #33; D.1 väntade inte in pågående
+importjobb; `autoremove` tog fallback-kärnan; cloud-init 25.1 kan byta
+host-nycklar och nätregler; deployfrysning mot #15; ny SSH-inloggning före
+omstart; rescue-väg; radera aldrig servern (IP:na följer med).
+
+Ett eget test 2026-10-28: wkhtmltox renderar delningsbilderna fel, Chromium
 rätt men tungt; Pär valde att rita bilderna i PHP (#34, A.2).
 
 ## Confidence

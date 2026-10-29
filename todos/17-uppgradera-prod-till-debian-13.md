@@ -1,4 +1,4 @@
-**Status:** aktiv — A klar 2026-10-28 (A.8 struket), B klar 2026-10-28; nästa C (provkörning på klon), sedan D på prod en tidig morgon. Granskning varv 3 (2026-10-29) införd i C, D, E och Rollback.
+**Status:** aktiv — A klar 2026-10-28 (A.8 struket), B klar 2026-10-28, C klar 2026-10-29 (klon uppgraderad på 3 min, inga blockerare; se Resultat C). Nästa: D på prod en tidig morgon.
 **Senast uppdaterad:** 2026-10-29
 
 # Todo #17 — Uppgradera prod till Debian 13 (trixie) och PHP 8.4
@@ -291,6 +291,57 @@ systemd-journal sshd`, troligen filtrets prefix `sshd-session`).
    fingeravtryck är oförändrat och att webbkonsolen fungerar.
 7. Radera klonerna och skriv in tidsåtgång och avvikelser här.
 
+#### Resultat C 2026-10-29
+
+Klonen skapades från en färsk snapshot (gårdagens backup 20:06 var äldre än
+kvällens importer-deployer). Allt raderat efteråt (servrar och snapshotar).
+
+- **Tider:** paus (D.1) 09:37, `full-upgrade` 09:38:36–09:41:28 (under 3
+  min), PHP/MariaDB-steg och omstart klart 09:43:39, sajten uppe 09:46.
+  Räkna med 15–30 min nertid på prod med kontroller. Omstarten tog 24 s.
+- **Rollback (C.6):** `rebuild` från snapshot till inloggning 47 s; bootade
+  bookworm, 10.11, PHP 8.2.
+- **Root-lösenordet:** prods root var **låst** (`passwd -S` = `L` sedan
+  2025-06-21, cloud-inits `lock_passwd`), så webbkonsolen hade aldrig
+  fungerat. Pär satte ett lösenord 2026-10-29 och loggade in i konsolen på
+  prod och klonen. En rollback till en image äldre än 2026-10-29 ger låst
+  root igen; D.1-snapshoten är nyare.
+- **Apache:** se D.3, `php8.4-fpm` måste anges i `full-upgrade`.
+- **GRUB:** shim purgat utan att `BOOTX64.EFI` ändrades. Efter uppgraderingen
+  "Installing for x86_64-efi", `BOOTX64.EFI` = `core.efi` (2.12),
+  `EFI/debian/grubx64.efi` finns, ingen `debian`-post i NVRAM. Ny server från
+  den uppgraderade klonen (färsk NVRAM) bootade 6.12.
+- **Identitet:** efter omstarten samma host-nyckel, instance-id, `eth0`
+  med IPv4/IPv6 och `70-persistent-net.rules`. Efter `rebuild` på klonen
+  byttes host-nyckeln, eftersom snapshoten bar prods instance-id; på prod är
+  det samma server och samma id.
+- **cloud-init:** `error` på klonen kom bara från min `bootcmd`
+  (citattecken), och hosts-raden skrevs över av `manage_etc_hosts`. Lägg
+  den i `/etc/cloud/templates/hosts.debian.tmpl` nästa gång. Servern utan
+  user-data visade `done`.
+- **Svar:** status och content-type lika på 44 adresser utom
+  `/status/health` (503, importen pausad på klonen). Innehållsskillnaderna
+  är data (prod hade importerat vidare). JSON-strukturen lika utom
+  `/api/updated/100/0` (`FROM_UNIXTIME(0)`, känt från A.9). Delningsbilden
+  samma mått, 21 av 598 080 pixlar skiljer (FreeType). Inga PHP-fel i
+  svaren eller nginx-loggen. Svarstider 0,05–0,08 s, som prod.
+- **Frågeplaner:** samma som 10.11 utom `updated`, som i 11.8 väljer
+  `date_added` i stället för `page_num_date_added` (också lokalt i A.9;
+  "identiska" där stämde inte helt). Frågan tar under 0,5 ms med båda.
+- **PHP:** `display_errors` Off, `error_reporting` 22527, tidszon
+  Europe/Stockholm, opcache på. Laravel 8 skriver deprecations i CLI
+  (`schedule:run` går till `/dev/null`). `texttv:import 100` sparade sidan.
+  Kollation för importerns anslutning `utf8mb3_general_ci`.
+- **System:** `/tmp` tmpfs, `fs.protected_*` 2/1, 3306 bara på 127.0.0.1,
+  `sshd -t` OK, `mysql`/`mysqldump` finns kvar. fail2ban-filtret matchar
+  `sshd-session`-raderna (räknaren 0 bara för att Mac minins IP är
+  `ignoreip`); E:s `journalmatch`-ändring behövs inte.
+- **Borttaget av uppgraderingen:** `wkhtmltopdf` och Qt-libbarna (används
+  inte efter #34), php8.2.
+- **Nya conffile-versioner att granska i E:** `nginx.conf.dpkg-dist`,
+  `sshd_config.ucf-dist` (vår har `PermitRootLogin prohibit-password`),
+  `default/grub.ucf-dist`, `sysstat.dpkg-dist`.
+
 ### D. Uppgraderingen (samma steg på klon och prod)
 
 Prod: en tidig vardagsmorgon i lågtrafik, gärna 05:00. Räkna med 30–60 min.
@@ -321,8 +372,10 @@ mariadb -n 20 | grep "Shutdown complete"` (11.8 vägrar starta på en
      `full-upgrade`.
 2. Skriv `debian.sources` för trixie (B.4), ta bort gamla `.list`-filer.
 3. I `tmux`, under `script -a /root/upgrade-trixie.log`: `apt update`, `apt
-upgrade --without-new-pkgs`, `apt full-upgrade`. Conffile-frågor: behåll
-   egna. PHP 8.4 och MariaDB 11.8 installeras och startas här; cron är
+upgrade --without-new-pkgs`, `apt full-upgrade php8.4-fpm`. **`php8.4-fpm`
+   måste stå med:** utan det väljer apt första alternativet i `php8.4`:s
+   beroende och installerar `apache2-bin` + `libapache2-mod-php8.4` (sett i
+   C). Conffile-frågor: behåll egna (`--force-confdef --force-confold`). PHP 8.4 och MariaDB 11.8 installeras och startas här; cron är
    pausad. Stoppa om torrkörningen eller utdata visar oväntade `Remv`.
    Efteråt: `grep -E "Installing for|core image|shim|Failed: grub-install"
 /root/upgrade-trixie.log` (väntat: "No Secure Boot: installing core
@@ -338,8 +391,8 @@ upgrade --without-new-pkgs`, `apt full-upgrade`. Conffile-frågor: behåll
 5. **MariaDB 11.8:** `dpkg --audit` tomt; `mariadb-upgrade
 --check-if-upgrade-is-needed` ska ge exitkod 1, annars `mariadb-upgrade
 --verbose`; `journalctl -u mariadb -b | grep -iE
-"error|warn|deprecat|unknown"`; `ANALYZE TABLE` på `texttv`,
-   `page_actions`, `page_imports_logs`. Rättigheter utan hashar: `SELECT
+"error|warn|deprecat|unknown"`; `ANALYZE TABLE` på `` `texttv.nu`.texttv ``,
+   `` `texttv.nu`.page_imports_logs `` och `texttv_stats.page_actions`. Rättigheter utan hashar: `SELECT
 user,host,db,table_name,table_priv,column_priv FROM mysql.tables_priv` och
    `SELECT * FROM mysql.columns_priv` (facit: 10 rader + `texttv_web`
    UPDATE(`is_shared`)); aldrig `SHOW GRANTS` (skriver hashar till loggen).
@@ -382,9 +435,8 @@ up`). Ingen `apt autoremove` än (E). Slow log på en vecka
   Obsidian-noten (append): 8.2 → 8.4, versioner, sökvägar, PHP-ritade delningsbilder (#34) för
   delningsbilderna; `last` finns inte i trixie, byt till `journalctl
 --list-boots | tail -2`.
-- fail2ban: om räknaren inte gick upp på klonen (OpenSSH 10), rätta enligt
-  `fail2ban-regex` i C.4. `journalmatch` har redan
-  `_SYSTEMD_UNIT=ssh.service`, så felet ligger troligen i filtrets prefix.
+- fail2ban: inget att ändra (C visade att filtret matchar `sshd-session`).
+- Granska de nya conffile-versionerna (Resultat C) och ta bort dem.
 - PHPStan till 8.4 (`phpVersion: 80400`, workflowens `php-version`,
   `platform.php`), dev-stacken till 8.4 och MariaDB 11.8 i main.
 - Kontrollera nästa morgons backup, radera snapshotarna efter en vecka

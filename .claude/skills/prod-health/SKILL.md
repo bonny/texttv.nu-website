@@ -227,6 +227,13 @@ ssh texttv.nu 'ps -eo etimes=,args= | grep "texttv:import" | grep -v grep | head
 ```
 
   Rader här = import pågår i detta ögonblick.
+- **Misstänker du att en import fastnat: jämför med originalet** på
+  `https://www.svt.se/text-tv/webb/{n}`. Texten ligger i `__NEXT_DATA__`
+  (`props.pageProps.subPages[].altText`) och tidpunkten i `meta.updated`.
+  Jämför `altText` med vår `content` utan taggar och med blanktecken
+  hopslagna: samma text = sidan har bara inte ändrats hos SVT, olika text =
+  importen står still. Kontrollerat 2026-10-31: 100, 300, 401 och 104 var
+  identiska.
 - Felfrekvens:
 
 ```bash

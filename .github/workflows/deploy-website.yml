@@ -57,14 +57,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: "7.4"
-          extensions: mbstring, intl
-          ini-values: post_max_size=256M, max_execution_time=180
-          tools: php-cs-fixer, phpunit
-
       # Används av städsteget nedan för att avgöra vad som ska finnas kvar.
       - name: Lista controllers som finns i repot
         run: |

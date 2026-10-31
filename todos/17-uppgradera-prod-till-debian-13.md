@@ -468,8 +468,15 @@ purgade (`BOOTX64.EFI` oförändrad), föråldrade conffiler (cloud-init-rester,
 `50-mysql-clients.cnf`) flyttade till `/root/apt-fore-trixie/obsoleta-conffiler/`,
 `wtmpdb` installerat, php8.2-loggarna raderade, nginx `http2 on;` och
 dubblettblocket i `l.texttv.nu` borta (backup `/root/nginx-bak-20261031-e/`),
-`certbot renew --dry-run` OK. Kvar nedan: conffile-granskningen, slow log,
-`autoremove`, snapshoten, kollationsflytten i `70-texttv.cnf`, DSA-nycklarna.
+`certbot renew --dry-run` OK. Senare samma dag: kollationen flyttad från
+`[mariadb-11.8]` till `[mysqld]`; `nginx.conf` fick trixies TLS-default
+(TLSv1.2/1.3, `ssl_prefer_server_ciphers off`, `worker_cpu_affinity auto`;
+vhostarna hade det redan via certbot, `server_tokens` sätts i
+`conf.d/general.conf`), våra `sshd_config`, `default/grub` (`GRUB_TERMINAL=console`)
+och `sysstat` (`HISTORY=28`) behållna; `*.dpkg-dist`, `*.ucf-dist`,
+`ca-certificates.conf.dpkg-old` och DSA-nycklarna flyttade till
+`/root/conffiles-bak-20261031-e/`. Oanvänt PHP 7.4-steg borta ur
+`deploy-website.yml`. Kvar: det som väntar till 2026-11-07.
 Lokalt kör imagen PHP:s inbyggda libgd (samma hashar som bookworm), så
 lokalt matchar de gamla listorna och prod de nya; ta inte bort någon av dem.
 

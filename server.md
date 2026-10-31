@@ -9,7 +9,7 @@ Detaljer om hur prod-servern är uppsatt. Läs när du jobbar med deploy, cache-
 - **Debian 13.7 (trixie)**, kärna 6.12. Uppgraderad från Debian 12 (bookworm) 2026-10-31 (todo #17). Debian 13 får säkerhetsstöd till 2028, LTS till 2030.
 - **PHP 8.4.27** runtime (Debians paket `php8.4-fpm`, NTS, med Zend OPcache), verifierat 2026-10-31. Var 8.2.31 fram till uppgraderingen. PHP 8.4 får säkerhetsfixar uppströms till 2028-12-31.
   - Laravel 8 (importern) kör på 8.4 med deprecations (främst implicit nullable-parametrar) i nginx `error.log` och på CLI. De är brus, inga fel; Laravel-uppgraderingen är todo #15.
-  - OBS: `.github/workflows/deploy-website.yml` kör PHPStan med PHP 8.4 (som prod). Deploy-jobbets `setup-php` står kvar på 7.4 men inget i det jobbet kör PHP. Inget av dem är runtime.
+  - OBS: `.github/workflows/deploy-website.yml` kör PHPStan med PHP 8.4 (som prod). Deploy-jobbet sätter inte upp PHP (det oanvända 7.4-steget togs bort 2026-10-31). Inget av dem är runtime.
   - Importerns `composer.json` kräver `^8.1` sedan 2026-10-14 (todo #06).
 - **Tidszon: `Europe/Stockholm`** både för servern (`timedatectl`) och PHP (`date.timezone` via egen ini, `/etc/php/8.4/{fpm,cli}/conf.d/99-texttv.ini`), verifierat 2026-10-31. `date_added` sparas i svensk tid, och dygnsgränserna i listorna (`/sida/delat`, Mest läst, `/nyheter/idag`) räknas med PHP:s `strtotime("today")`, så de två måste vara samma. MariaDB följer systemets zon (`NOW()`, `CURDATE()`). Den lokala Docker-stacken sätter samma zon för PHP och MariaDB (`compose.yaml`).
 - **MariaDB 11.8.6** (inte MySQL — service-alias `mysql` finns men det är MariaDB som körs). Verifierad version 2026-10-31 (10.11.19 före Debian 13). `mysqldump` är en symlänk till `mariadb-dump`, `mysql`-klienten finns kvar.
@@ -137,7 +137,7 @@ pm.max_spare_servers = 3
 
 `.github/workflows/deploy-website.yml` triggas av push till `main` med path-filter `texttv.nu/**`:
 
-1. Checkout + PHP 7.4 setup (för composer-tool, ej runtime).
+1. PHPStan-jobbet (PHP 8.4) måste gå igenom, sedan checkout.
 2. `scp` hela `texttv.nu/` → `/usr/share/nginx/` på hetzner-server.
 3. Post-SSH:
     - `sudo chown -R root:root .`

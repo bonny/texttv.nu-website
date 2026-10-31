@@ -1044,6 +1044,10 @@ class TeletextCharsExtractor
      * Framräknade ur de sparade gif:arna i storage/app/public/chars/ (de som
      * fanns, 208 av 250). Se todo #17.
      *
+     * Utan de tre enfärgade rutorna (blå, röd, vit; gamla 2939094043,
+     * 1954418500, 1074033251): på bookworm träffade de nästan aldrig, men med
+     * exakta färger matchar de varje tom ruta i den färgen.
+     *
      * @return array IDn.
      */
     protected function getCharImagesHashesLibgdTrixie(): array
@@ -1118,7 +1122,6 @@ class TeletextCharsExtractor
             1322692279,
             1337633601,
             1341519539,
-            1361926777,
             1377632454,
             1390159074,
             1397481405,
@@ -1166,7 +1169,6 @@ class TeletextCharsExtractor
             2218755399,
             2219129534,
             2248627355,
-            2278288011,
             2337140520,
             2346549935,
             2353985689,
@@ -1210,7 +1212,6 @@ class TeletextCharsExtractor
             3194175744,
             3248024519,
             3251819673,
-            3277698837,
             3285212937,
             3312986119,
             3337704633,

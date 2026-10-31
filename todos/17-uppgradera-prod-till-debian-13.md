@@ -461,6 +461,18 @@ up`). Ingen `apt autoremove` än (E). Slow log på en vecka
 
 ### E. Efteråt
 
+**Gjort 2026-10-31:** dokumentation (`server.md`, `CLAUDE.md`, `prod-health`),
+dev-stacken på `serversideup/php:8.4-fpm-nginx` och `mariadb:11.8` med prods
+kollationer, PHPStan `phpVersion: 80400`. På prod: shim- och rc-paketen
+purgade (`BOOTX64.EFI` oförändrad), föråldrade conffiler (cloud-init-rester,
+`50-mysql-clients.cnf`) flyttade till `/root/apt-fore-trixie/obsoleta-conffiler/`,
+`wtmpdb` installerat, php8.2-loggarna raderade, nginx `http2 on;` och
+dubblettblocket i `l.texttv.nu` borta (backup `/root/nginx-bak-20261031-e/`),
+`certbot renew --dry-run` OK. Kvar nedan: conffile-granskningen, slow log,
+`autoremove`, snapshoten, kollationsflytten i `70-texttv.cnf`, DSA-nycklarna.
+Lokalt kör imagen PHP:s inbyggda libgd (samma hashar som bookworm), så
+lokalt matchar de gamla listorna och prod de nya; ta inte bort någon av dem.
+
 - Uppdatera `server.md`, `CLAUDE.md`, `prod-health`-skillen och
   Obsidian-noten (append): 8.2 → 8.4, versioner, sökvägar, PHP-ritade delningsbilder (#34) för
   delningsbilderna; `last` finns inte i trixie, byt till `journalctl

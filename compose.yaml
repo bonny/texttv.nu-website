@@ -1,4 +1,4 @@
-# Lokal utvecklingsstack för texttv.nu — speglar prod (PHP 8.2, MariaDB 10.11).
+# Lokal utvecklingsstack för texttv.nu — speglar prod (PHP 8.4, MariaDB 11.8).
 # Två oberoende PHP-appar som bara pratar via DB:n (se CLAUDE.md):
 #   importer  — Laravel 8, skrapar svt.se/text-tv och skriver till `texttv`
 #   website   — CodeIgniter, läser `texttv` och renderar sajten
@@ -30,13 +30,22 @@ x-importer-env: &importer-env
 
 services:
   mariadb:
-    image: mariadb:10.11           # matchar prod (server.md), inte 11
+    image: mariadb:11.8            # matchar prod (11.8.6, server.md)
     restart: unless-stopped
+    # Som prods /etc/mysql/mariadb.conf.d/70-texttv.cnf: general_ci i stället
+    # för 11.8:s default utf8mb4_uca1400_ai_ci (medvetet beslut, ingen uca1400).
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_general_ci
+      - --character-set-collations=utf8mb3=utf8mb3_general_ci,utf8mb4=utf8mb4_general_ci
     environment:
       MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
       MARIADB_DATABASE: ${DB_DATABASE:-texttv_nu}
       MARIADB_USER: ${DB_USERNAME:-texttv}
       MARIADB_PASSWORD: ${DB_PASSWORD:-texttv}
+      # Uppgraderar systemtabellerna när en befintlig volym startas med en
+      # nyare major (10.11 → 11.8, 2026-10-31). Gör inget om de redan är aktuella.
+      MARIADB_AUTO_UPGRADE: "1"
       TZ: Europe/Stockholm           # som prod; NOW() och CURDATE() i svensk tid, som PHP (website)
     volumes:
       - mariadb-data:/var/lib/mysql

@@ -6,12 +6,16 @@ Detaljer om hur prod-servern är uppsatt. Läs när du jobbar med deploy, cache-
 
 - **Hostname:** `TextTV-hetzner`. Enda prod-servern (`current-server` togs bort i 04ea660/795a4f2). **2 vCPU, 7,6 GB RAM, 2 GB swap** (`/swapfile`, swappiness 10, sedan 2026-10-25). Disk: 75 GB, 24 % använt 2026-08-09 (var 52 % 2026-05-19 — loggstädningen i logrotate-fixen tog ner den).
 - **SSH:** `ssh texttv.nu` loggar in som `root` (alias i `~/.ssh/config`). För löpande hälsokoll finns skillen [`prod-health`](.claude/skills/prod-health/SKILL.md) — den har verifierade kommandon och tröskelvärden för load, minne, php-fpm och importer-färskhet.
-- **PHP 8.2.31** runtime (NTS, med Zend OPcache 8.2.31).
-  - OBS: `.github/workflows/deploy-website.yml` använder PHP 7.4 — det är **bara** för CI-build-stegen (composer/phpunit), inte runtime.
+- **Debian 13.7 (trixie)**, kärna 6.12. Uppgraderad från Debian 12 (bookworm) 2026-10-31 (todo #17). Debian 13 får säkerhetsstöd till 2028, LTS till 2030.
+- **PHP 8.4.27** runtime (Debians paket `php8.4-fpm`, NTS, med Zend OPcache), verifierat 2026-10-31. Var 8.2.31 fram till uppgraderingen. PHP 8.4 får säkerhetsfixar uppströms till 2028-12-31.
+  - Laravel 8 (importern) kör på 8.4 med deprecations (främst implicit nullable-parametrar) i nginx `error.log` och på CLI. De är brus, inga fel; Laravel-uppgraderingen är todo #15.
+  - OBS: `.github/workflows/deploy-website.yml` kör PHPStan med PHP 8.4 (som prod). Deploy-jobbets `setup-php` står kvar på 7.4 men inget i det jobbet kör PHP. Inget av dem är runtime.
   - Importerns `composer.json` kräver `^8.1` sedan 2026-10-14 (todo #06).
-- **Tidszon: `Europe/Stockholm`** både för servern (`timedatectl`) och PHP (`date.timezone` i `/etc/php/8.2/fpm/php.ini` och `cli/php.ini`), verifierat 2026-10-20. `date_added` sparas i svensk tid, och dygnsgränserna i listorna (`/sida/delat`, Mest läst, `/nyheter/idag`) räknas med PHP:s `strtotime("today")`, så de två måste vara samma. MariaDB följer systemets zon (`NOW()`, `CURDATE()`). Den lokala Docker-stacken sätter samma zon för PHP och MariaDB (`compose.yaml`).
-- **MariaDB 10.11.19** (inte MySQL — service-alias `mysql` finns men det är MariaDB som körs). Verifierad version 2026-10-27.
-- **nginx + php-fpm + MariaDB** (LEMP). Systemd-enheterna heter exakt `nginx`, `php8.2-fpm`, `mariadb`.
+- **Tidszon: `Europe/Stockholm`** både för servern (`timedatectl`) och PHP (`date.timezone` via egen ini, `/etc/php/8.4/{fpm,cli}/conf.d/99-texttv.ini`), verifierat 2026-10-31. `date_added` sparas i svensk tid, och dygnsgränserna i listorna (`/sida/delat`, Mest läst, `/nyheter/idag`) räknas med PHP:s `strtotime("today")`, så de två måste vara samma. MariaDB följer systemets zon (`NOW()`, `CURDATE()`). Den lokala Docker-stacken sätter samma zon för PHP och MariaDB (`compose.yaml`).
+- **MariaDB 11.8.6** (inte MySQL — service-alias `mysql` finns men det är MariaDB som körs). Verifierad version 2026-10-31 (10.11.19 före Debian 13). `mysqldump` är en symlänk till `mariadb-dump`, `mysql`-klienten finns kvar.
+  - Egen konfig i `/etc/mysql/mariadb.conf.d/70-texttv.cnf`: `collation_server = utf8mb4_general_ci` och `character_set_collations = utf8mb3=utf8mb3_general_ci,utf8mb4=utf8mb4_general_ci`, så att 11.8 inte väljer `uca1400` som default för nya tabeller och kolumner. Medvetet beslut: ingen uca1400. Den lokala stacken sätter samma sak (`compose.yaml`).
+- **`wkhtmltopdf` är borttaget** (2026-10-31). Delningsbilderna ritas i PHP med GD sedan todo #34.
+- **nginx + php-fpm + MariaDB** (LEMP). Systemd-enheterna heter exakt `nginx`, `php8.4-fpm`, `mariadb`.
 - **Server paths:**
   - Website: `/usr/share/nginx/texttv.nu/`
   - **Importer:** `/usr/share/nginx/l.texttv.nu/importer/` — annan path än website, körs som separat Laravel-app på samma server.
@@ -67,7 +71,7 @@ opcache.max_accelerated_files = 10000
 opcache.revalidate_path = Off
 ```
 
-- **Innebär:** efter SCP picks OPcache upp nya filer inom ~2 sek. Inget manuellt `systemctl reload php8.2-fpm` behövs.
+- **Innebär:** efter SCP picks OPcache upp nya filer inom ~2 sek. Inget manuellt `systemctl reload php8.4-fpm` behövs.
 - Kombinerat med nginx 4s TTL → **total max-delay deploy → live: ~6 sekunder.** Det stämmer med empirisk observation från SEO-fixen 2026-05-19.
 
 ### 3. CodeIgniter output-cache
@@ -79,11 +83,11 @@ opcache.revalidate_path = Off
 
 ## php-fpm-poolen
 
-Faktisk config i `/etc/php/8.2/fpm/pool.d/www.conf` (verifierad 2026-08-09, `max_children` höjd 2026-10-16):
+Faktisk config i `/etc/php/8.4/fpm/pool.d/www.conf` (verifierad 2026-10-31 efter bytet till PHP 8.4, `max_children` höjd 2026-10-16). Egna ini-filer: `99-texttv.ini` (fpm och cli) och `99-php2shell.ini` (fpm) i respektive `conf.d/`.
 
 ```ini
 user = www-data
-listen = /run/php/php8.2-fpm.sock   ; unix-socket, backlog 4096
+listen = /run/php/php8.4-fpm.sock   ; unix-socket, backlog 4096
 pm = dynamic
 pm.max_children = 10
 pm.start_servers = 2
@@ -103,14 +107,18 @@ pm.max_spare_servers = 3
   `.php .phar`), vilket inte är acceptabelt på en pool som servar publik PHP.
   Återställt. Mättnad syns istället som
   `WARNING: [pool www] server reached pm.max_children setting (10)` i
-  `/var/log/php8.2-fpm.log` — tidsstämplat, vilket är mer användbart än
+  `/var/log/php8.4-fpm.log` — tidsstämplat, vilket är mer användbart än
   statussidans kumulativa räknare.
-- **Slowlog aktiv sedan 2026-08-10:** `/var/log/php8.2-fpm.slow.log`, tröskel
+- **Slowlog aktiv sedan 2026-08-10:** `/var/log/php8.4-fpm.slow.log`, tröskel
   `request_slowlog_timeout = 3s`. Ger PHP-stacktrace per långsam request.
-  Roteras via `/etc/logrotate.d/php8.2-fpm-slowlog` (egen regel — den
-  befintliga php8.2-fpm-regeln matchar bara literal sökväg, ingen glob).
+  Roteras via `/etc/logrotate.d/php8.4-fpm-slowlog` (egen regel — den
+  befintliga php8.4-fpm-regeln matchar bara literal sökväg, ingen glob).
+  Gamla `/var/log/php8.2-fpm*` från tiden före 2026-10-31 kan ligga kvar ett tag.
+- **nginx pekar på `/run/php/php-fpm.sock`**, Debians alternativ-symlänk som
+  sedan 2026-10-31 går till `php8.4-fpm.sock`. Byts PHP-versionen igen följer
+  nginx med via alternativet.
 - **Importern och webbplatsen delar pool.** Båda går mot
-  `/run/php/php8.2-fpm.sock`, så en långsam `/live/{n}`-request på importern
+  samma socket, så en långsam `/live/{n}`-request på importern
   tar en av webbens fem workers. Se todo #12.
 
 > ⚠️ **Lägg aldrig backupfiler i `/etc/nginx/sites-enabled/`.** Den inkluderas
@@ -186,7 +194,9 @@ Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";
   o.dyl.). Uppdateringen går 02:30–03:00, så omstarten 03:30 sker samma natt. Före 2026-10-25
   gick uppdateringen ~06:30 och omstarten väntade till **nästa** 03:30, ca 21 timmar senare.
 - Servern har **ingen mailtransport**, så `Unattended-Upgrade::Mail` är inte satt. Kolla
-  `last -x reboot -F` eller uptime om du vill se när den startat om.
+  `journalctl --list-boots | tail -2` eller uptime om du vill se när den startat om. (`last`
+  läser `wtmp`, som Debian 13 inte längre skriver; det fungerar först med paketet `wtmpdb`.)
+- Sedan Debian 13 (2026-10-31) hämtas säkerhetsuppdateringarna från `trixie-security`.
 - Innan 2026-09-05 fanns ingen automatisk omstart alls: kernel 6.1.0-52 låg installerad
   sedan augusti medan -51 kördes, och maskinen hade startat om två gånger sedan juni 2025.
 
@@ -196,9 +206,9 @@ Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";
 | ----------------------------------- | ------------------------------ | ---------------------------------- |
 | `/var/log/nginx/access.log`         | HTTP access (alla requests)    | **0,75–1,1 GB per dygn**, roteras dagligen, 14 generationer (gz 46–76 MB). Hela `/var/log/nginx` ~2,5 GB. 3–4,5 M requests per dygn |
 | `/var/log/nginx/error.log`          | nginx-fel                      | ~200 KB                            |
-| `/var/log/php8.2-fpm.log`           | php-fpm-fel + PHP `error_log`  | ~1,3 MB per vecka (rotateras veckovis), nästan bara slowloggens trace-rader. Var 6,6 KB 2026-08-09, före slowloggen |
-| `/var/log/php8.2-fpm.log.N.gz`      | Roterade php-fpm-loggar        | ~75–140 KB / vecka sedan slowloggen |
-| `/var/log/php8.2-fpm.slow.log`      | Stacktrace per request över 3 s | ~1,2 MB, roteras veckovis         |
+| `/var/log/php8.4-fpm.log`           | php-fpm-fel + PHP `error_log`  | ~1,3 MB per vecka (rotateras veckovis), nästan bara slowloggens trace-rader. Var 6,6 KB 2026-08-09, före slowloggen |
+| `/var/log/php8.4-fpm.log.N.gz`      | Roterade php-fpm-loggar        | ~75–140 KB / vecka sedan slowloggen |
+| `/var/log/php8.4-fpm.slow.log`      | Stacktrace per request över 3 s | ~1,2 MB, roteras veckovis         |
 | MariaDB error log                   | _Ej i `/var/log/mysql/`_ — troligen via `journalctl -u mariadb` |                                    |
 | Laravel app-log (importer)          | `/usr/share/nginx/l.texttv.nu/importer/storage/logs/laravel.log` | 5–20 KB per dygn (var 13 MB innan rotationen fungerade) — roteras dagligen via `/etc/logrotate.d/texttv-importer` (verifierat 2026-09-05, se nedan) |
 | CodeIgniter app-log (website)       | `/usr/share/nginx/texttv.nu/codeigniter/application/logs/` | Tomt (bara `index.html`) — CI-logging avstängd eller inte konfigurerad |
@@ -250,4 +260,4 @@ Utan cache-buster kan du få `X-Cache: STALE` (gammal HTML). Givet TTL=4s hålle
 - Backup-strategi (om sådan finns)
 - Error tracking / monitoring (om sådant finns)
 
-Den konfigen lever bara på servern. Om du behöver granska den, SSH:a in och kolla `/etc/nginx/`, `/etc/php/8.2/fpm/`, `/etc/mysql/mariadb.conf.d/`.
+Den konfigen lever bara på servern. Om du behöver granska den, SSH:a in och kolla `/etc/nginx/`, `/etc/php/8.4/fpm/`, `/etc/mysql/mariadb.conf.d/`.

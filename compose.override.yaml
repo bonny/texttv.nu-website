@@ -48,7 +48,7 @@ services:
     ports:
       - "127.0.0.1:8380:8080"
     environment:
-      # OPcache PÅ (som prod). CI:s bundlade core/URI.php avger en PHP 8.2
+      # OPcache PÅ (som prod). CI:s bundlade core/URI.php avger en PHP 8.2+
       # compile-time-warning ("AllowDynamicProperties has no effect") som med
       # opcache av läcker in i varje API-svar (ogiltig JSON för apparna). Med
       # opcache på kompileras framework-filerna en gång → warningen tystnar,

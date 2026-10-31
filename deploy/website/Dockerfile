@@ -14,7 +14,8 @@
 # analytics-skrivning (page_actions) påverkas, aldrig sidrendering. Se CLAUDE.md.
 #
 # Byggkontext = ./deploy/website (ingen kod kopieras in — den bind-mountas i dev).
-FROM serversideup/php:8.2-fpm-nginx
+# PHP 8.4 som prod (8.4.27, se server.md).
+FROM serversideup/php:8.4-fpm-nginx
 
 USER root
 # gd: delningsbilderna ritas med GD och FreeType (todo #34), som på prod.

@@ -32,7 +32,7 @@ varning eller en slowlog på ~100 per dygn är normalläge, inte en incident.
 | `cpu`                    | Load + topprocesser                                     |
 | `mem` / `memory`         | RAM + swap                                              |
 | `disk`                   | Diskutrymme + största loggarna                          |
-| `services` / `systemd`   | nginx, php8.2-fpm, mariadb                              |
+| `services` / `systemd`   | nginx, php8.4-fpm, mariadb                              |
 | `fpm`                    | php-fpm-poolen: workers, mättnadsvarningar, socket-kö   |
 | `importer`               | Levererar importern färska sidor? Felfrekvens?          |
 | `http`                   | Statuskod, responstid, `X-Cache` utifrån                |
@@ -50,10 +50,10 @@ Tolka: **servern har 2 vCPU** — load över 2 är ihållande mättnad. Normalt
 ligger load runt 1–2 (verifierat 2026-08-09: `1.22, 1.89, 2.07`), så den
 går redan nära taket i vardagsläge. Hög `wa` på `%Cpu(s)`-raden = disk-I/O-bunden.
 
-**Toppen i listan är oftast `php8.2` som root — det är importern, inte webben.**
+**Toppen i listan är oftast `php8.4` som root — det är importern, inte webben.**
 Schedulern kör `texttv:import` varje minut, och de processerna drar regelbundet
 50–70 % CPU var (verifierat 2026-08-09). Det är alltså importen, inte
-besökstrafiken, som sätter grundlasten på den här servern. Se `php-fpm8.2`-
+besökstrafiken, som sätter grundlasten på den här servern. Se `php-fpm8.4`-
 och `www-data`-processer för det som faktiskt är webbtrafik.
 
 **Historik med `sar`** (sysstat, installerat 2026-10-25, sampel var 10:e
@@ -94,11 +94,11 @@ att flagga. Största enskilda posten är `/var/log/nginx/access.log` — se Logg
 ### services
 
 ```bash
-ssh texttv.nu "systemctl is-active nginx php8.2-fpm mariadb && echo --- && systemctl status nginx php8.2-fpm mariadb --no-pager | grep -E 'Active:|Main PID'"
+ssh texttv.nu "systemctl is-active nginx php8.4-fpm mariadb && echo --- && systemctl status nginx php8.4-fpm mariadb --no-pager | grep -E 'Active:|Main PID'"
 ```
 
 Tolka: alla tre ska vara `active`. Tjänstnamnen är exakt `nginx`,
-`php8.2-fpm`, `mariadb` (inte `mysql` — MariaDB 10.11.19 kör (2026-10-27), service-aliaset
+`php8.4-fpm`, `mariadb` (inte `mysql` — MariaDB 11.8.6 kör (2026-10-31), service-aliaset
 `mysql` finns men använd inte det).
 
 ### fpm
@@ -118,14 +118,14 @@ Använd istället de två som faktiskt fungerar:
 
 1. **Mättnadsvarningarna** nedan — tidsstämplade, till skillnad från
    statussidans kumulativa räknare.
-2. **Slowloggen** — `/var/log/php8.2-fpm.slow.log`, aktiv sedan 2026-08-10
+2. **Slowloggen** — `/var/log/php8.4-fpm.slow.log`, aktiv sedan 2026-08-10
    med tröskel 3 s. Den ger en **PHP-stacktrace** för varje långsam request,
    alltså exakt var koden stod. Det är det enda som skiljer "väntar på
    MariaDB" (fler workers hjälper) från "brinner CPU" (fler workers gör det
    värre).
 
 ```bash
-ssh texttv.nu 'ls -l /var/log/php8.2-fpm.slow.log; tail -40 /var/log/php8.2-fpm.slow.log'
+ssh texttv.nu 'ls -l /var/log/php8.4-fpm.slow.log; tail -40 /var/log/php8.4-fpm.slow.log'
 ```
 
 Läs stacktracen nedifrån och upp — översta raden är där den stod när
@@ -139,8 +139,8 @@ säger inget om *vilken* query. Gruppera i stället på första raden i
 
 ```bash
 ssh texttv.nu '
-  awk "/script_filename/{f=0} /\/application\//{ if(!f){sub(/^\[0x[0-9a-f]+\] /,\"\"); print; f=1} }" /var/log/php8.2-fpm.slow.log | sort | uniq -c | sort -rn | head -5
-  grep -E "^\[[0-9]{2}-" /var/log/php8.2-fpm.slow.log | cut -c2-12 | sort | uniq -c'
+  awk "/script_filename/{f=0} /\/application\//{ if(!f){sub(/^\[0x[0-9a-f]+\] /,\"\"); print; f=1} }" /var/log/php8.4-fpm.slow.log | sort | uniq -c | sort -rn | head -5
+  grep -E "^\[[0-9]{2}-" /var/log/php8.4-fpm.slow.log | cut -c2-12 | sort | uniq -c'
 ```
 
 `texttv_helper.php:257` (var `:259` före 2026-10-24) = `most_read`-queryn (todo #12, #14). Den körs nästan
@@ -150,9 +150,9 @@ den håller en worker.
 ```bash
 ssh texttv.nu '
   echo "workers nu: $(ps -eo comm= | grep -c "^php-fpm")/10 (+1 master)"
-  echo "mättnadsvarningar i denna logg: $(grep -c max_children /var/log/php8.2-fpm.log)"
-  grep max_children /var/log/php8.2-fpm.log | tail -5
-  ss -lx | grep php8.2-fpm.sock
+  echo "mättnadsvarningar i denna logg: $(grep -c max_children /var/log/php8.4-fpm.log)"
+  grep max_children /var/log/php8.4-fpm.log | tail -5
+  ss -lx | grep php8.4-fpm.sock
 '
 ```
 
@@ -167,12 +167,13 @@ Tolka:
   även master-processen.
 - **Varje varning betyder att requests köade.** Slår den i taket flera gånger
   i timmen under en incident är det förklaringen till trögheten.
-- **`/var/log/php8.2-fpm.log` roteras veckovis** (`/etc/logrotate.d/php8.2-fpm`),
+- **`/var/log/php8.4-fpm.log` roteras veckovis** (`/etc/logrotate.d/php8.4-fpm`),
   så antalet varningar är "sedan senaste rotation" — inte sedan tidernas
   begynnelse. Jämför med tidsstämplarna, inte bara antalet. Filen växer
   ~1,3 MB per vecka, nästan bara slowloggens `about to trace`/`finished
   trace`-rader. Storleken säger alltså inget; räkna `max_children`-raderna.
-- Socket: `/run/php/php8.2-fpm.sock`, backlog 4096. Stigande `Recv-Q` i
+- Socket: `/run/php/php8.4-fpm.sock`, backlog 4096 (nginx går via alternativ-symlänken
+  `/run/php/php-fpm.sock`). Stigande `Recv-Q` i
   `ss -lx` = anslutningar hinner inte plockas upp.
 
 ### importer
@@ -266,13 +267,13 @@ ssh texttv.nu '
   apt list --upgradable 2>/dev/null | grep upgradable | cut -d/ -f1 | tr "\n" " "; echo
   echo "--- needrestart (KSTA 1 = rätt kernel kör):"; needrestart -b | grep -E "KSTA|SVC"
   [ -f /var/run/reboot-required ] && echo "OMSTART KRÄVS: $(tr "\n" " " < /var/run/reboot-required.pkgs)" || echo "ingen omstart krävs"
-  echo "--- senaste omstarter:"; last -x reboot -F | head -2
+  echo "--- senaste omstarter:"; journalctl --list-boots --no-pager | tail -2
   echo "--- nästa automatiska körning:"; systemctl list-timers apt-daily-upgrade.timer --no-pager --no-legend
-  echo "--- PHP:"; php -r "echo PHP_VERSION, PHP_EOL;"; dpkg-query -W php8.2-fpm
+  echo "--- PHP:"; php -r "echo PHP_VERSION, PHP_EOL;"; dpkg-query -W php8.4-fpm
 '
-# Senaste 8.2-releasen enligt php.net (körs lokalt, inte på servern)
-curl -s "https://www.php.net/releases/index.php?json&version=8.2" \
-  | python3 -c 'import json,sys; print("senaste 8.2:", json.load(sys.stdin)["version"])'
+# Senaste 8.4-releasen enligt php.net (körs lokalt, inte på servern)
+curl -s "https://www.php.net/releases/index.php?json&version=8.4" \
+  | python3 -c 'import json,sys; print("senaste 8.4:", json.load(sys.stdin)["version"])'
 ```
 
 Tolka:
@@ -287,12 +288,13 @@ Tolka:
 - **MariaDB är undantagen** från automatiska uppdateringar (`Package-Blacklist` i
   `51unattended-upgrades-local`, efter att uppgraderingen hängde sig 2026-10-16). Säkerhetsfixar
   för MariaDB dyker därför upp under "väntande" och ska installeras för hand, se `server.md`.
-- **PHP mot senaste 8.2:** PHP kommer från Debians `bookworm-security` och uppdateras av
-  unattended-upgrades. Debian följer uppströms 8.2-releaser (8.2.35 = `8.2.35-1~deb12u1`), så
-  samma nummer är det normala. Ligger servern efter trots att paketet inte står som väntande,
-  har Debian inte släppt än — kolla security-tracker.debian.org. ⚠️ **PHP 8.2 får säkerhetsfixar
-  uppströms bara till 2026-12-31**, därefter Debians egna backports via bookworm LTS
-  till 2028-06-30 (se todo #17).
+  Efter bytet till 11.8 (Debian 13, 2026-10-31) står den kvar där ungefär en vecka till.
+- **PHP mot senaste 8.4:** PHP kommer från Debians `trixie-security` (Debian 13 sedan
+  2026-10-31, PHP 8.4.27) och uppdateras av unattended-upgrades. Debian följer uppströms
+  8.4-releaser (paketversion `8.4.x-1~deb13uN`), så samma nummer är det normala. Ligger servern
+  efter trots att paketet inte står som väntande, har Debian inte släppt än — kolla
+  security-tracker.debian.org. PHP 8.4 får säkerhetsfixar uppströms till 2028-12-31; Debian 13
+  stöds till 2028 (LTS till 2030).
 - ⚠️ **`unattended-upgrade --dry-run` lämnar falska rader i `history.log`** (med `Requested-By`)
   som här syns som `auto`. Hände 2026-10-25 med tzdata. Står paketet samtidigt under "väntande",
   eller visar `dpkg-query -W <paket>` gamla versionen, är raden en torrkörning.
@@ -307,14 +309,14 @@ ssh texttv.nu '
   echo === MEM ===; free -h | head -2
   echo === DISK ===; df -h / | tail -1
   echo === TJÄNSTER ===
-  for s in nginx php8.2-fpm mariadb; do printf "%-14s %s\n" "$s" "$(systemctl is-active $s)"; done
+  for s in nginx php8.4-fpm mariadb; do printf "%-14s %s\n" "$s" "$(systemctl is-active $s)"; done
   echo "misslyckade enheter: $(systemctl --failed --no-legend | wc -l) (ska vara 0)"; systemctl --failed --no-legend
   echo === PHP-FPM ===
   echo "workers nu: $(ps -eo comm= | grep -c "^php-fpm")/10 (+1 master)"
-  echo "max_children-varningar: $(grep -c max_children /var/log/php8.2-fpm.log 2>/dev/null)"
-  echo "senaste: $(grep max_children /var/log/php8.2-fpm.log 2>/dev/null | tail -1 | cut -d] -f1 | tr -d [)"
+  echo "max_children-varningar: $(grep -c max_children /var/log/php8.4-fpm.log 2>/dev/null)"
+  echo "senaste: $(grep max_children /var/log/php8.4-fpm.log 2>/dev/null | tail -1 | cut -d] -f1 | tr -d [)"
   echo === LOGGAR ===
-  ls -lh /var/log/nginx/access.log /var/log/php8.2-fpm.log \
+  ls -lh /var/log/nginx/access.log /var/log/php8.4-fpm.log \
      /usr/share/nginx/l.texttv.nu/importer/storage/logs/laravel.log 2>/dev/null \
      | awk "{printf \"%-8s %s\n\", \$5, \$9}"
   echo === CRON ===
@@ -361,8 +363,8 @@ Storlekar verifierade 2026-10-24:
 | ----------------------------------------------------------------- | -------- | ------------- |
 | `/var/log/nginx/access.log`                                        | dagligen, 14 gen. | **0,75–1,1 GB per dygn** (gz 46–76 MB), hela katalogen ~2,5 GB |
 | `/var/log/nginx/error.log`                                         | ja       | ~200–300 KB   |
-| `/var/log/php8.2-fpm.log`                                          | veckovis | **~1,3 MB per vecka** (slowloggens trace-rader) |
-| `/var/log/php8.2-fpm.slow.log`                                     | veckovis | ~1,2 MB       |
+| `/var/log/php8.4-fpm.log`                                          | veckovis | **~1,3 MB per vecka** (slowloggens trace-rader) |
+| `/var/log/php8.4-fpm.slow.log`                                     | veckovis | ~1,2 MB       |
 | `/usr/share/nginx/l.texttv.nu/importer/storage/logs/laravel.log`   | dagligen | 5–20 KB (några tiotal rader) |
 
 **Trafiken är 3–4,5 miljoner requests per dygn**, 150–800 k per timme

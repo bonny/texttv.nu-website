@@ -35,7 +35,7 @@ seed: ## Seeda om DB:n (migrera + importera startsidorna). Säkert att köra om 
 test-api: ## Jämför /api/*-svaren mot origin/main (eller BASE=<git-ref>). Kräver make up.
 	BASE=$(or $(BASE),origin/main) tests/api/run.sh
 
-# PHPStan körs i projektets egna images (PHP 8.2 som prod), med verktyget i
+# PHPStan körs i projektets egna images (PHP 8.4 som prod), med verktyget i
 # tools/phpstan/ som varken deployas eller startar en deploy. Importern körs
 # med importer/ monterad och imagens vendor/ kvar (Laravel behövs för analysen).
 UIDGID := $(shell id -u):$(shell id -g)

@@ -3,12 +3,13 @@
 # build så init-servicen kan migrera + importera direkt utan separat
 # composer-steg.
 #
-# PHP 8.2 matchar prod (8.2.31 på Hetzner, se server.md) — samma version som
-# tog ner schedulern i bugg #129 (8.2-deprecation som aldrig syntes i Valets 8.1).
+# PHP 8.4 matchar prod (8.4.27 på Hetzner sedan Debian 13, 2026-10-31, se
+# server.md). Lokalt och prod på samma minor: bugg #129 var en 8.2-deprecation
+# som aldrig syntes i Valets 8.1 och tog ner schedulern.
 #
 # Byggkontext = ./importer (se compose.yaml). I dev överlagras koden av en
 # bind-mount medan vendor/ behålls via en anonym volym (se compose.override.yaml).
-FROM serversideup/php:8.2-fpm-nginx
+FROM serversideup/php:8.4-fpm-nginx
 
 USER root
 # intl: Carbon-lokalisering · bcmath: Laravel-default · gd: dela-bild · exif: bildmetadata
@@ -16,7 +17,7 @@ USER root
 RUN install-php-extensions intl bcmath gd exif
 
 COPY --chown=www-data:www-data . /var/www/html
-# Fräsch vendor/ byggd mot 8.2 (host-vendor exkluderas via .dockerignore).
+# Fräsch vendor/ byggd mot 8.4 (host-vendor exkluderas via .dockerignore).
 RUN composer install --no-interaction --no-progress --prefer-dist --optimize-autoloader
 
 USER www-data

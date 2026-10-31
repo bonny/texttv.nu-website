@@ -1,5 +1,5 @@
-**Status:** steg 1–6 klara 2026-10-28; kvar städning av dumparna i `/root` (steg 7, ~2026-10-31)
-**Senast uppdaterad:** 2026-10-28
+**Status:** klar 2026-10-31 — båda tabellerna InnoDB sedan 2026-10-28; steg 7: `/root/db-backups-2026-10-18` och `-10-22` raderade (kopior på Mac minin)
+**Senast uppdaterad:** 2026-10-31
 
 # Todo #31 — Byt `texttv` och `texttv_blogg` till InnoDB
 
@@ -26,10 +26,10 @@ Mac minin, som för BPK.
 
 Mätt 2026-10-28:
 
-| Tabell | Rader | Data | Index |
-| --- | --- | --- | --- |
-| `texttv` | 1,6 milj. | 1 342 MB | 143 MB |
-| `texttv_blogg` | 81 | 0 | 0 |
+| Tabell         | Rader     | Data     | Index  |
+| -------------- | --------- | -------- | ------ |
+| `texttv`       | 1,6 milj. | 1 342 MB | 143 MB |
+| `texttv_blogg` | 81        | 0        | 0      |
 
 - Schemat är enkelt: inga FULLTEXT-, MERGE- eller andra MyISAM-specifika
   funktioner, och koden har inga `COUNT(*)` (som blir långsamt i InnoDB).
@@ -95,7 +95,7 @@ buffer pool 2 GB, loggfil 96 MB, dumpen från 10-18): `texttv_blogg` under 1 s,
   `/api/updated/…` var 1,5–3,5 s redan före (1,7 s efter).
 - 2026-10-28 12:28: steg 6. `~/Backups/bin/backup-texttv-db.sh` + LaunchAgent
   `se.eskapism.backup-texttv-db` (07:45, bara Mac minin). `mariadb-dump
-  --single-transaction --quick --hex-blob --databases texttv.nu texttv_stats`
+--single-transaction --quick --hex-blob --databases texttv.nu texttv_stats`
   som root via socket med nice/ionice, `gzip --fast` på servern, kontroll av
   storlek (> 700 MB), gzip och avslutningsraden, sedan `xz -9` och `xz -t`.
   14 dagars historik i `~/Backups/texttv-db/`, macOS-notis vid fel.

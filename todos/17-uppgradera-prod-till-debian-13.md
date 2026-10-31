@@ -1,5 +1,5 @@
-**Status:** aktiv — A klar 2026-10-28 (A.8 struket), B klar 2026-10-28, C klar 2026-10-29 (klon uppgraderad på 3 min, inga blockerare; se Resultat C). Nästa: D på prod en tidig morgon.
-**Senast uppdaterad:** 2026-10-29
+**Status:** aktiv — A klar 2026-10-28 (A.8 struket), B klar 2026-10-28, C klar 2026-10-29, **D klar 2026-10-31** (prod på Debian 13.7, PHP 8.4, MariaDB 11.8; nertid 16 min; se Resultat D). Nästa: E, och D.11 efter en vecka.
+**Senast uppdaterad:** 2026-10-31
 
 # Todo #17 — Uppgradera prod till Debian 13 (trixie) och PHP 8.4
 
@@ -342,6 +342,26 @@ kvällens importer-deployer). Allt raderat efteråt (servrar och snapshotar).
   `sshd_config.ucf-dist` (vår har `PermitRootLogin prohibit-password`),
   `default/grub.ucf-dist`, `sysstat.dpkg-dist`.
 
+#### Resultat D 2026-10-31 (prod)
+
+- **Tider:** underhållsläge 08:05, ny DB-dump klar 08:23, sajten nere 08:23,
+  snapshot `450302873` 08:24–08:31 (7 min, raderingsskyddad), `full-upgrade`
+  08:32–08:35, omstart 08:37:52 → SSH 08:38:23, sajten uppe 08:39, import
+  igång 08:40. **Nertid 16 min**, varav snapshoten 7.
+- nginx stoppades med timeout efter 5 s (öppna anslutningar), ofarligt.
+- **Avvikelse från C:** `shim-signed` installerades (rekommendation). Ingen
+  Secure Boot, `BOOTX64.EFI` = `core.efi`, ingen `debian`-post. Purga i E.
+- Efter omstarten: kärna 6.12.113, samma host-nyckel/instance-id/IP, `/tmp`
+  tmpfs, cloud-init `done`, inga felande tjänster.
+- Kall cache direkt efter start: `/status` och `/api/updated/100,377/…` tog
+  3–4 s första gången (php-fpm slowlog), sedan 0,05–0,08 s.
+- 44 adresser samma status och content-type som före. `certbot renew
+--dry-run` OK, fail2ban igång, inga fel i `laravel.log`, slow log tom.
+- Kvar på servern: `/root/etc-2026-10-31.tgz`, `/root/apt-fore-trixie/`,
+  `/root/crontab-fore-trixie.txt`, `/root/www.conf.84-orig`,
+  `/root/70-texttv.cnf.bak-20261031-d9`, `/root/upgrade-trixie.{sh,log}`,
+  `/root/debian.sources.trixie`. Raderas med snapshoten efter en vecka.
+
 ### D. Uppgraderingen (samma steg på klon och prod)
 
 Prod: en tidig vardagsmorgon i lågtrafik, gärna 05:00. Räkna med 30–60 min.
@@ -437,6 +457,8 @@ up`). Ingen `apt autoremove` än (E). Slow log på en vecka
 --list-boots | tail -2`.
 - fail2ban: inget att ändra (C visade att filtret matchar `sshd-session`).
 - Granska de nya conffile-versionerna (Resultat C) och ta bort dem.
+- Purga `shim-signed` m.fl. (installerades i D, se Resultat D); kontrollera att `BOOTX64.EFI` är orörd.
+- Stäng av slow log efter en vecka (rad i `70-texttv.cnf`).
 - PHPStan till 8.4 (`phpVersion: 80400`, workflowens `php-version`,
   `platform.php`), dev-stacken till 8.4 och MariaDB 11.8 i main.
 - Kontrollera nästa morgons backup, radera snapshotarna efter en vecka

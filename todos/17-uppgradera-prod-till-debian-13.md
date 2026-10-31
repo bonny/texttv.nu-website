@@ -361,6 +361,16 @@ kvällens importer-deployer). Allt raderat efteråt (servrar och snapshotar).
   `/root/crontab-fore-trixie.txt`, `/root/www.conf.84-orig`,
   `/root/70-texttv.cnf.bak-20261031-d9`, `/root/upgrade-trixie.{sh,log}`,
   `/root/debian.sources.trixie`. Raderas med snapshoten efter en vecka.
+- **Missat i C: teckengrafiken.** Efter uppgraderingen kändes inga
+  grafiktecken eller dubbelhöga rubriker igen (Pär såg det på startsidan
+  09:03). Hashen i `TeletextCharsExtractor` är crc32 av tecknet kodat som
+  GIF; bookworms libgd avrundade färgerna (04/fc/fe), trixies behåller dem
+  (00/ff). Fix `8ef16f6`: listor med trixie-hashar bredvid de gamla,
+  framräknade ur de sparade gif:arna (208 av 250 grafiktecken, 460 av 488
+  rubriker; resten saknar fil). `f47a85b`: utan de tre enfärgade rutorna,
+  som annars matchade varje tom ruta. Sidversioner 08:40–09:14 har
+  fyllda block och låga rubriker i arkivet. Lärdom: C borde ha jämfört
+  importerad HTML (antal `bgImg`/`line DH`), inte bara att sidan sparades.
 
 ### D. Uppgraderingen (samma steg på klon och prod)
 
@@ -467,6 +477,29 @@ up`). Ingen `apt autoremove` än (E). Slow log på en vecka
   `apt-mark auto` på den först).
 - `mysql` → `mariadb` i prod-health-skillen om `mysql` saknas (C.4).
 - Frivilligt: ta bort de oanvända `/etc/ssh/ssh_host_dsa_key*`.
+- **Från Debian-granskningen 2026-10-31** (läsande, inget kritiskt):
+  - Bör snart: flytta bort föråldrade cloud-init-conffiler (`dpkg-query -W
+-f='${Conffiles}\n' | grep obsolete`): `/etc/init.d/cloud-init` gör att
+    systemd bygger en SysV-`cloud-init.service` så init-steget körs två
+    gånger vid boot; även `dhclient-exit-hooks.d/hook-dhclient`,
+    `NetworkManager/dispatcher.d/cloud-init-hook-network-manager`,
+    `templates/host.mariner.tmpl`, `clean.d/README` och drop-in
+    `sshd-keygen@.service.d/disable-sshd-keygen-if-cloud-init-active.conf`.
+    Flytta till `/root/apt-fore-trixie/`, `daemon-reload`, `systemctl status
+cloud-init.service` ska ge not found.
+  - Bör snart: node 20-skriptet för delningsbilder körs första gången
+    01:45 natten till 2026-11-01; kolla
+    `/var/log/texttv-remove-old-share-imags.log`.
+  - Kan vänta: `apt purge '~c'` (rc-paket), obsolet
+    `mariadb.conf.d/50-mysql-clients.cnf`, `nginx -t`-varningar (`listen
+… http2` → `http2 on;`, dubbel `l.texttv.nu` på :80), `listen
+[::]:443` innan någon AAAA-post, `apt install wtmpdb libpam-wtmpdb` för
+    `last`, radera `/var/log/php8.2-fpm*.log*`.
+  - shim-signed är manuellt markerat, så `autoremove` tar det inte: purga
+    `shim-signed shim-signed-common shim-helpers-amd64-signed shim-unsigned`.
+  - Att veta: `Automatic-Reboot` 03:30 är på (sedan före), en
+    kärnuppdatering ger nattlig omstart. `apt -s autoremove` granskad,
+    inget viktigt försvinner.
 - Flytta `character-set-collations` från `[mariadb-11.8]` till `[mysqld]` i `70-texttv.cnf`, så att den gäller även för framtida versioner (gruppen med versionsnummer läses bara av exakt 11.8).
 - Avblockera #15 (Laravel 13). `buffer_pool` till 3G kan övervägas separat.
 - Logga i `Logg - texttv.nu.md` samma dag.

@@ -4,6 +4,7 @@ namespace App\Classes;
 
 use DOMElement;
 use Exception;
+use Illuminate\Http\Client\ConnectionException;
 use Symfony\Component\DomCrawler\Crawler;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
@@ -45,8 +46,14 @@ class Importer
         // Utan timeout väntar Guzzle för evigt när SVT inte svarar, och då
         // hängde importen tills cron dödade den (todo #29). Ett timeout-fel
         // fångas per sida i texttv:import, så resten av intervallet körs.
-        $response = Http::timeout(20)
-            ->withOptions(['connect_timeout' => 5])
+        //
+        // Ett nätverksfel (cURL 18, 28, 35, ett par om dagen) får ett nytt
+        // försök efter 1 s, i stället för att sidan väntar ett helt schemavarv
+        // (todo #15). Svarar SVT med en felkod görs inget nytt försök, och
+        // throw: false gör att den inte kastar, som förut.
+        $response = Http::connectTimeout(5)
+            ->timeout(20)
+            ->retry(2, 1000, fn ($e) => $e instanceof ConnectionException, throw: false)
             ->get($url);
 
         if ($response->successful()) {

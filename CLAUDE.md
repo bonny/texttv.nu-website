@@ -136,6 +136,7 @@ I Docker-stacken finns ingen `vendor/` på värden. Kör i containern: `docker c
 - `CleanupTest`: sidnumren på 100 står i samma kolumn som i SVT:s `imageMap`.
 - `ScheduleTest`: schemat i `app/Console/Kernel.php` som JSON (`TestPages/snapshots/schedule.json`): cron-uttryck, jobb, lås, bakgrund och om `between`/`unlessBetween` släpper igenom klockan 12 och 03. Skrivs om med `-e UPDATE_SNAPSHOTS=1`. Ersätter diff av `schedule:list`, vars format ändras mellan Laravel-versionerna.
 - `CharsStorageTest`: varje `storage/chars/{hash}.gif` som sidan pekar på finns på disk, och ett skrivfel kastar. Flysystem 3 (Laravel 9+) returnerar bara `false`, så `local`-disken behöver `'throw' => true` då.
+- `FromRemoteTest`: hämtningen från SVT. Ett nätverksfel får ett nytt försök efter 1 s, en felkod från SVT inget. `tests/TestCase.php` kör `Http::preventStrayRequests()`, så ett test utan `Http::fake()` kastar i stället för att hämta från svt.se.
 - `Feature/DebugRoutesTest`: `/live`, `/db` och `/importstatus` (läser lokala DB:n). `/pagecolors/{n}` togs bort 2026-10-28 (gav 500 sedan bildtaggarna per tecken försvann).
 
 Skriv testerna före ändringen och låt den gamla koden skriva facit. Då visar diffen efter ändringen exakt vad som ändrats.

@@ -1,5 +1,5 @@
 **Status:** aktiv
-**Senast uppdaterad:** 2026-10-26
+**Senast uppdaterad:** 2026-11-01
 
 # Fler kurerade titlar och descriptions, efter vinsten i #01
 
@@ -173,6 +173,44 @@ visningar.
 
 /101 har låg CTR trots position 3,7. Kontrollera om den rankar på frågor
 där SVT:s egen sida vinner, eftersom det kan förklara siffrorna.
+
+### /101 undersökt 2026-11-01
+
+GSC 2026-08-01 → 10-29, sidan `https://texttv.nu/101`: 16 klick på 8 359
+visningar (0,19 %). Mobil 0,15 % vid position 3,8, dator 0,34 % vid 6,6.
+Ingen data alls för samma fönster 2025, så sidan har börjat ranka i år.
+
+| Fråga | Klick | Visningar | CTR | Pos |
+| --- | --- | --- | --- | --- |
+| `101` | 5 | 2 184 | 0,23 % | 5,5 |
+| `svt text 101` | 2 | 1 915 | 0,10 % | 4,1 |
+| `text tv 101` | 3 | 959 | 0,31 % | 4,2 |
+| `texttv.nu` | 4 | 850 | 0,47 % | 1,0 |
+| `text 101` | 1 | 575 | 0,17 % | 3,1 |
+
+Resten, cirka 1 800 visningar, är frågor med 1–9 visningar och noll klick,
+till stor del skräp som `101!`, `%101` och `*101#` (en skrapa eller ett
+verktyg som provar varianter). De drar ner CTR men förklarar inte allt; de
+riktiga frågorna ligger också på 0,1–0,3 %. `/101-101` har 326 visningar
+men har canonical till `/101`, så den konkurrerar inte.
+
+SERP för `svt text 101` (google.se, hl=sv, gl=se, inte inloggad,
+2026-11-01): 1. svt.se `SVT Text - Sida 101`, 2. svt.se `SVT Text - Sida
+100`, **3. texttv.nu/101** med vår description som snippet, 4.
+hemmakanalen.se `Text 101 – Inrikes`, 5. texttv.nu/ (startsidan, med
+"snabbare och mobilanpassad"), sedan svt.se 701, 110, 300 och txtv.nu/101.
+txtv.nu och svt.se 110 får dagens datum och rubriker i snippeten ("SVT Text
+Sön 01 Nov. 2026 … Svår olycka under rallytävling"); vår snippet är den
+statiska descriptionen.
+
+**Slutsats:** samma läge som /300. Frågorna är navigerande, sökaren vill
+till SVT och SVT har de två platserna ovanför oss med exakt titel. Position
+3,7 är ett snitt som `texttv.nu` (position 1) och skräpfrågorna drar upp.
+Ingen ändring nu: /101 är nästa kandidat för samma description-ändring som
+/300 om den visar en vinst 2026-11-25 ("Snabbare och mobilanpassad SVT Text
+TV 101. …"). Den andra hypotesen, att en snippet med dagens rubriker lockar
+mer (som txtv.nu), kan inte testas samtidigt och kräver att Google väljer
+sidans text framför descriptionen.
 
 ### GEO-analys av /300, 2026-10-25
 

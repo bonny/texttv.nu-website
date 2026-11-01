@@ -343,3 +343,7 @@ Kontrollerat i källkoden: finns i L13:s `vendor/` men inte i L8:s. Inget av det
 - `dontReportDuplicates()`/`throttle()` för undantag (L11): importfelen fångas och loggas med `Log::error()`, de rapporteras inte som undantag, så throttlingen träffar dem inte.
 - PHP-attribut på modeller (`#[Table]` m.fl., L13): bara en annan syntax.
 - `MassPrunable` för städkommandona fanns redan i L8; de nuvarande kommandona är avstämda mot lasten (#12) och fungerar.
+
+### CodeIgniter 2: säkerhetsläget och flyttanalysen (2026-11-01)
+
+Inga kända hål i 2.2.6 som träffar sajten: CVE-2014-8686 (sessionskakan) och CVE-2015-5725 (`offset()`) är rättade och träffar ändå inte (inget sessionsbibliotek, `limit()` bara med konstanter eller `(int)`); `xss_clean()` används inte. Restrisken är hål i den gemensamma kärnan som ingen letar efter längre. En flytt till Laravel 13 är analyserad i [#36](rejected/36-webben-fran-codeigniter-2-till-laravel.md) (8–12 dagar) och avfärdad: webben står kvar på CI 2 tills den ska få inloggning, formulär eller uppladdning.

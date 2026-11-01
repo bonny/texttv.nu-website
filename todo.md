@@ -4,7 +4,7 @@ Index över förbättringsarbete. Varje todo har en egen fil under
 [`todos/`](todos/) med fullständig analys. Konvention och
 mappstruktur: [`todos/README.md`](todos/README.md).
 
-Senast uppdaterad: 2026-11-01 (#15 nytt försök mot SVT, preventStrayRequests; #15 Laravel 13 deployad; #17 E klar utom veckostädningen; #17 E delvis: docs, dev-stack 8.4, städning på prod; #17 teckengrafiken fixad, Debian-granskning till E; +#31 klar, dumparna i /root raderade; #17 D klar, prod på Debian 13; +#35 Används de nya sidorna och funktionerna; ordning beslutad: #17 D före #15 L12; #17 C klar; #17 C/D granskade, varv 3 infört; #15 deploy A klar, #33 klar; #15 paketgranskning: deploy A/B/C, #33 slås ihop med A; #29 klar; #15 granskad, steg 1 klart, ny ordning; #17 A och B klara, nästa C; #34 deployad; +#34 Delningsbilder ritade i PHP; +#33 Importerns storage-rättigheter återställs vid varje deploy; +#32 Prick för uppdaterade sidor; +#31 Byt `texttv` och `texttv_blogg` till InnoDB; #30 steg 5: webben kör som `texttv_web`; importerns exempelroute `/api/user` borttagen.)
+Senast uppdaterad: 2026-11-01 (#36 avfärdad: webben står kvar på CI 2; +#36 Webben från CI 2 till Laravel 13, analys; #15 nytt försök mot SVT, preventStrayRequests; #15 Laravel 13 deployad; #17 E klar utom veckostädningen; #17 E delvis: docs, dev-stack 8.4, städning på prod; #17 teckengrafiken fixad, Debian-granskning till E; +#31 klar, dumparna i /root raderade; #17 D klar, prod på Debian 13; +#35 Används de nya sidorna och funktionerna; ordning beslutad: #17 D före #15 L12; #17 C klar; #17 C/D granskade, varv 3 infört; #15 deploy A klar, #33 klar; #15 paketgranskning: deploy A/B/C, #33 slås ihop med A; #29 klar; #15 granskad, steg 1 klart, ny ordning; #17 A och B klara, nästa C; #34 deployad; +#34 Delningsbilder ritade i PHP; +#33 Importerns storage-rättigheter återställs vid varje deploy; +#32 Prick för uppdaterade sidor; +#31 Byt `texttv` och `texttv_blogg` till InnoDB; #30 steg 5: webben kör som `texttv_web`; importerns exempelroute `/api/user` borttagen.)
 
 ## Aktiva
 
@@ -106,3 +106,4 @@ eller markera todon som klar.
 
 | #   | Titel | Skäl | Fil |
 | --- | ----- | ---- | --- |
+| 36  | Webben från CodeIgniter 2 till Laravel 13 | Avfärdad 2026-11-01 — står kvar på CI 2; analysen (8–12 dagar, nginx-cachen, identiska `/api/*`-svar) är underlag om webben får inloggning, formulär eller uppladdning | [todos/rejected/36-webben-fran-codeigniter-2-till-laravel.md](todos/rejected/36-webben-fran-codeigniter-2-till-laravel.md) |

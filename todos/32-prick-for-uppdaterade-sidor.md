@@ -1,4 +1,4 @@
-**Status:** aktiv — byggd 2026-11-01, testad lokalt, inte deployad
+**Status:** aktiv — deployad 2026-11-01 (`100371b`), mätperiod till 2026-11-15
 **Senast uppdaterad:** 2026-11-01
 
 # #32 En prick när en sida har uppdaterats sedan du såg den
@@ -76,5 +76,7 @@ Testat i Playwright mot den lokala stacken (även 390 px bredd): sidor med
 gammal `sedd` fick "ny", 377 (aktuell) och poster utan `sedd` fick inget,
 fyra senast besökta syns, och valet skickade `har_prick: "ja"`.
 
-**Kvar:** deploy. Pär registrerar `har_prick` som anpassad dimension
+**Deployad 2026-11-01** (`100371b`), JS och CSS kontrollerade på prod.
+
+**Kvar:** Pär registrerar `har_prick` som anpassad dimension
 (händelse) i GA4, sedan mäts två veckor före och efter enligt Mät ovan.

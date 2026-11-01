@@ -439,22 +439,26 @@ body {
 /*
   Reservera annonsens höjd innan den laddas, annars trycks sidan ner när
   den kommer (todo #19). Uppmätt på /377 2026-10-18: CLS 0,39 → 0 på mobil,
-  0,14 → 0,002 på 1280. Annonsen är "auto": kvadratisk i sidans bredd på
-  mobil, 280 px hög på bredare skärmar. aspect-ratio släpper när AdSense
-  sätter en egen höjd; utan fyllning tas rutan bort.
+  0,14 → 0,002 på 1280 (då med en kvadratisk reservation på mobil). Annonsen
+  är "auto", 280 px hög på bredare skärmar; utan fyllning tas rutan bort.
+
+  På mobil var "auto" kvadratisk i sidans bredd (390×390) och sköt ner
+  sidans första rader under skärmkanten. Sedan todo #22 tar
+  pages_current_page_top.php bort data-ad-format under 700 px (samma gräns
+  som här), och AdSense fyller då rutans storlek, 280 px hög (336×280,
+  300×250). Höjden är fast även fylld: en 300×250 får 30 px luft under sig,
+  men sidan hoppar inte.
 */
 .ad--beforeMainText ins.adsbygoogle {
   min-height: 280px;
 }
-@media only screen and (max-width: 699px) {
-  .ad--beforeMainText ins.adsbygoogle {
-    min-height: 0;
-    aspect-ratio: 1 / 1;
-  }
-}
 .ad--beforeMainText ins.adsbygoogle[data-ad-status="filled"] {
   min-height: 0; /* en lägre annons ska inte få tomrum under sig */
-  aspect-ratio: auto;
+}
+@media only screen and (max-width: 699px) {
+  .ad--beforeMainText ins.adsbygoogle {
+    height: 280px;
+  }
 }
 .ad--beforeMainText ins.adsbygoogle[data-ad-status="unfilled"] {
   display: none !important;

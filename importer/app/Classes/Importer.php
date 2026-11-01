@@ -2,6 +2,7 @@
 
 namespace App\Classes;
 
+use DOMElement;
 use Exception;
 use Symfony\Component\DomCrawler\Crawler;
 use Illuminate\Support\Facades\Http;
@@ -551,7 +552,7 @@ class Importer
         $lineElements = $domLine->filter('*');
 
         $newLine = '';
-        /** @var DOMElement $prevElm */
+        /** @var ?DOMElement $prevElm */
         $prevElm = null;
         $isElementOpened = false;
 

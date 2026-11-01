@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use Tests\TestCase;
 use App\Classes\Importer;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Tester för cleanup(): alt-texten från SVT blir 24 rader à 40 tecken.
@@ -48,9 +49,8 @@ class CleanupTest extends TestCase
 
     /**
      * Rader med bara sidnummer ("106", "130-133") står där SVT har dem.
-     *
-     * @dataProvider fileProvider
      */
+    #[DataProvider('fileProvider')]
     public function test_sidnummer_pa_startsidan_star_som_hos_svt(string $file)
     {
         $lines = $this->cleanedLines($file);
@@ -68,9 +68,7 @@ class CleanupTest extends TestCase
         $this->assertGreaterThan(0, $checked, 'Inga rader med bara sidnummer hittades');
     }
 
-    /**
-     * @dataProvider fileProvider
-     */
+    #[DataProvider('fileProvider')]
     public function test_alla_rader_ar_40_tecken(string $file)
     {
         $lines = $this->cleanedLines($file);

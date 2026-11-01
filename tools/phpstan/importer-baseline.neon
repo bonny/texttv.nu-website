@@ -1,27 +1,9 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Access to property \$nodeName on an unknown class App\\Classes\\DOMElement\.$#'
-			identifier: class.notFound
-			count: 2
-			path: /var/www/html/app/Classes/Importer.php
-
-		-
-			message: '#^Access to property \$textContent on an unknown class App\\Classes\\DOMElement\.$#'
-			identifier: class.notFound
-			count: 1
-			path: /var/www/html/app/Classes/Importer.php
-
-		-
 			message: '#^Anonymous function has an unused use \$line\.$#'
 			identifier: closure.unusedUse
 			count: 1
-			path: /var/www/html/app/Classes/Importer.php
-
-		-
-			message: '#^Call to method getAttribute\(\) on an unknown class App\\Classes\\DOMElement\.$#'
-			identifier: class.notFound
-			count: 6
 			path: /var/www/html/app/Classes/Importer.php
 
 		-
@@ -43,12 +25,6 @@ parameters:
 			path: /var/www/html/app/Classes/Importer.php
 
 		-
-			message: '#^Negated boolean expression is always false\.$#'
-			identifier: booleanNot.alwaysFalse
-			count: 1
-			path: /var/www/html/app/Classes/Importer.php
-
-		-
 			message: '#^PHPDoc tag @param references unknown parameter\: \$linesToLookForHeadlinesIn$#'
 			identifier: parameter.notFound
 			count: 1
@@ -61,32 +37,8 @@ parameters:
 			path: /var/www/html/app/Classes/Importer.php
 
 		-
-			message: '#^PHPDoc tag @var for variable \$currentElm contains unknown class App\\Classes\\DOMElement\.$#'
-			identifier: class.notFound
-			count: 1
-			path: /var/www/html/app/Classes/Importer.php
-
-		-
-			message: '#^PHPDoc tag @var for variable \$prevElm contains unknown class App\\Classes\\DOMElement\.$#'
-			identifier: class.notFound
-			count: 1
-			path: /var/www/html/app/Classes/Importer.php
-
-		-
-			message: '#^PHPDoc tag @var with type App\\Classes\\DOMElement is not subtype of native type null\.$#'
-			identifier: varTag.nativeType
-			count: 1
-			path: /var/www/html/app/Classes/Importer.php
-
-		-
 			message: '#^Parameter \#3 \$length of function mb_substr expects int\|null, float given\.$#'
 			identifier: argument.type
-			count: 2
-			path: /var/www/html/app/Classes/Importer.php
-
-		-
-			message: '#^Ternary operator condition is always true\.$#'
-			identifier: ternary.alwaysTrue
 			count: 2
 			path: /var/www/html/app/Classes/Importer.php
 
@@ -145,18 +97,6 @@ parameters:
 			path: /var/www/html/app/Console/Commands/texttvimport.php
 
 		-
-			message: '#^PHPDoc type array of property App\\Exceptions\\Handler\:\:\$dontFlash is not covariant with PHPDoc type array\<string\> of overridden property Illuminate\\Foundation\\Exceptions\\Handler\:\:\$dontFlash\.$#'
-			identifier: property.phpDocType
-			count: 1
-			path: /var/www/html/app/Exceptions/Handler.php
-
-		-
-			message: '#^PHPDoc type array of property App\\Exceptions\\Handler\:\:\$dontReport is not covariant with PHPDoc type array\<string\> of overridden property Illuminate\\Foundation\\Exceptions\\Handler\:\:\$dontReport\.$#'
-			identifier: property.phpDocType
-			count: 1
-			path: /var/www/html/app/Exceptions/Handler.php
-
-		-
 			message: '#^Call to an undefined static method App\\Models\\PageImportsLog\:\:orderByDesc\(\)\.$#'
 			identifier: staticMethod.notFound
 			count: 1
@@ -167,7 +107,6 @@ parameters:
 			identifier: staticMethod.notFound
 			count: 1
 			path: /var/www/html/app/Http/Controllers/ImportstatusController.php
-
 
 		-
 			message: '#^Method App\\Http\\Middleware\\Authenticate\:\:redirectTo\(\) should return string\|null but return statement is missing\.$#'
@@ -188,22 +127,10 @@ parameters:
 			path: /var/www/html/app/Models/PageImportsLog.php
 
 		-
-			message: '#^PHPDoc type array of property App\\Models\\PageImportsLog\:\:\$fillable is not covariant with PHPDoc type array\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$fillable\.$#'
-			identifier: property.phpDocType
-			count: 1
-			path: /var/www/html/app/Models/PageImportsLog.php
-
-		-
 			message: '#^Access to an undefined property App\\Models\\TextTV\:\:\$page_content\.$#'
 			identifier: property.notFound
 			count: 1
 			path: /var/www/html/app/Models/TextTV.php
-
-		-
-			message: '#^PHPDoc type array of property App\\Models\\User\:\:\$fillable is not covariant with PHPDoc type array\<string\> of overridden property Illuminate\\Database\\Eloquent\\Model\:\:\$fillable\.$#'
-			identifier: property.phpDocType
-			count: 1
-			path: /var/www/html/app/Models/User.php
 
 		-
 			message: '#^PHPDoc tag @var above a method has no effect\.$#'

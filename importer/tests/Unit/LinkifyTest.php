@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use Tests\TestCase;
 use App\Classes\Importer;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Tester för hur sidnummer på en rad blir till länkar (linkifySingleLine).
@@ -156,9 +157,7 @@ class LinkifyTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider specProvider
-     */
+    #[DataProvider('specProvider')]
     public function test_spec(string $text, array $expectedLinks)
     {
         $this->assertSame($expectedLinks, $this->links($this->importer()->linkifySingleLine($text)));

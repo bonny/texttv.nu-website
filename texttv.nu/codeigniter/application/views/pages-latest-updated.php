@@ -36,7 +36,9 @@ foreach ( $result->result() as $row ) {
 $out_latest .= "</ul>";
 $out_latest .= "</section>"; // .latest-pages--news
 
-$result = get_latest_updated_pages(300, 400);
+// Bara nyhetssidorna 300–329, som /api/last_updated/sport. Resultatsidorna
+// har en egen lista nedan.
+$result = get_latest_updated_pages(300, 329);
 
 $out_latest .= "<section class='latest-pages-list latest-pages-list--sport tt-sidbredd'>";
 $out_latest .= "<h2 class='tt-h2'><span>Senaste sportnyheterna</span></h2>";
@@ -56,7 +58,23 @@ foreach ( $result->result() as $row ) {
 	$arr_outputed_page_nums[] = $row->page_num;
 
 }
-$out_latest .= "</ul>";	
+$out_latest .= "</ul>";
+
+// Resultat- och tabellsidor som uppdaterats, en rad per sida.
+$result = get_latest_result_pages();
+if ($result->num_rows()) {
+	$out_latest .= "<h3 class='latest-pages-list__results-heading'>Nya resultat</h3>";
+	$out_latest .= "<ul class='tt-list'>";
+	foreach ( $result->result() as $row ) {
+		$out_latest .= sprintf(
+			'<li><span class="tt-list__meta">%2$s</span> <a href="/%1$d">%3$s <span class="tt-list__sidnr">%1$d</span></a></li>',
+			$row->page_num,
+			$row->date_added_formatted,
+			htmlspecialchars(tt_resultatsida_namn($row), ENT_QUOTES, 'UTF-8')
+		);
+	}
+	$out_latest .= "</ul>";
+}
 $out_latest .= "</section>"; // .latest-pages--sport
 $out_latest .= "</div>"; // .latest-pages
 

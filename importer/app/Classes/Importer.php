@@ -1321,10 +1321,10 @@ class Importer
     {
         $title = '';
         $firstSubPage = $this->subpage(0);
-        $pageLines = explode("\n", $firstSubPage['text']);
+        $allLines = array_map(fn ($line) => trim(strip_tags($line)), explode("\n", $firstSubPage['text']));
 
         // Ta bort rad 0,1 för det är sidnummer och kategori.
-        $pageLines = array_slice($pageLines, 2);
+        $pageLines = array_slice($allLines, 2);
 
         // "I korthet"-sidorna har under-sidnummer "1/3" osv uppe i högra hörnet
         // så skippa den raden.
@@ -1333,15 +1333,84 @@ class Importer
         }
 
         // Hitta första raden som inte är tom.
-        foreach ($pageLines as $oneLine) {
-            $oneLine = trim(strip_tags($oneLine));
+        foreach ($pageLines as $index => $oneLine) {
             if ($oneLine) {
                 $title = $oneLine;
+
+                // Rubriker som inte får plats på en rad fortsätter på nästa
+                // ("Sveriges trupp Euro Hockey Tour i" / "Prag/Helsingfors
+                // 5-8 november:" på 327). Raden är bruten om nästa rads
+                // första ord inte hade fått plats på den, och rubriken slutar
+                // med en tom rad. Utan den är det brödtext (TV-tablåerna,
+                // notiserna på 128).
+                $nextLine = $pageLines[$index + 1] ?? '';
+                $nextWord = strtok($nextLine, ' ');
+                if (
+                    $nextWord !== false
+                    && ($pageLines[$index + 2] ?? '') === ''
+                    && !preg_match('/[.!?:"]$/u', $title)
+                    // Inte tabeller eller innehållsförteckningar ("Adresser....712").
+                    && !preg_match('/\s{2,}|\.\./u', $title . ' ' . $nextLine)
+                    && mb_strlen($title) + 1 + mb_strlen($nextWord) > 39
+                ) {
+                    $title = rtrim($title . ' ' . $nextLine, ':');
+                }
+
                 break;
             }
         }
 
+        // På resultat- och tabellsidorna (330–349 m.fl.) är första raden en
+        // match eller en tabellrad. Det sidan handlar om står i sidhuvudet:
+        // "FOTBOLL Italien, Serie A" blir "Fotboll: Italien, Serie A".
+        if ($this->isResultLine($title) && ($heading = $this->headingTitle($allLines[1] ?? ''))) {
+            return $heading . ($this->isTableLine($title) ? ', tabell' : '');
+        }
+
         return $title;
+    }
+
+    /**
+     * Om raden är en match ("28/10 Genoa - Juventus 2-0", "3/11 Sj.Donetsk
+     * - Sporting"), en tabellrad ("1 Hammarby 27 17 4 6 56-22 55"), en
+     * omgångsrubrik ("omgång 2") eller skytteligans datumrad ("Senast
+     * ändrad 2026-11-01            Mål" på 351).
+     */
+    protected function isResultLine(string $line): bool
+    {
+        return preg_match('#^\d{1,2}/\d{1,2}\s+\S.*\s-\s#u', $line)
+            || $this->isTableLine($line)
+            || preg_match('/^omgång\s+\d+$/iu', $line)
+            || preg_match('/^Senast ändrad \d{4}-\d{2}-\d{2}\b/u', $line);
+    }
+
+    protected function isTableLine(string $line): bool
+    {
+        return (bool) preg_match('/^\d{1,2}\s+\D.*\s\d+\s+\d+-\d+\s+\d+$/u', $line);
+    }
+
+    /**
+     * Sidhuvudet (rad 1) som titel: "FOTBOLL Italien, Serie A",
+     * "FOTBOLL: Italien, Serie A" och "FOTBOLL, Italien, Serie A" blir
+     * "Fotboll: Italien, Serie A",
+     * "MÅLSERVICE" blir "Målservice".
+     */
+    protected function headingTitle(string $heading): string
+    {
+        $heading = trim($heading, " *");
+        if ($heading === '') {
+            return '';
+        }
+
+        if (preg_match('/^(\p{Lu}{3,})[:,]?\s+(.+)$/u', $heading, $matches)) {
+            return mb_convert_case($matches[1], MB_CASE_TITLE) . ': ' . $matches[2];
+        }
+
+        if (mb_strtoupper($heading) === $heading) {
+            return mb_convert_case($heading, MB_CASE_TITLE);
+        }
+
+        return $heading;
     }
 
     /**

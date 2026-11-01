@@ -1379,6 +1379,54 @@ function get_latest_updated_page_per_num($from, $to, $hours = 8) {
 }
 
 /**
+ * Resultat- och tabellsidorna 331–376 som ändrats de senaste $hours
+ * timmarna, en rad per sida, nyast först. För "Nya resultat" under
+ * sportnyheterna. 330 är resultatbörsens innehållsförteckning och 377 är
+ * målservice, som ändras hela tiden under matcherna.
+ */
+function get_latest_result_pages($hours = 8, $maxcount = 8) {
+	$hours = (int) $hours;
+	$maxcount = (int) $maxcount;
+
+	$ci =& get_instance();
+	$ci->load->database();
+
+	$sql = "
+		SELECT
+			t.id,
+			t.page_num,
+			t.title,
+			DATE_FORMAT(t.date_added, '%H:%i') AS date_added_formatted
+		FROM texttv t
+		JOIN (
+			SELECT MAX(id) AS id
+			FROM texttv
+			WHERE
+				date_added >= DATE_SUB(NOW(), INTERVAL $hours HOUR)
+				AND page_num BETWEEN 331 AND 376
+			GROUP BY page_num
+		) senaste ON senaste.id = t.id
+		ORDER BY t.date_added DESC, t.page_num
+		LIMIT $maxcount
+	";
+
+	return $ci->db->query($sql);
+}
+
+/**
+ * Namnet på en resultatsida i listan "Nya resultat". Importern ger dem
+ * sidhuvudet som titel ("Fotboll: Italien, Serie A"). Sidor importerade
+ * före 2026-11-01 har första matchen som titel ("28/10 Genoa - Juventus
+ * 2-0") och visas som "Resultat" (sidnumret står efter i listan).
+ */
+function tt_resultatsida_namn($row) {
+	if (preg_match('/^\p{Lu}\p{Ll}+: \S/u', (string) $row->title)) {
+		return $row->title;
+	}
+	return "Resultat";
+}
+
+/**
  * Rubriker som inte ska visas i listorna på /sida/delat och
  * /sida/senast-uppdaterat. Under fyra tecken är något fel. "Inrikes 101
  * Utrikes 104 Innehåll 700" är sidfoten på en tom sida i 190-serien.

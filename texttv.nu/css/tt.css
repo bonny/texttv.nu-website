@@ -535,6 +535,23 @@ button.tt-link {
 	margin-bottom: .25em;
 }
 
+/* "Nya resultat" under sportnyheterna: enkelhög rubrik i gult, och
+   sidnumret efter ligans namn i cyan. */
+.latest-pages-list__results-heading {
+	margin: 1.25em 0 0;
+	color: var(--tt-yellow);
+	font: inherit;
+}
+
+.tt-list__sidnr {
+	color: var(--tt-cyan);
+}
+
+.tt-list a:hover .tt-list__sidnr,
+.tt-list a:focus-visible .tt-list__sidnr {
+	color: inherit;
+}
+
 /*
 	Appramen (views/controls.php). Svart och i sidans bredd, två rader på
 	44 px. Höjden (cirka 100 px) är densamma som förut, så #pages och

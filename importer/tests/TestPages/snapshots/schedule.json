@@ -126,7 +126,7 @@
         "filtersPass0300": true
     },
     {
-        "expression": "0,30 * * * *",
+        "expression": "*/30 * * * *",
         "job": "call: import-400-439",
         "withoutOverlapping": true,
         "expiresAt": 10,

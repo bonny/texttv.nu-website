@@ -78,5 +78,9 @@ fyra senast besökta syns, och valet skickade `har_prick: "ja"`.
 
 **Deployad 2026-11-01** (`100371b`), JS och CSS kontrollerade på prod.
 
-**Kvar:** Pär registrerar `har_prick` som anpassad dimension
-(händelse) i GA4, sedan mäts två veckor före och efter enligt Mät ovan.
+**GA4:** `har_prick` registrerad 2026-11-01 som anpassad dimension
+(händelseomfattning) "Ny i Senast besökta" i 382798575, i Data API
+`customEvent:har_prick`. Gäller data från och med registreringen.
+
+**Kvar:** mät två veckor före och efter enligt Mät ovan (uppföljning
+2026-11-15).

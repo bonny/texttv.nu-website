@@ -141,8 +141,7 @@ pm.max_spare_servers = 3
 2. `scp` hela `texttv.nu/` → `/usr/share/nginx/` på hetzner-server.
 3. Post-SSH:
     - `sudo chown -R root:root .`
-    - `chmod 777 -R /shares`
-    - `chmod 777 /codeigniter/application/cache/`
+    - `shares/` och `codeigniter/application/cache/` ägs av `www-data` (755/644, sedan 2026-10-28; tidigare 777). `chown -R` ger alla filer i `shares/` ny ctime vid varje deploy, så städning efter ctime fungerar inte (se Cron nedan).
 4. Inget explicit cache-flush eller php-fpm reload — OPcache picks up via timestamp-validering, nginx-cachen får MISS när TTL går ut.
 
 ## Cron / scheduler
@@ -152,10 +151,11 @@ pm.max_spare_servers = 3
 | Schema           | Kommando                                                                                         | Syfte                                     |
 | ---------------- | ------------------------------------------------------------------------------------------------ | ----------------------------------------- |
 | `* * * * *`      | `cd /usr/share/nginx/l.texttv.nu/importer && php artisan schedule:run` (max_execution_time=600)  | **Laravel-schemaläggaren** för importern  |
-| `*/30 * * * *`   | `ps aux \| grep 'texttv:import' \| xargs -r kill -9`                                             | **Watchdog** — kill:a hängda import-PHPs (lades till 2024-08-11) |
-| `45 01 * * *`    | `/root/texttv-tools/remove-old-share-images.js`                                                  | Nattlig städning av share-bilder          |
+| `45 01 * * *`    | `find /usr/share/nginx/texttv.nu/shares -type f \( -name "*.jpg" -o -name "*.png" \) -mtime +7 -delete; find /usr/share/nginx/texttv.nu/shares/v2 -name "*.tmp" -mmin +60 -delete` | Delningsbilder äldre än 7 dagar (todo #34). Efter **mtime**: deployens `chown -R` ändrar ctime. En borttagen bild ritas om på ~50 ms nästa gång den hämtas |
 
-Inaktiverade rader (kommenterade ut): Twitter-poster (2023-08-25, Twitter dog), letsencrypt-renew (har egen i `/etc/cron.d/certbot`), mysql DELETE-jobs för icke-delade rader.
+Watchdog-raden som dödade hängda `texttv:import` (2024-08-11) finns inte längre (kontrollerat 2026-11-01; HTTP-timeouten i importern kom med todo #29). Inaktiverade rader (kommenterade ut): Twitter-poster (2023-08-25, Twitter dog), letsencrypt-renew (har egen i `/etc/cron.d/certbot`). De bortkommenterade mysql DELETE-jobben, med root-lösenordet i klartext, togs bort 2026-11-01. Före 2026-11-01 kördes `/root/texttv-tools/remove-old-share-images.js`, som städade efter ctime och därför aldrig tog något.
+
+**Spärr för `/api/screenshot`:** `limit_req zone=screenshot burst=20 nodelay; limit_req_status 429;` med zonen `rate=2r/s` per IP (`nodelay`: anrop inom bursten besvaras direkt, därefter 429 i stället för kö) (2026-11-01, todo #34). Zonen och en `map` på `$request_uri` ligger i `/etc/nginx/conf.d/screenshot-limit.conf`, `limit_req` i `location ~ \.php$` i texttv.nu-vhosten (`if (!-e) rewrite` skickar allt dit, så en egen location för `/api/screenshot` nås aldrig). Nyckeln sätts när `screenshot` finns var som helst i adressen, oavsett skiftläge, eftersom CodeIgniter når samma metod via `/index.php/api/…`, `/codeigniter/index.php/api/…`, `/api//screenshot` och `/api/Screenshot` (alla gav bild utan spärr före 2026-11-01). Länkförhandsvisningar (`facebookexternalhit`, `Facebot`, `Twitterbot`, `Slackbot`, `LinkedInBot`, `WhatsApp`, `TelegramBot`, `Discordbot`, `redditbot`, `Pinterest`; iMessage skickar de tre första) undantas med en `map` på user agent: Facebook sparar en misslyckad hämtning och visar delningen utan bild. Andra adresser får tom nyckel och spärras inte.
 
 **Implikation:** importerns hela funktion bygger på `* * * * *`-raden. När en sida inte uppdateras, kolla först om schedulern faktiskt körs:
 

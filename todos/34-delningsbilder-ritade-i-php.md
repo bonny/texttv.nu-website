@@ -1,5 +1,5 @@
-**Status:** aktiv — deployad 2026-10-28 (`11646b9`), delning i Facebook/Slack/iMessage testad av Pär; kvar: städning och småsaker
-**Senast uppdaterad:** 2026-10-28
+**Status:** aktiv — deployad 2026-10-28 (`11646b9`); städning och `limit_req` på prod 2026-11-01; kvar: liggande 1200 × 630
+**Senast uppdaterad:** 2026-11-01
 
 # Todo #34 — Delningsbilder ritade i PHP i stället för skärmdump
 
@@ -131,6 +131,68 @@ jämförelse och delningstester 0,5, nginx och driftsättning några timmar).
   och iMessage samma kväll, OK.
 - Kvar: liggande variant (punkt 10), städning av `shares/` (punkt 12),
   `limit_req`, ta bort `wkhtmltopdf`-paketet efter några dagar.
+
+## Kontroll 2026-11-01 (uppföljningen från 11-04, gjord tidigt)
+
+- **`shares/` 5,2 GB:** 22 339 gamla wkhtmltoimage-JPEG (7–28 okt) och
+  `v2/` 998 MB med 10 966 filer på fyra dagar (PNG 5 078, snitt 29 kB;
+  JPEG 5 888, snitt 145 kB). Disk 19 av 75 GB.
+- **Den gamla städningen tar aldrig något.** Cron 01:45 kör
+  `/root/texttv-tools/remove-old-share-images.js`, som tar bort bilder
+  äldre än 7 dagar efter **ctime**. Deployens `chown -R www-data shares`
+  (`deploy-website.yml:97`) sätter ny ctime på alla filer vid varje
+  deploy, så loggen säger "Found 0 images to remove" (senast 01:45 i dag;
+  ctime på en fil från 18 okt är 16:25 i dag). Skriptet går inte heller in
+  i `v2/`.
+- **Ingen läser de gamla filerna.** Koden läser bara `shares/v2/`, och
+  access.log har noll `GET /shares/` på 8 dygn.
+- **Toppen i dag är NVIDIA:s crawler** (`NVIDIABOT`, en IP, 3.231.27.0):
+  3 865 anrop mellan 03:20 och 03:29 (~7 per sekund), alla gamla
+  `.jpg`-adresser, 4 122 unika id. Den gav 4 402 nya filer och 545 MB i
+  dag. Inte sedd tidigare under de 7 dygn loggen räcker. Svarstid för
+  `/api/screenshot` i dag p50 0,10 s, p99 0,40 s, max 1,6 s; inga fel i
+  nginx error.log, 88 svar 404.
+- Utan städning och med fler sådana besök: cirka 0,2–0,5 GB per dygn.
+
+**Förslag (prod, kräver ok):**
+
+1. Byt cron-raden mot `find` på mtime, för båda katalogerna:
+   ```
+   45 1 * * * find /usr/share/nginx/texttv.nu/shares -type f \( -name '*.jpg' -o -name '*.png' \) -mtime +7 -delete; find /usr/share/nginx/texttv.nu/shares/v2 -name '*.tmp' -mmin +60 -delete
+   ```
+   De gamla JPEG:erna försvinner inom en vecka (eller direkt med en
+   engångskörning). En v2-bild som tas bort ritas om på 50 ms nästa gång;
+   bara `Last-Modified` ändras.
+2. `limit_req` för `/api/screenshot` per IP i nginx (`map $request_uri`
+   ger tom nyckel för allt annat, eftersom `if (!-e) rewrite` gör att en
+   egen location aldrig nås), t.ex. 2 per sekund, burst 20, svar 429.
+   NVIDIA-toppen hade fått 429 i stället för 3 800 nya filer.
+3. Dokumentera städningen i `server.md` (cron finns bara på servern).
+
+**Gjort 2026-11-01 (Pär gav ok):**
+
+- Crontab: node-skriptet ersatt med `find` på mtime enligt punkt 1, och de
+  bortkommenterade mysql-raderna med root-lösenordet i klartext borttagna.
+  Backup `/root/crontab.bak-20261101-34` (utan lösenordsraderna).
+- De 22 339 gamla JPEG:erna i `shares/` raderade direkt: 5,2 GB → 1,0 GB,
+  disken 19 → 15 GB.
+- nginx: `/etc/nginx/conf.d/screenshot-limit.conf` (map + zon) och
+  `limit_req zone=screenshot burst=20 nodelay; limit_req_status 429;` i
+  `location ~ \.php$`. `nginx -t` ok, reload. Test: 30 samtidiga anrop mot
+  en delningsbild gav 22 × 200 och 8 × 429, 30 mot `/api/get/100` gav
+  30 × 200. Backup av vhosten `/root/nginx-texttv.nu.bak-20261101-34`
+  (innehåller DB-lösenordet, raderas med de andra 2026-11-07).
+- `server.md` uppdaterad (cron, spärren, deployens rättigheter).
+- Efter kodgranskningen samma dag: `map` på `screenshot` var som helst i
+  adressen, oavsett skiftläge (`/index.php/api/screenshot`, `/api//screenshot`
+  och `/api/Screenshot` gav bild utan spärr), och länkförhandsvisningar
+  (Facebook/iMessage, Slack, Twitter, LinkedIn, WhatsApp m.fl.) undantagna
+  med en `map` på user agent. Test, 30 samtidiga anrop per variant: alla
+  adressvarianter 21–22 svar + 8–9 × 429; `facebookexternalhit … Facebot
+  Twitterbot` och `Slackbot` 30 × 200; `/api/get/100` 30 × 200. Backup
+  `/root/screenshot-limit.conf.bak-20261101-34`.
+- Kvar: liggande 1200 × 630 för `og:image` (punkt 10). `wkhtmltopdf` är
+  redan borta (Debian 13).
 
 ## Risker
 

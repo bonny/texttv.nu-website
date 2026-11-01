@@ -951,7 +951,9 @@ button.tt-link {
 
 .tt-sok__rad {
 	display: grid;
-	grid-template-columns: 8ch 1fr;
+	/* Namnet så brett det behöver (kortas med … om det inte ryms) och
+	   pricken direkt efter det. */
+	grid-template-columns: 8ch auto 1fr;
 	align-items: center;
 	min-height: 36px;
 	padding: 0 1ch;
@@ -972,6 +974,15 @@ button.tt-link {
 .tt-sok__rad:hover,
 .tt-sok__rad[aria-selected="true"] {
 	background: var(--tt-yellow);
+}
+
+/* "ny" efter en senast besökt sida med en ny version sedan man såg den
+   (todo #32). Cyan som annan metadata; svart på den markerade raden via
+   regeln nedan. */
+.tt-sok__prick {
+	margin-left: 1ch;
+	justify-self: start;
+	color: var(--tt-cyan);
 }
 
 .tt-sok__rad:hover > span,

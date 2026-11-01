@@ -1,5 +1,5 @@
-**Status:** aktiv
-**Senast uppdaterad:** 2026-10-28
+**Status:** aktiv — byggd 2026-11-01, testad lokalt, inte deployad
+**Senast uppdaterad:** 2026-11-01
 
 # #32 En prick när en sida har uppdaterats sedan du såg den
 
@@ -44,3 +44,37 @@ Målet är fler sidvisningar per besök, som har sjunkit från 5,9 till 5,6.
 
 `search_select` från "Senast besökta" med och utan prick, och sidvisningar per
 besök, två veckor före och efter.
+
+## Byggt 2026-11-01
+
+`js/tt-sok.js` och `css/tt.css`, inget på servern. `/api/updated` är oförändrad.
+
+- `tt-senaste`-posterna får `sedd`, sidans `added` från `<body data-pages>`.
+  Det är versionens tid i databasen, samma tid som "Ny version av sidan" i
+  `js/scripts.js` frågar med, och inte klientens klocka. Besöker man sidan
+  igen får den en ny `sedd` och pricken försvinner.
+- När listan öppnas första gången på en sidvisning: ett anrop till
+  `/api/updated/{num}/{sedd}?app=texttvnu.web` per post (högst fyra, i
+  praktiken tre eftersom sidan man står på inte räknas). Ett gemensamt anrop
+  går inte. `GROUP BY page_num` ger en godtycklig rad per sida, så svaret
+  säger inte om just den sidan är nyare än när den sågs.
+- Ingen prick på nyheter med permalänk: länken går till versionen man läste,
+  och en ny version på numret är en annan nyhet. Inte heller på gamla poster
+  utan `sedd`, eller på sidan man står på.
+- Markeringen är ordet "ny" i cyan, 1ch efter namnet och svart på markerad
+  rad. Först byggdes en gul ruta, men UX- och AD-granskningen samma dag bytte
+  den: gult är för länkar och handlingar i designsystemet (#18), cyan för
+  metadata, Text TV markerar med ord och inte ikoner, och en ruta förklarar
+  inte sig själv på pekskärm (`title` syns inte). Skärmläsaren läser
+  "401 Väder ny". En tid ("12:04") vore bäst, men `/api/updated` ger en
+  godtycklig nyare rad per sida (`GROUP BY page_num`), inte den senaste.
+- `SENASTE_MAX` 4 → 5: sidan man står på sparas men visas inte, så nu syns
+  fyra i stället för tre.
+- `search_select` har fått `har_prick: "ja" | "nej"`.
+
+Testat i Playwright mot den lokala stacken (även 390 px bredd): sidor med
+gammal `sedd` fick "ny", 377 (aktuell) och poster utan `sedd` fick inget,
+fyra senast besökta syns, och valet skickade `har_prick: "ja"`.
+
+**Kvar:** deploy. Pär registrerar `har_prick` som anpassad dimension
+(händelse) i GA4, sedan mäts två veckor före och efter enligt Mät ovan.

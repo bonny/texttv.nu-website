@@ -2,7 +2,8 @@
 	Förslag under "Gå till sida" (views/controls.php). Todo #18.
 
 	Tomt fält: senast besökta (sparas i webbläsaren), mest läst nu
-	(/api/most_read/news) och populära sidor. När man skriver: siffror
+	(/api/most_read/news) och populära sidor. En senast besökt sida som
+	har uppdaterats sedan man såg den får "ny" efter namnet (todo #32). När man skriver: siffror
 	filtrerar på sidnummer, bokstäver på namn. Tre siffror går till sidan
 	direkt, det sköter js/scripts.js som förut.
 
@@ -32,8 +33,11 @@
 	panel.parentNode.appendChild(status);
 	var sidor = data.sidor;
 	var SENASTE_KEY = "tt-senaste";
-	var SENASTE_MAX = 4;
+	// Sidan man står på sparas men visas inte, så fyra syns.
+	var SENASTE_MAX = 5;
 	var mestLast = null; // null = inte hämtat, [] = hämtat men tomt eller fel
+	var uppdaterade = {}; // url → true för senast besökta med ny version
+	var uppdateradeHamtat = false;
 	var options = [];
 	var active = -1;
 	var nuvarande = null; // länken som sparades för sidan man står på
@@ -79,7 +83,9 @@
 		// rubrik ("Inrikes" på 101).
 		var kand = sidaMedNum(num, true);
 		var namn = kand ? kand.namn : String(pages[0].name || pages[0].title || "").replace(/\s+/g, " ").trim();
-		senaste.unshift({ num: num, namn: namn || "Sida " + num, url: url });
+		// sedd = versionen man såg (date_added, samma tid som "Ny version av
+		// sidan" frågar med i js/scripts.js), inte klientens klocka.
+		senaste.unshift({ num: num, namn: namn || "Sida " + num, url: url, sedd: Number(pages[0].added) || 0 });
 		try {
 			localStorage.setItem(SENASTE_KEY, JSON.stringify(senaste.slice(0, SENASTE_MAX)));
 		} catch (e) {}
@@ -107,6 +113,37 @@
 				}
 			})
 			.catch(function () {});
+	}
+
+	// Har en senast besökt sida fått en ny version sedan man såg den? En
+	// fråga till /api/updated per sida (högst fyra), med sidans egen tid;
+	// med en gemensam tid säger svaret inte vilken sida som är nyare än
+	// när just den sågs. Samma endpoint som appen, den anropas bara.
+	// Nyheter (permalänk) får inget "ny": länken går till versionen man
+	// läste, och en ny version på numret är en annan nyhet.
+	function hamtaUppdaterade() {
+		if (uppdateradeHamtat) {
+			return;
+		}
+		uppdateradeHamtat = true;
+		lasSenaste().forEach(function (s) {
+			if (!s.sedd || s.url !== "/" + s.num || s.url === location.pathname) {
+				return;
+			}
+			fetch("/api/updated/" + s.num + "/" + s.sedd + "?app=texttvnu.web")
+				.then(function (r) {
+					return r.json();
+				})
+				.then(function (json) {
+					if (json.update_available) {
+						uppdaterade[s.url] = true;
+						if (!panel.hidden && input.value === "") {
+							rita();
+						}
+					}
+				})
+				.catch(function () {});
+		});
 	}
 
 	// Sidan med numret num. En exakt träff (visa "377") går före ett
@@ -201,6 +238,15 @@
 
 				opt.appendChild(num);
 				opt.appendChild(namn);
+				if (sektion.rubrik === "Senast besökta" && uppdaterade[rad.url]) {
+					opt.dataset.prick = "1";
+					// Ett ord i cyan som annan metadata, inte en ikon: Text TV
+					// markerar med text och färg, och gult är för handlingar.
+					var prick = document.createElement("span");
+					prick.className = "tt-sok__prick";
+					prick.textContent = "ny";
+					opt.appendChild(prick);
+				}
 				grupp.appendChild(opt);
 				options.push(opt);
 			});
@@ -258,6 +304,7 @@
 			mat("search_open", {});
 		}
 		hamtaMestLast();
+		hamtaUppdaterade();
 		rita();
 		panel.hidden = false;
 		input.setAttribute("aria-expanded", "true");
@@ -277,6 +324,7 @@
 			page_path: url,
 			search_term: input.value.trim(),
 			via: viaSiffra ? "siffra" : "lista",
+			har_prick: opt.dataset.prick === "1" ? "ja" : "nej",
 			transport_type: "beacon",
 		});
 		stang();

@@ -1,4 +1,4 @@
-**Status:** aktiv. Importern på Laravel 13.39 i prod sedan 2026-11-01 (deploy `cea5d92`). Nytt försök mot SVT och spärren i testerna gjorda 2026-11-01, `schedule:interrupt` struken. Kvar: deploy av det, uppföljning av felen; CodeIgniter 2 står kvar (alternativ 1)
+**Status:** aktiv. Importern på Laravel 13.39 i prod sedan 2026-11-01 (deploy `cea5d92`). Nytt försök mot SVT och spärren i testerna gjorda 2026-11-01, `schedule:interrupt` struken. Deployat (`ade688c`), felen följs upp 2026-11-08; CodeIgniter 2 står kvar (alternativ 1)
 **Senast uppdaterad:** 2026-11-01
 **Ordning (beslut 2026-10-29):** #17 D först, sedan L9 → L12 byggd och testad mot PHP 8.4, sedan L13.
 
@@ -328,7 +328,7 @@ Kontrollerat i källkoden: finns i L13:s `vendor/` men inte i L8:s. Inget av det
 **Värt att göra**
 
 1. ~~**`schedule:interrupt` i deployen**~~ **Struken 2026-11-01:** avbrottet kontrolleras bara i loopen för jobb på sekundnivå (`ScheduleRunCommand::repeatEvents()`, L13 rad 249), inte mellan vanliga jobb, och dokumentationen beskriver det för sekundjobb vid deploy. Importern har inga, så väntan i deployen blir inte kortare. Förslaget byggde på en felläsning.
-2. **Ett nytt försök vid nätverksfel mot SVT. Gjort 2026-11-01.** Mätt först: `page_imports_logs` sparar bara ett dygn (1 fel på 102 387 rader), `laravel.log` 8 dygn: 24 fel (15 cURL 18, 8 cURL 28, 1 cURL 35), spridda på 23 sidor, alla i jobb som går var 2:a–30:e minut. L13 gör om varje `TransferException` till `ConnectionException`, även cURL 18. `Importer::fromRemote()`: `Http::connectTimeout(5)->timeout(20)->retry(2, 1000, fn ($e) => $e instanceof ConnectionException, throw: false)`; `throw: false` behövs, annars kastar `retry()` på 404 där sidan i dag bara hoppas över. Testat först i `FromRemoteTest` (nytt försök, ger upp efter två, inget nytt försök på 404). Följ upp att felen i `laravel.log` blir färre.
+2. **Ett nytt försök vid nätverksfel mot SVT. Gjort 2026-11-01.** Mätt först: `page_imports_logs` sparar bara ett dygn (1 fel på 102 387 rader), `laravel.log` 8 dygn: 24 fel (15 cURL 18, 8 cURL 28, 1 cURL 35), spridda på 23 sidor, alla i jobb som går var 2:a–30:e minut. L13 gör om varje `TransferException` till `ConnectionException`, även cURL 18. `Importer::fromRemote()`: `Http::connectTimeout(5)->timeout(20)->retry(2, 1000, fn ($e) => $e instanceof ConnectionException, throw: false)`; `throw: false` behövs, annars kastar `retry()` på 404 där sidan i dag bara hoppas över. Testat först i `FromRemoteTest` (nytt försök, ger upp efter två, inget nytt försök på 404). Deployat 2026-11-01 11:57 (`ade688c`; deployen väntade 55 s på pågående jobb). Varvet 11:58: 200 importrader, inga fel. Uppföljning 2026-11-08 i todo.md.
 3. **`Http::preventStrayRequests()` i `tests/TestCase.php`. Gjort 2026-11-01.** Testet `test_tester_hamtar_aldrig_fran_svt` föll på gamla koden, alltså hämtade testsviten från svt.se om en fake saknades.
 
 **Kanske**

@@ -1,5 +1,5 @@
-**Status:** aktiv (granskad 2026-10-28: förberedelser på L8, sedan L9 → L12 på en branch och en deploy av L12, se sista avsnittet)
-**Senast uppdaterad:** 2026-10-29
+**Status:** aktiv. L9 → L12 klar på branchen `laravel-12` 2026-11-01, väntar på Pärs ok för deploy (se sista avsnittet)
+**Senast uppdaterad:** 2026-11-01
 **Ordning (beslut 2026-10-29):** #17 D först, sedan L9 → L12 byggd och testad mot PHP 8.4, sedan L13.
 **Blockerad av:** #17, bara för sista steget till Laravel 13
 
@@ -295,3 +295,23 @@ Prod: `vendor/` utan de fyra paketen, `/importstatus` 200, `/pagecolors` 404, im
 ### Deploy A klar 2026-10-28 (`59482b6`, testdeploy med `workflow_dispatch` 22:23)
 
 Alla steg gröna. Importen pausade 22:23:12–22:25:02 (ett schemavarv hoppades över). Efteråt: inget `storage/framework/down`; de tio borttagna filerna (PageColors.php, cors.php, package.json, webpack.mix.js, server_deploy.sh, resources/js, resources/css) borta från servern; `public/storage` kvar och grafiken 200; `vendor/` utan dev-paket (Ignition, PHPUnit, phpunit-watcher); `storage/`, `storage/logs`, `chars/`, `bootstrap/cache` 2775 `root:www-data`, filer 664; koden 755 `root:root`. `/importstatus`, importen (81 loggrader de första minuterna) och en ny delningsbild på texttv.nu fungerar, inga nya fel i `laravel.log`. `importer.prev/` och `importer.incoming/` ligger bredvid importern (skrivs om vid varje deploy). #33 klar med detta.
+
+### Branchen `laravel-12` klar 2026-11-01 (inte deployad)
+
+Fyra commits, en per major, var och en genomgången mot Laravels officiella uppgraderingsguide (`laravel/docs`, `upgrade.md` på grenarna 9.x–12.x) punkt för punkt mot koden. L9–L11 installerades med `audit.block-insecure` avstängt i containerns globala Composer-konfiguration, inte i `composer.json`. L12 löser med kontrollen på och `composer audit` utan anmärkning.
+
+| Commit    | Steg                       | Ändrat utöver beroendena                                                                                                                                                                                                                                                                                       |
+| --------- | -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `9705d6e` | 9.52                       | inget; guidens punkter (Flysystem 3, HTTP-timeout, `when`/`unless`, Mailer) träffar inte koden                                                                                                                                                                                                                |
+| `9874aff` | 10.50, PHPUnit 10          | `registerPolicies()` bort, `phpunit.xml` migrerad                                                                                                                                                                                                                                                              |
+| `0782c4a` | 11.57, Carbon 3            | `php ^8.2`. Strukturen behålls (guiden avråder från flytt). `everyThirtyMinutes()` blir `*/30` i stället för `0,30`, samma minuter, `ScheduleTest` omskriven                                                                                                                                              |
+| `5489910` | 12.70.2, PHPUnit 11        | symfony ^7, guzzle ^7.8, tinker ^2.10, Ignition bort, `#[DataProvider]`. PHPStan: skelettets docblocks får ramverkets typer, `?->` i `RouteServiceProvider`, `use DOMElement` i `Importer.php`; baselinen −73 rader, inga nya fel. `local`-diskens nya standardrot (`storage/app/private`) träffar inte, roten är satt |
+
+Kontroller per steg på PHP 8.4: PHPUnit 104 tester / 369 assertions (samma som L8), en import. På L12 dessutom PHPStan, `artisan optimize`, inga deprecations vid boot (L8: cirka 100), och `schedule:work` i 12 min mot lokala DB:n: 1 914 importrader utan `NOT_IMPORTED_EXCEPTION`, alla jobb på rätt minut. `texttv:cleanup-page-actions` avslutas med kod 1 lokalt både på L8 och L12 (stats-DB:n saknas i Docker, se CLAUDE.md).
+
+**Kvar:**
+
+- [ ] Pärs ok, merge till `main` och deploy (workflowen från deploy A: `down`, `check-platform-reqs`, `rm bootstrap/cache/*.php`, `install --no-dev`, `optimize`, röktest, `up`, återställning vid fel).
+- [ ] Efter deployen: `/status/health`, `/prod-health importer`, `laravel.log`, `/importstatus`, att teckengrafiken laddas. Uppdatera `server.md` (rad om Laravel 8-deprecations) och `../CLAUDE.md` (arbetsytan).
+- [ ] Bygg om dev-stacken efter merge: `make build` och `docker compose up -d -V importer scheduler lokalimport init`, annars kör containrarna kvar L8:s `vendor/`.
+- [ ] Laravel 13 (PHP 8.3+, finns nu på prod).

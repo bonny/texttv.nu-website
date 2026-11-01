@@ -227,13 +227,30 @@ ssh texttv.nu 'ps -eo etimes=,args= | grep "texttv:import" | grep -v grep | head
 ```
 
   Rader här = import pågår i detta ögonblick.
-- **Misstänker du att en import fastnat: jämför med originalet** på
-  `https://www.svt.se/text-tv/webb/{n}`. Texten ligger i `__NEXT_DATA__`
-  (`props.pageProps.subPages[].altText`) och tidpunkten i `meta.updated`.
-  Jämför `altText` med vår `content` utan taggar och med blanktecken
-  hopslagna: samma text = sidan har bara inte ändrats hos SVT, olika text =
-  importen står still. Kontrollerat 2026-10-31: 100, 300, 401 och 104 var
-  identiska.
+- **Misstänker du att en viss sida fastnat: kolla först importloggen för
+  sidan.** Varje körning skriver en rad, även när inget ändrats:
+
+```bash
+ssh texttv.nu 'mariadb -N -e "SELECT import_result, created_at FROM \`texttv.nu\`.page_imports_logs WHERE page_num=401 ORDER BY id DESC LIMIT 5"'
+```
+
+  `NOT_IMPORTED_PAGE_NOT_CHANGED` med färska tider = importen körs och SVT
+  har inte ändrat sidan. Inga rader på längre tid än sidans intervall i
+  `Kernel.php` (nyheter 2 min, väder 30 min, statiska sidor veckovis) = den
+  sidan importeras inte. `NOT_IMPORTED_EXCEPTION` = hämtningen felar.
+- **Fortfarande oklart: jämför med SVT:s original**, samma URL som
+  importern hämtar (`https://www.svt.se/text-tv/{n}`; `/text-tv/webb/{n}`
+  ger samma data). Texten ligger i `__NEXT_DATA__` under
+  `props.pageProps.subPages[].altText`, en post per undersida, och
+  `props.pageProps.meta.updated` är SVT:s ändringstid i **UTC** (vår
+  `date_updated` är svensk tid). Jämför undersida för undersida mot vår
+  `content[]`, efter att taggar tagits bort, **HTML-entiteter avkodats**
+  (importern kör `htmlspecialchars`, så `&` är `&amp;` hos oss) och
+  blanktecken slagits ihop. Väntade skillnader som inte betyder något:
+  rubrikraden (`fixDayNamesInHead` rättar dagnamnen), justeringarna i
+  `alignLineTexts()`, rader efter rad 24 (kapas) och en sida SVT ändrat
+  efter vår senaste körning. Samma text i övrigt = sidan har bara inte
+  ändrats. Kontrollerat 2026-10-31: 100, 300, 401 och 104 var identiska.
 - Felfrekvens:
 
 ```bash

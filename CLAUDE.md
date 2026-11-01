@@ -77,7 +77,7 @@ Filer: `compose.yaml` (bas) + `compose.override.yaml` (dev: portar, bind-mounts,
 
 **Lokalimporten är PÅ** (tjänsten `lokalimport`, sedan 2026-10-19): 100–199, 300–399 och 400–401 var 15:e minut, 402–899 en gång i timmen (`LOKALIMPORT_MINUTER` i `.env`). Den ger lokalt dagens och gårdagens nyheter till dagslistorna och startsidans "Mest läst" utan prod-schemats last. Logg: `docker compose logs lokalimport`. Visningsstatistiken (`page_actions`) kommer inte från importen; `tests/api/setup.sql` skapar den för idag och igår.
 
-**Efter ändrade importer-beroenden:** `make build` räcker inte för `init`/`lokalimport`/`scheduler`, som behåller sin gamla anonyma `vendor/`-volym. Starta om dem med `docker compose up -d -V <tjänst>`.
+**Efter ändrade importer-beroenden:** `make build` räcker inte för `init`/`lokalimport`/`scheduler`, som behåller sin gamla anonyma `vendor/`-volym. Starta om dem med `docker compose up -d -V <tjänst>`. Har paket tagits bort: töm först `importer/bootstrap/cache/*.php` (bind-mountad från värden, genererad, ignoreras av git), annars kraschar artisan på en service provider som inte finns (hände med Ignition vid Laravel 13, 2026-11-01).
 
 **Docker-specifika gotchas:**
 - **Webbens DB-creds injiceras som `fastcgi_param`** (i `deploy/website/Dockerfile`), inte som container-env — serversideup kör php med `variables_order="GPCS"` så env hamnar aldrig i `$_SERVER`, och CI:s `database.php` läser bara `$_SERVER`. Detta aktiverar CI:s "live"-gren mot host `mariadb`. Ändrar du DB-creds i `.env` måste webben byggas om (`make rebuild`).

@@ -1,7 +1,6 @@
-**Status:** aktiv. L9 → L13 klar på branchen `laravel-13` 2026-11-01, väntar på Pärs ok för deploy (se sista avsnittet)
+**Status:** aktiv. Importern på Laravel 13.39 i prod sedan 2026-11-01 (deploy `cea5d92`). Kvar: nyheterna i sista avsnittet; CodeIgniter 2 står kvar (alternativ 1)
 **Senast uppdaterad:** 2026-11-01
 **Ordning (beslut 2026-10-29):** #17 D först, sedan L9 → L12 byggd och testad mot PHP 8.4, sedan L13.
-**Blockerad av:** #17, bara för sista steget till Laravel 13
 
 # Todo #15 — Uppgradera EOL-ramverken (CodeIgniter 2, Laravel 8)
 
@@ -236,10 +235,10 @@ Från granskningen 2026-10-17:
 
 **Kvar av förberedelserna på L8:**
 
-- [ ] `fideloper/proxy` → inbyggda `TrustProxies`; ta bort `fruitcake/laravel-cors`, `config/cors.php`, `laravel/sail`.
-- [ ] `"minimum-stability": "stable"`.
-- [ ] Härdad deploy (punkt 3–4). Ändrar `deploy-importer.yml`, Pär godkänner separat.
-- [ ] `/pagecolors/{n}` ger 500 redan på L8 (`PageColors.php:19` läser `charAsImgTag`, som `TeletextCharsExtractor` inte längre sätter). Laga eller ta bort rutten; Pär bestämmer.
+- [x] `fideloper/proxy` → inbyggda `TrustProxies`; ta bort `fruitcake/laravel-cors`, `config/cors.php`, `laravel/sail`.
+- [x] `"minimum-stability": "stable"`.
+- [x] Härdad deploy (punkt 3–4). Ändrar `deploy-importer.yml`, Pär godkänner separat.
+- [x] `/pagecolors/{n}` ger 500 redan på L8 (`PageColors.php:19` läser `charAsImgTag`, som `TeletextCharsExtractor` inte längre sätter). Laga eller ta bort rutten; Pär bestämmer.
 
 ## Granskning 2026-10-28 kväll: paketen och förberedelserna på L8 (subagent)
 
@@ -296,7 +295,7 @@ Prod: `vendor/` utan de fyra paketen, `/importstatus` 200, `/pagecolors` 404, im
 
 Alla steg gröna. Importen pausade 22:23:12–22:25:02 (ett schemavarv hoppades över). Efteråt: inget `storage/framework/down`; de tio borttagna filerna (PageColors.php, cors.php, package.json, webpack.mix.js, server_deploy.sh, resources/js, resources/css) borta från servern; `public/storage` kvar och grafiken 200; `vendor/` utan dev-paket (Ignition, PHPUnit, phpunit-watcher); `storage/`, `storage/logs`, `chars/`, `bootstrap/cache` 2775 `root:www-data`, filer 664; koden 755 `root:root`. `/importstatus`, importen (81 loggrader de första minuterna) och en ny delningsbild på texttv.nu fungerar, inga nya fel i `laravel.log`. `importer.prev/` och `importer.incoming/` ligger bredvid importern (skrivs om vid varje deploy). #33 klar med detta.
 
-### Branchen `laravel-13` klar 2026-11-01 (inte deployad)
+### Branchen `laravel-13` klar och deployad 2026-11-01
 
 Fem commits, en per major, var och en genomgången mot Laravels officiella uppgraderingsguide (`laravel/docs`, `upgrade.md` på grenarna 9.x–13.x) punkt för punkt mot koden. L9–L11 installerades med `audit.block-insecure` avstängt i containerns globala Composer-konfiguration, inte i `composer.json`. L12 och L13 löser med kontrollen på och `composer audit` utan anmärkning. Först var planen att deploya L12 och ta L13 senare, men prod kör PHP 8.4 sedan #17, så L13 deployas direkt (beslut Pär 2026-11-01).
 
@@ -312,9 +311,15 @@ Kontroller per steg på PHP 8.4: PHPUnit 104 tester / 369 assertions (samma som 
 
 **Kvar:**
 
-- [ ] Pärs ok, merge till `main` och deploy (workflowen från deploy A: `down`, `check-platform-reqs`, `rm bootstrap/cache/*.php`, `install --no-dev`, `optimize`, röktest, `up`, återställning vid fel).
-- [ ] Efter deployen: `/status/health`, `/prod-health importer`, `laravel.log`, `/importstatus`, att teckengrafiken laddas. Uppdatera `server.md` (rad om Laravel 8-deprecations) och `../CLAUDE.md` (arbetsytan).
-- [ ] Bygg om dev-stacken efter merge: `make build` och `docker compose up -d -V importer scheduler lokalimport init`, annars kör containrarna kvar L8:s `vendor/`.
+- [x] Pärs ok, merge till `main` och deploy (workflowen från deploy A: `down`, `check-platform-reqs`, `rm bootstrap/cache/*.php`, `install --no-dev`, `optimize`, röktest, `up`, återställning vid fel).
+- [x] Efter deployen: kontrollerat, se nedan. `server.md` och `../CLAUDE.md` uppdaterade.
+- [x] Bygg om dev-stacken efter merge: `make build` och `docker compose up -d -V importer scheduler lokalimport init`, annars kör containrarna kvar L8:s `vendor/`.
+
+### Deploy 2026-11-01 (`cea5d92`, Actions 11:27:52–11:28:21)
+
+Alla steg gröna, inga jobb körde vid `down` (väntade 0 s), `Klart: Laravel Framework 13.39.0`. Varvet 11:28 hoppades över (underhållsläge), första varvet på L13 11:30: 340 importrader (8 importerade, 332 oförändrade), 11:31 100 till. Efteråt: `/status/health` ok, cron 10/10, inga rader i `laravel.log` och inga deprecations i `error.log` efter deployen, `/importstatus` 200, teckengrafiken 200, `storage/` och `bootstrap/cache` 2775 `root:www-data`. Inga nya grafikfiler de första minuterna (tecknen fanns redan), så skrivningen i prod är inte observerad än; `CharsStorageTest` täcker den.
+
+Lokalt: `init` kraschade efter `make build` på `IgnitionServiceProvider` i en gammal `importer/bootstrap/cache/packages.php` från L8 (bind-mountad från värden). Samma glapp som deploy A stänger i prod. Tömd, och noterad i CLAUDE.md.
 
 ### Nyheter i Laravel 9–13 som importern kan ha nytta av (2026-11-01)
 

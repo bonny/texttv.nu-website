@@ -1,4 +1,4 @@
-**Status:** aktiv — deployad 2026-10-28 (`11646b9`); städning och `limit_req` på prod 2026-11-01; kvar: liggande 1200 × 630
+**Status:** aktiv — deployad 2026-10-28 (`11646b9`); städning och `limit_req` på prod 2026-11-01; liggande 1200 × 630 struken; kvar: uppföljningen 2026-11-03
 **Senast uppdaterad:** 2026-11-01
 
 # Todo #34 — Delningsbilder ritade i PHP i stället för skärmdump
@@ -191,16 +191,22 @@ jämförelse och delningstester 0,5, nginx och driftsättning några timmar).
   adressvarianter 21–22 svar + 8–9 × 429; `facebookexternalhit … Facebot
   Twitterbot` och `Slackbot` 30 × 200; `/api/get/100` 30 × 200. Backup
   `/root/screenshot-limit.conf.bak-20261101-34`.
-- Kvar: liggande 1200 × 630 för `og:image` (punkt 10). `wkhtmltopdf` är
-  redan borta (Debian 13).
+- `wkhtmltopdf` är redan borta (Debian 13).
+
+**Liggande 1200 × 630 struken 2026-11-01** (Pär). Den skulle bara användas
+av länkförhandsvisningar (`og:image`, `summary_large_image`) och Google
+Discover; appen delar hela sidan. Webben har cirka 2,6 delningar per dag
+(#24), och en andra variant av varje bild ger dubbelt så många filer i
+`shares/v2` och fler anrop från botarna. Den stående bilden beskärs i
+Facebook till överkanten, där sidhuvudet och de första raderna står.
 
 ## Risker
 
 - Utseendet måste matcha sajten; blockgrafik och dubbelhöjd är det svåra.
 - Ubuntu Mono-licensen (Ubuntu Font Licence) tillåter användning och
   inbäddning; kontrollera ändå.
-- Blockerar #17: måste vara klart före OS-bytet, annars slutar nya
-  delningsbilder fungera.
+- ~~Blockerar #17~~: löst, renderaren deployades 2026-10-28, före OS-bytet
+  2026-10-31.
 
 ## Confidence
 

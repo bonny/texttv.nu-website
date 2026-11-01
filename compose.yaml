@@ -1,6 +1,6 @@
 # Lokal utvecklingsstack för texttv.nu — speglar prod (PHP 8.4, MariaDB 11.8).
 # Två oberoende PHP-appar som bara pratar via DB:n (se CLAUDE.md):
-#   importer  — Laravel 12, skrapar svt.se/text-tv och skriver till `texttv`
+#   importer  — Laravel 13, skrapar svt.se/text-tv och skriver till `texttv`
 #   website   — CodeIgniter, läser `texttv` och renderar sajten
 # Plus:
 #   scheduler — kör importens schema (schedule:work) i en egen container

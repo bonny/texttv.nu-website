@@ -1,4 +1,4 @@
-# Importern (Laravel 12) — utökar serversideup/php med de PHP-extensions
+# Importern (Laravel 13) — utökar serversideup/php med de PHP-extensions
 # Laravel/Carbon och dela-bild-generering kräver, och bakar in vendor/ vid
 # build så init-servicen kan migrera + importera direkt utan separat
 # composer-steg.

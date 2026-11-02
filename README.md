@@ -2,7 +2,7 @@
 
 Koden för webbplatsen för SVT Text TV-sajten https://texttv.nu finns här.
 
-Vi har även appar för [Iphone](https://apps.apple.com/se/app/texttv-nu-svt-text-tv/id607998045) och [Android](https://play.google.com/store/apps/details?id=com.mufflify.TextTVnu&hl=sv).
+Vi har även appar för [Iphone](https://apps.apple.com/se/app/texttv-nu-svt-text-tv/id607998045) och [Android](https://play.google.com/store/apps/details?id=com.mufflify.TextTVnu2&hl=sv).
 
 ![texttv-nu-skärmdump](https://user-images.githubusercontent.com/221570/117265957-0e483b00-ae55-11eb-9ad6-92c21b15732b.png)
 
@@ -12,7 +12,7 @@ Trots att text-tv har många år på nacken så används den fortfarande flitigt
 
 ## Vårt mål: lite bättre Text TV
 
-Vi är kanske lite galna, men vi tror att det går att göra klassiska text-tv ännu lite bättre. 
+Vi är kanske lite galna, men vi tror att det går att göra klassiska text-tv ännu lite bättre.
 
 ### Vad gör TextTV.nu till en bättre Text TV-tjänst
 
@@ -20,13 +20,13 @@ Några av de saker som utmärker texttv.nu är:
 
 - Bättre anpassad för smartphones som iPhone och diverse Android
 - Stöd för färg och grafik på alla sidor
-  - Härligt gröna och gula färger på [sportsidan 377](https://texttv.nu/377)
-  - Fungerande grafik på [väderprognosen på sidan 401](https://texttv.nu/401)
+    - Härligt gröna och gula färger på [sportsidan 377](https://texttv.nu/377)
+    - Fungerande grafik på [väderprognosen på sidan 401](https://texttv.nu/401)
 - Stöd för permalänkar, så det går att dela en en nyhet på Twitter och Facebook - utan att nyheten "skrivs över" nästa dag
 - Möjlighet att visa flera sidor samtidigt. T.ex. såhär:
-  - [Inrikesnyheter, sid 101 till 103](https://texttv.nu/101-103)
-  - [Startsida 100 och sportnyheterna på sidan 300](https://texttv.nu/100,300)
-  - [På TV Svt 1 & Svt 2, dvs. sidorna 601-604](https://texttv.nu/601-604)
+    - [Inrikesnyheter, sid 101 till 103](https://texttv.nu/101-103)
+    - [Startsida 100 och sportnyheterna på sidan 300](https://texttv.nu/100,300)
+    - [På TV Svt 1 & Svt 2, dvs. sidorna 601-604](https://texttv.nu/601-604)
 - Gårdagen finns kvar: [gårdagens resultat på 377](https://texttv.nu/377/igar), [gårdagens nyheter](https://texttv.nu/nyheter/igar) och [sportnyheter](https://texttv.nu/sport/igar), och alla nyheter [hittills idag](https://texttv.nu/nyheter/idag)
 - Mest läst idag, igår och senaste 7 dagarna på [startsidan](https://texttv.nu/)
 - [Senast uppdaterat](https://texttv.nu/sida/senast-uppdaterat) och [mest delat](https://texttv.nu/sida/delat), dag för dag sedan 2015
@@ -65,19 +65,18 @@ Bygger inte om något – startar bara. Redigerar du PHP-kod syns ändringarna d
 
 #### Vanliga kommandon
 
-| Kommando | Gör |
-| --- | --- |
-| `make up` | Starta allt |
-| `make down` | Stoppa (behåller databasen) |
-| `make logs` | Se vad som händer |
-| `make import RANGE=110-115` | Hämta fler sidor från SVT |
-| `make mysql` | Öppna databasen |
-| `make scheduler` | Starta hela prod-schemat för importen (av som standard; lokalimporten räcker oftast) |
-| `make destroy` | Nollställ allt inkl. databasen |
+| Kommando                    | Gör                                                                                  |
+| --------------------------- | ------------------------------------------------------------------------------------ |
+| `make up`                   | Starta allt                                                                          |
+| `make down`                 | Stoppa (behåller databasen)                                                          |
+| `make logs`                 | Se vad som händer                                                                    |
+| `make import RANGE=110-115` | Hämta fler sidor från SVT                                                            |
+| `make mysql`                | Öppna databasen                                                                      |
+| `make scheduler`            | Starta hela prod-schemat för importen (av som standard; lokalimporten räcker oftast) |
+| `make destroy`              | Nollställ allt inkl. databasen                                                       |
 
 `make help` listar alla kommandon. Detaljer och fallgropar finns i [`CLAUDE.md`](CLAUDE.md).
 
 #### Alternativ: Laravel Valet
 
 Går även att köra utan Docker via Valet: starta valet och gå till http://texttv.nu.test/
-

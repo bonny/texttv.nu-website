@@ -63,6 +63,11 @@ Orden är samma i alla projekt i `~/Projects`, så att den samlade översikten
     python3 ~/Projects/.claude/skills/todos/todos.py flytta <proj> <nr> <datum> <nytt datum>
     ```
 
+- En uppföljning som görs på en prod-server namnger servern (SSH-alias eller
+  `deploy@…`) och kommandot, så att den går att göra utan att läsa todo-filen.
+- Görs en uppföljning tidigt eller i förbigående: bocka av den direkt
+  (`bocka … --utfort <datum>`). Skrivs en prod-åtgärd i serverloggen
+  (`Logg - <domän>.md` i Obsidian), bocka samma gång av raden den hör till.
 - Raden `Senast uppdaterad:` i `todo.md` beskriver bara den senaste ändringen
   och ersätts varje gång. Historiken finns i git.
 - Kontrollera med `python3 ~/Projects/.claude/skills/todos/todos.py kontroll`.

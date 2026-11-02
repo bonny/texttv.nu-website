@@ -114,7 +114,13 @@ Användaren har gjort en uppföljning (eller ber dig göra den och den är klar)
 3. Uppdatera todon: nytt läge i statusen (filhuvud + index). Har todon inga
    kommande uppföljningar kvar och var `väntar`: byt till `aktiv`, eller `done`
    om uppföljningen var det sista.
-4. `todos.py kontroll` och `git status`.
+4. Var det en prod-åtgärd: en rad i serverloggen (`Logg - <domän>.md` i Obsidian,
+   se `~/Projects/CLAUDE.md`) samma dag.
+5. `todos.py kontroll` och `git status`.
+
+Innan du gör en uppföljning vars todo redan är klar (`(klar)` i skriptets utdata):
+grep serverloggen och git-loggen efter det åtgärden nämner. Den kan redan vara
+gjord och bara inte avbockad.
 
 ## flytta <nr> <datum> <nytt>
 

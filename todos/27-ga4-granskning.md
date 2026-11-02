@@ -1,4 +1,4 @@
-**Status:** mest gjort 2026-10-24; granskad 2026-11-01 av fyra granskare (jurist, GDPR, AdSense, GA), beslut om samtyckesläget efter 2026-11-25 (se "Granskning av samtyckesläget"). Filtret för intern trafik kvar för Pär
+**Status:** aktiv — mest gjort 2026-10-24. Granskat 2026-11-01: GA före samtycke strider mot LEK, låg risk; beslut om samtyckesläget efter mätningarna. Pär: aktivera filtret Internal Traffic
 **Senast uppdaterad:** 2026-11-01
 
 # #27 Granskning av hur webben använder GA4
@@ -196,12 +196,12 @@ beslut 2026-11-01: det tas efter sista uppföljningen 2026-11-25.
 
 ### Det de inte är överens om
 
-| Granskare | Hur                                                                                       | När        |
-| --------- | ----------------------------------------------------------------------------------------- | ---------- |
-| Jurist    | Grundläget som snabb lösning, helst basic mode                                            | nu         |
-| GDPR      | Basic mode (gtag.js först efter ja). Advanced är en nödlösning                            | –          |
-| AdSense   | Taggens inställning räcker, slå på annonsinställningarna också (`ad_storage` via GA)      | nu         |
-| GA        | `gtag('consent','default',…)` i koden före `config`, inte taggens inställning             | 2026-11-26 |
+| Granskare | Hur                                                                                  | När        |
+| --------- | ------------------------------------------------------------------------------------ | ---------- |
+| Jurist    | Grundläget som snabb lösning, helst basic mode                                       | nu         |
+| GDPR      | Basic mode (gtag.js först efter ja). Advanced är en nödlösning                       | –          |
+| AdSense   | Taggens inställning räcker, slå på annonsinställningarna också (`ad_storage` via GA) | nu         |
+| GA        | `gtag('consent','default',…)` i koden före `config`, inte taggens inställning        | 2026-11-26 |
 
 - **Advanced eller basic.** Advanced mode, som taggens inställning ger,
   skickar cookielösa pingar (user agent, referrer, tidsstämpel) även

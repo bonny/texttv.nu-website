@@ -1,4 +1,4 @@
-**Status:** aktiv. Importern på Laravel 13.39 i prod sedan 2026-11-01 (deploy `cea5d92`). Nytt försök mot SVT och spärren i testerna gjorda 2026-11-01, `schedule:interrupt` struken. Deployat (`ade688c`), felen följs upp 2026-11-08; CodeIgniter 2 står kvar (alternativ 1)
+**Status:** väntar — importern på Laravel 13.39 sedan 2026-11-01 (`cea5d92`); nytt försök mot SVT (`ade688c`) följs upp. Webben står kvar på CodeIgniter 2 (#36 avfärdad)
 **Senast uppdaterad:** 2026-11-01
 **Ordning (beslut 2026-10-29):** #17 D först, sedan L9 → L12 byggd och testad mot PHP 8.4, sedan L13.
 
@@ -58,16 +58,16 @@ alternativ 1 nedan.
   [#17](17-uppgradera-prod-till-debian-13.md) (på plats, inte ny server).
 - **Båda apparna fungerar på PHP 8.4** (prod kör 8.2), provat i Docker med
   `serversideup/php:8.4`:
-  - **Webben (CI 2):** 13 sidor och API-anrop byte-identiska med 8.2. Enda
-    skillnaden är deprecation-notiser (`E_STRICT is deprecated` i
-    `system/core/Exceptions.php`, `log_message()`-signaturen), som bara skrivs
-    ut i development-läget. `system/` är redan lokalt patchad med
-    `AllowDynamicProperties`.
-  - **Importern (Laravel 8):** `texttv:import` fungerar, PHPUnit ger samma
-    resultat som på 8.2 (samma två fel som redan fanns). Ramverket ger
-    ~100 deprecation-notiser vid boot (t.ex. implicit nullable i
-    `Illuminate\Log\Logger`), men Laravel 8.83 loggar dem i stället för att
-    kasta.
+    - **Webben (CI 2):** 13 sidor och API-anrop byte-identiska med 8.2. Enda
+      skillnaden är deprecation-notiser (`E_STRICT is deprecated` i
+      `system/core/Exceptions.php`, `log_message()`-signaturen), som bara skrivs
+      ut i development-läget. `system/` är redan lokalt patchad med
+      `AllowDynamicProperties`.
+    - **Importern (Laravel 8):** `texttv:import` fungerar, PHPUnit ger samma
+      resultat som på 8.2 (samma två fel som redan fanns). Ramverket ger
+      ~100 deprecation-notiser vid boot (t.ex. implicit nullable i
+      `Illuminate\Log\Logger`), men Laravel 8.83 loggar dem i stället för att
+      kasta.
 - Slutsats: OS/PHP-uppgraderingen blockeras inte av ramverken. Ramverken kan
   uppgraderas i egen takt.
 
@@ -84,15 +84,15 @@ alternativ 1 nedan.
   `database/`. 6 artisan-kommandon, 3 controllers, 3 modeller, ingen auth,
   inga köer. Har PHPUnit-tester.
 - **Paket som försvinner eller måste bytas på vägen:**
-  - `fideloper/proxy` och `fruitcake/laravel-cors`: inbyggda i Laravel 9+.
-  - `spatie/laravel-short-schedule`: **används inte** (granskat 2026-10-17).
-    `Kernel.php` har ingen `shortSchedule()` och prod-cron kör bara
-    `schedule:run`. Kan tas bort redan nu, oberoende av uppgraderingen.
-  - `dgoring/dom-query`: v1.0.0 från 2022-10-27 är enda releasen, i praktiken
-    övergivet. Används bara på två ställen (`Importer.php:81` och `:512`).
-    Ersätt med PHP 8.4:s inbyggda `Dom\HTMLDocument` (har `querySelector()`)
-    eller `symfony/dom-crawler` i samma veva. Litet byte, inte längre den
-    stora risken.
+    - `fideloper/proxy` och `fruitcake/laravel-cors`: inbyggda i Laravel 9+.
+    - `spatie/laravel-short-schedule`: **används inte** (granskat 2026-10-17).
+      `Kernel.php` har ingen `shortSchedule()` och prod-cron kör bara
+      `schedule:run`. Kan tas bort redan nu, oberoende av uppgraderingen.
+    - `dgoring/dom-query`: v1.0.0 från 2022-10-27 är enda releasen, i praktiken
+      övergivet. Används bara på två ställen (`Importer.php:81` och `:512`).
+      Ersätt med PHP 8.4:s inbyggda `Dom\HTMLDocument` (har `querySelector()`)
+      eller `symfony/dom-crawler` i samma veva. Litet byte, inte längre den
+      stora risken.
 - **Väg:** stegvis 8 → 9 → 10 → 11 → 12 → 13 enligt Laravels upgrade-guider,
   eller betald automatisering via Laravel Shift. Uppskattning: en till två
   dagar, mest konfig-flytt (Laravel 11 slimmade skelettet).
@@ -148,41 +148,41 @@ Från granskningen 2026-10-17:
       metod prod använder, och `test_linkify_pipeline` kör hela kedjan
       cleanup → colorize → linkify. Det avslöjade att "Minst 2 300 strokefall"
       länkade 300.
-  - Första fixen (5330773) gjorde hela-rad-spärren för tusental bredare, men
-    den tog då också bort riktiga länkar på samma rad. Efter code review samma
-    dag: spärren är borttagen och ersatt med lookbehinds i sidnummer-regexen
-    som bara hoppar över själva tusentalet (`2 300`, `14 151`), tal direkt
-    efter `siffra-` (`3 698-565`) och tal följda av ` kr`/` st`. Mot 421
-    prod-sidor ändrades 5 rader på 763 och 778, alla belopp som slutade
-    länkas. "Del 2 302" går inte att skilja från tusentalet "2 302" och
-    länkas inte.
-  - Andra code review samma dag: lookbehinds även för tredje gruppen
-    (`12 485 725`), smalare spärr efter bindestreck så att `101-102-103`
-    länkar alla tre, och atomiskt intervall så att `100-200 kr` inte länkar 100. Samma resultat som förut på alla 16 971 rader i 421 prod-sidor.
-    Kvar medvetet: `126 450` länkar båda (går inte att skilja från listan
-    `101 104`), lookarounds ser inte över spangränser i HTML:en.
-  - Tredje code review: lapparna öppnade nya hål (telefonnummer, årtal,
-    `100-109f`). **Omskrivet:** `linkifySingleLine()` delar nu upp texten
-    mellan taggarna i talsekvenser och bedömer varje sekvens som helhet;
-    bara sekvenser av enbart sidnummer länkas, inte följda av en enhet
-    (`kr`, `meter`, `personer` …) och inte placeringar (`132. Namn`).
-    Testas av `tests/Unit/LinkifyTest.php`: en specifikation med exakta
-    länkar per rad, och en korpus med 756 rader från 421 prod-sidor
-    (`tests/TestPages/linkify-corpus.json`) som larmar på varje ändrad rad.
-    Mot korpusen ändrades 80 rader, alla genomgångna: golfpengar, F1-tider,
-    matchresultat, belopp, mått och placeringar slutade länkas, och `607f`
-    länkas nu även när raden har ett annat sidnummer. Förlorad: `24.199` på
-    701 (går inte att skilja från ett decimaltal). Övriga 676 rader ger
-    byte-identisk HTML.
-  - Fjärde code review (före push): `%` och versala enheter (`527 KR`)
-    fångades inte, fler substantiv som enheter (`människor`, `fall` …),
-    kommalistor (`101,102`) länkas, och mellanslag binder bara ihop riktiga
-    tusental och telefonnummer, så `19.30 101` och `covid-19 101` länkar 101.
-    Korpusen oförändrad. Känd lucka: `962 nya fall` länkar 962.
-  - Död kod bort: `linkifySingleLineWithSpanSupport()` och parametern
-    `$numberReplacements`, som aldrig sattes. Testsidan `100.html` har fått
-    de gamla tabbarna borttagna i stället för att `cleanup()` ändras.
-  - `test_colorize` saknar fortfarande assertions.
+    - Första fixen (5330773) gjorde hela-rad-spärren för tusental bredare, men
+      den tog då också bort riktiga länkar på samma rad. Efter code review samma
+      dag: spärren är borttagen och ersatt med lookbehinds i sidnummer-regexen
+      som bara hoppar över själva tusentalet (`2 300`, `14 151`), tal direkt
+      efter `siffra-` (`3 698-565`) och tal följda av ` kr`/` st`. Mot 421
+      prod-sidor ändrades 5 rader på 763 och 778, alla belopp som slutade
+      länkas. "Del 2 302" går inte att skilja från tusentalet "2 302" och
+      länkas inte.
+    - Andra code review samma dag: lookbehinds även för tredje gruppen
+      (`12 485 725`), smalare spärr efter bindestreck så att `101-102-103`
+      länkar alla tre, och atomiskt intervall så att `100-200 kr` inte länkar 100. Samma resultat som förut på alla 16 971 rader i 421 prod-sidor.
+      Kvar medvetet: `126 450` länkar båda (går inte att skilja från listan
+      `101 104`), lookarounds ser inte över spangränser i HTML:en.
+    - Tredje code review: lapparna öppnade nya hål (telefonnummer, årtal,
+      `100-109f`). **Omskrivet:** `linkifySingleLine()` delar nu upp texten
+      mellan taggarna i talsekvenser och bedömer varje sekvens som helhet;
+      bara sekvenser av enbart sidnummer länkas, inte följda av en enhet
+      (`kr`, `meter`, `personer` …) och inte placeringar (`132. Namn`).
+      Testas av `tests/Unit/LinkifyTest.php`: en specifikation med exakta
+      länkar per rad, och en korpus med 756 rader från 421 prod-sidor
+      (`tests/TestPages/linkify-corpus.json`) som larmar på varje ändrad rad.
+      Mot korpusen ändrades 80 rader, alla genomgångna: golfpengar, F1-tider,
+      matchresultat, belopp, mått och placeringar slutade länkas, och `607f`
+      länkas nu även när raden har ett annat sidnummer. Förlorad: `24.199` på
+      701 (går inte att skilja från ett decimaltal). Övriga 676 rader ger
+      byte-identisk HTML.
+    - Fjärde code review (före push): `%` och versala enheter (`527 KR`)
+      fångades inte, fler substantiv som enheter (`människor`, `fall` …),
+      kommalistor (`101,102`) länkas, och mellanslag binder bara ihop riktiga
+      tusental och telefonnummer, så `19.30 101` och `covid-19 101` länkar 101.
+      Korpusen oförändrad. Känd lucka: `962 nya fall` länkar 962.
+    - Död kod bort: `linkifySingleLineWithSpanSupport()` och parametern
+      `$numberReplacements`, som aldrig sattes. Testsidan `100.html` har fått
+      de gamla tabbarna borttagna i stället för att `cleanup()` ändras.
+    - `test_colorize` saknar fortfarande assertions.
 
 ## Nästa steg (när #17 är på gång)
 
@@ -266,20 +266,20 @@ Också oanvänt: `package.json`, `webpack.mix.js`, `resources/js`, `resources/cs
 1. `minimum-stability: stable`: ofarligt, låsfilen har inga dev-versioner. Med `stable` misslyckas en full `composer update` på L8 (alla 8.x blockerade); uppdatera riktat. `install` från låsfilen påverkas inte.
 2. fideloper/fruitcake/sail bort: verifierat, säkert även med dagens deploy.
 3. **Härdad deploy + #33:**
-   - `down` i ett eget ssh-steg **före** kopieringen.
-   - Ett fel under `set -e` lämnar appen i `down` (importen står still). `cp -a importer importer.prev` (utan `storage`) före rsync och en `trap` som återställer koden och vendor och kör `up`; `up` i `if: always()` räcker inte.
-   - `rsync --delete` måste undanta `public/storage` (symlänk; annars 404 på all grafik), `vendor/`, `storage/`, `.env`, `bootstrap/cache/`, `.phpunit.result.cache`, `node_modules`.
-   - Vänta på `pgrep -f 'artisan (texttv:|schedule:|import-status)'` med tak (5 min, sedan avbryt och `up`).
-   - `concurrency: deploy-importer`; pinna `appleboy/scp-action` och `ssh-action` (nu `@master`, har prod-nyckeln för root) till SHA; ta bort `setup-php 7.4`.
-   - `check-platform-reqs --lock --no-dev` först, `rm -f bootstrap/cache/*.php` före `install`, `--no-dev`.
-   - `umask 002` före `optimize`, #33:s `root:www-data` 2775/664 efter, `'permission' => 0664` på loggkanalen; ersätter `chown -R root:root .` och `chmod 777`.
-   - Rök-test före `up`: `php artisan --version`, `schedule:list`. Testa med `workflow_dispatch` på oförändrad kod (workflow-ändringen triggar inte path-filtret).
+    - `down` i ett eget ssh-steg **före** kopieringen.
+    - Ett fel under `set -e` lämnar appen i `down` (importen står still). `cp -a importer importer.prev` (utan `storage`) före rsync och en `trap` som återställer koden och vendor och kör `up`; `up` i `if: always()` räcker inte.
+    - `rsync --delete` måste undanta `public/storage` (symlänk; annars 404 på all grafik), `vendor/`, `storage/`, `.env`, `bootstrap/cache/`, `.phpunit.result.cache`, `node_modules`.
+    - Vänta på `pgrep -f 'artisan (texttv:|schedule:|import-status)'` med tak (5 min, sedan avbryt och `up`).
+    - `concurrency: deploy-importer`; pinna `appleboy/scp-action` och `ssh-action` (nu `@master`, har prod-nyckeln för root) till SHA; ta bort `setup-php 7.4`.
+    - `check-platform-reqs --lock --no-dev` först, `rm -f bootstrap/cache/*.php` före `install`, `--no-dev`.
+    - `umask 002` före `optimize`, #33:s `root:www-data` 2775/664 efter, `'permission' => 0664` på loggkanalen; ersätter `chown -R root:root .` och `chmod 777`.
+    - Rök-test före `up`: `php artisan --version`, `schedule:list`. Testa med `workflow_dispatch` på oförändrad kod (workflow-ändringen triggar inte path-filtret).
 4. `/pagecolors`: ta bort rutten, `PageColors.php`, `use`-raden och den döda `getImageDebugHtml()`. Att laga kräver bild-HTML per tecken i importen igen.
 5. Saknades:
-   - Säkerhetsuppdateringar inom L8: 47 meddelanden i 12 paket. `composer update "guzzlehttp/*" "symfony/*" league/commonmark psy/psysh phpunit/phpunit nesbot/carbon monolog/monolog -W` ger 55 uppdateringar, PHPUnit grönt; psr/log 2 och psr/http-message 2 följer med. Eget deploy, valfritt.
-   - `'throw' => true` på `local`/`public` redan nu (ignoreras av Flysystem 1).
-   - PHPUnit 10/11-förberedelser som fungerar på 9: `static` dataproviders, `assertObjectHasAttribute` bort, `@test` → `test_`-prefix.
-   - `/live/{n}` hämtar från SVT per anrop och delar fpm-pool med webben; överväg throttle (utanför uppgraderingen).
+    - Säkerhetsuppdateringar inom L8: 47 meddelanden i 12 paket. `composer update "guzzlehttp/*" "symfony/*" league/commonmark psy/psysh phpunit/phpunit nesbot/carbon monolog/monolog -W` ger 55 uppdateringar, PHPUnit grönt; psr/log 2 och psr/http-message 2 följer med. Eget deploy, valfritt.
+    - `'throw' => true` på `local`/`public` redan nu (ignoreras av Flysystem 1).
+    - PHPUnit 10/11-förberedelser som fungerar på 9: `static` dataproviders, `assertObjectHasAttribute` bort, `@test` → `test_`-prefix.
+    - `/live/{n}` hämtar från SVT per anrop och delar fpm-pool med webben; överväg throttle (utanför uppgraderingen).
 
 **Ordning:** (A) deploy av bara workflowen: härdning + #33 + `--no-dev` + `concurrency` + pinnade actions, testad med `workflow_dispatch`. (B) en koddeploy: `minimum-stability`, paketen bort, `/pagecolors` bort, loggrättigheter och `throw`, PHPUnit-förberedelser, npm-filer och `server_deploy.sh` bort (kan gå före A). (C, valfri) säkerhetsuppdateringar inom L8 med `make scheduler` 10–15 min. (D) branch L9 → L12, en deploy, `php` `^8.2`.
 
@@ -299,13 +299,13 @@ Alla steg gröna. Importen pausade 22:23:12–22:25:02 (ett schemavarv hoppades 
 
 Fem commits, en per major, var och en genomgången mot Laravels officiella uppgraderingsguide (`laravel/docs`, `upgrade.md` på grenarna 9.x–13.x) punkt för punkt mot koden. L9–L11 installerades med `audit.block-insecure` avstängt i containerns globala Composer-konfiguration, inte i `composer.json`. L12 och L13 löser med kontrollen på och `composer audit` utan anmärkning. Först var planen att deploya L12 och ta L13 senare, men prod kör PHP 8.4 sedan #17, så L13 deployas direkt (beslut Pär 2026-11-01).
 
-| Commit    | Steg                       | Ändrat utöver beroendena                                                                                                                                                                                                                                                                                       |
-| --------- | -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `9705d6e` | 9.52                       | inget; guidens punkter (Flysystem 3, HTTP-timeout, `when`/`unless`, Mailer) träffar inte koden                                                                                                                                                                                                                |
-| `9874aff` | 10.50, PHPUnit 10          | `registerPolicies()` bort, `phpunit.xml` migrerad                                                                                                                                                                                                                                                              |
-| `0782c4a` | 11.57, Carbon 3            | `php ^8.2`. Strukturen behålls (guiden avråder från flytt). `everyThirtyMinutes()` blir `*/30` i stället för `0,30`, samma minuter, `ScheduleTest` omskriven                                                                                                                                              |
-| `5489910` | 12.70.2, PHPUnit 11        | symfony ^7, guzzle ^7.8, tinker ^2.10, Ignition bort, `#[DataProvider]`. PHPStan: skelettets docblocks får ramverkets typer, `?->` i `RouteServiceProvider`, `use DOMElement` i `Importer.php`; baselinen −73 rader, inga nya fel. `local`-diskens nya standardrot (`storage/app/private`) träffar inte, roten är satt |
-| `f1ca3fe` | 13.39, PHPUnit 12        | `php ^8.3`, tinker ^3.0. CSRF-middlewaren ärver `PreventRequestForgery` (bara GET-rutter, Sec-Fetch-Site påverkar inget). Cache-, Redis- och sessionsprefixen sätts i `config/`, så låsnycklarna för `withoutOverlapping` är oförändrade |
+| Commit    | Steg                | Ändrat utöver beroendena                                                                                                                                                                                                                                                                                               |
+| --------- | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `9705d6e` | 9.52                | inget; guidens punkter (Flysystem 3, HTTP-timeout, `when`/`unless`, Mailer) träffar inte koden                                                                                                                                                                                                                         |
+| `9874aff` | 10.50, PHPUnit 10   | `registerPolicies()` bort, `phpunit.xml` migrerad                                                                                                                                                                                                                                                                      |
+| `0782c4a` | 11.57, Carbon 3     | `php ^8.2`. Strukturen behålls (guiden avråder från flytt). `everyThirtyMinutes()` blir `*/30` i stället för `0,30`, samma minuter, `ScheduleTest` omskriven                                                                                                                                                           |
+| `5489910` | 12.70.2, PHPUnit 11 | symfony ^7, guzzle ^7.8, tinker ^2.10, Ignition bort, `#[DataProvider]`. PHPStan: skelettets docblocks får ramverkets typer, `?->` i `RouteServiceProvider`, `use DOMElement` i `Importer.php`; baselinen −73 rader, inga nya fel. `local`-diskens nya standardrot (`storage/app/private`) träffar inte, roten är satt |
+| `f1ca3fe` | 13.39, PHPUnit 12   | `php ^8.3`, tinker ^3.0. CSRF-middlewaren ärver `PreventRequestForgery` (bara GET-rutter, Sec-Fetch-Site påverkar inget). Cache-, Redis- och sessionsprefixen sätts i `config/`, så låsnycklarna för `withoutOverlapping` är oförändrade                                                                               |
 
 Kontroller per steg på PHP 8.4: PHPUnit 104 tester / 369 assertions (samma som L8), en import. På L12 och L13 dessutom PHPStan, `artisan optimize`, inga deprecations vid boot (L8: cirka 100), och `schedule:work` i 12 min mot lokala DB:n (L12: 1 914 importrader, L13: 1 913), utan `NOT_IMPORTED_EXCEPTION`, alla jobb på rätt minut. `texttv:cleanup-page-actions` avslutas med kod 1 lokalt både på L8 och L12 (stats-DB:n saknas i Docker, se CLAUDE.md).
 

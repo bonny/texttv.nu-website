@@ -1,95 +1,129 @@
 ---
 name: todo
-description: "Hantera projektets todos i `todo.md` + `todos/`. Använd när användaren frågar/ber om todos — t.ex. 'todos', 'översikt', 'vad är nästa todo', 'vilka todos har vi', 'visa todo #N', 'markera #N klar', 'avfärda #N', 'skapa todo …'. Subkommandon: (tomt)=översikt/dashboard, list, next, show <nr>, done <nr>, reject <nr>, new <titel>."
+description: "Hantera projektets todos i `todo.md` + `todos/`. Använd när användaren frågar/ber om todos — t.ex. 'todos', 'översikt', 'vad är nästa todo', 'vilka todos har vi', 'vad väntar', 'visa todo #N', 'markera #N klar', 'avfärda #N', 'skapa todo …', 'uppföljningen för #N är gjord', 'skjut upp #N'. Subkommandon: (tomt)=översikt, list, next, show <nr>, done <nr>, reject <nr>, new <titel>, bocka <nr> <datum>, flytta <nr> <datum> <nytt>."
 ---
 
 # /todo — todo-hantering
+
+<!-- Samma kärna i brottsplatskartan-web, brottsplatskartan-app och texttv.nu-website.
+     Ändra i alla tre samtidigt; bara avsnittet "Projektspecifikt" längst ner skiljer sig. -->
 
 Todos finns på två platser och måste hållas synkade:
 
 - `todo.md` (repo-roten) — index med tabellerna: **Aktiva**, **Uppföljningar**
   (datum-bundna manuella check-ins), **Klara**, **Avfärdade / sammanslagna**.
-  Rad 7 har `Senast uppdaterad: YYYY-MM-DD (+#NN <hint>)` — uppdatera vid varje ändring.
+  Raden `Senast uppdaterad: YYYY-MM-DD (<senaste ändringen>)` ersätts vid varje ändring.
 - `todos/<NN>-<slug>.md` — en fil per todo med full analys.
     - `todos/done/` — klara
     - `todos/rejected/` — avfärdade / sammanslagna
 
-Konventionsdokument: `todos/README.md`.
+Konventionsdokument: `todos/README.md` (statusord, datumregler).
 
-**Uppföljningar-sektionen** är en kronologisk lista över datum-bundna
-manuella åtgärder som inte går att autoschemalägga (kräver lokala MCP:s,
-SSH-nycklar, eller mänsklig bedömning). Lägg till en rad här när du
-upptäcker ett framtida datum att komma ihåg — t.ex. mätperiod-slut, soak-
-end, ramp-up av feature flag. Format: `| YYYY-MM-DD | <åtgärd> | [#NN](...)|`.
+## Statusord och datum
+
+Reglerna står i `todos/README.md`; kort:
+
+- Status börjar med `aktiv`, `väntar`, `blockerad` eller `pausad`, med samma ord i
+  filhuvudet (`**Status:** väntar — …`) och i Status-kolumnen i `todo.md`.
+- `väntar` bara när inget går att göra före nästa uppföljning. Finns något kvar
+  att göra är todon `aktiv`, även om en mätning pågår.
+- Det bara Pär kan göra skrivs `Pär: <vad>`.
+- Statusen är högst 250 tecken och har inga framtida datum. Datum står bara i
+  **Uppföljningar** (`| YYYY-MM-DD | <åtgärd> | [#NN](...) |`, sorterad äldst först).
+- Klassificera alltid på statusordet, gissa inte ur fritexten. Ändras läget:
+  byt ordet både i filhuvudet och i indexet.
+
+## Skriptet
+
+`../../.claude/skills/todos/todos.py` (i `~/Projects`; finns den inte på datorn,
+läs `todo.md` direkt och gör ändringarna för hand) läser alla backloggar och
+skriver uppföljningar. `<id>` står under Projektspecifikt.
+
+```bash
+S=../../.claude/skills/todos/todos.py
+python3 $S oversikt --projekt <id>       # dashboard
+python3 $S alla --projekt <id>           # alla aktiva med nästa uppföljning
+python3 $S bocka <id> <nr> <datum> --resultat "<vad den visade>"
+python3 $S flytta <id> <nr> <datum> <nytt datum>
+python3 $S kontroll --projekt <id>       # efter varje ändring
+```
+
+Kör `kontroll` efter varje ändring av `todo.md` eller ett filhuvud och rätta det
+den hittar (förfallna uppföljningar tar du upp med användaren).
 
 ## Tolka argumentet
 
-Argumentet efter `/todo` (ord 1) avgör subkommando:
-
-| Argument        | Subkommando         |
-| --------------- | ------------------- |
-| (tomt)          | Översikt / dashboard |
-| `list`          | Lista aktiva        |
-| `next`          | Rekommendera nästa  |
-| `show <nr>`     | Visa todo-fil      |
-| `done <nr>`     | Markera klar       |
-| `reject <nr>`   | Avfärda            |
-| `new <titel>`   | Skapa ny todo      |
+| Argument                     | Subkommando              |
+| ---------------------------- | ------------------------ |
+| (tomt)                       | Översikt / dashboard     |
+| `list`                       | Lista aktiva             |
+| `next`                       | Rekommendera nästa       |
+| `show <nr>`                  | Visa todo-fil            |
+| `done <nr>`                  | Markera klar             |
+| `reject <nr>`                | Avfärda                  |
+| `new <titel>`                | Skapa ny todo            |
+| `bocka <nr> <datum>`         | Uppföljning gjord        |
+| `flytta <nr> <datum> <nytt>` | Skjut upp en uppföljning |
 
 Numret matchas mot filnamnets prefix (`<NN>-...`).
 
 ## (tomt) — översikt
 
-Ge en kompakt dashboard. Läs bara `todo.md` — inga todo-filer öppnas.
+Kompakt dashboard. Inga todo-filer öppnas.
 
-1. Read `todo.md`.
-2. **Räknarrad** överst: antal rader i Aktiva- / Klara- / Avfärdade-tabellerna —
-   `Aktiva: X · Klara: Y · Avfärdade: Z`.
-3. **▶ Aktionerbara nu** — klassificera Aktiva enligt samma väntar-regler som
-   `list` nedan; lista de aktionerbara (`#NN Titel — kort status`).
-   Om inga: skriv "(inga — <kort skäl>)".
-4. **⏳ Väntande** — resten av Aktiva, sorterat på närmaste framtida datum (närmast först).
-5. **📅 Nästa uppföljning** — närmaste rad i Uppföljningar-sektionen, med "(om N d)".
+1. Kör `todos.py oversikt --projekt <id>` (eller läs `todo.md`).
+2. **Räknarrad** överst: `aktiv: X · väntar: Y · blockerad: Z · pausad: W`.
+3. **▶ Aktionerbara nu** — de med `aktiv` (`<prefix>-NN Titel — vad som går att göra`).
+   Märk de med `Pär:`. Om inga: "(inga — <kort skäl>)".
+4. **⏳ Väntande** — `väntar`, sorterat på närmaste uppföljning (skriptet visar
+   "nästa YYYY-MM-DD"); sedan `blockerad` med vad de väntar på; `pausad` bara som antal.
+5. **📅 Nästa uppföljning** — närmaste rad i Uppföljningar, med "(om N d)".
    Flagga förfallna (datum < `currentDate`) tydligt med ⚠ — då är en check-in glömd.
 6. **💡 Nästa** — en mening: den första aktionerbara (jfr `next`), eller
-   "inget aktionerbart nu — <närmaste avblockning>" om alla väntar.
+   "inget aktionerbart nu — <närmaste uppföljning>" om alla väntar.
 
 ## list
 
-1. Read `todo.md`.
-2. Klassificera varje rad i **Aktiva**-tabellen som **aktionerbar** eller
-   **väntande**. En todo är väntande om Status-kolumnen indikerar väntan:
-    - Innehåller "väntar på", "soak", "mätperiod", "pilot", "30d", "60d", "90d", "passiv", "till YYYY-MM-DD"
-    - Har ett framtida datum (> `currentDate`) i Status-kolumnen
-    - "Blockerad av: #N" där #N inte är klar (kolla **Beroenden**-sektionen)
-3. Visa två rubriker (hoppa över rubriken om gruppen är tom):
-    - **Aktionerbara nu** — `#NN — Titel — Status` per rad
-    - **Väntande / på hold** — samma format; sortera efter eventuellt framtida datum (närmast först)
-4. Om "Beroenden" är icke-tom, nämn de relevanta i en mening efter listan.
-5. **Kolla "Uppföljningar"-sektionen:** om någon rad har datum inom 14 dagar
-   från `currentDate`, nämn den/dem ("Nästa uppföljning: YYYY-MM-DD — <åtgärd>").
-   Om en uppföljning är **förfallen** (datum < currentDate), flagga det
-   tydligt med ⚠ — det betyder en check-in är glömd.
-6. Inga andra filer öppnas — bara index.
+1. Kör `todos.py alla --projekt <id>` (eller läs `todo.md`).
+2. Gruppera på statusordet: **Aktionerbara nu** (`aktiv`), **Väntar** (sorterat
+   på närmaste uppföljning), **Blockerade**, **Pausade**. Hoppa över tomma grupper.
+   Format: `#NN — Titel — Status`.
+3. Om "Beroenden" är icke-tom, nämn de relevanta i en mening efter listan.
+4. Nämn uppföljningar inom 14 dagar och flagga förfallna med ⚠.
 
 ## next
 
-1. Read `todo.md` — fokus på **Aktiva**-tabellen + sektionen **Föreslagen ordning**.
-2. Gå igenom listan i ordning och hitta första todo som är **aktionerbar nu**.
-   En todo räknas som blockerad om Status-kolumnen indikerar väntan:
-    - Innehåller "väntar på", "soak", "mätperiod", "30d", "60d", "90d", "till YYYY-MM-DD"
-    - Har en datumstämpel framåt i tiden jämfört med `currentDate` från system-context
-    - "Blockerad av: #N" där #N inte är klar
-3. Rekommendera den första aktionerbara. Motivera kort (2–3 meningar): vad det är, varför den är logisk nu, eventuell synergi med nyligen klar todo.
-4. Om alla är blockerade: säg det, lista närmaste avblockning (datum) per blockerad rad.
-5. **Kolla "Uppföljningar"-sektionen:** om en uppföljning är förfallen
-   (datum < currentDate), nämn den separat — det är sannolikt vad
-   användaren bör göra istället för en aktiv todo.
+1. Kör `todos.py oversikt --projekt <id>` och läs sektionen **Föreslagen ordning**
+   i `todo.md` (`grep -A15 '### Föreslagen ordning' todo.md`).
+2. Förfallen uppföljning finns: nämn den först — det är sannolikt vad
+   användaren bör göra i stället för en aktiv todo.
+3. Ta första `aktiv` i Föreslagen ordning (annars i Aktiva). Motivera kort
+   (2–3 meningar): vad det är, varför den är logisk nu, eventuell synergi med
+   nyligen klar todo.
+4. Inga `aktiv`: säg det och ge närmaste uppföljning per väntande todo.
+
+## bocka <nr> <datum>
+
+Användaren har gjort en uppföljning (eller ber dig göra den och den är klar).
+
+1. `todos.py bocka <id> <nr> <datum> --resultat "<vad den visade, en eller två meningar>"`.
+   Datum = datumcellen som den står. Matchar flera rader: lägg till `--text <del av åtgärden>`.
+   Rader utan todo-nummer (t.ex. återkommande underhåll) väljs med `<nr>` = `-`.
+2. Skriptet flyttar raden till **Avklarade uppföljningar**, lägger in nästa rad om
+   den är återkommande, sorterar och kör prettier.
+3. Uppdatera todon: nytt läge i statusen (filhuvud + index). Har todon inga
+   kommande uppföljningar kvar och var `väntar`: byt till `aktiv`, eller `done`
+   om uppföljningen var det sista.
+4. `todos.py kontroll` och `git status`.
+
+## flytta <nr> <datum> <nytt>
+
+`todos.py flytta <id> <nr> <datum> <nytt>` och sedan `kontroll`. Skriv varför i
+åtgärdstexten om skälet inte är självklart (t.ex. "flyttad, mätperioden förlängd").
 
 ## show <nr>
 
-1. Hitta filen: glob `todos/<NN>-*.md` → `todos/done/<NN>-*.md` → `todos/rejected/<NN>-*.md`.
-   Använd Bash `ls todos/<NN>-*.md todos/done/<NN>-*.md todos/rejected/<NN>-*.md 2>/dev/null` eller motsvarande glob.
+1. Hitta filen: `ls todos/<NN>-*.md todos/done/<NN>-*.md todos/rejected/<NN>-*.md 2>/dev/null`.
 2. Read den fil som matchar.
 3. Visa innehållet. För långa filer (>200 rader): summera Sammanfattning/Status/Plan, men visa hela bara om användaren ber.
 
@@ -114,23 +148,24 @@ Alla steg krävs — det här är hela poängen med skillen.
         ```
         | <NN>  | <Titel utan #-prefix>                              | YYYY-MM-DD | [todos/done/<fil>.md](todos/done/<fil>.md) |
         ```
-    - Uppdatera rad 7: `Senast uppdaterad: YYYY-MM-DD (+#<NN> <kort hint>).`
+    - Ersätt `Senast uppdaterad:`-raden: `Senast uppdaterad: YYYY-MM-DD (#<NN> klar — <kort hint>).`
     - Om todon stod i **Föreslagen ordning** — ta bort den raden och numrera om.
-    - Om todon var listad i **Beroenden** som blockerare — uppdatera noten till `*(klar YYYY-MM-DD — beroendet löst, listas tills #M startat.)*` (samma stil som befintliga noter där).
-5. **Verifiering:** kör `git status` så användaren ser ändrade filer. Commit:a inte utan att användaren ber.
+    - Om todon var listad i **Beroenden** som blockerare — uppdatera noten till `*(klar YYYY-MM-DD — beroendet löst, listas tills #M startat.)*`, och byt `blockerad` → `aktiv` på todos den blockerade (filhuvud + index).
+    - Kvarvarande rader i Uppföljningar för todon får ligga kvar (de pekar på `done/`-filen) om uppföljningen fortfarande ska göras.
+5. **Verifiering:** kör `todos.py kontroll` och `git status` så användaren ser ändrade filer. Commit:a inte utan att användaren ber.
 
 ## reject <nr>
 
 Som `done` men:
 
 1. **Filhuvud:** `**Status:** avfärdad YYYY-MM-DD — <skäl>`
-2. **Flytta:** `git mv todos/<NN>-*.md todos/rejected/`
+2. **Flytta:** `git mv todos/<NN>-*.md todos/rejected/` (och rätta relativa länkar som i `done`).
 3. **Index:** lägg till i tabellen **Avfärdade / sammanslagna**:
     ```
     | <NN>  | <Titel>      | Avfärdad YYYY-MM-DD — <kort skäl>      | [todos/rejected/<fil>.md](todos/rejected/<fil>.md) |
     ```
-4. Uppdatera "Senast uppdaterad" på rad 7.
-5. Om todon var i Föreslagen ordning eller blockerade andra — uppdatera de sektionerna.
+4. Ersätt "Senast uppdaterad"-raden.
+5. Om todon var i Föreslagen ordning, blockerade andra eller har rader i Uppföljningar — uppdatera de sektionerna.
 
 Be användaren om skälet om det inte gavs i argumenten ("Vad är skälet?").
 
@@ -141,7 +176,7 @@ Be användaren om skälet om det inte gavs i argumenten ("Vad är skälet?").
 3. **Skapa filen** `todos/<NN>-<slug>.md` med mall:
 
     ```markdown
-    **Status:** aktiv
+    **Status:** pausad — otriagerad
     **Senast uppdaterad:** YYYY-MM-DD
 
     # Todo #<NN> — <Titel>
@@ -164,10 +199,11 @@ Be användaren om skälet om det inte gavs i argumenten ("Vad är skälet?").
 4. **Uppdatera `todo.md`:**
     - Lägg till en rad i **Aktiva**-tabellen:
         ```
-        | <NN>  | <Titel>     | <kort status, t.ex. "ny — analys saknas">  | [todos/<NN>-<slug>.md](todos/<NN>-<slug>.md) |
+        | <NN>  | <Titel>     | pausad — otriagerad  | [todos/<NN>-<slug>.md](todos/<NN>-<slug>.md) |
         ```
-    - Uppdatera rad 7: `Senast uppdaterad: YYYY-MM-DD (+#<NN> <titel>).`
+    - Ersätt raden: `Senast uppdaterad: YYYY-MM-DD (+#<NN> <titel>).`
 5. Säg till användaren att filen skapades med en mall och fråga om de vill fylla i Sammanfattning/Bakgrund nu.
+   När todon är triagerad: byt till `aktiv` (eller `väntar` + en rad i Uppföljningar).
 
 ## Konventioner att respektera
 
@@ -175,11 +211,16 @@ Be användaren om skälet om det inte gavs i argumenten ("Vad är skälet?").
 - **Filnamn**: `<NN>-<slug>.md`, `<NN>` zero-padded två siffror.
 - **Tabellsortering** i `todo.md`:
     - Aktiva: ingen särskild ordning.
+    - Uppföljningar: datum, äldst först.
     - Klara: **nyast först** (datum desc) — nya rader läggs **överst**.
     - Avfärdade: ingen särskild ordning.
 - **Aldrig radera** todo-filer — alltid flytta till `done/` eller `rejected/`. Historiken är poängen.
 - **Aldrig commita** utan att användaren ber. Skillen levererar arbetsträd-ändringar + `git status`.
 - **Beroenden-sektionen** är levande — uppdatera när blockerare blir klara.
+- Kör prettier på ändrade `.md`-filer (`npx --yes prettier@3 --write <filer>`).
+- **Projektprefix i svar:** skriv todos med prefixet under Projektspecifikt
+  (t.ex. `TT-34`), inte bara `#NN`, i allt som visas för användaren; numren krockar
+  mellan projekten. I `todo.md` och filnamn står numret utan prefix.
 
 ## Edge cases
 
@@ -188,3 +229,9 @@ Be användaren om skälet om det inte gavs i argumenten ("Vad är skälet?").
 - **Användaren skriver titeln med hashtag** (`/todo done #10`): strip-a `#` innan tolkning.
 - **Argument är inte en siffra för `done`/`reject`/`show`:** be om `<nr>`.
 - **Redaktionellt skript-fel** (t.ex. `git mv` misslyckas): fall back till `mv` + flagga för användaren.
+
+## Projektspecifikt
+
+- `todos.py`-id: `tt`. Prefix i svar: `TT-34`. Appen (`../texttv.nu (app)/todo.md`, id `tt-app`) har ett eget
+  engelskt Now/Later/Done-format utan nummer och hanteras inte av den här skillen. Skriptet visar
+  dess deadlines ("before 2026-12-02") i dag- och veckovyn.

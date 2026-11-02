@@ -1,4 +1,4 @@
-**Status:** aktiv — baslinje 2026-10-30, uppföljning omkring 2026-11-24
+**Status:** väntar — baslinje 2026-10-17–30 (GA4, GSC). Samma frågor efter 14 dagar; samlar in #25, #16, #21, #20 och avgör Dela-knappen, `/sida/senast-uppdaterat` och `/sida/polisen`
 **Senast uppdaterad:** 2026-10-30
 
 # Todo #35 — Används de nya sidorna och funktionerna?
@@ -13,32 +13,32 @@ Delarna som redan har egna uppföljningar mäts där och samlas bara in här: #2
 
 Hela sajten: 221 609 sidvisningar, 10 063 användare.
 
-| Funktion / sida | Händelser eller visningar | Användare | Not |
-| --- | --- | --- | --- |
-| Gå till sida, `search_open` | 10 583 | 1 208 | 1 000–2 200 per dag sedan 2026-10-23 |
-| Gå till sida, `search_select` | 420 | 158 | 4 % av öppnade listor. Senast besökta 239, Populära sidor 83, Träffar 24, Mest läst nu 18 |
-| Mest läst, `select_content` | ~640 | ~370 | Startsidan 324 (Idag 261), under sidan 175, arkivsidor 136. Startsidan 28 141 visningar, alltså ~1,2 % |
-| Mest läst, `most_read_tab` | 130 | 28 | |
-| `live_update` | 4 216 | 766 | 500–1 000 per dag. Mäter uppdateringar, inte klick |
-| `share` (Dela-knappen) | 26 | 24 | |
-| `police_view` (sedan 2026-10-27) | 47 | 40 | 3 klick (`select_content` polisruta) |
-| `/sida/delat` | 399 (+50 `/sida/delat/`) | 365 | 94 % Direct, en visning per användare. Troligen gamla delade länkar som skickas vidare, inte verifierat |
-| `/sport/idag`, `/nyheter/idag` | 180 / 128 | 116 / 79 | |
-| `/nyheter/igar`, `/sport/igar` | 88 / 81 | 63 / 62 | |
-| `/377/igar` | 135 | 108 | |
-| `/sida/senast-uppdaterat` | 26 | 15 | |
-| `/sida/polisen` | 25 | 21 | |
-| `/status` | 89 | 3 | Nästan bara Pär |
+| Funktion / sida                  | Händelser eller visningar | Användare | Not                                                                                                     |
+| -------------------------------- | ------------------------- | --------- | ------------------------------------------------------------------------------------------------------- |
+| Gå till sida, `search_open`      | 10 583                    | 1 208     | 1 000–2 200 per dag sedan 2026-10-23                                                                    |
+| Gå till sida, `search_select`    | 420                       | 158       | 4 % av öppnade listor. Senast besökta 239, Populära sidor 83, Träffar 24, Mest läst nu 18               |
+| Mest läst, `select_content`      | ~640                      | ~370      | Startsidan 324 (Idag 261), under sidan 175, arkivsidor 136. Startsidan 28 141 visningar, alltså ~1,2 %  |
+| Mest läst, `most_read_tab`       | 130                       | 28        |                                                                                                         |
+| `live_update`                    | 4 216                     | 766       | 500–1 000 per dag. Mäter uppdateringar, inte klick                                                      |
+| `share` (Dela-knappen)           | 26                        | 24        |                                                                                                         |
+| `police_view` (sedan 2026-10-27) | 47                        | 40        | 3 klick (`select_content` polisruta)                                                                    |
+| `/sida/delat`                    | 399 (+50 `/sida/delat/`)  | 365       | 94 % Direct, en visning per användare. Troligen gamla delade länkar som skickas vidare, inte verifierat |
+| `/sport/idag`, `/nyheter/idag`   | 180 / 128                 | 116 / 79  |                                                                                                         |
+| `/nyheter/igar`, `/sport/igar`   | 88 / 81                   | 63 / 62   |                                                                                                         |
+| `/377/igar`                      | 135                       | 108       |                                                                                                         |
+| `/sida/senast-uppdaterat`        | 26                        | 15        |                                                                                                         |
+| `/sida/polisen`                  | 25                        | 21        |                                                                                                         |
+| `/status`                        | 89                        | 3         | Nästan bara Pär                                                                                         |
 
 Search Console (`sc-domain:texttv.nu`, 2026-10-15 – 2026-10-28):
 
-| Sida | Klick | Visningar | Position |
-| --- | --- | --- | --- |
-| `/377/igar` | 2 | ~650 (245 av dem 15/10) | 7–9, för samma frågor som `/377` ("377 målservice", "svt 377") |
-| `/sport/igar` · `/nyheter/igar` | 0 · 0 | 17 · 10 | 2–10 |
-| `/sport/idag` · `/nyheter/idag` | 0 · 1 | 18 · 12 | 2–30 |
-| `/sida/senast-uppdaterat` | 1 | 29 | 3,9 |
-| `/sida/polisen` | 1 | 28 | 11,9 |
+| Sida                            | Klick | Visningar               | Position                                                       |
+| ------------------------------- | ----- | ----------------------- | -------------------------------------------------------------- |
+| `/377/igar`                     | 2     | ~650 (245 av dem 15/10) | 7–9, för samma frågor som `/377` ("377 målservice", "svt 377") |
+| `/sport/igar` · `/nyheter/igar` | 0 · 0 | 17 · 10                 | 2–10                                                           |
+| `/sport/idag` · `/nyheter/idag` | 0 · 1 | 18 · 12                 | 2–30                                                           |
+| `/sida/senast-uppdaterat`       | 1     | 29                      | 3,9                                                            |
+| `/sida/polisen`                 | 1     | 28                      | 11,9                                                           |
 
 GA4:s "Organic Search" på `/377/igar` (61) och `/sport/idag` (70) räknas per besök: folk kommer från Google till en annan sida och klickar sig vidare. Dagslistorna är ett steg efter Google, inte vägen in.
 

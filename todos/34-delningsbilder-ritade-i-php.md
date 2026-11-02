@@ -1,4 +1,4 @@
-**Status:** aktiv — deployad 2026-10-28 (`11646b9`); städning och `limit_req` på prod 2026-11-01; liggande 1200 × 630 struken; kvar: uppföljningen 2026-11-03
+**Status:** väntar — deployad 2026-10-28 (`11646b9`). 2026-11-01: `shares/` städas efter mtime, 4,2 GB gamla JPEG raderade, `limit_req` 2/s för `/api/screenshot`. Klar efter uppföljningen
 **Senast uppdaterad:** 2026-11-01
 
 # Todo #34 — Delningsbilder ritade i PHP i stället för skärmdump
@@ -22,12 +22,12 @@ och få färger, så ingen webbläsare eller layout behövs. Pär valde detta
   bilder per dygn.
 - Jämfört (samma sida, bookworm-container):
 
-  | Sätt                        | Tid per bild | Minne      | Fil          |
-  | --------------------------- | ------------ | ---------- | ------------ |
-  | wkhtmltoimage (i dag)       | ~1 s         | ~120 MB    | JPEG 164 kB  |
-  | Chromium headless           | ~2,6 s       | 250–400 MB | PNG 58 kB    |
-  | wkhtmltox (projektets .deb) | ~1 s         |            | renderar fel |
-  | GD i PHP (uppskattat)       | 20–50 ms     | några MB   | PNG ~20 kB   |
+    | Sätt                        | Tid per bild | Minne      | Fil          |
+    | --------------------------- | ------------ | ---------- | ------------ |
+    | wkhtmltoimage (i dag)       | ~1 s         | ~120 MB    | JPEG 164 kB  |
+    | Chromium headless           | ~2,6 s       | 250–400 MB | PNG 58 kB    |
+    | wkhtmltox (projektets .deb) | ~1 s         |            | renderar fel |
+    | GD i PHP (uppskattat)       | 20–50 ms     | några MB   | PNG ~20 kB   |
 
 - Prod har GD med FreeType, PNG och JPEG. Sajtens typsnitt finns som TTF:
   `texttv.nu/fonts/ubuntumono-r-webfont.ttf` och `-b-` (Ubuntu Mono).
@@ -157,12 +157,12 @@ jämförelse och delningstester 0,5, nginx och driftsättning några timmar).
 **Förslag (prod, kräver ok):**
 
 1. Byt cron-raden mot `find` på mtime, för båda katalogerna:
-   ```
-   45 1 * * * find /usr/share/nginx/texttv.nu/shares -type f \( -name '*.jpg' -o -name '*.png' \) -mtime +7 -delete; find /usr/share/nginx/texttv.nu/shares/v2 -name '*.tmp' -mmin +60 -delete
-   ```
-   De gamla JPEG:erna försvinner inom en vecka (eller direkt med en
-   engångskörning). En v2-bild som tas bort ritas om på 50 ms nästa gång;
-   bara `Last-Modified` ändras.
+    ```
+    45 1 * * * find /usr/share/nginx/texttv.nu/shares -type f \( -name '*.jpg' -o -name '*.png' \) -mtime +7 -delete; find /usr/share/nginx/texttv.nu/shares/v2 -name '*.tmp' -mmin +60 -delete
+    ```
+    De gamla JPEG:erna försvinner inom en vecka (eller direkt med en
+    engångskörning). En v2-bild som tas bort ritas om på 50 ms nästa gång;
+    bara `Last-Modified` ändras.
 2. `limit_req` för `/api/screenshot` per IP i nginx (`map $request_uri`
    ger tom nyckel för allt annat, eftersom `if (!-e) rewrite` gör att en
    egen location aldrig nås), t.ex. 2 per sekund, burst 20, svar 429.
@@ -189,7 +189,7 @@ jämförelse och delningstester 0,5, nginx och driftsättning några timmar).
   (Facebook/iMessage, Slack, Twitter, LinkedIn, WhatsApp m.fl.) undantagna
   med en `map` på user agent. Test, 30 samtidiga anrop per variant: alla
   adressvarianter 21–22 svar + 8–9 × 429; `facebookexternalhit … Facebot
-  Twitterbot` och `Slackbot` 30 × 200; `/api/get/100` 30 × 200. Backup
+Twitterbot` och `Slackbot` 30 × 200; `/api/get/100` 30 × 200. Backup
   `/root/screenshot-limit.conf.bak-20261101-34`.
 - `wkhtmltopdf` är redan borta (Debian 13).
 

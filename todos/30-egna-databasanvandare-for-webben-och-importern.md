@@ -1,4 +1,4 @@
-**Status:** aktiv — steg 1–4 klara 2026-10-27 (importern kör som `texttv_importer`); följ upp nattjobben 2026-10-28, sedan steg 5 (webben)
+**Status:** aktiv — steg 1–5b klara 2026-10-27–28: importern kör som `texttv_importer`, webben som `texttv_web`, bloggen `texttv_admin`. Steg 6 efter en lugn vecka. Pär: testa bloggkontot i TablePlus
 **Senast uppdaterad:** 2026-10-27
 
 # Todo #30 — Egna databasanvändare för webben och importern
@@ -35,16 +35,16 @@ via unix_socket.
 
 ### Kartläggning (granskad i koden 2026-10-27)
 
-| Användare | Tabell | Rättigheter | Var i koden |
-| --- | --- | --- | --- |
-| webben | `texttv.nu`.`texttv` | SELECT, UPDATE (`is_shared`) | `texttv_helper.php:1828` |
-| webben | `texttv.nu`.`texttv_blogg` | SELECT | `blogg.php`, `rssfeed.php` |
-| webben | `texttv.nu`.`texttv_page_text` | SELECT | |
-| webben | `texttv_stats`.`page_actions` | SELECT, INSERT | `api.php:744`, korsdatabas-query `texttv_helper.php:196` |
-| webben | `texttv.nu`.`page_imports_logs` | SELECT | `controllers/status.php` (/status, /status/health), tillagd 2026-10-28 |
-| importern | `texttv.nu`.`texttv` | SELECT, INSERT, UPDATE, DELETE | `texttvimport.php:189`, `CleanupOldPages.php:54` |
-| importern | `texttv.nu`.`page_imports_logs` | SELECT, INSERT, DELETE | `ImportstatusController.php` |
-| importern | `texttv_stats`.`page_actions` | SELECT, DELETE | `CleanupPageActions.php:42` |
+| Användare | Tabell                          | Rättigheter                    | Var i koden                                                            |
+| --------- | ------------------------------- | ------------------------------ | ---------------------------------------------------------------------- |
+| webben    | `texttv.nu`.`texttv`            | SELECT, UPDATE (`is_shared`)   | `texttv_helper.php:1828`                                               |
+| webben    | `texttv.nu`.`texttv_blogg`      | SELECT                         | `blogg.php`, `rssfeed.php`                                             |
+| webben    | `texttv.nu`.`texttv_page_text`  | SELECT                         |                                                                        |
+| webben    | `texttv_stats`.`page_actions`   | SELECT, INSERT                 | `api.php:744`, korsdatabas-query `texttv_helper.php:196`               |
+| webben    | `texttv.nu`.`page_imports_logs` | SELECT                         | `controllers/status.php` (/status, /status/health), tillagd 2026-10-28 |
+| importern | `texttv.nu`.`texttv`            | SELECT, INSERT, UPDATE, DELETE | `texttvimport.php:189`, `CleanupOldPages.php:54`                       |
+| importern | `texttv.nu`.`page_imports_logs` | SELECT, INSERT, DELETE         | `ImportstatusController.php`                                           |
+| importern | `texttv_stats`.`page_actions`   | SELECT, DELETE                 | `CleanupPageActions.php:42`                                            |
 
 - `Texttv_page::save()` (`texttv_page.php:602–634`) är död kod: anropas bara
   från bortkommenterade `update_page*`.
@@ -76,80 +76,83 @@ via unix_socket.
 ## Förslag
 
 1. **Förberedelser.**
-   - `SET GLOBAL userstat=1` (dynamisk, idag 0). Ger
-     `information_schema.USER_STATISTICS` per användare: `TOTAL_CONNECTIONS`,
-     `ROWS_UPDATED`, `ACCESS_DENIED`, `DENIED_CONNECTIONS`. Det är så vi ser att
-     inget längre använder root och att ingen rättighet saknas.
-   - `SET GLOBAL local_infile=0` (dynamisk). Lägg samtidigt in den i
-     konfigurationsfilen från steg 7 så den gäller efter omstart.
+    - `SET GLOBAL userstat=1` (dynamisk, idag 0). Ger
+      `information_schema.USER_STATISTICS` per användare: `TOTAL_CONNECTIONS`,
+      `ROWS_UPDATED`, `ACCESS_DENIED`, `DENIED_CONNECTIONS`. Det är så vi ser att
+      inget längre använder root och att ingen rättighet saknas.
+    - `SET GLOBAL local_infile=0` (dynamisk). Lägg samtidigt in den i
+      konfigurationsfilen från steg 7 så den gäller efter omstart.
 2. **Skapa användarna** som root via socket. Lösenord genereras på servern med
    `openssl rand -hex 32` (inte base64: `$` och `;` ställer till det i nginx,
    `#` och mellanslag i `.env`). SQL skickas med heredoc på stdin, aldrig som
    `-p…` i argv. Lösenorden skrivs aldrig ut.
-   ```sql
-   CREATE USER texttv_web@localhost IDENTIFIED BY '…';
-   GRANT SELECT, UPDATE (is_shared) ON `texttv.nu`.texttv TO texttv_web@localhost;
-   GRANT SELECT ON `texttv.nu`.texttv_blogg TO texttv_web@localhost;
-   GRANT SELECT ON `texttv.nu`.texttv_page_text TO texttv_web@localhost;
-   GRANT SELECT, INSERT ON texttv_stats.page_actions TO texttv_web@localhost;
 
-   CREATE USER texttv_importer@localhost IDENTIFIED BY '…';
-   GRANT SELECT, INSERT, UPDATE, DELETE ON `texttv.nu`.texttv TO texttv_importer@localhost;
-   GRANT SELECT, INSERT, DELETE ON `texttv.nu`.page_imports_logs TO texttv_importer@localhost;
-   GRANT SELECT, DELETE ON texttv_stats.page_actions TO texttv_importer@localhost;
-   ```
-   Inga globala rättigheter, ingen DDL, ingen `FILE`. `FLUSH PRIVILEGES`
-   behövs inte. Valfritt: `WITH MAX_USER_CONNECTIONS 30` (poolen har 10 barn,
-   högst 2 anslutningar per request).
+    ```sql
+    CREATE USER texttv_web@localhost IDENTIFIED BY '…';
+    GRANT SELECT, UPDATE (is_shared) ON `texttv.nu`.texttv TO texttv_web@localhost;
+    GRANT SELECT ON `texttv.nu`.texttv_blogg TO texttv_web@localhost;
+    GRANT SELECT ON `texttv.nu`.texttv_page_text TO texttv_web@localhost;
+    GRANT SELECT, INSERT ON texttv_stats.page_actions TO texttv_web@localhost;
+
+    CREATE USER texttv_importer@localhost IDENTIFIED BY '…';
+    GRANT SELECT, INSERT, UPDATE, DELETE ON `texttv.nu`.texttv TO texttv_importer@localhost;
+    GRANT SELECT, INSERT, DELETE ON `texttv.nu`.page_imports_logs TO texttv_importer@localhost;
+    GRANT SELECT, DELETE ON texttv_stats.page_actions TO texttv_importer@localhost;
+    ```
+
+    Inga globala rättigheter, ingen DDL, ingen `FILE`. `FLUSH PRIVILEGES`
+    behövs inte. Valfritt: `WITH MAX_USER_CONNECTIONS 30` (poolen har 10 barn,
+    högst 2 anslutningar per request).
+
 3. **Provkör** som `www-data` med PHP mot de nya användarna, innan något byts.
    `SHOW GRANTS FOR …`, en läsning per tabell, och skrivrättigheter med satser
    som inte träffar några rader (rättigheten kontrolleras ändå, och MyISAM gör
    ROLLBACK verkningslös):
-   - `UPDATE texttv SET is_shared=is_shared WHERE id=0`
-   - `DELETE FROM texttv WHERE 1=0`
-   - `INSERT INTO page_actions (page_ids,type,created_at) SELECT 1,'VIEW',NOW() FROM DUAL WHERE 0`
-   - och en sats per rättighet som **inte** ska finnas (t.ex. `DELETE` som
-     webben), som ska nekas.
+    - `UPDATE texttv SET is_shared=is_shared WHERE id=0`
+    - `DELETE FROM texttv WHERE 1=0`
+    - `INSERT INTO page_actions (page_ids,type,created_at) SELECT 1,'VIEW',NOW() FROM DUAL WHERE 0`
+    - och en sats per rättighet som **inte** ska finnas (t.ex. `DELETE` som
+      webben), som ska nekas.
 4. **Byt importern först.**
-   - Backup av `.env` till `/root`, `chmod 600`.
-   - Byt `DB_USERNAME`, `DB_PASSWORD`, `DB_STATS_USERNAME` och
-     `DB_STATS_PASSWORD` till `texttv_importer`, sedan `php artisan config:cache`
-     med normal umask (filen måste vara 644, www-data läser den).
-   - Kontrollera båda anslutningarna:
-     `php artisan tinker --execute='dump(DB::select("select current_user() u"), DB::connection("mysql_stats_db")->select("select current_user() u"));'`
-   - Följ nästa import, `/importstatus`, `laravel.log` och `USER_STATISTICS`
-     (`ACCESS_DENIED` ska vara 0). `cleanup-page-actions` och
-     `cleanup-old-pages` körs sällan; kör dem för hand eller vänta in dem.
-   - Tillbaka: återställ `.env` och `config:cache`.
+    - Backup av `.env` till `/root`, `chmod 600`.
+    - Byt `DB_USERNAME`, `DB_PASSWORD`, `DB_STATS_USERNAME` och
+      `DB_STATS_PASSWORD` till `texttv_importer`, sedan `php artisan config:cache`
+      med normal umask (filen måste vara 644, www-data läser den).
+    - Kontrollera båda anslutningarna:
+      `php artisan tinker --execute='dump(DB::select("select current_user() u"), DB::connection("mysql_stats_db")->select("select current_user() u"));'`
+    - Följ nästa import, `/importstatus`, `laravel.log` och `USER_STATISTICS`
+      (`ACCESS_DENIED` ska vara 0). `cleanup-page-actions` och
+      `cleanup-old-pages` körs sällan; kör dem för hand eller vänta in dem.
+    - Tillbaka: återställ `.env` och `config:cache`.
 5. **Byt webben.**
-   - Backup av nginx-confen till `/root` (inte under `/etc/nginx/`, se
-     `server.md`), `chmod 600`.
-   - Byt `fastcgi_param DB_USERNAME/DB_PASSWORD`, `nginx -t`,
-     `systemctl reload nginx`. php-fpm behöver ingen reload.
-   - Kontrollera med cache-buster och kräv `X-Cache: MISS` och rätt innehåll,
-     inte bara 200: `/`, `/100`, `/api/get/100`, `/api/most_read/news`, arkiv,
-     RSS, blogg, och `/api/page/...` (antalet rader i `page_actions` ska öka).
-     Kör `tests/api/urls.txt` mot prod. Följ `USER_STATISTICS`.
-   - Tillbaka: återställ raderna och reload.
-   **5b. Bloggskrivning:** `texttv_admin@localhost` med
-   `SELECT, INSERT, UPDATE, DELETE ON` `` `texttv.nu` ``.`texttv_blogg`, eget
-   lösenord i Proton Pass, för TablePlus/Sequel Ace via tunnel. Fråga Pär om
-   andra GUI-anslutningar som root.
+    - Backup av nginx-confen till `/root` (inte under `/etc/nginx/`, se
+      `server.md`), `chmod 600`.
+    - Byt `fastcgi_param DB_USERNAME/DB_PASSWORD`, `nginx -t`,
+      `systemctl reload nginx`. php-fpm behöver ingen reload.
+    - Kontrollera med cache-buster och kräv `X-Cache: MISS` och rätt innehåll,
+      inte bara 200: `/`, `/100`, `/api/get/100`, `/api/most_read/news`, arkiv,
+      RSS, blogg, och `/api/page/...` (antalet rader i `page_actions` ska öka).
+      Kör `tests/api/urls.txt` mot prod. Följ `USER_STATISTICS`.
+    - Tillbaka: återställ raderna och reload.
+      **5b. Bloggskrivning:** `texttv_admin@localhost` med
+      `SELECT, INSERT, UPDATE, DELETE ON` `` `texttv.nu` ``.`texttv_blogg`, eget
+      lösenord i Proton Pass, för TablePlus/Sequel Ace via tunnel. Fråga Pär om
+      andra GUI-anslutningar som root.
 6. **Efter en lugn vecka:** när `USER_STATISTICS` visar att root bara används
    via socket.
-   - `ALTER USER root@localhost IDENTIFIED VIA unix_socket` (utan lösenord).
-     debian-start påverkas inte (`debian.cnf` saknar lösenord). Ingen cron
-     eller backup använder root-lösenordet.
-   - Ta bort root-lösenordet ur Obsidian-noten `Server - texttv.nu Hetzner`
-     (där står även ett rescue-lösenord i klartext) och ur Proton Pass.
-   - Rensa backupfilerna som innehåller det: `/root/nginx-texttv.nu.bak-20261026-php2shell`,
-     `/root/config-backups-2026-10-15/texttv.nu`, och backuperna från steg 4–5.
-   - `SET GLOBAL userstat=0`.
-   - **Migrationer därefter:** prod kör med cachad config, så env-variabler på
-     kommandoraden ignoreras. Rutin: ge `texttv_importer` tillfälliga
-     DDL-rättigheter plus rätt på `migrations`, kör `php artisan migrate`,
-     återkalla. (Alternativet, att köra som OS-root mot en tillfällig config med
-     root via socket, är inte testat med mysqlnd.)
+    - `ALTER USER root@localhost IDENTIFIED VIA unix_socket` (utan lösenord).
+      debian-start påverkas inte (`debian.cnf` saknar lösenord). Ingen cron
+      eller backup använder root-lösenordet.
+    - Ta bort root-lösenordet ur Obsidian-noten `Server - texttv.nu Hetzner`
+      (där står även ett rescue-lösenord i klartext) och ur Proton Pass.
+    - Rensa backupfilerna som innehåller det: `/root/nginx-texttv.nu.bak-20261026-php2shell`,
+      `/root/config-backups-2026-10-15/texttv.nu`, och backuperna från steg 4–5.
+    - `SET GLOBAL userstat=0`.
+    - **Migrationer därefter:** prod kör med cachad config, så env-variabler på
+      kommandoraden ignoreras. Rutin: ge `texttv_importer` tillfälliga
+      DDL-rättigheter plus rätt på `migrations`, kör `php artisan migrate`,
+      återkalla. (Alternativet, att köra som OS-root mot en tillfällig config med
+      root via socket, är inte testat med mysqlnd.)
 7. **Vid nästa planerade MariaDB-omstart** (#17 är ett bra tillfälle):
    `secure_file_priv` mot en tom root-ägd katalog, i en egen fil under
    `/etc/mysql/mariadb.conf.d/`. Katalogen måste finnas **före** omstarten,

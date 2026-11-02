@@ -1,4 +1,4 @@
-**Status:** pausad — mätt 2026-08-02, prioritet nedgraderad
+**Status:** pausad — mätt 2026-08-02: 76 % av arkivsidorna med trafik raderas, men efterfrågan dör ändå. Kvar som fynd: arkivsnapshots från 2016–17 rankar över levande sidor på ämnesfrågor
 **Senast uppdaterad:** 2026-08-02
 
 # Retention raderar arkivsidor som rankar
@@ -29,12 +29,12 @@ matchar alltså bara sidor som aldrig delats en enda gång.
 `resultatbörsen` är sajtens största rena ämnesfråga (26 klick, 4 213 visningar,
 pos 6.9 på 90 dagar). Den serveras helt av arkivsidor från **2017**:
 
-| URL | Datum | Delningar | Klick (90d) |
-| --- | --- | --- | --- |
-| `/330/resultatborsen-13586101` | 2017-02-28 | 20 | 14 |
-| `/330/resultatborsen-14782676` | 2017-05-30 | 3 | 8 |
-| `/330/resultatborsen-16782952` | 2017-10-28 | 10 | 2 |
-| `/330/resultatborsen-13389199` | 2017-02-13 | 23 | 1 |
+| URL                            | Datum      | Delningar | Klick (90d) |
+| ------------------------------ | ---------- | --------- | ----------- |
+| `/330/resultatborsen-13586101` | 2017-02-28 | 20        | 14          |
+| `/330/resultatborsen-14782676` | 2017-05-30 | 3         | 8           |
+| `/330/resultatborsen-16782952` | 2017-10-28 | 10        | 2           |
+| `/330/resultatborsen-13389199` | 2017-02-13 | 23        | 1           |
 
 Levande `/330` får **0 klick** på frågan. De här sidorna överlevde nio år enbart
 för att de har 3–23 delningar.
@@ -52,9 +52,9 @@ tjänar klick 2026.
 
 Samtliga 37 arkivsidor med klick i topp-130 (90d) slogs upp mot prod-DB:n.
 
-| | Sidor | Klick | Datumspann |
-| --- | --- | --- | --- |
-| Delade (skyddade) | 9 | 152 | 2016-02-19 → 2026-06-04 |
+|                       | Sidor         | Klick          | Datumspann              |
+| --------------------- | ------------- | -------------- | ----------------------- |
+| Delade (skyddade)     | 9             | 152            | 2016-02-19 → 2026-06-04 |
 | **Odelade (raderas)** | **28 (76 %)** | **296 (66 %)** | 2026-04-24 → 2026-06-08 |
 
 Rå siffra: två tredjedelar av arkivtrafiken sitter på sidor som raderas. Men
@@ -117,7 +117,7 @@ rankar på ämnesfrågor**, vilket är exakt vad #09 steg A bygger på.
 Att sluta radera ökar diskanvändningen (75 GB, 52 % använt 2026-05-19 enligt
 `server.md`). Mät innan retentionen ändras brett.
 
-Att däremot *behålla* nuvarande beteende har en okänd men löpande kostnad i
+Att däremot _behålla_ nuvarande beteende har en okänd men löpande kostnad i
 förlorade rankande sidor — och den kostnaden är osynlig eftersom bevisen
 raderas tillsammans med sidorna.
 

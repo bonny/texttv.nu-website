@@ -1,4 +1,4 @@
-**Status:** aktiv — deployat 2026-10-19, mät 2026-10-24
+**Status:** väntar — mätt 2026-10-24: klick i listorna 50 → 84/dag, flikbyten 2–5 användare/dag, `/377/igar` kom inte tillbaka. Dimensionerna från 10-24 avgör om flikarna blir kvar
 **Senast uppdaterad:** 2026-10-24
 
 # #25 Mest läst: växla mellan idag, igår och senaste 7 dagarna
@@ -84,14 +84,14 @@ Sammanvägt, så som steg 1 ska byggas:
 
 - [x] Steg 1 deployat 2026-10-19: flikarna Idag och Igår (se git log).
 - [x] 7 dagar deployat samma kväll, på Pärs begäran direkt i stället för
-  efter mätningen. `week_top_news()` summerar visningarna per nyhet över
-  sju dygn (idag inräknat), cache 10 min. En sida matchas mot sin dags och
-  föregående dags nyheter. Passerade dygn läses med
-  `most_read_pages_cached()`, som inte räknar om ett avslutat dygn varje
-  timme (#12). Veckodag i listan inte gjord.
+      efter mätningen. `week_top_news()` summerar visningarna per nyhet över
+      sju dygn (idag inräknat), cache 10 min. En sida matchas mot sin dags och
+      föregående dags nyheter. Passerade dygn läses med
+      `most_read_pages_cached()`, som inte räknar om ett avslutat dygn varje
+      timme (#12). Veckodag i listan inte gjord.
 - [x] Rättelser efter kodgranskningen (`9d98327`): dagens lista har en egen
-  cachefil (`idag-…`), annars hade "Igår" visat dagens ögonblicksbild nästa
-  dag.
+      cachefil (`idag-…`), annars hade "Igår" visat dagens ögonblicksbild nästa
+      dag.
 - [x] `/377/igar` tillbaka i Idag-raden 2026-10-20 (se nedan).
 - [x] Mätt 2026-10-24 med #16, se "Första veckan" nedan.
 - [x] Anpassade dimensioner registrerade i GA4 2026-10-24 (se nedan).
@@ -156,13 +156,13 @@ ha "Annons"/"Annonser". Och kanske en flik "Senaste | Mest läst" i
 
 ## Första veckan (GA4, 2026-10-19 – 10-23)
 
-| Dag | `select_content` (användare) | `most_read_tab` (användare) |
-| --- | ---: | ---: |
-| 19 okt | 10 (9) | 43 (3) |
-| 20 okt | 50 (43) | 17 (2) |
-| 21 okt | 69 (58) | 10 (5) |
-| 22 okt | 84 (59) | 16 (2) |
-| 23 okt | 83 (56) | 6 (3) |
+| Dag    | `select_content` (användare) | `most_read_tab` (användare) |
+| ------ | ---------------------------: | --------------------------: |
+| 19 okt |                       10 (9) |                      43 (3) |
+| 20 okt |                      50 (43) |                      17 (2) |
+| 21 okt |                      69 (58) |                      10 (5) |
+| 22 okt |                      84 (59) |                      16 (2) |
+| 23 okt |                      83 (56) |                       6 (3) |
 
 Webben hade 1 500–1 700 användare per dag. Från 22 okt räknas även
 klicken i rutan under nyhetssidorna och arkivsidorna.

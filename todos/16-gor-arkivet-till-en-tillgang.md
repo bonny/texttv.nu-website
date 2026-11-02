@@ -1,4 +1,4 @@
-**Status:** aktiv — canonical och dagsarkiv för 377/330 deployade 2026-10-14. Gårdagens mest lästa på startsidan 2026-10-16. Mät 2026-11-14
+**Status:** pausad — idékatalog. Canonical, dagsarkiv (`/377/igar`, `/nyheter/igar`, `/sport/igar`) och ny 404 deployade 2026-10-14; nästan bara interna klick. Mätningen avgör nästa steg
 **Senast uppdaterad:** 2026-10-20
 
 # Todo #16 — Gör arkivet till en tillgång: idéer för användare, Google och AI
@@ -32,11 +32,11 @@ Jo. En nyhetssida (106–199) kan få en helt ny nyhet senare samma dag, medan
 sportens resultatsidor (330, 343, 377 m.fl.) är samma "sak" hela dagen och bara
 fylls på. Därför bör arkivet byggas olika för de två typerna:
 
-| Sidtyp | Vad en "enhet" är | Vad som ska sparas och visas |
-| --- | --- | --- |
-| **Nyheter** (100–199) | En **nyhet**, alltså en titel | Sista versionen per sida **och titel** och dag. Det är redan så permalänkarna fungerar (`/117/hushallens-ekonomi-mycket-stark-37317159`: slug från titeln). |
-| **Resultat och tabeller** (330, 343–349, 376–379 m.fl.) | **Dagen** | Sista versionen per sida och dag = dagens slutresultat. |
-| **Översikter** (100, 300, 101–105) | Ögonblicksbild | Lite värde i arkivet; låt dem rotera som idag. |
+| Sidtyp                                                  | Vad en "enhet" är             | Vad som ska sparas och visas                                                                                                                                |
+| ------------------------------------------------------- | ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Nyheter** (100–199)                                   | En **nyhet**, alltså en titel | Sista versionen per sida **och titel** och dag. Det är redan så permalänkarna fungerar (`/117/hushallens-ekonomi-mycket-stark-37317159`: slug från titeln). |
+| **Resultat och tabeller** (330, 343–349, 376–379 m.fl.) | **Dagen**                     | Sista versionen per sida och dag = dagens slutresultat.                                                                                                     |
+| **Översikter** (100, 300, 101–105)                      | Ögonblicksbild                | Lite värde i arkivet; låt dem rotera som idag.                                                                                                              |
 
 Det här behöver verifieras mot prod-DB:n innan något byggs. Förslag på fråga
 att köra (Pär kör, se minnesanteckningen om prod-DB i auto mode):
@@ -98,56 +98,56 @@ Bedömning: **värde** (hur mycket trafik eller citeringar det troligen ger) och
 
 ### 1. Arkivet som sökbar historik — störst potential
 
-| Idé | Värde | Insats |
-| --- | --- | --- |
-| **Dagsarkiv per resultatsida**: `/377/2026-10-12` med dagens slutversion överst och tidigare versioner under. Fångar `377 igår`, `allsvenskan resultat igår`, `text tv 377 12 oktober`, `målservice söndag`. | Högt | Medel |
-| **Fasta URL:er för "igår" och "i helgen"**: `/377/igar`, `/330/helgen`. Korta, stabila, länkbara, och samlar länkkraft över tid till skillnad från arkiv-id:n. | Medel–högt | Låg |
-| **Dagsnavigering på sidorna**: "← igår · i morgon →" på live- och arkivsidor, så Google hittar och värderar arkivet via interna länkar. | Medel | Låg |
-| **Nyhetsarkiv per dag**: `/nyheter/2026-10-12`, alla nyheter (titlar) som sändes den dagen, med länk till varje permalänk. | Medel | Medel |
-| **Retention som passar (#10)**: behåll sista versionen per sida och dag (resultat) respektive per titel och dag (nyheter) för alltid, radera mellanversionerna. Litet lagringsbehov, och historiken blir permanent. Förutsättning för allt ovan bortom ett år. | Möjliggörande | Medel |
+| Idé                                                                                                                                                                                                                                                            | Värde         | Insats |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ------ |
+| **Dagsarkiv per resultatsida**: `/377/2026-10-12` med dagens slutversion överst och tidigare versioner under. Fångar `377 igår`, `allsvenskan resultat igår`, `text tv 377 12 oktober`, `målservice söndag`.                                                   | Högt          | Medel  |
+| **Fasta URL:er för "igår" och "i helgen"**: `/377/igar`, `/330/helgen`. Korta, stabila, länkbara, och samlar länkkraft över tid till skillnad från arkiv-id:n.                                                                                                 | Medel–högt    | Låg    |
+| **Dagsnavigering på sidorna**: "← igår · i morgon →" på live- och arkivsidor, så Google hittar och värderar arkivet via interna länkar.                                                                                                                        | Medel         | Låg    |
+| **Nyhetsarkiv per dag**: `/nyheter/2026-10-12`, alla nyheter (titlar) som sändes den dagen, med länk till varje permalänk.                                                                                                                                     | Medel         | Medel  |
+| **Retention som passar (#10)**: behåll sista versionen per sida och dag (resultat) respektive per titel och dag (nyheter) för alltid, radera mellanversionerna. Litet lagringsbehov, och historiken blir permanent. Förutsättning för allt ovan bortom ett år. | Möjliggörande | Medel  |
 
 ### 2. Startsidan och dagssammanfattningar
 
-| Idé | Värde | Insats |
-| --- | --- | --- |
-| **"Igår på Text TV" på startsidan**: gårdagens mest lästa nyheter. Data finns redan (`/api/most_read/news?date=<igår>`, cachad sedan #12). Interna länkar in i arkivet. | Medel | Låg |
-| **Dagssida per datum**: `/dag/2026-10-13`, dagens mest lästa nyheter, slutresultat och väder på en sida. Unikt, citerbart innehåll ("vad hände 13 oktober"). | Medel | Medel |
-| **"Det här hände för ett år / tio år sedan"**: nostalgi, delbart. Kräver arkiv längre bak än ett år (retention). | Låg–medel | Låg |
+| Idé                                                                                                                                                                     | Värde     | Insats |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- | ------ |
+| **"Igår på Text TV" på startsidan**: gårdagens mest lästa nyheter. Data finns redan (`/api/most_read/news?date=<igår>`, cachad sedan #12). Interna länkar in i arkivet. | Medel     | Låg    |
+| **Dagssida per datum**: `/dag/2026-10-13`, dagens mest lästa nyheter, slutresultat och väder på en sida. Unikt, citerbart innehåll ("vad hände 13 oktober").            | Medel     | Medel  |
+| **"Det här hände för ett år / tio år sedan"**: nostalgi, delbart. Kräver arkiv längre bak än ett år (retention).                                                        | Låg–medel | Låg    |
 
 ### 3. Sportens historik
 
-| Idé | Värde | Insats |
-| --- | --- | --- |
-| **Resultatbörsen per datum**: `/330/2026-10-12`. `resultatbörsen` är vår största ämnesfråga och serveras idag av slumpvisa arkivsidor från 2017 (#10, #11). | Högt | Låg (samma mekanik som dagsarkivet) |
-| **Allsvenskans tabell över tid**: 343 per omgång som en serie. Nisch, men ingen annan har det. | Låg–medel | Medel |
-| **Lagsidor ur målservicen**: tolka 377/330/343 och visa "Hammarbys senaste resultat enligt Text TV". Stor yta för långa frågor, men tolkningen av Text-TV-text är bräcklig. | Medel | Hög |
+| Idé                                                                                                                                                                         | Värde     | Insats                              |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- | ----------------------------------- |
+| **Resultatbörsen per datum**: `/330/2026-10-12`. `resultatbörsen` är vår största ämnesfråga och serveras idag av slumpvisa arkivsidor från 2017 (#10, #11).                 | Högt      | Låg (samma mekanik som dagsarkivet) |
+| **Allsvenskans tabell över tid**: 343 per omgång som en serie. Nisch, men ingen annan har det.                                                                              | Låg–medel | Medel                               |
+| **Lagsidor ur målservicen**: tolka 377/330/343 och visa "Hammarbys senaste resultat enligt Text TV". Stor yta för långa frågor, men tolkningen av Text-TV-text är bräcklig. | Medel     | Hög                                 |
 
 ### 4. Maskinläsbart, för AI och Google
 
-| Idé | Värde | Insats |
-| --- | --- | --- |
-| **Canonical på arkivsidor och startsidan** (se snabba vinster). | Medel | Låg |
-| **Tydliga, maskinläsbara tidsstämplar**: `<time datetime>` och "uppdaterad 14 okt 21:47" synligt. AI-översikter prioriterar färskhet. | Medel | Låg |
-| **Strukturerad data**: `SportsEvent`/resultat på 377 och 330, `CollectionPage` på dagsarkiv. `NewsArticle` finns på arkivsidor sedan tidigare; kontrollera att `datePublished` stämmer. | Låg–medel | Medel |
-| **Ren textversion** per sida, t.ex. `/377.txt`, utan Text-TV-grafik, och länkad från `llms.txt`. Ger AI-crawlers exakt det som ska citeras. | Okänt, billigt att prova | Låg |
-| **RSS/Atom per sida eller sidgrupp** ("377-flödet", "nyheter 100–199"). `rssfeed` finns för bloggen. | Låg | Låg |
+| Idé                                                                                                                                                                                     | Värde                    | Insats |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------ | ------ |
+| **Canonical på arkivsidor och startsidan** (se snabba vinster).                                                                                                                         | Medel                    | Låg    |
+| **Tydliga, maskinläsbara tidsstämplar**: `<time datetime>` och "uppdaterad 14 okt 21:47" synligt. AI-översikter prioriterar färskhet.                                                   | Medel                    | Låg    |
+| **Strukturerad data**: `SportsEvent`/resultat på 377 och 330, `CollectionPage` på dagsarkiv. `NewsArticle` finns på arkivsidor sedan tidigare; kontrollera att `datePublished` stämmer. | Låg–medel                | Medel  |
+| **Ren textversion** per sida, t.ex. `/377.txt`, utan Text-TV-grafik, och länkad från `llms.txt`. Ger AI-crawlers exakt det som ska citeras.                                             | Okänt, billigt att prova | Låg    |
+| **RSS/Atom per sida eller sidgrupp** ("377-flödet", "nyheter 100–199"). `rssfeed` finns för bloggen.                                                                                    | Låg                      | Låg    |
 
 ### 5. Engagemang (signaler till Google, och nöjdare användare)
 
-| Idé | Värde | Insats |
-| --- | --- | --- |
-| **"Vad har ändrats?"**: markera rader som är nya sedan förra versionen, t.ex. nytt mål på 377. Unikt för oss eftersom vi har alla versioner. | Medel | Medel |
-| **Bevaka en sida**: notis när 377 ändras eller när ett lag nämns. Appen har push via Firebase; webben kan få webbnotiser. | Medel (appen) | Hög |
-| **Inbäddning som funktion**: `oembed`/`appembed` finns. En "bädda in 377 på din sajt"-sida ger länkar tillbaka. | Låg–medel | Låg |
+| Idé                                                                                                                                          | Värde         | Insats |
+| -------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ------ |
+| **"Vad har ändrats?"**: markera rader som är nya sedan förra versionen, t.ex. nytt mål på 377. Unikt för oss eftersom vi har alla versioner. | Medel         | Medel  |
+| **Bevaka en sida**: notis när 377 ändras eller när ett lag nämns. Appen har push via Firebase; webben kan få webbnotiser.                    | Medel (appen) | Hög    |
+| **Inbäddning som funktion**: `oembed`/`appembed` finns. En "bädda in 377 på din sajt"-sida ger länkar tillbaka.                              | Låg–medel     | Låg    |
 
 ### 6. Vilda idéer
 
-| Idé | Värde | Insats |
-| --- | --- | --- |
-| **Text-TV-tidsmaskin**: valfri sida som den såg ut ett visst datum och klockslag, med en tidslinje att dra i. Viralt material ("så här såg 100 ut när …"). | Okänt, potentiellt högt | Medel |
-| **Månads- och årskrönikor ur arkivet**: "Text-TV 2026: årets mest lästa sidor". Årlig artikel som andra länkar till. | Medel | Medel |
-| **Öppet arkiv-API eller datadump** för forskare och journalister. Länkar och omnämnanden från universitet och media. Licensfråga mot SVT, kräver eftertanke. | Medel | Medel + juridik |
-| **MCP-server / verktyg för AI-agenter**: "läs Text-TV sida X, nu eller på datum Y". Positionerar texttv.nu som källan för AI-assistenter. Tidigt. | Okänt | Medel |
+| Idé                                                                                                                                                          | Värde                   | Insats          |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------- | --------------- |
+| **Text-TV-tidsmaskin**: valfri sida som den såg ut ett visst datum och klockslag, med en tidslinje att dra i. Viralt material ("så här såg 100 ut när …").   | Okänt, potentiellt högt | Medel           |
+| **Månads- och årskrönikor ur arkivet**: "Text-TV 2026: årets mest lästa sidor". Årlig artikel som andra länkar till.                                         | Medel                   | Medel           |
+| **Öppet arkiv-API eller datadump** för forskare och journalister. Länkar och omnämnanden från universitet och media. Licensfråga mot SVT, kräver eftertanke. | Medel                   | Medel + juridik |
+| **MCP-server / verktyg för AI-agenter**: "läs Text-TV sida X, nu eller på datum Y". Positionerar texttv.nu som källan för AI-assistenter. Tidigt.            | Okänt                   | Medel           |
 
 ### 7. "Om Text TV"-innehåll
 
@@ -330,6 +330,7 @@ därför inte väntas ge mycket söktrafik i sig; värdet är användarnytta,
 citerbarhet och datumfrågornas långa svans. Mät, men budgetera inte.
 
 **Titlar och H1 på datumsidorna behöver justeras:**
+
 - Datumsidornas H1 saknar datum ("SVT Text TV 377 - Målservice och
   resultat"). Google skriver om titlarna på 377-sidorna från H1 (#09), så
   datumsidorna riskerar att visas med samma rubrik som `/377` och tävla med
@@ -364,6 +365,7 @@ SVT har alltså tagit bort tipsavdelningen, och sista resten försvann dagen
 före lången-klippan 2026-06-10. Det är den troliga förklaringen till
 lången-tappet. Premissen nedan, att sidorna "sänds kring helgerna", var fel
 och kontrollerades inte före bygget. Konsekvens:
+
 - Fallbacken till senast sända version gör inget för tipssidorna (ingen
   version de senaste 60 dygnen). Den finns kvar för sidor som är borta
   tillfälligt.
@@ -393,14 +395,14 @@ indexerade URL:er med `utm_` i GSC ska gå mot noll.
 
 ### Första veckan (GA4, 2026-10-14 – 10-20)
 
-| Sida | Visningar | Användare |
-| --- | ---: | ---: |
-| `/377/igar` | 222 | 136 |
-| `/nyheter/igar` | 97 | 69 |
-| `/sport/igar` | 92 | 68 |
-| `/nyheter/idag` (från 10-18) | 23 | 16 |
-| `/sport/idag` (från 10-18) | 22 | 17 |
-| Datumsidor (`/377/2026-10-14` m.fl.) | ~25 | några få |
+| Sida                                 | Visningar | Användare |
+| ------------------------------------ | --------: | --------: |
+| `/377/igar`                          |       222 |       136 |
+| `/nyheter/igar`                      |        97 |        69 |
+| `/sport/igar`                        |        92 |        68 |
+| `/nyheter/idag` (från 10-18)         |        23 |        16 |
+| `/sport/idag` (från 10-18)           |        22 |        17 |
+| Datumsidor (`/377/2026-10-14` m.fl.) |       ~25 |  några få |
 
 Nästan allt är internt: startsidan (även `?homescreen=1`), `/377` och
 sportsidorna. Google 6 visningar till `/377/igar`, 2 till `/nyheter/idag`.
@@ -438,21 +440,21 @@ Requests med referer `https://texttv.nu/` per dygn. Botar (`bot`, `spider`,
 `/NNN/rubrik-id`, och dit räknas också klicken i Mest läst. Rutans tre
 nyheter går därför inte att skilja från dem.
 
-| Dag | Startsidan | `/nyheter/igar` | `/sport/igar` | `/377/igar` | Arkiv |
-| --- | --- | --- | --- | --- | --- |
-| 13 okt | 4 938 | 0 | 0 | 0 | 105 |
-| 14 okt | 4 817 | 3 | 1 | 3 | 91 |
-| 15 okt | 4 979 | 3 | 1 | 3 | 284 |
-| **16 okt, rutan med nyheter** | 5 345 | 0 | 0 | 3 | 247 |
-| 17 okt | 5 770 | 0 | 2 | 2 | 124 |
-| 18 okt | 6 021 | 0 | 1 | 2 | 87 |
-| 19 okt | 8 728 | 1 | 1 | 0 | 79 |
-| 20 okt | 7 143 | 1 | 0 | 0 | 102 |
-| 21 okt | 5 318 | 1 | 1 | 1 | 148 |
-| 22 okt | 5 391 | 1 | 1 | 1 | cirka 85* |
-| 23 okt | 5 454 | 0 | 0 | 0 | 89 |
-| 24 okt | 6 228 | 1 | 0 | 0 | 210 |
-| 25 okt | 6 667 | 0 | 0 | 0 | 194 |
+| Dag                           | Startsidan | `/nyheter/igar` | `/sport/igar` | `/377/igar` | Arkiv      |
+| ----------------------------- | ---------- | --------------- | ------------- | ----------- | ---------- |
+| 13 okt                        | 4 938      | 0               | 0             | 0           | 105        |
+| 14 okt                        | 4 817      | 3               | 1             | 3           | 91         |
+| 15 okt                        | 4 979      | 3               | 1             | 3           | 284        |
+| **16 okt, rutan med nyheter** | 5 345      | 0               | 0             | 3           | 247        |
+| 17 okt                        | 5 770      | 0               | 2             | 2           | 124        |
+| 18 okt                        | 6 021      | 0               | 1             | 2           | 87         |
+| 19 okt                        | 8 728      | 1               | 1             | 0           | 79         |
+| 20 okt                        | 7 143      | 1               | 0             | 0           | 102        |
+| 21 okt                        | 5 318      | 1               | 1             | 1           | 148        |
+| 22 okt                        | 5 391      | 1               | 1             | 1           | cirka 85\* |
+| 23 okt                        | 5 454      | 0               | 0             | 0           | 89         |
+| 24 okt                        | 6 228      | 1               | 0             | 0           | 210        |
+| 25 okt                        | 6 667      | 0               | 0             | 0           | 194        |
 
 \* 3 353 i loggen, varav cirka 3 270 från en skrapa på datacenter-IP:er
 (80.241.208.0, 80.241.213.0, 185.222.242.0, 178.238.234.0, 94.250.203.0),

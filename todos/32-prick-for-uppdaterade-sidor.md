@@ -1,4 +1,4 @@
-**Status:** aktiv — deployad 2026-11-01 (`100371b`), mätperiod till 2026-11-15
+**Status:** väntar — deployad 2026-11-01 (`100371b`): "ny" i cyan i Senast besökta, `har_prick` på `search_select` (GA4 "Ny i Senast besökta"); mäts
 **Senast uppdaterad:** 2026-11-01
 
 # #32 En prick när en sida har uppdaterats sedan du såg den

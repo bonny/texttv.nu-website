@@ -1,4 +1,4 @@
-**Status:** aktiv
+**Status:** väntar — #01-kohorten +88 % YoY mot kontrollen. Spår B (description på /300, 2026-10-25) och spår A (190 + 13 sportsidor, 10-26) mäts; går /300 upp tas /101 och /343
 **Senast uppdaterad:** 2026-11-01
 
 # Fler kurerade titlar och descriptions, efter vinsten i #01
@@ -9,15 +9,15 @@ GSC 2026-10-25, 28 dagar (26/9–23/10) mot samma dagar 2025, arkivsidor
 bortfiltrerade. Sajten totalt **+6 %**, medan kontrollen `/377` låg på −1 %.
 Ökningen delad per ändring:
 
-| Ändring | Sidor | 2026 | 2025 | YoY |
-| --- | --- | --- | --- | --- |
-| #01, 2026-05-19, titel och description | 19 | 846 | 451 | **+88 %** |
-| #04 Fas 1, 2026-06-22, titel och description | 18 | 105 | 63 | +67 % |
-| #09/#11, 2026-08-02, H1 och ämnesord i titeln (330, 376, 360, 551, 571) | 5 | 198 | 254 | −22 % |
-| 378, 379 (#04 och H1 i aug) | 2 | 123 | 210 | −41 % |
-| Kontroll `/377` | 1 | 9 876 | 9 972 | −1 % |
-| Kontroll `/` | 1 | 3 369 | 3 127 | +8 % |
-| Kontroll `/100` | 1 | 444 | 510 | −13 % |
+| Ändring                                                                 | Sidor | 2026  | 2025  | YoY       |
+| ----------------------------------------------------------------------- | ----- | ----- | ----- | --------- |
+| #01, 2026-05-19, titel och description                                  | 19    | 846   | 451   | **+88 %** |
+| #04 Fas 1, 2026-06-22, titel och description                            | 18    | 105   | 63    | +67 %     |
+| #09/#11, 2026-08-02, H1 och ämnesord i titeln (330, 376, 360, 551, 571) | 5     | 198   | 254   | −22 %     |
+| 378, 379 (#04 och H1 i aug)                                             | 2     | 123   | 210   | −41 %     |
+| Kontroll `/377`                                                         | 1     | 9 876 | 9 972 | −1 %      |
+| Kontroll `/`                                                            | 1     | 3 369 | 3 127 | +8 %      |
+| Kontroll `/100`                                                         | 1     | 444   | 510   | −13 %     |
 
 Vinsten i #01 kommer främst från /300 (+142), /358 (+117), /345 (+50),
 /365 (+43) och /343 (+28). Titlar som säger vad sidan innehåller fungerar.
@@ -31,22 +31,22 @@ till exempel `338 - SVT Text TV - Sport` med en generell sport-description.
 Siffror för 90 dagar (2026-07-26 → 10-23). Innehållet hämtades från
 API:t 2026-10-25.
 
-| Sida | Innehåll 2026-10-25 | Visningar | Klick | CTR | Pos |
-| --- | --- | --- | --- | --- | --- |
-| 360 | Ishockey, Hockeyallsvenskan | 10 743 | 86 | 0,80 % | 4,0 |
-| 350 | Fotboll, Elitettan damer | 1 407 | 13 | 0,92 % | 8,1 |
-| 338 | Fotboll, Serie A | 1 247 | 4 | 0,32 % | 5,7 |
-| 333 | Fotboll, Champions League | 1 206 | 6 | 0,50 % | 8,3 |
-| 733 | Golf, världsranking herrar | 1 126 | 9 | 0,80 % | 3,0 |
-| 303 | Sportnyhet (växlar) | 1 095 | 8 | 0,73 % | 8,1 |
-| 354 | Handbollsligan herrar | 988 | 6 | 0,61 % | 5,5 |
-| 745 | Motor, Rally-VM | 930 | 6 | 0,65 % | 4,3 |
-| 362 | Ishockey, CHL | 914 | 3 | 0,33 % | 8,5 |
-| 361 | Ishockey, SDHL | 896 | 4 | 0,45 % | 10,2 |
-| 342 | Fotboll, danska ligan | 727 | 4 | 0,55 % | 5,4 |
-| 340 | Fotboll, franska ligan | 668 | 4 | 0,60 % | 6,5 |
-| 341 | Fotboll, turkiska ligan | 558 | 8 | 1,43 % | 6,0 |
-| 356 | Handboll, Allsvenskan herrar | 415 | 4 | 0,96 % | 5,5 |
+| Sida | Innehåll 2026-10-25          | Visningar | Klick | CTR    | Pos  |
+| ---- | ---------------------------- | --------- | ----- | ------ | ---- |
+| 360  | Ishockey, Hockeyallsvenskan  | 10 743    | 86    | 0,80 % | 4,0  |
+| 350  | Fotboll, Elitettan damer     | 1 407     | 13    | 0,92 % | 8,1  |
+| 338  | Fotboll, Serie A             | 1 247     | 4     | 0,32 % | 5,7  |
+| 333  | Fotboll, Champions League    | 1 206     | 6     | 0,50 % | 8,3  |
+| 733  | Golf, världsranking herrar   | 1 126     | 9     | 0,80 % | 3,0  |
+| 303  | Sportnyhet (växlar)          | 1 095     | 8     | 0,73 % | 8,1  |
+| 354  | Handbollsligan herrar        | 988       | 6     | 0,61 % | 5,5  |
+| 745  | Motor, Rally-VM              | 930       | 6     | 0,65 % | 4,3  |
+| 362  | Ishockey, CHL                | 914       | 3     | 0,33 % | 8,5  |
+| 361  | Ishockey, SDHL               | 896       | 4     | 0,45 % | 10,2 |
+| 342  | Fotboll, danska ligan        | 727       | 4     | 0,55 % | 5,4  |
+| 340  | Fotboll, franska ligan       | 668       | 4     | 0,60 % | 6,5  |
+| 341  | Fotboll, turkiska ligan      | 558       | 8     | 1,43 % | 6,0  |
+| 356  | Handboll, Allsvenskan herrar | 415       | 4     | 0,96 % | 5,5  |
 
 Sammanlagt ungefär 23 000 visningar och 165 klick per 90 dagar. Om CTR går
 från 0,7 % till 1,0 % ger det **bara ungefär +20–25 klick i månaden**. Det
@@ -65,7 +65,7 @@ från 0,7 % till 1,0 % ger det **bara ungefär +20–25 klick i månaden**. Det
   med.
 
 **Undersök separat:** 190 (3 723 visningar, 0,13 %, pos 3,7) är inte i
-sändning och får titeln `Utrikes`, vilket troligen är fel. *(Gjort 2026-10-26: TT:s nattnyheter, se nedan.)* Samma gäller 150,
+sändning och får titeln `Utrikes`, vilket troligen är fel. _(Gjort 2026-10-26: TT:s nattnyheter, se nedan.)_ Samma gäller 150,
 199 och 112. Ta reda på vad 190 visar när den sänds (arkivet), innan den
 får en titel.
 
@@ -101,14 +101,14 @@ i tabellen ovan (90 dagar) är cirka 165 klick på 23 000 visningar, plus
 Här finns mer att hämta än i spår A, eftersom volymen är 5–10 gånger
 större:
 
-| Sida | Visningar 90d | Klick | CTR | Pos | Kurerad i |
-| --- | --- | --- | --- | --- | --- |
-| 100 | 151 177 | 1 314 | 0,87 % | 5,0 | tidigare |
-| 300 | 120 503 | 726 | 0,60 % | 4,1 | #01 |
-| 343 | 94 524 | 602 | 0,64 % | 3,1 | #01 |
-| 101 | 10 693 | 25 | 0,23 % | 3,7 | #01 |
-| 344 | 8 009 | 27 | 0,34 % | 4,4 | #01 |
-| 106 | 4 124 | 14 | 0,34 % | 4,6 | #01 |
+| Sida | Visningar 90d | Klick | CTR    | Pos | Kurerad i |
+| ---- | ------------- | ----- | ------ | --- | --------- |
+| 100  | 151 177       | 1 314 | 0,87 % | 5,0 | tidigare  |
+| 300  | 120 503       | 726   | 0,60 % | 4,1 | #01       |
+| 343  | 94 524        | 602   | 0,64 % | 3,1 | #01       |
+| 101  | 10 693        | 25    | 0,23 % | 3,7 | #01       |
+| 344  | 8 009         | 27    | 0,34 % | 4,4 | #01       |
+| 106  | 4 124         | 14    | 0,34 % | 4,6 | #01       |
 
 Om /300 och /343 når 1 % CTR blir det ungefär +850 klick per 90 dagar,
 mer än hela spår A. Gör så här:
@@ -125,15 +125,15 @@ mer än hela spår A. Gör så här:
 GSC 90 dagar (2026-07-26 → 10-23). Nästan allt är navigerande sökningar
 efter SVT:s egen sida:
 
-| Sida | Fråga | Visningar | CTR | Pos |
-| --- | --- | --- | --- | --- |
-| 300 | `svt text 300` | 61 490 | 0,36 % | 4,3 |
-| 300 | `text tv 300` | 16 289 | 0,42 % | 3,7 |
-| 300 | `300` | 10 631 | 0,40 % | 7,0 |
-| 300 | `texttv300` | 2 516 | 3,50 % | 2,0 |
-| 343 | `343` | 23 273 | 1,16 % | 3,2 |
-| 343 | `svt text 343` | 21 412 | 0,49 % | 2,8 |
-| 343 | `text tv 343` | 11 365 | 0,40 % | 2,9 |
+| Sida | Fråga          | Visningar | CTR    | Pos |
+| ---- | -------------- | --------- | ------ | --- |
+| 300  | `svt text 300` | 61 490    | 0,36 % | 4,3 |
+| 300  | `text tv 300`  | 16 289    | 0,42 % | 3,7 |
+| 300  | `300`          | 10 631    | 0,40 % | 7,0 |
+| 300  | `texttv300`    | 2 516     | 3,50 % | 2,0 |
+| 343  | `343`          | 23 273    | 1,16 % | 3,2 |
+| 343  | `svt text 343` | 21 412    | 0,49 % | 2,8 |
+| 343  | `text tv 343`  | 11 365    | 0,40 % | 2,9 |
 
 `allsvenskan tabell` finns inte bland frågorna för /343 (bara
 `text tv allsvenskan`, 67 visningar). Ämnesfrågor ger alltså nästan inget,
@@ -180,13 +180,13 @@ GSC 2026-08-01 → 10-29, sidan `https://texttv.nu/101`: 16 klick på 8 359
 visningar (0,19 %). Mobil 0,15 % vid position 3,8, dator 0,34 % vid 6,6.
 Ingen data alls för samma fönster 2025, så sidan har börjat ranka i år.
 
-| Fråga | Klick | Visningar | CTR | Pos |
-| --- | --- | --- | --- | --- |
-| `101` | 5 | 2 184 | 0,23 % | 5,5 |
-| `svt text 101` | 2 | 1 915 | 0,10 % | 4,1 |
-| `text tv 101` | 3 | 959 | 0,31 % | 4,2 |
-| `texttv.nu` | 4 | 850 | 0,47 % | 1,0 |
-| `text 101` | 1 | 575 | 0,17 % | 3,1 |
+| Fråga          | Klick | Visningar | CTR    | Pos |
+| -------------- | ----- | --------- | ------ | --- |
+| `101`          | 5     | 2 184     | 0,23 % | 5,5 |
+| `svt text 101` | 2     | 1 915     | 0,10 % | 4,1 |
+| `text tv 101`  | 3     | 959       | 0,31 % | 4,2 |
+| `texttv.nu`    | 4     | 850       | 0,47 % | 1,0 |
+| `text 101`     | 1     | 575       | 0,17 % | 3,1 |
 
 Resten, cirka 1 800 visningar, är frågor med 1–9 visningar och noll klick,
 till stor del skräp som `101!`, `%101` och `*101#` (en skrapa eller ett
@@ -224,11 +224,11 @@ versioner i dag, `/sport/igar` och permalänkar.
 
 1. Nytt textblock på /300 (`texttv_page_text` i prod-DB:n, kräver Pärs ok).
    Utkast, kontrollera sidnumren först:
-   > Text TV 300 är sportens startsida, med dagens sportrubriker på 303–310.
-   > Resultaten finns i resultatbörsen på 330 och målservice på 376–395, där
-   > 377 har dagens matchresultat. Allsvenskans tabell ligger på 343 och SHL
-   > på 358–359. På texttv.nu sparas tidigare versioner av sidan, så du kan
-   > se hur 300 såg ut tidigare i dag och läsa gårdagens sportnyheter.
+    > Text TV 300 är sportens startsida, med dagens sportrubriker på 303–310.
+    > Resultaten finns i resultatbörsen på 330 och målservice på 376–395, där
+    > 377 har dagens matchresultat. Allsvenskans tabell ligger på 343 och SHL
+    > på 358–359. På texttv.nu sparas tidigare versioner av sidan, så du kan
+    > se hur 300 såg ut tidigare i dag och läsa gårdagens sportnyheter.
 2. Brödsmulor på /300 (Hem › Sport 300), som på /376 och /377
    (`views/breadcrumbs.php`).
 3. `Organization.sameAs` med App Store (`id607998045`) och Google Play

@@ -1,4 +1,4 @@
-**Status:** aktiv
+**Status:** aktiv — ändring 1 (toppannonsen på mobil 280 px, 2026-11-01) mäts; ändring 2–5 en åt gången efter den. Pär: AdSense-inställningar (vinjettfallet 11–14 okt, ankaret, GA4-länkning)
 **Senast uppdaterad:** 2026-11-01
 
 # Todo #22 — Granskningen 2026-10-18: det som mäts en ändring åt gången
@@ -48,13 +48,13 @@ Commit `331d675`, `df41d5e` och `524193c`:
 
 ## Ändringar som mäts (en åt gången)
 
-| Ordning | Ändring | Var | Mät |
-| ------- | ------- | --- | --- |
-| 1 | **Gjord 2026-11-01, mäts till 2026-11-15.** Toppannonsen på mobil max cirka 280 px i stället för 390×390, så att första raderna syns. Den har bäst RPM (5,85 kr, viewability 76 %), så flytta den inte. | `views/pages_current_page_top.php`, `css/tt.css` | RPM per sidvisning och blockets RPM, sidvisningar per session på mobil (5,5), 2 veckor |
-| 2 | Startsidans title med "100" och "TextTV.nu", t.ex. "SVT Text TV 100 – nyheter och resultat 377 \| TextTV.nu". `/` och `/100` delar "text tv 100" med CTR 0,1–0,3 %. Ge `/svt-text-tv` en egen vinkel. | `views/header.php` (`$is_start`), `controllers/svttexttv.php` | GSC 28 d YoY, `/377` som kontroll |
-| 3 | Canonical från en nyhetsversion till senaste versionen med samma sidnummer och rubrik samma dag. | `controllers/sida.php` → `arkiv()` | GSC: dubbletter av samma nyhet |
-| 4 | Title på /377 bara om allt annat står stilla: "Text TV 377 – Målservice och dagens resultat". Rensa "⚽️️" och "sportnördens bästa vän" ur beskrivningen. /377 är 70 % av klicken. | `views/header.php` | GSC 28 d YoY, `/` som kontroll |
-| 5 | Större Text-TV-text för den som har stor text i telefonen: artiklarna (106–199) får bryta rader, eller en "A+"-knapp. Sidzoomen gör inte texten större i dag, bara menyerna. | `css/tt.css`, `js/scripts.js` | – |
+| Ordning | Ändring                                                                                                                                                                                                 | Var                                                           | Mät                                                                                    |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| 1       | **Gjord 2026-11-01, mäts till 2026-11-15.** Toppannonsen på mobil max cirka 280 px i stället för 390×390, så att första raderna syns. Den har bäst RPM (5,85 kr, viewability 76 %), så flytta den inte. | `views/pages_current_page_top.php`, `css/tt.css`              | RPM per sidvisning och blockets RPM, sidvisningar per session på mobil (5,5), 2 veckor |
+| 2       | Startsidans title med "100" och "TextTV.nu", t.ex. "SVT Text TV 100 – nyheter och resultat 377 \| TextTV.nu". `/` och `/100` delar "text tv 100" med CTR 0,1–0,3 %. Ge `/svt-text-tv` en egen vinkel.   | `views/header.php` (`$is_start`), `controllers/svttexttv.php` | GSC 28 d YoY, `/377` som kontroll                                                      |
+| 3       | Canonical från en nyhetsversion till senaste versionen med samma sidnummer och rubrik samma dag.                                                                                                        | `controllers/sida.php` → `arkiv()`                            | GSC: dubbletter av samma nyhet                                                         |
+| 4       | Title på /377 bara om allt annat står stilla: "Text TV 377 – Målservice och dagens resultat". Rensa "⚽️️" och "sportnördens bästa vän" ur beskrivningen. /377 är 70 % av klicken.                        | `views/header.php`                                            | GSC 28 d YoY, `/` som kontroll                                                         |
+| 5       | Större Text-TV-text för den som har stor text i telefonen: artiklarna (106–199) får bryta rader, eller en "A+"-knapp. Sidzoomen gör inte texten större i dag, bara menyerna.                            | `css/tt.css`, `js/scripts.js`                                 | –                                                                                      |
 
 ### Ändring 1: toppannonsen på mobil (2026-11-01)
 
@@ -74,10 +74,10 @@ mot desktop (0,839 före), inte mobil rakt av.
 **Baslinje AdSense 2026-10-18–10-31** (`DOMAIN_NAME==texttv.nu`), blocket
 5061315605 ("innan sidans huvudtext"):
 
-| Plattform | Intäkt | Visningar | RPM (visning) | Viewability |
-| --- | --- | --- | --- | --- |
-| Mobil (high-end) | 494 kr | 86 419 | 5,72 kr | 69,7 % |
-| Desktop | 264 kr | 40 919 | 6,46 kr | 78,4 % |
+| Plattform        | Intäkt | Visningar | RPM (visning) | Viewability |
+| ---------------- | ------ | --------- | ------------- | ----------- |
+| Mobil (high-end) | 494 kr | 86 419    | 5,72 kr       | 69,7 %      |
+| Desktop          | 264 kr | 40 919    | 6,46 kr       | 78,4 %      |
 
 Sajten på mobil: 2 044 kr på 125 034 sidvisningar, RPM 16,34 kr per
 sidvisning (desktop 9,93). Blocket är 24 % av mobilintäkten; resten är

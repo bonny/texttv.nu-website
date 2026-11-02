@@ -5,8 +5,8 @@ description: "Hantera projektets todos i `todo.md` + `todos/`. Använd när anv�
 
 # /todo — todo-hantering
 
-<!-- Samma kärna i brottsplatskartan-web, brottsplatskartan-app och texttv.nu-website.
-     Ändra i alla tre samtidigt; bara avsnittet "Projektspecifikt" längst ner skiljer sig. -->
+<!-- Samma kärna i brottsplatskartan-web, brottsplatskartan-app, texttv.nu-website och texttv.nu (app).
+     Ändra i alla fyra samtidigt; bara avsnittet "Projektspecifikt" längst ner skiljer sig. -->
 
 Todos finns på två platser och måste hållas synkade:
 
@@ -238,6 +238,5 @@ Be användaren om skälet om det inte gavs i argumenten ("Vad är skälet?").
 
 ## Projektspecifikt
 
-- `todos.py`-id: `tt`. Prefix i svar: `TT-34`. Appen (`../texttv.nu (app)/todo.md`, id `tt-app`) har ett eget
-  engelskt Now/Later/Done-format utan nummer och hanteras inte av den här skillen. Skriptet visar
-  dess deadlines ("before 2026-12-02") i dag- och veckovyn.
+- `todos.py`-id: `tt`. Prefix i svar: `TT-34`. Appens backlog (`tt-app`, `TT-APP-01`) ligger i
+  `../texttv.nu (app)/` med samma konvention och egen `/todo`-skill.

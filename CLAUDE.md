@@ -162,6 +162,7 @@ Production runtime details (PHP version, OPcache, nginx HTTP cache, deploy flow,
 ## Conventions and gotchas
 
 - **Comments and code are in Swedish.** Match the surrounding language when adding comments, commit messages, or user-facing strings. Variable names and identifiers are usually English.
+- **Dates in chat replies to Pär:** day and short Swedish month, "2 nov (idag)", "3 nov (imorgon)", "1 nov (igår)", "4 nov". Never "11-03". Files keep ISO `YYYY-MM-DD`.
 - **Page numbers are always 3 digits** (100–999). The router's `(\d{3})` regex is the source of truth — anything else falls through to other routes (textsida, blogg, etc.).
 - The importer's CodeIgniter sibling (`texttv.nu/codeigniter/application/models/texttv_page.php`) reads `page_content` via SQL `UNCOMPRESS(...)`. The Laravel side does the inverse with PHP's `gzuncompress(substr(..., 4))`. **Don't change the storage format on one side without the other.**
 - The importer scheduler is the only thing that should write to `texttv` in production. Running `texttv:import` locally against a shared DB will pollute it.

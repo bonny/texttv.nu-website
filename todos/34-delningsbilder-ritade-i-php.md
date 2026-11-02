@@ -1,5 +1,5 @@
 **Status:** väntar — deployad 2026-10-28 (`11646b9`). 2026-11-01: `shares/` städas efter mtime, 4,2 GB gamla JPEG raderade, `limit_req` 2/s för `/api/screenshot`. Klar efter uppföljningen
-**Senast uppdaterad:** 2026-11-01
+**Senast uppdaterad:** 2026-11-02
 
 # Todo #34 — Delningsbilder ritade i PHP i stället för skärmdump
 
@@ -199,6 +199,12 @@ Discover; appen delar hela sidan. Webben har cirka 2,6 delningar per dag
 (#24), och en andra variant av varje bild ger dubbelt så många filer i
 `shares/v2` och fler anrop från botarna. Den stående bilden beskärs i
 Facebook till överkanten, där sidhuvudet och de första raderna står.
+
+Uppföljning 2026-11-02: nya cron-raden körde 01:45 (första natten). `shares/`
+12 370 filer, 1,1 GB, inga äldre än 7 dagar, inga `.tmp`. Äldsta i `v2` är från
+2026-10-28 19:17, så inget har raderats än; uppföljningen flyttad till 2026-11-06.
+429 för `/api/screenshot`: 43 av 7 023 anrop 2026-11-01, alla `curl` från en IP
+16:57–17:15 (testet av spärren), 0 i dag. Inga sociala crawlers.
 
 ## Risker
 

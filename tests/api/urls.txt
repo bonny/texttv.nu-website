@@ -1,7 +1,7 @@
 # Anrop som jämförs av tests/api/run.sh. En sökväg per rad, kommentarer med #.
 # Platshållare: {TODAY} {YESTERDAY} {DAYS_AGO_20} {ID100} {ID377}
 #
-# Utgångspunkten är vad appen (texttv.nu (app)/src) faktiskt anropar, plus
+# Utgångspunkten är vad appen (texttv-nu-smartare/src) faktiskt anropar, plus
 # varianter som syns i prod-loggarna och några felfall. Lägg till rader här
 # när en endpoint ändras.
 

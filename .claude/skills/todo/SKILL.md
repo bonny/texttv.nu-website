@@ -33,6 +33,9 @@ Reglerna står i `todos/README.md`; kort:
 - Klassificera alltid på statusordet, gissa inte ur fritexten. Ändras läget:
   byt ordet både i filhuvudet och i indexet.
 
+**Byt status med `todos.py satt <id> <nr> "<status>"`**: den skriver både filhuvudet och raden i
+`todo.md`, så att de inte glider isär (kontrollen flaggar det annars).
+
 ## Skriptet
 
 `../../.claude/skills/todos/todos.py` (i `~/Projects`; finns den inte på datorn,
@@ -135,6 +138,11 @@ gjord och bara inte avbockad.
 
 ## done <nr>
 
+**Kör `todos.py klar <id> <nr> "<vad som gjordes>"`.** Skriptet gör steg 2–4 nedan (filhuvud, `git mv`,
+rättade länkar i filen och i repot, raden till Klara, uppföljningar som pekar på filen) och säger till
+om Beroenden eller Föreslagen ordning fortfarande nämner todon. Det som återstår för hand är de två
+avsnitten. Stegen nedan beskriver vad som ska hända, om skriptet inte finns på datorn.
+
 Alla steg krävs — det här är hela poängen med skillen.
 
 1. **Hitta filen:** `todos/<NN>-*.md` (måste ligga i aktiv-mappen — om den redan är i `done/` eller `rejected/`, stoppa och säg det).
@@ -176,6 +184,10 @@ Som `done` men:
 Be användaren om skälet om det inte gavs i argumenten ("Vad är skälet?").
 
 ## new <titel>
+
+**Kör `todos.py ny <id> "<titel>" [--status "<status>"]`.** Skriptet gör steg 1–4 nedan (nummer,
+slug, fil från mallen, rad i Aktiva). Ge `väntar` en uppföljning med
+`todos.py uppfoljning <id> <nr> <datum> "<åtgärd>"` (sorteras in automatiskt).
 
 1. **Hitta nästa nummer:** lista alla `todos/`-, `done/`- och `rejected/`-filer, plocka ut prefix-numret (`<NN>`), ta max + 1. Zero-pad till 2 siffror.
 2. **Skapa slug** från titeln: lowercase, mellanslag→bindestreck, ta bort/translitera åäö (`å`/`ä`→`a`, `ö`→`o`), strip-a interpunktion. Max ~50 tecken.

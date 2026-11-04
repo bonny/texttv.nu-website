@@ -6,19 +6,20 @@ Detaljer om hur prod-servern är uppsatt. Läs när du jobbar med deploy, cache-
 
 - **Hostname:** `TextTV-hetzner`. Enda prod-servern (`current-server` togs bort i 04ea660/795a4f2). **2 vCPU, 7,6 GB RAM, 2 GB swap** (`/swapfile`, swappiness 10, sedan 2026-10-25). Disk: 75 GB, 24 % använt 2026-08-09 (var 52 % 2026-05-19 — loggstädningen i logrotate-fixen tog ner den).
 - **SSH:** `ssh texttv.nu` loggar in som `root` (alias i `~/.ssh/config`). För löpande hälsokoll finns skillen [`prod-health`](.claude/skills/prod-health/SKILL.md) — den har verifierade kommandon och tröskelvärden för load, minne, php-fpm och importer-färskhet.
-- **Debian 13.7 (trixie)**, kärna 6.12. Uppgraderad från Debian 12 (bookworm) 2026-10-31 (todo #17). Debian 13 får säkerhetsstöd till 2028, LTS till 2030.
+- **Debian 13.7 (trixie)**, kärna 6.12 (`6.12.115+deb13.1` sedan den automatiska omstarten 2026-11-03). Uppgraderad från Debian 12 (bookworm) 2026-10-31 (todo #17). Debian 13 får säkerhetsstöd till 2028, LTS till 2030.
 - **PHP 8.4.27** runtime (Debians paket `php8.4-fpm`, NTS, med Zend OPcache), verifierat 2026-10-31. Var 8.2.31 fram till uppgraderingen. PHP 8.4 får säkerhetsfixar uppströms till 2028-12-31.
-  - Importern kör Laravel 13.39 sedan 2026-11-01 (todo #15), utan deprecations på 8.4. Fram till dess gav Laravel 8 deprecations i nginx `error.log` och på CLI.
-  - OBS: `.github/workflows/deploy-website.yml` kör PHPStan med PHP 8.4 (som prod). Deploy-jobbet sätter inte upp PHP (det oanvända 7.4-steget togs bort 2026-10-31). Inget av dem är runtime.
-  - Importerns `composer.json` kräver `^8.3` sedan 2026-11-01 (Laravel 13, todo #15).
+    - Importern kör Laravel 13.39 sedan 2026-11-01 (todo #15), utan deprecations på 8.4. Fram till dess gav Laravel 8 deprecations i nginx `error.log` och på CLI.
+    - OBS: `.github/workflows/deploy-website.yml` kör PHPStan med PHP 8.4 (som prod). Deploy-jobbet sätter inte upp PHP (det oanvända 7.4-steget togs bort 2026-10-31). Inget av dem är runtime.
+    - Importerns `composer.json` kräver `^8.3` sedan 2026-11-01 (Laravel 13, todo #15).
 - **Tidszon: `Europe/Stockholm`** både för servern (`timedatectl`) och PHP (`date.timezone` via egen ini, `/etc/php/8.4/{fpm,cli}/conf.d/99-texttv.ini`), verifierat 2026-10-31. `date_added` sparas i svensk tid, och dygnsgränserna i listorna (`/sida/delat`, Mest läst, `/nyheter/idag`) räknas med PHP:s `strtotime("today")`, så de två måste vara samma. MariaDB följer systemets zon (`NOW()`, `CURDATE()`). Den lokala Docker-stacken sätter samma zon för PHP och MariaDB (`compose.yaml`).
 - **MariaDB 11.8.6** (inte MySQL — service-alias `mysql` finns men det är MariaDB som körs). Verifierad version 2026-10-31 (10.11.19 före Debian 13). `mysqldump` är en symlänk till `mariadb-dump`, `mysql`-klienten finns kvar.
-  - Egen konfig i `/etc/mysql/mariadb.conf.d/70-texttv.cnf`: `collation_server = utf8mb4_general_ci` och `character_set_collations = utf8mb3=utf8mb3_general_ci,utf8mb4=utf8mb4_general_ci`, så att 11.8 inte väljer `uca1400` som default för nya tabeller och kolumner. Medvetet beslut: ingen uca1400. Den lokala stacken sätter samma sak (`compose.yaml`).
+    - Egen konfig i `/etc/mysql/mariadb.conf.d/70-texttv.cnf`: `collation_server = utf8mb4_general_ci` och `character_set_collations = utf8mb3=utf8mb3_general_ci,utf8mb4=utf8mb4_general_ci`, så att 11.8 inte väljer `uca1400` som default för nya tabeller och kolumner. Medvetet beslut: ingen uca1400. Den lokala stacken sätter samma sak (`compose.yaml`).
+    - `innodb_buffer_pool_size = 2G` i samma fil sedan 2026-10-28 (#31, var Debians default 128 MB), mot ~2,1 GB InnoDB-data. `innodb_flush_method` är `O_DIRECT` sedan 11.8 (dess default), så det som inte ryms i poolen läses från disk, inte ur page cache. Minne 2026-11-04 efter 1,5 dygns uptime: ~2,7 GB använt, ~4,9 GB tillgängligt.
 - **`wkhtmltopdf` är borttaget** (2026-10-31). Delningsbilderna ritas i PHP med GD sedan todo #34.
 - **nginx + php-fpm + MariaDB** (LEMP). Systemd-enheterna heter exakt `nginx`, `php8.4-fpm`, `mariadb`.
 - **Server paths:**
-  - Website: `/usr/share/nginx/texttv.nu/`
-  - **Importer:** `/usr/share/nginx/l.texttv.nu/importer/` — annan path än website, körs som separat Laravel-app på samma server.
+    - Website: `/usr/share/nginx/texttv.nu/`
+    - **Importer:** `/usr/share/nginx/l.texttv.nu/importer/` — annan path än website, körs som separat Laravel-app på samma server.
 - **Ingen CDN framför** (inga `cf-cache-status` eller `via`-headers i responsen).
 - **DB-namn i prod:** `texttv.nu` (med punkt!) för sid-innehåll, `texttv_stats` för pageviews/share-counts. Lokalt heter motsvarande DB:s `texttv_nu` resp. `texttv_stats` — namn-skillnaden är dolt under `application/config/database.php`-logiken.
 - **nginx-vhost för website:** `/etc/nginx/sites-enabled/texttv.nu`. Servar **två hostnames från samma server-block:** `texttv.nu` och `api.texttv.nu`. Båda träffar samma codeigniter-app. (Migreringsaliasen `*-hetzner.texttv.nu` saknade DNS och togs bort ur vhostarna 2026-10-15, tillsammans med deras certbot-cert.)
@@ -126,6 +127,7 @@ pm.max_spare_servers = 3
 > skillnad från `conf.d/*.conf` och `pool.d/*.conf`. En `.bak`-fil där laddas
 > som en extra vhost och ger dubbla server-block. Lägg backuper utanför
 > `/etc/nginx/`, t.ex. `/root/config-backups-YYYY-MM-DD/`.
+
 - Workers drar ~28 MB RES i snitt (max 37 MB), så minnet är inte den
   begränsande faktorn — 5 workers = ~110 MB av 7,6 GB.
 
@@ -148,10 +150,10 @@ pm.max_spare_servers = 3
 
 `crontab -l` för root (user-cron och root-cron är identiska):
 
-| Schema           | Kommando                                                                                         | Syfte                                     |
-| ---------------- | ------------------------------------------------------------------------------------------------ | ----------------------------------------- |
-| `* * * * *`      | `cd /usr/share/nginx/l.texttv.nu/importer && php artisan schedule:run` (max_execution_time=600)  | **Laravel-schemaläggaren** för importern  |
-| `45 01 * * *`    | `find /usr/share/nginx/texttv.nu/shares -type f \( -name "*.jpg" -o -name "*.png" \) -mtime +7 -delete; find /usr/share/nginx/texttv.nu/shares/v2 -name "*.tmp" -mmin +60 -delete` | Delningsbilder äldre än 7 dagar (todo #34). Efter **mtime**: deployens `chown -R` ändrar ctime. En borttagen bild ritas om på ~50 ms nästa gång den hämtas |
+| Schema        | Kommando                                                                                                                                                                           | Syfte                                                                                                                                                      |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `* * * * *`   | `cd /usr/share/nginx/l.texttv.nu/importer && php artisan schedule:run` (max_execution_time=600)                                                                                    | **Laravel-schemaläggaren** för importern                                                                                                                   |
+| `45 01 * * *` | `find /usr/share/nginx/texttv.nu/shares -type f \( -name "*.jpg" -o -name "*.png" \) -mtime +7 -delete; find /usr/share/nginx/texttv.nu/shares/v2 -name "*.tmp" -mmin +60 -delete` | Delningsbilder äldre än 7 dagar (todo #34). Efter **mtime**: deployens `chown -R` ändrar ctime. En borttagen bild ritas om på ~50 ms nästa gång den hämtas |
 
 Watchdog-raden som dödade hängda `texttv:import` (2024-08-11) finns inte längre (kontrollerat 2026-11-01; HTTP-timeouten i importern kom med todo #29). Inaktiverade rader (kommenterade ut): Twitter-poster (2023-08-25, Twitter dog), letsencrypt-renew (har egen i `/etc/cron.d/certbot`). De bortkommenterade mysql DELETE-jobben, med root-lösenordet i klartext, togs bort 2026-11-01. Före 2026-11-01 kördes `/root/texttv-tools/remove-old-share-images.js`, som städade efter ctime och därför aldrig tog något.
 
@@ -202,16 +204,16 @@ Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";
 
 ## Loggar
 
-| Path                                | Innehåll                       | Storlek (2026-10-24)               |
-| ----------------------------------- | ------------------------------ | ---------------------------------- |
-| `/var/log/nginx/access.log`         | HTTP access (alla requests)    | **0,75–1,1 GB per dygn**, roteras dagligen, 14 generationer (gz 46–76 MB). Hela `/var/log/nginx` ~2,5 GB. 3–4,5 M requests per dygn |
-| `/var/log/nginx/error.log`          | nginx-fel                      | ~200 KB                            |
-| `/var/log/php8.4-fpm.log`           | php-fpm-fel + PHP `error_log`  | ~1,3 MB per vecka (rotateras veckovis), nästan bara slowloggens trace-rader. Var 6,6 KB 2026-08-09, före slowloggen |
-| `/var/log/php8.4-fpm.log.N.gz`      | Roterade php-fpm-loggar        | ~75–140 KB / vecka sedan slowloggen |
-| `/var/log/php8.4-fpm.slow.log`      | Stacktrace per request över 3 s | ~1,2 MB, roteras veckovis         |
-| MariaDB error log                   | _Ej i `/var/log/mysql/`_ — troligen via `journalctl -u mariadb` |                                    |
-| Laravel app-log (importer)          | `/usr/share/nginx/l.texttv.nu/importer/storage/logs/laravel.log` | 5–20 KB per dygn (var 13 MB innan rotationen fungerade) — roteras dagligen via `/etc/logrotate.d/texttv-importer` (verifierat 2026-09-05, se nedan) |
-| CodeIgniter app-log (website)       | `/usr/share/nginx/texttv.nu/codeigniter/application/logs/` | Tomt (bara `index.html`) — CI-logging avstängd eller inte konfigurerad |
+| Path                           | Innehåll                                                         | Storlek (2026-10-24)                                                                                                                                |
+| ------------------------------ | ---------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/var/log/nginx/access.log`    | HTTP access (alla requests)                                      | **0,75–1,1 GB per dygn**, roteras dagligen, 14 generationer (gz 46–76 MB). Hela `/var/log/nginx` ~2,5 GB. 3–4,5 M requests per dygn                 |
+| `/var/log/nginx/error.log`     | nginx-fel                                                        | ~200 KB                                                                                                                                             |
+| `/var/log/php8.4-fpm.log`      | php-fpm-fel + PHP `error_log`                                    | ~1,3 MB per vecka (rotateras veckovis), nästan bara slowloggens trace-rader. Var 6,6 KB 2026-08-09, före slowloggen                                 |
+| `/var/log/php8.4-fpm.log.N.gz` | Roterade php-fpm-loggar                                          | ~75–140 KB / vecka sedan slowloggen                                                                                                                 |
+| `/var/log/php8.4-fpm.slow.log` | Stacktrace per request över 3 s                                  | ~1,2 MB, roteras veckovis                                                                                                                           |
+| MariaDB error log              | _Ej i `/var/log/mysql/`_ — troligen via `journalctl -u mariadb`  |                                                                                                                                                     |
+| Laravel app-log (importer)     | `/usr/share/nginx/l.texttv.nu/importer/storage/logs/laravel.log` | 5–20 KB per dygn (var 13 MB innan rotationen fungerade) — roteras dagligen via `/etc/logrotate.d/texttv-importer` (verifierat 2026-09-05, se nedan) |
+| CodeIgniter app-log (website)  | `/usr/share/nginx/texttv.nu/codeigniter/application/logs/`       | Tomt (bara `index.html`) — CI-logging avstängd eller inte konfigurerad                                                                              |
 
 > ✅ **8 GB-problemet med `laravel.log` är löst** — men rotationen fungerade inte förrän 2026-09-05.
 > 2026-05-19 låg filen på 8,0 GB; `LOG_LEVEL=warning` höll den sedan på ~13 MB, vilket dolde att
@@ -222,12 +224,12 @@ Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";
 >    (maj 2026) matchade samma glob. logrotate vägrar dubbletter och hoppade över den nyare.
 >    Den gamla är flyttad till `/root/laravel-texttv.logrotate.removed-2026-09-05`.
 > 2. **`ProtectSystem=full` i `logrotate.service`** gör `/usr` skrivskyddat för processen, och
->    loggen ligger under `/usr/share`. Både rename och gzip föll med *Read-only file system*.
+>    loggen ligger under `/usr/share`. Både rename och gzip föll med _Read-only file system_.
 >    Drop-in `/etc/systemd/system/logrotate.service.d/importer-log.conf` sätter
 >    `ReadWritePaths=` på loggkatalogen.
 >
 > Verifierat med en forcerad rotation under samma sandbox-inställningar (`systemd-run -p
-> ProtectSystem=full -p ReadWritePaths=… logrotate -f`): `laravel.log.1` fick dagens datum,
+ProtectSystem=full -p ReadWritePaths=… logrotate -f`): `laravel.log.1` fick dagens datum,
 > `laravel.log` trunkerades, `laravel.log.2.gz` är 2025-filen. Kolla `systemctl --failed` i
 > hälsokollen — det var den som avslöjade det här.
 

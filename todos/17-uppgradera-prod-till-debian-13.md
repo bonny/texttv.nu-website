@@ -1,5 +1,5 @@
-**Status:** väntar — D klar 2026-10-31: prod på Debian 13.7, PHP 8.4, MariaDB 11.8, nertid 16 min. E klar utom städningen; D.11 och `/root`-städningen efter en vecka
-**Senast uppdaterad:** 2026-10-31
+**Status:** väntar — D klar 2026-10-31: prod på Debian 13.7, PHP 8.4, MariaDB 11.8, nertid 16 min. E klar; första `/root`-städningen och Debian 12-biblioteken gjorda 2026-11-04, kvar: snapshot, resten av `/root`, autoremove, D.11
+**Senast uppdaterad:** 2026-11-04
 
 # Todo #17 — Uppgradera prod till Debian 13 (trixie) och PHP 8.4
 
@@ -158,37 +158,37 @@ test-api`, importerns PHPUnit; webben och importern på PHP 8.4 i
     där kan låsa paket som kräver 8.3+). Laravel 9/10 stöder inte 8.4: kör
     #15 till L12 på 8.2 före OS-bytet, eller ta OS-bytet först: Laravel 8 på PHP 8.4 fungerade i A.9 nedan (tester, import), bara deprecations. **Beslut 2026-10-29: OS-bytet (D) först**, L12 sedan på PHP 8.4. L9–L11 deployas inte (se #15).
 
-        ✅ **Kört 2026-10-28** med prods nattdump (2026-10-28 12:28) i
-        `mariadb:10.11` och `mariadb:11.8.9`, båda med kopia av `70-texttv.cnf`,
-        och webben i prod-läge (utan `APP_ENV`) på `serversideup/php` 8.2 och
-        8.4.27 (trixie):
+            ✅ **Kört 2026-10-28** med prods nattdump (2026-10-28 12:28) i
+            `mariadb:10.11` och `mariadb:11.8.9`, båda med kopia av `70-texttv.cnf`,
+            och webben i prod-läge (utan `APP_ENV`) på `serversideup/php` 8.2 och
+            8.4.27 (trixie):
 
-        - Dumpen läses in i 11.8 på 59 s; alla tabeller behåller
-          `utf8mb3/utf8mb4_general_ci`. `SET NAMES utf8` ger
-          `utf8mb3_general_ci`, en ny tabell `utf8mb4_general_ci`, så låset i
-          A.3 fungerar.
-        - Frågeplanerna i `17-explain-baslinje.sql` är identiska (typ, index,
-          Extra) i 10.11 och 11.8: ingen ny filesort. Utdata i
-          [`17-explain-baslinje-11.8-lokalt.txt`](17-explain-baslinje-11.8-lokalt.txt).
-        - 63 adresser (API, sidor, arkiv, gammalt format, delningsbilder png/jpg,
-          flersidig delning, 404): PHP 8.4 mot 8.2 på samma DB **byte-identiska
-          63/63**, även bilderna. 8.4 + 11.8 mot 8.2 + 10.11: fem skillnader,
-          fyra av dem tid/egna testanrop (`/status`, health, sitemap, share-count).
-        - **Enda verkliga skillnaden:** `FROM_UNIXTIME(0)` är `NULL` i 11.8
-          (1970-01-01 i 10.11), så `/api/updated/<sida>/0` svarar "ingen
-          uppdatering" i stället för en godtycklig rad från 2015. Appen skickar
-          aktuell tid; 1 av 716 712 `api/updated`-anrop i dagens nginx-logg hade
-          `0`. Ingen åtgärd.
-        - Dev-läge (`E_ALL`): samma varningar i 8.2 och 8.4 (CI 2:s
-          `AllowDynamicProperties`-varningar och `log_message`), inga nya. Prod-läge
-          8.4: inget i loggen.
-        - Importern på 8.4: `composer install` från låsfilen OK (A.1), PHPUnit 98
-          tester OK (1 risky, utan assertions). Deprecations från Laravel 8 och
-          Monolog (implicit nullable) går till Laravels deprecations-kanal, inte
-          undantag. Riktig import av 100, 101, 377, 401 mot 11.8: sparade,
-          `IMPORT_SUCCESS`, och webben 8.4 visar dem och ritar delningsbilden.
-        - Docker-VM:en (7,7 GB) OOM-dödade 10.11-containern en gång med två
-          buffer pools på 1 GB parallellt med övriga stackar; ingen produktfråga.
+            - Dumpen läses in i 11.8 på 59 s; alla tabeller behåller
+              `utf8mb3/utf8mb4_general_ci`. `SET NAMES utf8` ger
+              `utf8mb3_general_ci`, en ny tabell `utf8mb4_general_ci`, så låset i
+              A.3 fungerar.
+            - Frågeplanerna i `17-explain-baslinje.sql` är identiska (typ, index,
+              Extra) i 10.11 och 11.8: ingen ny filesort. Utdata i
+              [`17-explain-baslinje-11.8-lokalt.txt`](17-explain-baslinje-11.8-lokalt.txt).
+            - 63 adresser (API, sidor, arkiv, gammalt format, delningsbilder png/jpg,
+              flersidig delning, 404): PHP 8.4 mot 8.2 på samma DB **byte-identiska
+              63/63**, även bilderna. 8.4 + 11.8 mot 8.2 + 10.11: fem skillnader,
+              fyra av dem tid/egna testanrop (`/status`, health, sitemap, share-count).
+            - **Enda verkliga skillnaden:** `FROM_UNIXTIME(0)` är `NULL` i 11.8
+              (1970-01-01 i 10.11), så `/api/updated/<sida>/0` svarar "ingen
+              uppdatering" i stället för en godtycklig rad från 2015. Appen skickar
+              aktuell tid; 1 av 716 712 `api/updated`-anrop i dagens nginx-logg hade
+              `0`. Ingen åtgärd.
+            - Dev-läge (`E_ALL`): samma varningar i 8.2 och 8.4 (CI 2:s
+              `AllowDynamicProperties`-varningar och `log_message`), inga nya. Prod-läge
+              8.4: inget i loggen.
+            - Importern på 8.4: `composer install` från låsfilen OK (A.1), PHPUnit 98
+              tester OK (1 risky, utan assertions). Deprecations från Laravel 8 och
+              Monolog (implicit nullable) går till Laravels deprecations-kanal, inte
+              undantag. Riktig import av 100, 101, 377, 401 mot 11.8: sparade,
+              `IMPORT_SUCCESS`, och webben 8.4 visar dem och ritar delningsbilden.
+            - Docker-VM:en (7,7 GB) OOM-dödade 10.11-containern en gång med två
+              buffer pools på 1 GB parallellt med övriga stackar; ingen produktfråga.
 
 10. ✅ 2026-10-28: dumpen 2026-10-28 (xz 1 GB) inläst i `mariadb:10.11` på 50 s utan fel; `texttv` 1 575 935 rader, samma som prod före dumptiden. Testa att nattdumpen går att läsa in i en `mariadb:10.11`-container, så
     att reserven är prövad.
@@ -470,6 +470,16 @@ lokalt matchar de gamla listorna och prod de nya; ta inte bort någon av dem.
   (ta bort skyddet först).
 - `apt autoremove` efter en vecka utan problem (tar bort 6.1-kärnan;
   `apt-mark auto` på den först).
+    - 2026-11-04: rc-kärnan `linux-image-6.1.0-53-amd64` och 31 föråldrade
+      Debian 12-paket utan installerade beroenden purgade (`libicu72`,
+      `libperl5.36`, `python3.11`, `libabsl20220623`, `libavif15`, `libcups2`,
+      `libaio1`, `libzip4`, `libllvm15` m.fl.). Inget av dem var laddat av någon
+      process eller länkat från nginx, php8.4, PHP-tilläggen eller `mariadbd`.
+      Kvar för autoremove: 103 paket, mest Qt5/Mesa/X11 efter wkhtmltopdf
+      (inget av dem används av körande processer), plus 6.1.0-54 (manuell).
+      `apt list '~o'` visar nu bara `hc-utils`, `tldr` och 6.1.0-54.
+    - 2026-11-04: rollback-backuperna från A3/A6 och `b2-tmux.log`,
+      `b3-purge.log` raderade ur `/root`.
 - `mysql` → `mariadb` i prod-health-skillen om `mysql` saknas (C.4).
 - Frivilligt: ta bort de oanvända `/etc/ssh/ssh_host_dsa_key*`.
 - **Från Debian-granskningen 2026-10-31** (läsande, inget kritiskt): - Bör snart: flytta bort föråldrade cloud-init-conffiler (`dpkg-query -W

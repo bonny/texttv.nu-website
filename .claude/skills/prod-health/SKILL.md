@@ -26,17 +26,17 @@ varning eller en slowlog på ~100 per dygn är normalläge, inte en incident.
 
 ## Tolka argumentet
 
-| Argument                 | Visar                                                   |
-| ------------------------ | ------------------------------------------------------- |
-| (tomt) / `all`           | Sammanfattning av allt nedan, i en SSH-anslutning       |
-| `cpu`                    | Load + topprocesser                                     |
-| `mem` / `memory`         | RAM + swap                                              |
-| `disk`                   | Diskutrymme + största loggarna                          |
-| `services` / `systemd`   | nginx, php8.4-fpm, mariadb                              |
-| `fpm`                    | php-fpm-poolen: workers, mättnadsvarningar, socket-kö   |
-| `importer`               | Levererar importern färska sidor? Felfrekvens?          |
-| `http`                   | Statuskod, responstid, `X-Cache` utifrån                |
-| `updates`                | apt-ändringar, väntande paket, needrestart, PHP-version |
+| Argument               | Visar                                                   |
+| ---------------------- | ------------------------------------------------------- |
+| (tomt) / `all`         | Sammanfattning av allt nedan, i en SSH-anslutning       |
+| `cpu`                  | Load + topprocesser                                     |
+| `mem` / `memory`       | RAM + swap                                              |
+| `disk`                 | Diskutrymme + största loggarna                          |
+| `services` / `systemd` | nginx, php8.4-fpm, mariadb                              |
+| `fpm`                  | php-fpm-poolen: workers, mättnadsvarningar, socket-kö   |
+| `importer`             | Levererar importern färska sidor? Felfrekvens?          |
+| `http`                 | Statuskod, responstid, `X-Cache` utifrån                |
+| `updates`              | apt-ändringar, väntande paket, needrestart, PHP-version |
 
 ## Kommandon
 
@@ -76,8 +76,11 @@ ssh texttv.nu "free -h"
 ```
 
 Tolka: `available` är det som räknas, inte `free` — Linux räknar buff/cache
-som återanvändbart, och här är buff/cache ~6.6 GB medan `free` visar ~300 MB.
-Det är friskt, inte alarmerande. Normalläge: ~1 GB `used`, ~6.4 GB `available`.
+som återanvändbart. Normalläge 2026-11-04 (1,5 dygns uptime efter omstarten 3 nov):
+~2.7 GB `used`, ~3.3 GB buff/cache, ~4.9 GB `available`. `used` är högre än före
+2026-10-28 för att MariaDB:s buffer pool då höjdes till 2 GB (#31); poolen fylls
+under de första dygnen efter en omstart, så räkna med att `used` växer något dit.
+Flagga om `available` går under ~2 GB.
 **Servern har en 2 GB swapfil** (`/swapfile`, swappiness 10, tillagd
 2026-10-25 som skyddsnät, samma upplägg som eskapism och brottsplatskartan).
 Några MB använd swap är normalt; flagga om den växer till hundratals MB.
@@ -133,7 +136,7 @@ tröskeln slog till. `imagegif()`/`TeletextCharsExtractor` = CPU-bunden
 bildgenerering. En PDO/mysqli-rad högst upp = DB-väntan.
 
 Den översta raden är nästan alltid `mysqli_query()` i CI:s drivrutin och
-säger inget om *vilken* query. Gruppera i stället på första raden i
+säger inget om _vilken_ query. Gruppera i stället på första raden i
 `application/`, och räkna per dag för att se trenden. Loggen roteras veckovis
 (gzippade generationer: räkna rader, inte filstorlek):
 
@@ -171,7 +174,7 @@ Tolka:
   så antalet varningar är "sedan senaste rotation" — inte sedan tidernas
   begynnelse. Jämför med tidsstämplarna, inte bara antalet. Filen växer
   ~1,3 MB per vecka, nästan bara slowloggens `about to trace`/`finished
-  trace`-rader. Storleken säger alltså inget; räkna `max_children`-raderna.
+trace`-rader. Storleken säger alltså inget; räkna `max_children`-raderna.
 - Socket: `/run/php/php8.4-fpm.sock`, backlog 4096 (nginx går via alternativ-symlänken
   `/run/php/php-fpm.sock`). Stigande `Recv-Q` i
   `ss -lx` = anslutningar hinner inte plockas upp.
@@ -226,7 +229,8 @@ Tolka:
 ssh texttv.nu 'ps -eo etimes=,args= | grep "texttv:import" | grep -v grep | head -3'
 ```
 
-  Rader här = import pågår i detta ögonblick.
+Rader här = import pågår i detta ögonblick.
+
 - **Misstänker du att en viss sida fastnat: kolla först importloggen för
   sidan.** Varje körning skriver en rad, även när inget ändrats:
 
@@ -234,10 +238,11 @@ ssh texttv.nu 'ps -eo etimes=,args= | grep "texttv:import" | grep -v grep | head
 ssh texttv.nu 'mariadb -N -e "SELECT import_result, created_at FROM \`texttv.nu\`.page_imports_logs WHERE page_num=401 ORDER BY id DESC LIMIT 5"'
 ```
 
-  `NOT_IMPORTED_PAGE_NOT_CHANGED` med färska tider = importen körs och SVT
-  har inte ändrat sidan. Inga rader på längre tid än sidans intervall i
-  `Kernel.php` (nyheter 2 min, väder 30 min, statiska sidor veckovis) = den
-  sidan importeras inte. `NOT_IMPORTED_EXCEPTION` = hämtningen felar.
+`NOT_IMPORTED_PAGE_NOT_CHANGED` med färska tider = importen körs och SVT
+har inte ändrat sidan. Inga rader på längre tid än sidans intervall i
+`Kernel.php` (nyheter 2 min, väder 30 min, statiska sidor veckovis) = den
+sidan importeras inte. `NOT_IMPORTED_EXCEPTION` = hämtningen felar.
+
 - **Fortfarande oklart: jämför med SVT:s original**, samma URL som
   importern hämtar (`https://www.svt.se/text-tv/{n}`; `/text-tv/webb/{n}`
   ger samma data). Texten ligger i `__NEXT_DATA__` under
@@ -257,12 +262,12 @@ ssh texttv.nu 'mariadb -N -e "SELECT import_result, created_at FROM \`texttv.nu\
 ssh texttv.nu 'grep -oE "^\[[0-9]{4}-[0-9]{2}-[0-9]{2}" /usr/share/nginx/l.texttv.nu/importer/storage/logs/laravel.log | sort | uniq -c | tail -10'
 ```
 
-  **1–9 fel/dag är normalt.** Det är nästan uteslutande `cURL error 18/35`
-  mot svt.se — transienta nätverksfel, inte vår bugg, och sidan hämtas om
-  nästa varv. Verifierad baslinje 2026-08-01→09: 40, 6, 9, 2, 1, 3, 2, 0, 1.
-  **Dagar över ~20 är värda att titta på** — antingen strular svt.se eller så
-  har importern gått sönder mot ett ändrat sidformat (t.ex.
-  `Undefined array key` från `Importer.php`, som är vår bugg, inte SVT:s).
+**1–9 fel/dag är normalt.** Det är nästan uteslutande `cURL error 18/35`
+mot svt.se — transienta nätverksfel, inte vår bugg, och sidan hämtas om
+nästa varv. Verifierad baslinje 2026-08-01→09: 40, 6, 9, 2, 1, 3, 2, 0, 1.
+**Dagar över ~20 är värda att titta på** — antingen strular svt.se eller så
+har importern gått sönder mot ett ändrat sidformat (t.ex.
+`Undefined array key` från `Importer.php`, som är vår bugg, inte SVT:s).
 
 ### http
 
@@ -363,17 +368,19 @@ Tolka `misslyckade enheter`: allt annat än 0 är en avvikelse även om sajten m
 en oneshot-tjänst som `logrotate.service` kan misslyckas varje natt i månader utan att
 något annat märks (hände 2026-07 → 2026-09, se `server.md` under Loggar).
 
-Tolka `MARIADB-I/O`: MariaDB kör på Debian-default, alltså 128 MB buffer pool
-mot ~2 GB data (verifierat 2026-10-16). Det fungerar här eftersom
-`innodb_flush_method` är default (`fsync`, inte `O_DIRECT`): det som inte ryms
-i poolen läses ur Linux page cache (~4,4 GB buff/cache), inte från disk.
-Normalläge 2026-10-16: hela disken ~33 GB läst på 36 dygn (~1 GB/dygn),
-MariaDB ~0,8 GB på ett halvt dygn efter omstart (uppvärmning), 0 % iowait.
-**Flagga om diskläsningen når tiotals GB per dygn eller `wa` ligger över
-några procent** — då har page cachen börjat tränga ut databasen och buffer
-poolen behöver höjas i `/etc/mysql/mariadb.conf.d/50-server.cnf`. (Samma
-grundorsak fanns på Brottsplatskartan, men där kör MariaDB i Docker med
-`O_DIRECT`, så varje miss gick till disk: 51 TB på 15 dygn.)
+Tolka `MARIADB-I/O`: buffer poolen är **2 GB** sedan 2026-10-28 (#31,
+`innodb_buffer_pool_size = 2G` i `/etc/mysql/mariadb.conf.d/70-texttv.cnf`;
+före det Debians default 128 MB) mot ~2,1 GB InnoDB-data. Sedan MariaDB 11.8
+(Debian 13, 2026-10-31) är `innodb_flush_method` `O_DIRECT` (11.8:s default),
+så det som inte ryms i poolen läses **direkt från disk**, inte ur Linux page
+cache som med 10.11:s `fsync`. Normalläge 2026-11-04 (1,6 dygn efter omstart):
+MariaDB har läst ~2,1 GB från disk (en uppvärmning av hela databasen), hela
+disken 4,2 GB sedan boot, träffgrad i poolen 99,99 %, 0 % iowait.
+**Flagga om MariaDB:s diskläsning växer med flera GB per dygn efter
+uppvärmningen eller `wa` ligger över några procent** — då ryms databasen inte
+längre i poolen och den behöver höjas i `70-texttv.cnf` (3G har nämnts i #17).
+(Samma sak hände på Brottsplatskartan, MariaDB i Docker med `O_DIRECT` och för
+liten pool: 51 TB läst på 15 dygn.)
 
 Sammanfatta till sist: "Allt OK" eller lista avvikelserna. Kondensera — visa
 load + de 3 tyngsta processerna, inte hela `top`. Nämn bara tjänster som
@@ -383,13 +390,13 @@ load + de 3 tyngsta processerna, inte hela `top`. Nämn bara tjänster som
 
 Storlekar verifierade 2026-10-24:
 
-| Path                                                              | Roteras  | Normalstorlek |
-| ----------------------------------------------------------------- | -------- | ------------- |
-| `/var/log/nginx/access.log`                                        | dagligen, 14 gen. | **0,75–1,1 GB per dygn** (gz 46–76 MB), hela katalogen ~2,5 GB |
-| `/var/log/nginx/error.log`                                         | ja       | ~200–300 KB   |
-| `/var/log/php8.4-fpm.log`                                          | veckovis | **~1,3 MB per vecka** (slowloggens trace-rader) |
-| `/var/log/php8.4-fpm.slow.log`                                     | veckovis | ~1,2 MB       |
-| `/usr/share/nginx/l.texttv.nu/importer/storage/logs/laravel.log`   | dagligen | 5–20 KB (några tiotal rader) |
+| Path                                                             | Roteras           | Normalstorlek                                                  |
+| ---------------------------------------------------------------- | ----------------- | -------------------------------------------------------------- |
+| `/var/log/nginx/access.log`                                      | dagligen, 14 gen. | **0,75–1,1 GB per dygn** (gz 46–76 MB), hela katalogen ~2,5 GB |
+| `/var/log/nginx/error.log`                                       | ja                | ~200–300 KB                                                    |
+| `/var/log/php8.4-fpm.log`                                        | veckovis          | **~1,3 MB per vecka** (slowloggens trace-rader)                |
+| `/var/log/php8.4-fpm.slow.log`                                   | veckovis          | ~1,2 MB                                                        |
+| `/usr/share/nginx/l.texttv.nu/importer/storage/logs/laravel.log` | dagligen          | 5–20 KB (några tiotal rader)                                   |
 
 **Trafiken är 3–4,5 miljoner requests per dygn**, 150–800 k per timme
 (lördagar och kvällar högst). Nästan allt är appens polling
@@ -430,11 +437,11 @@ jämförbar i volym.
 ## Konventioner
 
 - **Aldrig modifiera** något på servern via denna skill. Ingen `systemctl
-  restart`, ingen cache-rensning, ingen redigering av configar. För skrivande
+restart`, ingen cache-rensning, ingen redigering av configar. För skrivande
   operationer: säg vad som borde göras och låt användaren köra det.
 - **Säg vad du körde** — visa kommandot, så användaren kan reproducera manuellt.
 - **Tolka, dumpa inte** — du har sett hela output; ge slutsatsen ("RAM mår bra,
-  6.4 GB tillgängligt") inte bara siffrorna.
+  4.9 GB tillgängligt") inte bara siffrorna.
 - **Skilj normaltillstånd från incident.** php-fpm-mättnad och en handfull
   cURL-fel om dagen är hur den här servern ser ut när den mår bra. Rapportera
   dem som stående kapacitetsbrist, inte som nyheter — annars drunknar riktiga

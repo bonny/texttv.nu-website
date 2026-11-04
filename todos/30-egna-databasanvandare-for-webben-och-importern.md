@@ -1,5 +1,5 @@
 **Status:** aktiv — steg 1–5b klara 2026-10-27–28: importern kör som `texttv_importer`, webben som `texttv_web`, bloggen `texttv_admin`. Steg 6 efter en lugn vecka. Pär: testa bloggkontot i TablePlus
-**Senast uppdaterad:** 2026-10-27
+**Senast uppdaterad:** 2026-11-04
 
 # Todo #30 — Egna databasanvändare för webben och importern
 
@@ -159,6 +159,8 @@ via unix_socket.
    annars startar inte mariadbd. I MariaDB betyder tomt eller NULL "ingen
    begränsning", så det är så man stänger av filfunktionerna. Litet värde när
    ingen app-användare har `FILE`, men stänger dem även för root.
+   `userstat` är fortfarande bara dynamisk (`local_infile = 0` ligger redan i
+   `70-texttv.cnf`); behövs statistiken efter en omstart måste den in där.
 
 Logga varje prod-steg i Obsidian-noten `Logg - texttv.nu` samma dag.
 
@@ -173,6 +175,7 @@ Logga varje prod-steg i Obsidian-noten `Logg - texttv.nu` samma dag.
 - 2026-10-28 07:25: steg 2, 3 och 5 för webben. `texttv_web` skapad med `MAX_USER_CONNECTIONS 30`, provkörd som www-data med mysqli: 7 tillåtna satser OK (även korsdatabas-joinen i `most_read`), 9 otillåtna nekade (även `LOAD_FILE`). nginx bytt 07:26 (backup `/root/nginx-texttv.nu.bak-20261028-step5`, 600, innehåller root-lösenordet → rensas i steg 6). Kontroll med cache-buster: alla 31 rader i `tests/api/urls.txt` 200 + MISS, startsida, sidor, arkivsida, `/377/igar`, sök, `/sida/delat`, blogg, `/feed/blogg`. `/api/page/100/view` ökar `page_actions`, `/api/share` ökar `is_shared` (sida 377, id 37441998, 0→1 av testet). Root skriver inte längre något. `/root/texttv_web.pw` raderad efter jämförelse mot nginx.
 - **`DENIED_CONNECTIONS` är inte nekade inloggningar:** testanslutningen (en enda, lyckad) gav `texttv_web` 43 i den kolumnen. Räknaren ökar alltså av nekade rättighetskontroller, och importerns 27→29 betyder inget i sig. Följ `ACCESS_DENIED` (texttv_web: 7 från testet).
 - 2026-10-28 07:39: steg 5b. `texttv_admin@localhost` (`MAX_USER_CONNECTIONS 5`) med SELECT/INSERT/UPDATE/DELETE på `texttv_blogg`. Provkörd via TCP 127.0.0.1 (som SSH-tunneln): ser bara `texttv_blogg`, ALTER/DROP och andra tabeller nekade. Lösenordet i `/root/texttv_admin.pw` (600) tills Pär flyttat det till Proton Pass.
+- 2026-11-04: uppföljningen. MariaDB startades om 2026-11-03 03:30 (#17), så `userstat` var 0 och `USER_STATISTICS` tom. Andra källor sedan 28 okt: inga SQL-fel i importerns `laravel.log` utöver `/api/user` 28 okt 06:56, inga "denied" i mariadb-journalen, processlistan bara `texttv_importer` plus egen root-socket. Webbens nekade frågor syns inte (CI `db_debug` av). `SET GLOBAL userstat=1` 18:42, ny koll 2026-11-07. `/root/texttv_admin.pw` ligger kvar (Pär: Proton Pass + TablePlus-test).
 
 ## Risker
 

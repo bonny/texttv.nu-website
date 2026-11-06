@@ -235,7 +235,7 @@ slug, fil från mallen, rad i Aktiva). Ge `väntar` en uppföljning med
 - **Aldrig radera** todo-filer — alltid flytta till `done/` eller `rejected/`. Historiken är poängen.
 - **Aldrig commita** utan att användaren ber. Skillen levererar arbetsträd-ändringar + `git status`.
 - **Beroenden-sektionen** är levande — uppdatera när blockerare blir klara.
-- Kör prettier på ändrade `.md`-filer (`npx --yes prettier@3 --write <filer>`).
+- Formatera inte om `.md`-filer med prettier; `todos.py` sköter formateringen av `todo.md` själv.
 - **Projektprefix i svar:** skriv todos med prefixet under Projektspecifikt
   (t.ex. `TT-34`), inte bara `#NN`, i allt som visas för användaren; numren krockar
   mellan projekten. I `todo.md` och filnamn står numret utan prefix.

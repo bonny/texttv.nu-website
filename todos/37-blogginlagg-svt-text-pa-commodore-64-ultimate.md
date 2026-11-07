@@ -39,7 +39,7 @@ HTML (permalänk `svt-text-pa-commodore-64`).
 - Skripten loggar in som root via socket. Importerns konto (som #26 använde)
   når inte `texttv_blogg` sedan #30, så första backupförsöket avbröts med
   `Couldn't find table`.
-- Ändra texten i efterhand: ``UPDATE `texttv.nu`.texttv_blogg SET content = … WHERE id = 83``
+- Ändra texten i efterhand: ändra `inlagg.sql` och `infoga.sh`, generera om SQL:en i `uppdatera.sh` och kör `ssh texttv.nu 'bash -s' < todos/37-blogginlagg/uppdatera.sh` (tar egen backup). Länkarna lades in så 2026-11-07 14:16.
   (backup först), och ändra `inlagg.sql` så att den stämmer.
 
 Kvar:

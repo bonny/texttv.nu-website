@@ -4,16 +4,12 @@
 # SQL:en är en kopia av inlagg.sql; ändras texten, ändra båda.
 # Går att köra om: inlägget läggs bara in om permalänken inte redan finns.
 # Ångra: DELETE FROM `texttv.nu`.texttv_blogg WHERE permalink = 'svt-text-pa-commodore-64';
-# DB-uppgifterna som i backup.sh. Avbryter om dagens backup av bloggtabellen saknas.
+# Root via socket som i backup.sh. Avbryter om dagens backup av bloggtabellen saknas.
 set -euo pipefail
-E=/usr/share/nginx/l.texttv.nu/importer/.env
 DIR=/root/db-backups-$(date +%F)
 umask 077
-CNF=$(mktemp); trap 'rm -f "$CNF"' EXIT
-val() { grep -E "^$1=" "$E" | head -1 | cut -d= -f2- | sed 's/^"//; s/"$//'; }
-printf '[client]\nuser=%s\npassword="%s"\nhost=%s\n' "$(val DB_USERNAME)" "$(val DB_PASSWORD)" "$(val DB_HOST)" > "$CNF"
 [ -s "$DIR/texttv_blogg.sql" ] || { echo "Ingen backup av bloggtabellen i dag ($DIR). Kör backup.sh först."; exit 1; }
-mysql --defaults-file="$CNF" --default-character-set=utf8mb4 <<'SQL'
+mysql --no-defaults -u root --default-character-set=utf8mb4 <<'SQL'
 -- Todo #37: blogginlägget om SVT Text på Commodore 64.
 -- Läggs bara in om permalänken inte redan finns, så det går att köra om.
 SET NAMES utf8mb4;

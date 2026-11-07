@@ -1,4 +1,4 @@
-**Status:** aktiv — utkast klart 2026-11-07 (todos/37-blogginlagg/). Pär: läs texten, välj foto (reserv ur skärmdumpen ligger i bloggimages), publicera och skicka URL:en till Frank
+**Status:** aktiv — publicerat 2026-11-07 14:13 (id 83, /blogg/svt-text-pa-commodore-64), med Franks nya foto. Pär: feedback på texten, skicka URL:en till Frank
 **Senast uppdaterad:** 2026-11-07
 
 # Todo #37 — Blogginlägg: SVT Text på Commodore 64 Ultimate
@@ -28,27 +28,24 @@ en C64, med fotot. Tonen som i tidigare inlägg (#23, #26).
 ## Publicera
 
 Utkastet står i [`37-blogginlagg/inlagg.sql`](37-blogginlagg/inlagg.sql) som
-HTML (permalänk `svt-text-pa-commodore-64`). Provkört lokalt 2026-11-07:
-renderas på `/blogg/svt-text-pa-commodore-64`, två körningar ger en rad.
+HTML (permalänk `svt-text-pa-commodore-64`).
 
-1. Pär: läs texten. Stycket "Själv hade jag en C64 med en 1581…" är i jag-form,
-   resten i vi-form som tidigare inlägg. Stryk eller skriv om om det skaver.
-2. Pär: välj foto. `texttv.nu/bloggimages/2026-svt-text-commodore-64.jpg`
-   är just nu en reserv beskuren ur skärmdumpen av mejlet (846×1128,
-   `IMG_0127`). Byt den mot originalet `IMG_0127.jpeg` eller `IMG_1736.jpeg`
-   från Gmail-tråden, nedskalat till cirka 1000 px bredd, och rätta `width`/
-   `height` i `inlagg.sql` och `infoga.sh` om proportionerna ändras.
-3. Committa och pusha bilden (deploy-website triggas av `texttv.nu/**`) och
-   kontrollera att `https://texttv.nu/bloggimages/2026-svt-text-commodore-64.jpg`
-   svarar 200.
-4. Från repo-roten:
+- **Publicerat 2026-11-07 14:13** av Claude på Pärs uppmaning: backup
+  `/root/db-backups-2026-11-07/texttv_blogg.sql` (95 kB, "Dump completed"),
+  sedan `infoga.sh` (id 83). Sidan svarar 200 och står i /blogg.
+- Bilden: `IMG_1736.jpeg` från Franks mejl 7 nov (det foto han ville ha),
+  roterad, nedskalad till 1200×1600 och utan EXIF (originalet hade GPS).
+  Deployad i `56e810f`.
+- Skripten loggar in som root via socket. Importerns konto (som #26 använde)
+  når inte `texttv_blogg` sedan #30, så första backupförsöket avbröts med
+  `Couldn't find table`.
+- Ändra texten i efterhand: `UPDATE \`texttv.nu\`.texttv_blogg SET content = … WHERE id = 83`
+  (backup först), och ändra `inlagg.sql` så att den stämmer.
 
-    ```bash
-    ssh texttv.nu 'bash -s' < todos/37-blogginlagg/backup.sh   # bloggtabellen till /root/db-backups-YYYY-MM-DD/
-    ssh texttv.nu 'bash -s' < todos/37-blogginlagg/infoga.sh   # lägger in inlägget (avbryter utan dagens backup)
-    ```
+Kvar:
 
-5. Pär: skicka `https://texttv.nu/blogg/svt-text-pa-commodore-64` till Frank.
+1. Pär: feedback på texten.
+2. Pär: skicka `https://texttv.nu/blogg/svt-text-pa-commodore-64` till Frank.
 
 **Rubrik:** SVT Text på en Commodore 64
 

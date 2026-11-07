@@ -99,7 +99,8 @@ pm.max_spare_servers = 3
 - **`pm.max_children = 10` är taket för samtidiga PHP-requests** (5 fram till
   2026-10-16 20:15). Med 5 slog poolen i taket regelbundet i normaldrift (~var
   tionde minut 2026-08-09, 2–15 gånger per dygn efter fixarna, mätt
-  2026-10-14). Med 10: 2 träffar på 8 dygn (17–24 okt, mätt 2026-10-24).
+  2026-10-14). Med 10: 2 träffar på 8 dygn (17–24 okt, mätt 2026-10-24) och
+  2 på veckan 31 okt–7 nov (båda 3 nov, mätt 2026-11-07).
   Varje träff betyder att requests köade. Inte högre än 10: 2 vCPU,
   och importern tar 50–70 % CPU per körning. Se todo **#12**.
 - **Ingen status-sida — och den går inte att sätta upp.** `pm.status_path`
@@ -112,6 +113,9 @@ pm.max_spare_servers = 3
   statussidans kumulativa räknare.
 - **Slowlog aktiv sedan 2026-08-10:** `/var/log/php8.4-fpm.slow.log`, tröskel
   `request_slowlog_timeout = 3s`. Ger PHP-stacktrace per långsam request.
+  Normalläge 0–6 rader per dygn (31 okt–7 nov, mätt 2026-11-07), mot
+  75–125 per dygn fram till 2026-10-24. Tiotals per dygn kommer oftast från
+  importerns `/live/{n}` (`TeletextCharsExtractor`/`imagegif`), som 3 nov.
   Roteras via `/etc/logrotate.d/php8.4-fpm-slowlog` (egen regel — den
   befintliga php8.4-fpm-regeln matchar bara literal sökväg, ingen glob).
   Gamla `/var/log/php8.2-fpm*` från tiden före 2026-10-31 kan ligga kvar ett tag.
@@ -120,7 +124,7 @@ pm.max_spare_servers = 3
   nginx med via alternativet.
 - **Importern och webbplatsen delar pool.** Båda går mot
   samma socket, så en långsam `/live/{n}`-request på importern
-  tar en av webbens fem workers. Se todo #12.
+  tar en av webbens tio workers. Se todo #12.
 
 > ⚠️ **Lägg aldrig backupfiler i `/etc/nginx/sites-enabled/`.** Den inkluderas
 > som `include /etc/nginx/sites-enabled/*;` — **utan** filändelse-filter, till

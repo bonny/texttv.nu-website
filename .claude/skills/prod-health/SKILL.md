@@ -14,15 +14,21 @@ Paths: website `/usr/share/nginx/texttv.nu/`, importer
 
 Allt i denna skill är read-only. Djupare bakgrund om stacken (cache-lager,
 deploy-flöde, nginx-config) finns i [`server.md`](../../../server.md), synkad
-mot samma mätningar (2026-08-09, delvis 2026-10-24).
+mot samma mätningar (2026-08-09, delvis 2026-10-24 och 2026-11-07).
 
-**Känt normaltillstånd (mätt 2026-10-24):** `pm.max_children` höjdes 5 → 10
-2026-10-16 20:15. Veckan efter slog poolen i taket **2 gånger på 8 dygn**
-(18 okt 16:57 och 19 okt 04:07), mot 2–15 per dygn med 5. Slowloggen ligger
-på 75–125 requests per dygn över 3 s, 200–350 på lördagar med mycket sport,
-nästan alla `most_read` kl 16–23. p99 kl 21–22 är 0,019–0,026 s. Detaljer i
-todo [#12](../../../todos/done/12-php-fpm-poolen-slar-i-taket.md). En enstaka
-varning eller en slowlog på ~100 per dygn är normalläge, inte en incident.
+**Känt normaltillstånd (mätt 2026-11-07):** `pm.max_children` höjdes 5 → 10
+2026-10-16 20:15. Sedan dess slår poolen i taket **ungefär 2 gånger per
+vecka** (18 + 19 okt, 3 nov ×2), mot 2–15 per dygn med 5. Slowloggen ligger
+på **0–6 requests per dygn** över 3 s (31 okt–7 nov). Före 2026-10-31 låg den
+på 75–125 per dygn, 200–350 på lördagar, nästan bara `most_read`. De
+vanligaste webbraderna är nu `controllers/status.php` (statussidans queries).
+p99 kl 21–22 var 0,019–0,026 s (2026-10-24). Detaljer i todo
+[#12](../../../todos/done/12-php-fpm-poolen-slar-i-taket.md). En enstaka
+varning är normalläge, inte en incident. Tiotals slowlog-rader per dygn är en
+avvikelse: kolla om de kommer från importerns webbingång
+(`l.texttv.nu/importer/public/index.php`, `TeletextCharsExtractor`/`imagegif`).
+Så såg toppen 3 nov ut (74 rader, 70 från importern, troligen upprepade
+`/live/{n}`-anrop), och den sammanföll med båda varningarna.
 
 ## Tolka argumentet
 
@@ -468,7 +474,8 @@ restart`, ingen cache-rensning, ingen redigering av configar. För skrivande
 ## Håll siffrorna färska
 
 Tröskelvärdena ovan är mätta 2026-08-09 där inget annat datum står; php-fpm,
-slowlog, loggstorlekar, trafik och percentiler är uppdaterade 2026-10-24.
+loggstorlekar, trafik och percentiler är uppdaterade 2026-10-24, php-fpm-varningar
+och slowlog 2026-11-07.
 `server.md` är synkad mot samma mätningar. Servrar driver — när du märker att en siffra här inte stämmer
 längre, **uppdatera både denna fil och `server.md`** i samma veva, och skriv
 ut datumet du verifierade. En hälsokoll med föråldrade trösklar är värre än

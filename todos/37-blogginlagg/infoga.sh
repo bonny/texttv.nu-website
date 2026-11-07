@@ -30,7 +30,7 @@ SELECT NOW(), 'svt-text-pa-commodore-64', 'SVT Text på en Commodore 64', '<p>I 
 
 <p>Utvecklaren av den här sajten hade för övrigt en C64 med en <a href="https://sv.wikipedia.org/wiki/Commodore_1581">1581-diskettstation</a>, en ovanlig modell i Sverige. Bilden väckte minnen.</p>
 
-<p>Har du sett TextTV.nu någon annanstans än i mobilen eller på datorn? Skriv till <a href="mailto:kontakt@texttv.nu">kontakt@texttv.nu</a>. Vi läser allt.</p>
+<p>Har du sett TextTV.nu någon annanstans än i mobilen eller på datorn? Skriv till <a href="mailto:kontakt@texttv.nu">kontakt@texttv.nu</a>. Vi tycker det är superkul att få reda på allt som har med text-tv att göra :)</p>
 '
 FROM DUAL
 WHERE NOT EXISTS (SELECT 1 FROM `texttv.nu`.texttv_blogg WHERE permalink = 'svt-text-pa-commodore-64');

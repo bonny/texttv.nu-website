@@ -1741,10 +1741,63 @@ class TeletextCharsExtractor
         return $charHash;
     }
 
+    /**
+     * Tecknet kodat som GIF, med exakt samma bytes som libgd i Debian 12
+     * (bookworm) gav, så att hashen och filnamnet i storage/chars/ är samma
+     * oavsett libgd-version.
+     *
+     * imagegif() på en truecolor-bild låter libgd göra om den till palett,
+     * och det gör olika versioner olika: bookworm avrundade färgerna
+     * (00 → 04/02, ff → fc/fe), trixie behåller dem och ordnar paletten
+     * annorlunda. Därför bygger vi palettbilden själva: bookworms avrundade
+     * färger, sorterade på grön, röd, blå (vilket var bookworms ordning).
+     * Kontrollerat mot 1990 sparade gif:ar från bookworm, byte för byte,
+     * både med libgd i trixie och i Homebrew (2026-11-07).
+     *
+     * Externa klienter (t.ex. Teletext64U) slår upp mosaiktecken på
+     * filnamnet, så det får inte ändras.
+     */
     protected function getCharImageString($charImage)
     {
+        $width = imagesx($charImage);
+        $height = imagesy($charImage);
+
+        // Varje pixel som en av teletextens åtta färger, nyckel "c" + r, g, b
+        // som 0/1 (prefixet så att PHP inte gör om "100" till ett heltal).
+        $pixels = [];
+        $colors = [];
+        for ($y = 0; $y < $height; $y++) {
+            for ($x = 0; $x < $width; $x++) {
+                $rgb = imagecolorsforindex($charImage, imagecolorat($charImage, $x, $y));
+                $key = 'c' . ($rgb['red'] >> 7) . ($rgb['green'] >> 7) . ($rgb['blue'] >> 7);
+                $pixels[$y][$x] = $key;
+                $colors[$key] = true;
+            }
+        }
+
+        // Ordning grön, röd, blå.
+        $keys = array_keys($colors);
+        usort($keys, fn ($a, $b) => [$a[2], $a[1], $a[3]] <=> [$b[2], $b[1], $b[3]]);
+
+        $paletteImage = imagecreate($width, $height);
+        $indexes = [];
+        foreach ($keys as $key) {
+            $indexes[$key] = imagecolorallocate(
+                $paletteImage,
+                $key[1] === '1' ? 0xfc : 0x04,
+                $key[2] === '1' ? 0xfe : 0x02,
+                $key[3] === '1' ? 0xfc : 0x04,
+            );
+        }
+
+        for ($y = 0; $y < $height; $y++) {
+            for ($x = 0; $x < $width; $x++) {
+                imagesetpixel($paletteImage, $x, $y, $indexes[$pixels[$y][$x]]);
+            }
+        }
+
         ob_start();
-        imagegif($charImage);
+        imagegif($paletteImage);
         $charString = ob_get_clean();
 
         return $charString;

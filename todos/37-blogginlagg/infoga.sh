@@ -26,12 +26,6 @@ SELECT NOW(), 'svt-text-pa-commodore-64', 'SVT Text på en Commodore 64', '<p>I 
 
 <p>Teletext 64 Ultimate har ett 40-tal text-tv-tjänster att välja mellan, bland annat NOS Teletekst, ARD, ZDF, YLE, DR och SVT Text. Programmet är gjort för nya <a href="https://www.commodore.net/">Commodore 64 Ultimate</a>, men går också på en vanlig C64 med ett nätverkskort som <a href="https://wic64.net/">WiC64</a>. Mer om projektet finns på <a href="https://github.com/fputmango/Teletext64U">GitHub</a>.</p>
 
-<h2>Grafiken som försvann</h2>
-
-<p>TextTV.nu sparar blockgrafiken från SVT:s sidor som små bilder, en för varje tecken. Teletext 64 Ultimate känner igen bilderna på filnamnet och ritar motsvarande grafiktecken på C64:an.</p>
-
-<p>När vi flyttade TextTV.nu till en ny server i slutet av oktober fick bilderna nya filnamn utan att vi märkte det. På webben såg allt likadant ut, men på C64:an försvann grafiken. Nu har bilderna sina gamla namn igen.</p>
-
 <h2>Tack, Frank</h2>
 
 <p>Själv hade jag en C64 med en <a href="https://sv.wikipedia.org/wiki/Commodore_1581">1581-diskettstation</a>, en ovanlig modell i Sverige. Bilden väckte minnen.</p>

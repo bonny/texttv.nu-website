@@ -1,5 +1,5 @@
-**Status:** väntar — mätt 2026-10-24: klick i listorna 50 → 84/dag, flikbyten 2–5 användare/dag, `/377/igar` kom inte tillbaka. Dimensionerna från 10-24 avgör om flikarna blir kvar
-**Senast uppdaterad:** 2026-10-24
+**Status:** aktiv — mätt 25 okt–8 nov: 1 654 klick, under sidorna och arkiv 47 %, flikbyten bara 66 och 7 dagar 12 klick. Platserna blir kvar; kvar att avgöra om 7 dagar-fliken tas bort och mäta /377/igar
+**Senast uppdaterad:** 2026-11-09
 
 # #25 Mest läst: växla mellan idag, igår och senaste 7 dagarna
 

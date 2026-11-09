@@ -1,5 +1,5 @@
-**Status:** väntar — deployad 2026-10-28 (`11646b9`). 2026-11-01: `shares/` städas efter mtime, 4,2 GB gamla JPEG raderade, `limit_req` 2/s för `/api/screenshot`. Klar efter uppföljningen
-**Senast uppdaterad:** 2026-11-02
+**Status:** klar 2026-11-09 — Delningsbilder i PHP deployade 28 okt; städning efter mtime och limit_req 2/s för /api/screenshot fungerar (uppföljd 9 nov: 0 st 429 sedan 2 nov)
+**Senast uppdaterad:** 2026-11-09
 
 # Todo #34 — Delningsbilder ritade i PHP i stället för skärmdump
 
@@ -37,9 +37,9 @@ och få färger, så ingen webbläsare eller layout behövs. Pär valde detta
 ## Prototyp och granskning 2026-10-28
 
 En granskare (subagent) byggde en prototyp i GD:
-[`34-underlag/prototyp-render.php`](34-underlag/prototyp-render.php),
+[`34-underlag/prototyp-render.php`](../34-underlag/prototyp-render.php),
 jämförelse i
-[`34-underlag/jamforelse-idag-mot-prototyp.jpg`](34-underlag/jamforelse-idag-mot-prototyp.jpg)
+[`34-underlag/jamforelse-idag-mot-prototyp.jpg`](../34-underlag/jamforelse-idag-mot-prototyp.jpg)
 (dagens bild och prototypen för sida 100 i dag och sida 377 från 2019).
 Ritningen tar 10–24 ms och 16 MB; PNG med 64-färgspalett 17 kB, JPEG 85
 101 kB, mot dagens 164 kB.

@@ -1,5 +1,5 @@
-**Status:** väntar — importern på Laravel 13.39 sedan 2026-11-01 (`cea5d92`); nytt försök mot SVT (`ade688c`) följs upp. Webben står kvar på CodeIgniter 2 (#36 avfärdad)
-**Senast uppdaterad:** 2026-11-01
+**Status:** klar 2026-11-09 — Importern på Laravel 13.39 sedan 1 nov, nytt försök mot SVT tog felen från 24 till 3 på en vecka. Webben blir kvar på CodeIgniter 2 (#36 avfärdad)
+**Senast uppdaterad:** 2026-11-09
 **Ordning (beslut 2026-10-29):** #17 D först, sedan L9 → L12 byggd och testad mot PHP 8.4, sedan L13.
 
 # Todo #15 — Uppgradera EOL-ramverken (CodeIgniter 2, Laravel 8)
@@ -346,4 +346,4 @@ Kontrollerat i källkoden: finns i L13:s `vendor/` men inte i L8:s. Inget av det
 
 ### CodeIgniter 2: säkerhetsläget och flyttanalysen (2026-11-01)
 
-Inga kända hål i 2.2.6 som träffar sajten: CVE-2014-8686 (sessionskakan) och CVE-2015-5725 (`offset()`) är rättade och träffar ändå inte (inget sessionsbibliotek, `limit()` bara med konstanter eller `(int)`); `xss_clean()` används inte. Restrisken är hål i den gemensamma kärnan som ingen letar efter längre. En flytt till Laravel 13 är analyserad i [#36](rejected/36-webben-fran-codeigniter-2-till-laravel.md) (8–12 dagar) och avfärdad: webben står kvar på CI 2 tills den ska få inloggning, formulär eller uppladdning.
+Inga kända hål i 2.2.6 som träffar sajten: CVE-2014-8686 (sessionskakan) och CVE-2015-5725 (`offset()`) är rättade och träffar ändå inte (inget sessionsbibliotek, `limit()` bara med konstanter eller `(int)`); `xss_clean()` används inte. Restrisken är hål i den gemensamma kärnan som ingen letar efter längre. En flytt till Laravel 13 är analyserad i [#36](../rejected/36-webben-fran-codeigniter-2-till-laravel.md) (8–12 dagar) och avfärdad: webben står kvar på CI 2 tills den ska få inloggning, formulär eller uppladdning.

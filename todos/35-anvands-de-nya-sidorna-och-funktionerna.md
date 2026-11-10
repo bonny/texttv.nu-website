@@ -1,5 +1,5 @@
 **Status:** väntar — baslinje 2026-10-17–30 (GA4, GSC). Samma frågor efter 14 dagar; samlar in #25, #16, #21, #20 och avgör Dela-knappen, `/sida/senast-uppdaterat` och `/sida/polisen`
-**Senast uppdaterad:** 2026-10-30
+**Senast uppdaterad:** 2026-11-10
 
 # Todo #35 — Används de nya sidorna och funktionerna?
 
@@ -41,6 +41,32 @@ Search Console (`sc-domain:texttv.nu`, 2026-10-15 – 2026-10-28):
 | `/sida/polisen`                 | 1     | 28                      | 11,9                                                           |
 
 GA4:s "Organic Search" på `/377/igar` (61) och `/sport/idag` (70) räknas per besök: folk kommer från Google till en annan sida och klickar sig vidare. Dagslistorna är ett steg efter Google, inte vägen in.
+
+## Mellanmätning 2026-11-10
+
+GA4 2026-10-31 – 2026-11-09 (10 dagar) mot baslinjen 2026-10-17 – 2026-10-30 (14 dagar, siffrorna har satt sig sedan 10-30: 232 814 sidvisningar). Allt per dag eftersom fönstren är olika långa. Hela sajten ~16 600 → ~17 100 sidvisningar per dag, alltså stilla.
+
+| Sida / händelse                 | Baslinje per dag | Nu per dag  | Not                                                |
+| ------------------------------- | ---------------- | ----------- | -------------------------------------------------- |
+| `/sport/idag` · `/nyheter/idag` | 13,6 · 9,4       | 14,8 · 11,0 | stabila                                            |
+| `/377/igar`                     | 9,7              | 5,6         |                                                    |
+| `/nyheter/igar` · `/sport/igar` | 6,6 · 6,0        | 5,2 · 5,3   |                                                    |
+| `/sida/delat` (+ `/sida/delat/`) | 32               | 5,7         | Baslinjen var en tillfällig topp                   |
+| `/sida/senast-uppdaterat`       | 2,1              | 1,1         |                                                    |
+| `/sida/polisen`                 | 1,9              | 1,5         |                                                    |
+| `/status`                       | 6,9              | 0,6         |                                                    |
+| `/sida/vanliga-fragor` (inte ny) | 6,0              | 12,2        | GSC: 73 klick, 1 813 visningar, pos 5,6            |
+| `search_open`                   | 816              | 1 671       | Baslinjen räknas från 10-17 men eventet från 10-23 |
+| `search_select`                 | 32               | 66          | Fortfarande 4 % av öppnade listor                  |
+| `select_content`                | 74               | 116         |                                                    |
+| `live_update`                   | 333              | 595         |                                                    |
+| `police_view`                   | 13 (från 10-27)  | 38          |                                                    |
+| `share`                         | 1,9              | 1,8         |                                                    |
+| `most_read_tab`                 | 9,3              | 3,6         |                                                    |
+
+GSC 2026-10-29 – 2026-11-08: `/377/igar` 1 klick, 401 visningar, pos 9,4. Dagslistorna 1–3 visningar var. `/sida/senast-uppdaterat` 1 klick, 18 visningar. `/sida/polisen` 0 klick, 6 visningar.
+
+Samma mönster som i baslinjen, men tydligare: det som hjälper folk vidare (Gå till sida, live-uppdatering, polisrutan) växer. De fristående sidorna och Dela-knappen används knappt, och Google skickar nästan ingen trafik till dem. Att `/sida/delat` rasade stöder att baslinjens trafik kom från vidareskickade gamla länkar, men det är inte kontrollerat i `access.log`.
 
 ## Att mäta 2026-11-24
 

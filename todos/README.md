@@ -56,7 +56,7 @@ Orden är samma i alla projekt i `~/Projects`, så att den samlade översikten
   månaden), `(snarast)` för det som redan borde vara gjort.
 - Återkommande uppföljningar slutar med `Återkommer: månadsvis.` (eller
   `veckovis`, `var 14:e dag`). När raden bockas av läggs nästa rad in.
-- Bocka av och skjut upp med skriptet, det sorterar och kör prettier:
+- Bocka av och skjut upp med skriptet, det sorterar (prettier används inte):
 
     ```bash
     python3 ~/Projects/.claude/skills/todos/todos.py bocka <proj> <nr> <datum> --resultat "<vad den visade>"

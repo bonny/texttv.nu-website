@@ -113,7 +113,7 @@ Användaren har gjort en uppföljning (eller ber dig göra den och den är klar)
    Datum = datumcellen som den står. Matchar flera rader: lägg till `--text <del av åtgärden>`.
    Rader utan todo-nummer (t.ex. återkommande underhåll) väljs med `<nr>` = `-`.
 2. Skriptet flyttar raden till **Avklarade uppföljningar**, lägger in nästa rad om
-   den är återkommande, sorterar och kör prettier.
+   den är återkommande och sorterar.
 3. Uppdatera todon: nytt läge i statusen (filhuvud + index). Har todon inga
    kommande uppföljningar kvar och var `väntar`: byt till `aktiv`, eller `done`
    om uppföljningen var det sista.
@@ -235,7 +235,7 @@ slug, fil från mallen, rad i Aktiva). Ge `väntar` en uppföljning med
 - **Aldrig radera** todo-filer — alltid flytta till `done/` eller `rejected/`. Historiken är poängen.
 - **Aldrig commita** utan att användaren ber. Skillen levererar arbetsträd-ändringar + `git status`.
 - **Beroenden-sektionen** är levande — uppdatera när blockerare blir klara.
-- Formatera inte om `.md`-filer med prettier; `todos.py` sköter formateringen av `todo.md` själv.
+- Kör aldrig prettier på `.md`-filer, inte heller på `todo.md` eller todo-filerna (beslut 2026-11-14).
 - **Projektprefix i svar:** skriv todos med prefixet under Projektspecifikt
   (t.ex. `TT-34`), inte bara `#NN`, i allt som visas för användaren; numren krockar
   mellan projekten. I `todo.md` och filnamn står numret utan prefix.

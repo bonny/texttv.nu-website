@@ -66,3 +66,18 @@ och mer integrerad? "Kör på bara, fritt fram!"
 - Matchningarna gäller bara nyheter som Brottsplatskartan har hämtat (mest
   lästa och senast uppdaterade, var femte minut). En nyhet som aldrig var
   där får ingen ruta.
+
+### Mätt 2026-11-14
+
+GA4 för brottsplatskartan.se, 18 okt – 13 nov, `sessionSource` = texttv.nu:
+
+| `utm_medium`     | Sessioner | Användare | Sidvisningar |
+| ---------------- | --------: | --------: | -----------: |
+| polisruta        |        28 |         6 |           77 |
+| dagslista        |         4 |         2 |            9 |
+| polisen          |         2 |         2 |           59 |
+| (referral, utan) |         3 |         1 |           95 |
+
+20 sep – 17 okt: 1 session (referral). Länkarna ger mätbar men liten trafik;
+polisrutan står för nästan allt, från ett fåtal återkommande användare.
+Inget mer att göra.

@@ -41,3 +41,12 @@ respektive version.
 
 Klick från raden: arkivsidornas trafik med referer `/377` (och övriga
 3xx) i `access.log`, tillsammans med mätningen av #16 2026-11-14.
+
+### Mätt 2026-11-14
+
+`access.log` 1–14 nov: anrop till 3xx-arkivsidor (`/377/malservice-<id>` m.fl.)
+med referer från en levande 3xx-sida, botar bortfiltrerade. Ungefär 10 klick
+per dygn (0–55; inga alls 5–10 nov), mest 300, 309, 328 och 377. Utöver det
+OAI-SearchBot, som följer raden, och en skrapa 4 nov som gick igenom 300–398
+(314 träffar, 15 IP). Som jämförelse laddas `/377` några hundra till tusen
+gånger per dygn. Raden används knappt men kostar inget; den får ligga kvar.

@@ -492,3 +492,36 @@ från 2026-10-16 står kvar: funktionen ska få tid på sig.
   trafikstrukturen och SERP-kollen.
 - [#11](done/11-arkivsidor-rankar-over-de-levande-sidorna.md): arkivsidor som
   rankade över de levande sidorna på `resultatbörsen`.
+
+### 30 dagar (GSC, 2026-10-15 – 11-12, mätt 2026-11-14)
+
+**Canonical:** fungerar. URL-inspektion av
+`/139/langa-koer-pa-kastrups-flygplats-37434968?utm_source=brottsplatskartan&utm_medium=newslist`
+(crawlad 13 nov): "Alternativ sida med korrekt canonical-tagg"; den rena adressen är indexerad.
+Men sökstatistiken visar fortfarande utm-adresser, över 500 med visningar på 29 dygn, även för
+artiklar från november:
+
+| Period           | utm-visningar per dygn |
+| ---------------- | ---------------------: |
+| aug–sep          |                200–300 |
+| 20–25 okt        |      2 000–7 800 (stormen Boelo, Kastrup) |
+| 1–10 nov         |                150–220 |
+
+Alltså ingen rörelse mot noll än, bara svagt nedåt. Länkarna med `utm_source=brottsplatskartan`
+kommer från Brottsplatskartans nyhetslista, så Google hittar nya utm-adresser hela tiden. Tar de
+inte slut till 90-dagarskollen: ta bort utm från BPK:s länkar (GA4 ser hänvisningen ändå).
+
+**Dagsarkiven:**
+
+| Sida                   | Klick | Visningar | Position |
+| ---------------------- | ----: | --------: | -------: |
+| `/377/igar`            |     3 |     1 068 |      8,6 |
+| `/sport/igar`          |     1 |        20 |     11,0 |
+| `/nyheter/igar`        |     0 |        11 |      5,2 |
+| `/330/igar`            |     0 |         4 |     22,5 |
+| 28 datumsidor tillsammans |  4 |      ~320 |    ~5–6 |
+
+`/377/igar` och `/377/2026-10-17` är indexerade (URL-inspektion, breadcrumbs). Som väntat i
+SEO-analysen: nästan ingen söktrafik. `/377` själv: 8 972 klick, 904 048 visningar, position 3,2
+(15 okt – 11 nov). YoY gick inte att få ut per sida för 2025 via MCP:n; görs i TT-18:s mätning 15 nov.
+Nästa koll efter 90 dagar, 2027-01-12.
